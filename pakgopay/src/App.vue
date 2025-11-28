@@ -13,25 +13,14 @@ import UserInfoBar from "@/components/TopBar.vue";
   </div>
 </template>
 <script>
-  import {heart} from "@/api/interface/backendInterface.js";
+import {heart, refreshAccessToken} from "@/api/interface/backendInterface.js";
   import router from "@/router/index.js";
 
   export default {
     name: 'app',
     methods: {
-      async heartBeat() {
-        await heart().then(res => {
-          if(res.data !== 'success') {
-            console.info("重新登陆")
-            localStorage.removeItem("token");
-            localStorage.removeItem("userInfo");
-            localStorage.removeItem("menu")
-            router.push("/web/login");
-          }
-        });
-      },
       logOut() {
-        localStorage.removeItem("token");
+        localStorage.removeItem("token" );
         router.push("/web/login");
       }
     },
@@ -50,8 +39,10 @@ import UserInfoBar from "@/components/TopBar.vue";
   height: 90vh;
 }*/
 #app {
-  position: fixed;
+  /*position: fixed;*/
   background-color: #F3F3F3;
+  display: flex;
+  width: 100%;
 }
 .layout {
   display: flex;
@@ -69,19 +60,15 @@ import UserInfoBar from "@/components/TopBar.vue";
   top: 1%;
   left: 10.9%;
   position: fixed;
-  width: 89%;
   background-color: white;
-  /*background-color: seagreen;*/
-  /*border-radius: 30px;*/
+  flex-grow: 1;
 }
 .sidebar {
   position: fixed;
   top: 1%;
   left: 0.8%;
-  width: 10%;
   padding: 0;
   height: 98%;
-  /**border-radius: 30px;*/
 }
 .beforeContent {
   position: fixed;
@@ -95,8 +82,7 @@ import UserInfoBar from "@/components/TopBar.vue";
   width: 88.8%;
   left: 11.1%;
   height: 86%;
-  /*border-radius: 30px;*/
-  background-color: white;
+  background-color: #F3F3F3;
 }
 
 </style>

@@ -1,28 +1,29 @@
 <template>
-  <div class="sidebar">
-    <div style="text-align: center;font-size: larger; padding-top: 40px;">PakGoPay</div>
-    <!-- 侧边栏内容 -->
-   <ul @click.stop="" class="firstMenu">
-      <li v-for="item in menuItems" :key="item.menuId" @click="showItems(item)">
-        <div style="display: flex; justify-content: space-between;align-items: center;">
-          <div style="justify-content: flex-start">
-            <SvgIcon :name="item.icon" style="height: 14px;margin-right: 2px;"/>
-            <span style="font-size: 15px;">{{item.menuName}}</span>
+  <div :class="{'iscollapsed' : collapse}" class="sidebar">
+      <div :class="{'collapse-title' : collapse}" class="title">PakGoPay</div>
+      <!-- 侧边栏内容 -->
+      <ul @click.stop="" class="firstMenu">
+        <li v-for="item in menuItems" :key="item.menuId" @click="showItems(item)">
+          <div style="display: flex; justify-content: space-between;align-items: center;">
+            <div style="justify-content: flex-start">
+              <SvgIcon :name="item.icon" style="height: 14px;margin-right: 2px;"/>
+              <span v-if="!collapse" style="font-size: 15px;">{{item.menuName}}</span>
+            </div>
+            <SvgIcon v-if="!collapse" style="height: 10px;justify-content: flex-end;" :name="item.showItem?'right':'down'"/>
           </div>
-          <SvgIcon style="height: 10px;justify-content: flex-end;" :name="item.showItem?'right':'down'"/>
-        </div>
-        <ul class="secondMenu" v-if="item.showItem" :key="item.menuId" v-for="child in item.children">
-          <li @click.stop="" :key="child.menuId" :class="[$route.path === child.path ? 'selectedClass' : 'unselectedClass']">
-            <router-link
-                ref="routerLink"
-                class="menuRouter"
-                :to="child.path">{{child.menuName}}
-            </router-link>
-          </li>
-        </ul>
-      </li>
-   </ul>
-  </div>
+          <ul class="secondMenu" v-if="item.showItem" :key="item.menuId" v-for="child in item.children">
+            <li v-if="!collapse" @click.stop="" :key="child.menuId" :class="[$route.path === child.path ? 'selectedClass' : 'unselectedClass']">
+              <router-link
+                  ref="routerLink"
+                  class="menuRouter"
+                  :to="child.path">{{child.menuName}}
+              </router-link>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    <button @click="changeCollapse()">折叠</button>
+    </div>
 </template>
 
 <script>
@@ -34,7 +35,8 @@ export default {
   components: {SvgIcon},
   data() {
     return {
-      menuItems: JSON.parse(localStorage.getItem("menu"))
+      menuItems: JSON.parse(localStorage.getItem("menu")),
+      collapse: false,
     }
   },
   mounted() {
@@ -63,6 +65,10 @@ export default {
     },
     testButton() {
       alert("嘿嘿嘿")
+    },
+    changeCollapse() {
+      console.log("changeCollapse")
+      this.collapse = !this.collapse
     }
   }
 }
@@ -72,10 +78,31 @@ export default {
 .sidebar {
   background-color: darkslategrey;
   height: 100vh; /* 100% of the viewport height */
-  width: 20vh; /* Adjust as needed */
+  /*width: 20vh;*/ /* Adjust as needed */
+  width: 10%;
   position: fixed; /* Or absolute based on your layout needs */
   left: 0;
   top: 0;
+  overflow: auto;
+}
+
+.title {
+  text-align: center;
+  font-size: larger;
+  padding-top: 40px;
+}
+
+collapse-title {
+  visibility: hidden;
+}
+
+.nocollapsed {
+
+  width: 20vw;
+}
+.iscollapsed {
+  width: 30px;
+  display: none;
 }
 .sidebar li {
   color: #f2f2f2;
@@ -123,6 +150,12 @@ export default {
 .unselectedClass {
   /*background-color: #203030;*/
   background: linear-gradient(to right, #2f4f4f, #4f6f6f); /* 渐变高亮 */
+}
+
+.sidebar.collapsed {
+  width: 60px; /* 或者任何你希望折叠后的宽度 */
+  overflow: auto;
+
 }
 
 </style>

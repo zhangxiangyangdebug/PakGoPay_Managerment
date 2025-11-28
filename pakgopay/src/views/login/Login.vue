@@ -676,13 +676,24 @@ import {ElNotification} from "element-plus";
       this.secondInput = "border: none";
       this.thirdInput = "border: none";
         await LoginBack(loginForm).then((response) => {
-          console.log("login response----",response);
-           if (response.status === 200 && response.data.data) {
+           if (response.status === 200 && response.data) {
+             console.log("new response----",response.data);
              try {
-               console.info("Login successfull set userinfo");
-               localStorage.setItem("userInfo", response.data.data.split("&&")[1]);
-               localStorage.setItem("token", response.data.data.split("&&")[0]);
+               // 登录成功后 根据返回结果跳转
+               // 如果登录成功，跳转到首页
+               // 如果token过期，则需要调用refreshToken接口刷新token
+               // 如果refreshToken也过期，则跳转到登陆页重新获取refreshToken
+               /*localStorage.setItem("userInfo", response.data.data.split("&&")[1]);
+               localStorage.setItem("token", response.data.data.split("&&")[0]);*/
+               console.log("token---", response.data.token)
+               localStorage.setItem("token", response.data.token);
+               localStorage.setItem("userInfo", response.data.userId)
+               console.log("RTTTTT=======",response.data.refreshToken);
+               localStorage.setItem("refreshToken", response.data.refreshToken)
+               /*localStorage.setItem("menu", JSON.stringify(response.data.menu));*/
+               console.log("登陆跳转")
                router.push("/web/pakGoPay");
+               console.log("end")
              } catch (e) {
                console.error(e)
              }
@@ -703,12 +714,6 @@ import {ElNotification} from "element-plus";
                type: "warning",
                showClose: true,
              })
-            /* this.$notify({
-               icon: "info",
-               title: "Notice",
-               message: res.data.message,
-             })*/
-             console.error("ssss----",res.data);
              return;
            }
            this.isQrCode = false;

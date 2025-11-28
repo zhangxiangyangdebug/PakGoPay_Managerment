@@ -26,10 +26,10 @@ export default {
 
   },
   mounted() {
-    this.heartBeat()
+    /*this.heartBeat()*/
   },
   methods: {
-    async heartBeat() {
+    /*async heartBeat() {
       await heart().then(res => {
         if(res.data !== 'success') {
           console.info("重新登陆")
@@ -39,7 +39,7 @@ export default {
           router.push("/web/login");
         }
       });
-    },
+    },*/
     logOut() {
       localStorage.removeItem("token");
       router.push("/web/login");

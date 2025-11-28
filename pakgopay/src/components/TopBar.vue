@@ -1,5 +1,5 @@
 <script>
-import {heart, logOut} from "@/api/interface/backendInterface.js";
+import {heart, logOut, refreshAccessToken} from "@/api/interface/backendInterface.js";
 import router from "@/router/index.js";
 export default {
   name: 'Topbar',
@@ -12,20 +12,43 @@ export default {
     this.username = localStorage.getItem("userInfo");
   },
   mounted() {
-
     this.username = localStorage.getItem("userInfo");
     this.heartBeat();
   },
   methods: {
     logOut,
     async heartBeat() {
-      await heart().then(res => {
+       console.log("heartBeat");
+      /*await heart().then(res => {
         if(res.data !== 'success') {
           console.info("重新登陆")
           localStorage.removeItem("token");
           localStorage.removeItem("userInfo");
           localStorage.removeItem("menu")
           router.push("/web/login");
+        }
+      });*/
+
+      await heart().then(res => {
+        console.log("heartbeat response ---",res);
+        if(res.data === 'refresh') {
+          console.info("重新登陆")
+          localStorage.removeItem("token");
+          localStorage.removeItem("userInfo");
+          localStorage.removeItem("menu");
+          /*router.push("/web/login");*/
+          // 返回refresh 需要调用refresh接口刷新token 无需重新登陆
+          refreshAccessToken(localStorage.getItem("refreshToken")).then(response => {
+            if (response.status === 200 && response.data) {
+              if (response.data.code === 0) {
+                localStorage.setItem("token", response.data.token);
+                localStorage.setItem("userInfo", response.data.userId)
+                localStorage.setItem("refreshToken", response.data.refreshToken)
+              } else {
+                router.push("/web/login")
+              }
+            }
+          })
         }
       });
     },

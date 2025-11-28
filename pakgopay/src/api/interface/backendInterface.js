@@ -50,7 +50,17 @@ export async function getQrCode(username) {
         url: '/api/pakGoPay/server/Login/getCode',
         method: 'GET',
         params: {
-            username: username,
+            userId: username,
+        }
+    })
+}
+
+export async function refreshAccessToken(refreshToken) {
+    return service({
+        url: '/api/pakGoPay/server/Login/refreshToken',
+        method: 'GET',
+        params: {
+            freshToken: refreshToken
         }
     })
 }
