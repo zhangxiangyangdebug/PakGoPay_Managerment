@@ -8,7 +8,6 @@
 import {googleAuthCodeLogin} from "vue3-google-login";
 const login = () => {
   googleAuthCodeLogin().then(response => {
-    console.log("auth",response);
   })
 }
 

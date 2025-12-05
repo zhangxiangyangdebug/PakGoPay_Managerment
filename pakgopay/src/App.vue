@@ -33,7 +33,24 @@ import {heart, refreshAccessToken} from "@/api/interface/backendInterface.js";
       }
     },
     mounted() {
-      heart();
+      heart().then(res => {
+        if (res.status === 200) {
+          if (res.data === 'refresh') {
+            refreshAccessToken(localStorage.getItem("refreshToken")).then((response) => {
+                if (response && response.data) {
+                  localStorage.setItem("userName", response.data.userName);
+                  localStorage.setItem("userId", response.data.userId);
+                  localStorage.setItem("menu", response.data.menu);
+                  localStorage.setItem("token", response.data.token);
+                }
+            })
+          }else if(res.data === 'success') {
+            router.push(localStorage.getItem("currentPath"));
+          } else {
+            router.push("/web/login");
+          }
+        }
+      })
     },
     data() {
       return {

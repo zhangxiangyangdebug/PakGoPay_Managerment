@@ -5,9 +5,9 @@
       <ul @click.stop="" class="firstMenu">
         <li v-for="item in menuItems" :key="item.menuId" @click="showItems(item)">
           <div style="display: flex; justify-content: space-between;align-items: center;">
-            <div style="justify-content: flex-start">
-              <SvgIcon :name="item.icon" style="height: 14px;margin-right: 2px;"/>
-              <span v-if="!collapse" style="font-size: 15px;">{{item.menuName}}</span>
+            <div style="justify-content: flex-start; display: flex; align-items: center;">
+              <SvgIcon :name="item.icon" style="height: 16px;margin-right: 2px;align-items: center;"/>&nbsp;&nbsp;
+              <span v-if="!collapse" style="font-size: 15px;align-items: center;">{{item.menuName}}</span>
             </div>
             <SvgIcon v-if="!collapse" style="height: 10px;justify-content: flex-end;" :name="item.showItem?'right':'down'"/>
           </div>

@@ -25,7 +25,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </div>
       </div>
       <div class="main-toolform-item">
-        <div class="main-toolform-line">交易订单号：<input v-model="filterbox.orderNO"  type="text" class="main-toolform-input" placeholder="交易订单 号"/></div>
+        <div class="main-toolform-line">交易订单号：<input v-model="filterbox.orderNO"  type="text" class="main-toolform-input" placeholder="交易订单号"/></div>
         <div class="main-toolform-line">交易类型：
               <el-select v-model="filterbox.selectedTransactionType" placeholder="请选择交易类型" style="width: 150px">
                 <el-option v-for="item in filterbox.transactionTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
@@ -303,7 +303,6 @@ export default {
         let result = JSON.parse(response.data.data);
         this.merchantStatementsFormData = result;
         this.totalCount = this.merchantStatementsFormData.length;
-        alert(this.totalCount)
         this.currentPage = 1;
         this.pageSize = 1;
       })

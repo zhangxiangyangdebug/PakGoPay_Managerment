@@ -38,7 +38,6 @@ export async function menu() {
 }
 
 export function logOut() {
-    alert("logot")
     localStorage.removeItem("token");
     localStorage.removeItem("menu")
     localStorage.removeItem("userName")
@@ -70,7 +69,6 @@ export async function refreshAccessToken(refreshToken) {
 }
 
 export async function filterSearchMerchantStatement(form) {
-    console.log(JSON.stringify(form))
     return service({
         url: '/api/pakGoPay/server/merchant/merchantStatement',
         method: 'POST',

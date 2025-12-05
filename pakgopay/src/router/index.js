@@ -202,11 +202,9 @@ window.addEventListener('load', () => {
             })
         }
         if (currentPath) {
-            console.log("go to before path", currentPath)
-            router.push(currentPath);
+            router.push(currentPath).then(r => {});
         }
     })
-    console.log("save path---", currentPath)
 
 });
 export default router

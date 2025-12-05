@@ -50,12 +50,11 @@ const toggleMode = () => {
  * 点击"立即登录"按钮时调用
  */
 const handleLogin = () => {
-  console.info('登录数据：', loginForm)
   // 后面会添加验证和真实登录逻辑
 }
 
 const handleRegister = () => {
-  console.log('注册数据：', registerForm)
+
 }
 </script>
 
@@ -655,7 +654,6 @@ import router from "@/router/index.js";
       Modal
     },
     mounted() {
-      //this.login();
   },
     computed: {
 
@@ -679,7 +677,6 @@ import router from "@/router/index.js";
       this.thirdInput = "border: none";
         await LoginBack(loginForm).then((response) => {
            if (response.status === 200 && response.data) {
-             console.log("new response----",response.data);
              if (response.data.code !== 0) {
                ElMessage.error(response.data.message)
                return;
@@ -693,11 +690,12 @@ import router from "@/router/index.js";
                localStorage.setItem("token", response.data.data.split("&&")[0]);*/
                localStorage.setItem("token", response.data.token);
                localStorage.setItem("userInfo", response.data.userId)
+               localStorage.setItem("userName", response.data.userName)
+               localStorage.setItem("userId", response.data.userId)
                localStorage.setItem("refreshToken", response.data.refreshToken)
                menu().then(m => {
                  if (m.status === 200 && m.data.data) {
                    this.menuItems = JSON.parse(m.data.data)
-                   console.log(m.data.data)
                    localStorage.setItem('menu', JSON.stringify(this.menuItems))
                    // 根据菜单提取路由
                    getAsyncRoutes(this.menuItems).forEach((route) => {
@@ -732,7 +730,6 @@ import router from "@/router/index.js";
            try {
              this.qrCodeUrl = 'data:image/png;base64,'+res.data.data;
            } catch (error) {
-             console.log(error);
            }
          })
       },

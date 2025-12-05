@@ -51,11 +51,11 @@ export default {
   <div class="main-toolbar">
     <form class="main-toolform">
       <div class="main-toolform-item-filter">
-        <div v-on:click="exportMerchantInfo" style="height:30px;justify-content: left; border: solid 1px #6495ed; width:200px;border-radius: 15px;cursor: pointer;" class="main-toolform-line">
+<!--        <div v-on:click="exportMerchantInfo" style="height:30px;justify-content: left; border: solid 1px #6495ed; width:200px;border-radius: 15px;cursor: pointer;" class="main-toolform-line">
           <div style="display: flex; flex-direction: row;justify-content: center;width: 90px;align-items: center;">
             <SvgIcon height="20px" width="20px" name="filter"/>筛选
           </div>
-          <!--          <input disabled type="text" style="border:none;width: 30px;">-->
+          &lt;!&ndash;          <input disabled type="text" style="border:none;width: 30px;">&ndash;&gt;
           <div @click.stop="">
             <el-form-item style="height:15px;display: flex; justify-content: center;">
               <el-select
@@ -65,7 +65,7 @@ export default {
                 <el-option>sss</el-option>
               </el-select>
             </el-form-item></div>
-        </div>
+        </div>-->
         <div class="main-toolform-line" style="justify-content: right;margin-right:3%;">
           <div v-on:click="reset()" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
             <SvgIcon height="30px" width="30px" name="reset"/>

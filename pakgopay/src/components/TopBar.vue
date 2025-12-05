@@ -27,9 +27,7 @@ export default {
     async heartBeat() {
        console.log("heartBeat");
       await heart().then(res => {
-        console.log("heartbeat response ---",res);
         if(res.data === 'refresh') {
-          console.info("重新登陆")
           localStorage.removeItem("token");
           localStorage.removeItem("userName");
           localStorage.removeItem("userId");

@@ -9,7 +9,6 @@ const service = axios.create({
 });
 
 service.interceptors.request.use(config => {
-    console.info("begin")
     return config;
 }, error => {
     console.info("some error happened when request interceptors", error)
