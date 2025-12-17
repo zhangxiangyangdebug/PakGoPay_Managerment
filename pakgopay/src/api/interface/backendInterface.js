@@ -38,13 +38,33 @@ export async function menu() {
 }
 
 export function logOut() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("menu")
-    localStorage.removeItem("userName")
-    localStorage.removeItem("userId")
-    localStorage.removeItem("currentPath")
-    /*localStorage.removeItem("refreshToken")*/
-    router.push("/web/login").then()
+
+    service({
+        url: '/api/pakGoPay/server/Login/logout',
+        method: "GET",
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    }).then(res => {
+        if (res.status === 200) {
+            if (res.data.code === 0) {
+                localStorage.removeItem("token");
+                localStorage.removeItem("menu")
+                localStorage.removeItem("userName")
+                localStorage.removeItem("userId")
+                localStorage.removeItem("currentPath")
+                /*localStorage.removeItem("refreshToken")*/
+                router.push("/web/login").then()
+            } else {
+                this.$notify({
+                    title:'错误',
+                    message: 'logout failed',
+                    type: 'error',
+                    position: 'top-right',
+                })
+            }
+        }
+    })
 }
 
 export async function getQrCode(username, password) {

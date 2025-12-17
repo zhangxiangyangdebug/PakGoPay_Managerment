@@ -51,7 +51,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       <el-table
           border :data="channelTableInfo"
           class="merchantInfos-table"
-          style="width: 97%;height: 100%;"
+          style="width: 100%;height: 100%;"
           :key="tableKey"
       >
         <el-table-column
@@ -60,7 +60,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             v-slot="{row}"
             align="center"
             fixed="left"
-            width="100px"
+            width="80px"
         >
           <div>
             {{row.channelID}}
@@ -72,7 +72,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             v-slot="{row}"
             align="center"
             fixed="left"
-            width="200px"
         >
           <div>
             {{row.channelName}}
@@ -83,7 +82,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             label="通道列表"
             v-slot="{row}"
             align="center"
-            width="200px"
         >
           <div>
             <el-card v-for="item in row.pathChannelList" class="merchantInfos-table">
@@ -97,7 +95,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             label="渠道费率"
             v-slot="{row}"
             align="center"
-            width="100px"
         >
           <div>
             {{row.channelRate}}
@@ -108,7 +105,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             label="启用状态"
             v-slot="{row}"
             align="center"
-            width="200px"
         >
           <div>
             <el-switch
@@ -127,7 +123,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             label="渠道账户余额"
             v-slot="{row}"
             align="center"
-            width="200px"
         >
           <div>
             {{row.channelAccountBalance}}
@@ -138,7 +133,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             label="支持币种"
             v-slot="{row}"
             align="center"
-            width="200px"
         >
           <div>
             <div v-for="item in row.supportCurrencyType">
@@ -364,5 +358,11 @@ export default {
 }
 </script>
 <style scoped>
+/deep/.el-table th.is-leaf {
 
+  background-color: lightskyblue;
+  color: white;
+  font-weight: bold;
+  font-size: larger;
+}
 </style>

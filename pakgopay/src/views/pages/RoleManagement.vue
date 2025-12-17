@@ -276,13 +276,18 @@ export default {
       });
       let nodes = []
       nodes = treeRef.value.getCheckedNodes(false,false);
+      // 选中的节点key
       let keys = []
       keys = treeRef.value.getCheckedKeys(false,false);
+      // 针对未全选子节点的情况下 需要获取到父节点key
+      let halfKeys = []
+      halfKeys = treeRef.value.getHalfCheckedKeys(false,false);
       /*this.addRoleInfoData.push(keys)*/
       this.addRoleInfoData.push(this.roleInfo)
       this.roleInfo.menuList = keys
       //调用后端接口写入数据即可
       //后端存角色表 角色-菜单表
+
     }
   },
   mounted() {

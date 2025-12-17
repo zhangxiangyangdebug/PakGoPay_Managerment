@@ -62,12 +62,12 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       </div>
     </el-card>
   </div>
-  <div class="main-views-container">
+  <div class="main-views-container" style="height: 550px;margin-top: 3%;">
     <!--
      商户展示为一条 提现账户展示多条
      客服/管理员展示所有商户下的所有账号
      -->
-    <form class="main-views-form">
+    <form class="main-views-form" style="height: 600px;">
       <el-table
           border :data="withdrawAccountFormData"
           class="merchantInfos-table"
@@ -78,6 +78,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             label="商户名称"
             v-slot="{row}"
             align="center"
+            style="height: 100%;"
         >
           <div>
             {{row.merchantName}}
@@ -163,7 +164,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
           :page-sizes="pageSizes"
-          style="float:right; margin-right: 5%;"
+          style="position: sticky; bottom: 0px;float: right;right: 40px"
       >
       </el-pagination>
     </form>
@@ -364,4 +365,11 @@ input::-webkit-inner-spin-button{
   -webkit-appearance: none !important;
 }
 
+/deep/.el-table th.is-leaf {
+
+  background-color: lightskyblue;
+  color: white;
+  font-weight: bold;
+  font-size: larger;
+}
 </style>

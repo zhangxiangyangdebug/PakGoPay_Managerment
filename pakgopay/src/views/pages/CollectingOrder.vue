@@ -216,6 +216,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             class="merchantInfos-table"
             style="width: 97%;height: 95%;"
             :key="tableKey"
+
         >
           <el-table-column
               v-slot="{row}"
@@ -563,5 +564,11 @@ export default {
 .el-table__header .el-table-column--selection .cell .el-checkbox:after {
   content: "全选";
   margin-left: 12px;
+}
+
+.el-table .el-table__header th {
+  font-size: larger;
+  background-color: deepskyblue !important;
+  color: white;
 }
 </style>

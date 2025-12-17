@@ -6,36 +6,22 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 <template>
   <div class="main-title">提现记录</div>
   <div class="main-toolbar" style="height: 100px;">
-    <form class="main-toolform" style="height: 100%">
+    <form class="main-toolform" style="height: 100%;display:flex;margin-left:3%">
       <div class="main-toolform-item" style="height: 100%;">
-        <div class="main-toolform-line">代理名称：<input v-model="filterbox.agentName"  type="text" class="main-toolform-input" placeholder="代理名称"/>
-          <div v-on:click="search()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-          <SvgIcon height="30px" width="30px" name="search"/>
-          <div style="width: 50px;color: white">查询</div>
+        <div class="main-toolform-line">代理名称：<el-input v-model="filterbox.agentName" clearable  type="text" class="main-toolform-input" placeholder="代理名称">
+          <template #append>
+            <el-button style="font-size: 15px">
+              <SvgIcon name="search"/>搜索
+            </el-button>
+          </template>
+        </el-input>
         </div>
-          <div v-on:click="reset()" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="30px" name="reset"/>
-            <div style="width: 50px;color: white">重置</div>
-          </div>
-          <div v-on:click="exportStatements()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="30px" name="export"/>
-            <div style="width: 50px;color: white">导出</div>
-          </div>
-          <div v-on:click="addWithdrawlAccount()" style="background-color: limegreen;width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="30px" name="add"/>
-            <div style="width: 50px;color: white">新增</div>
-          </div>
-          <div v-on:click="createWithdrawlApply" style="width:100px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;background-color: deepskyblue">
-            <SvgIcon height="30px" width="30px" name="withdrawl"/>
-            <div style="width: 100px;color: white">提现申请</div>
-          </div>
         </div>
-      </div>
     </form>
   </div>
 
   <div style="display: flex;height: 12vh;justify-content: space-between;margin-right: 10%;margin-left: 10%;">
-    <el-card style="width: 30%;height: 100%;margin-top: 1%;">
+    <el-card style="width: 30%;height: 100%;margin-top: 2%;">
       <div style="display: flex;">
         <SvgIcon name="cash" width="100px" height="100px"/>
         <div style="display: flex; flex-direction: column;width: 80%;">
@@ -44,7 +30,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </div>
       </div>
     </el-card>
-    <el-card style="width: 30%;height: 100%;margin-top: 1%;">
+    <el-card style="width: 30%;height: 100%;margin-top: 2%;">
       <div style="display: flex;">
         <SvgIcon name="cash-freeze" width="100px" height="100px"/>
         <div style="display: flex; flex-direction: column;width: 80%;">
@@ -53,7 +39,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </div>
       </div>
     </el-card>
-    <el-card style="width: 30%;height: 100%;margin-top: 1%;">
+    <el-card style="width: 30%;height: 100%;margin-top: 2%;">
       <div style="display: flex;">
         <SvgIcon name="tixian" width="90px" height="90px"/>
         <div style="display: flex; flex-direction: column;width: 80%;">
@@ -64,7 +50,18 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
     </el-card>
   </div>
 
-  <div class="main-views-container" style="height:70%">
+  <div class="main-views-container" style="height:65%;margin-top: 4%;">
+    <div style="display: flex;justify-content: right;margin-right:3%">
+      <el-button v-on:click="exportStatements()" style="width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;margin:0">
+        <SvgIcon name="export"/>导出
+      </el-button>
+      <el-button v-on:click="addWithdrawlAccount()" style="width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;margin:0">
+        <SvgIcon name="add"/>新增
+      </el-button>
+      <el-button v-on:click="createWithdrawlApply" style="width:100px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;margin:0;background-color: lightgreen">
+        <SvgIcon name="withdrawl"/>提现申请
+      </el-button>
+    </div>
     <form class="main-views-form" style="height: 100%">
       <el-table
           border :data="withdrawHistoryTableData"
@@ -123,9 +120,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
           :page-sizes="pageSizes"
-          style="float:right; margin-right: 5%;"
+          style="float:right; margin-right: 5%; position: sticky;display: flex;"
       >
-
       </el-pagination>
     </form>
   </div>
@@ -157,10 +153,29 @@ export default {
   background-color: transparent;
   border: none;
   resize: none;
-  font-size: xxx-large;
+  font-size: xx-large;
 }
 
 .reportLabel {
-  font-size: xx-large;
+  font-size: x-large;
+  text-align: right;
+}
+
+/deep/.el-table th.is-leaf {
+
+  background-color: lightskyblue;
+  color: white;
+  font-weight: bold;
+  font-size: larger;
+}
+
+.main-toolform-input {
+  width: 300px;
+  display: flex;
+  align-content: center;
+}
+
+/deep/ .el-input__inner {
+  text-align: center;
 }
 </style>

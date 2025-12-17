@@ -41,8 +41,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                 v-model="filterbox.belongAgent"
                 :options="agentOptions"
                 @change="handleAgentChange"
+                placeholder="select agent"
             >
-
             </el-cascader>
         </div>
       </div>
@@ -176,7 +176,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             align="center"
         >
           <div>
-            <el-button style="background-color: mediumseagreen" @click.prevent="editMerchantInfo(row)">编辑</el-button>
+<!--            <el-button style="background-color: mediumseagreen" @click.prevent="editMerchantInfo(row)">编辑</el-button>
             <el-popconfirm
                 title="Are you sure deleting this data?"
                 confirm-button-text="确认"
@@ -189,8 +189,17 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <template #reference>
                 <el-button style="background-color: orangered">删除</el-button>
               </template>
-            </el-popconfirm>
+            </el-popconfirm>-->
             <!--<el-button style="background-color: orangered" @click.prevent="delete(row.merchantAccount)">删除</el-button>-->
+            <el-dropdown trigger="click">
+              <SvgIcon name="more" width="30" height="30" />
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item @click="editMerchantInfo(row)">编辑</el-dropdown-item>
+                  <el-dropdown-item @click="deleteMerchant(row.merchantAccount)">删除</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </div>
         </el-table-column>
       </el-table>
@@ -243,34 +252,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       <el-row>
         <el-col :span="6">
           <el-form-item label="所属代理:" label-width="150px" size="medium">
-<!--            <el-input v-model="merchantInfo.belongAgent" style="width: 200px"></el-input>-->
-<!--            <el-select v-model="selectedAgent1" placeholder="请选择代理商" style="width: 300px" @change="handleChange">
-              <el-option
-                v-for="item in agentOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="{value:item.value,label:item.label}"
-              >
-              </el-option>
-            </el-select>
-            <el-select v-if="agent2isVisiable" v-model="selectedAgent2" placeholder="请选择代理商" style="width: 300px" @change="handleChange2">
-              <el-option
-                  v-for="item in agentOptions2"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="{value:item.value,label:item.label}"
-              >
-              </el-option>
-            </el-select>
-            <el-select v-if="agent3isVisiable" v-model="selectedAgent3" placeholder="请选择代理商" style="width: 300px">
-              <el-option
-                  v-for="item in agentOptions3"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="{value:item.value,label:item.label}"
-              >
-              </el-option>
-            </el-select>-->
             <el-cascader
               v-model="selectedAgent"
               :options="agentOptions"
@@ -343,10 +324,33 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-form-item>
         </el-col>
       </el-row>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="cancelDialog">取 消</el-button>
+          <el-button type="primary">确 定</el-button>
+        </div>
     </el-form>
-    <div slot="footer" class="dialog-footer">
-      <el-button @click="cancelDialog">取 消</el-button>
-      <el-button type="primary">确 定</el-button>
+  </el-dialog>
+
+  <el-dialog
+      :title="dialogDeleteTitle"
+      v-model="dialogDeleteVisible"
+      class="dialog"
+      center="true"
+      width="70%"
+      height="60%"
+  >
+    <el-form style="height: 120px">
+      <el-row style="display: flex;justify-items: center;">
+        <el-col :span="24" style="display: flex;justify-content: center;align-items: center;height: 50px;">
+          <el-form-item label="谷歌验证码" label-width="150px" size="medium" >
+            <el-input type="number" maxlength="6" v-model="deleteMerchantInfo.verifyCode" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-form>
+    <div slot="footer" class="dialog-footer" style="position: absolute;bottom: 5px;right: 3%">
+      <el-button @click="cancelDeleteDialog">取 消</el-button>
+      <el-button type="primary" @click="submitDelete">确 定</el-button>
     </div>
   </el-dialog>
 </template>
@@ -355,6 +359,9 @@ export default {
   name: "MerchantInfo",
   data() {
     return {
+      deleteMerchantInfo: {},
+      dialogDeleteVisible: false,
+      dialogDeleteTitle: "",
       totalCount: 1,
       currentPage: 1,
       pageSize: 1,
@@ -482,6 +489,11 @@ export default {
       this.selectedAgent = []
       this.dialogFlag = ''
     },
+    cancelDeleteDialog() {
+      this.dialogDeleteTitle = ''
+      this.dialogDeleteVisible = false
+      this.deleteMerchantInfo = {}
+    },
     editMerchantInfo(rowInfo) {
       this.dialogFlag = 'edit';
       this.merchantInfo.merchantName = rowInfo.merchantName;
@@ -509,7 +521,31 @@ export default {
       })
     },
     deleteMerchant(val) {
-      alert("you delete"+val)
+      this.$confirm('are you sure deleting this data?', '提示', {
+        confirmButtonText: 'yes',
+        cancelButtonText: 'No',
+        type: 'warning',
+      }).then(() => {
+        //直行删除
+        this.deleteMerchantInfo.merchantAccount = val
+        this.dialogDeleteVisible = true;
+        this.dialogDeleteTitle = '删除商户'
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: 'canceled deleting this data'
+        })
+      })
+    },
+    submitDelete() {
+      if (!this.deleteMerchantInfo.verifyCode) {
+        this.$message({
+          type: 'error',
+          message: 'you need to type google code '
+        })
+        return
+      }
+      alert(JSON.stringify(this.deleteMerchantInfo))
     }
   }
 }
@@ -517,7 +553,9 @@ export default {
 <style scoped>
   .dialog-footer {
     display: flex;
-    justify-content: right;
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
   }
 
   .form{
@@ -534,5 +572,13 @@ export default {
     height: 700px;
     margin-top: 20px;
     margin-left: 2%;
+  }
+
+  /deep/.el-table th.is-leaf {
+
+    background-color: lightskyblue;
+    color: white;
+    font-weight: bold;
+    font-size: larger;
   }
 </style>

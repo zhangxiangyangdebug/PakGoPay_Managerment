@@ -4,19 +4,21 @@
       <!-- 侧边栏内容 -->
       <ul @click.stop="" class="firstMenu">
         <li v-for="item in menuItems" :key="item.menuId" @click="showItems(item)">
-          <div style="display: flex; justify-content: space-between;align-items: center;">
-            <div style="justify-content: flex-start; display: flex; align-items: center;">
-              <SvgIcon :name="item.icon" style="height: 16px;margin-right: 2px;align-items: center;"/>&nbsp;&nbsp;
-              <span v-if="!collapse" style="font-size: 15px;align-items: center;">{{item.menuName}}</span>
+          <div style="display: flex; justify-content: space-between;align-items: center">
+            <div style=" display: flex;width: 90%;justify-content: space-between;align-items: center;">
+              <SvgIcon :name="item.icon" style="height: 22px;width:30px;align-items: center;"/>
+              <span v-if="!collapse" style="font-size: 15px;align-items: center;text-align: left;width: 75%;">{{ item.meta ? $t(JSON.parse(item.meta).title) : item.menuName}}</span>
             </div>
-            <SvgIcon v-if="!collapse" style="height: 10px;justify-content: flex-end;" :name="item.showItem?'right':'down'"/>
+            <SvgIcon v-if="!collapse" style="height: 10px;" :name="item.showItem?'right':'down'"/>
           </div>
           <ul class="secondMenu" v-if="item.showItem" :key="item.menuId" v-for="child in item.children">
             <li v-if="!collapse" @click.stop="" :key="child.menuId" :class="[$route.path === child.path ? 'selectedClass' : 'unselectedClass']">
               <router-link
                   ref="routerLink"
                   class="menuRouter"
-                  :to="child.path">{{child.menuName}}
+                  :to="child.path">
+<!--                {{child.menuName}}-->
+                {{ child.meta ? $t(JSON.parse(child.meta).title) : child.menuName }}
               </router-link>
             </li>
           </ul>
@@ -98,10 +100,10 @@ export default {
 
 <style scoped>
 .sidebar {
-  background-color: darkslategrey;
+  background-color: #647387;
   height: 100vh; /* 100% of the viewport height */
   /*width: 20vh;*/ /* Adjust as needed */
-  width: 11%;
+  width: 13%;
   position: fixed; /* Or absolute based on your layout needs */
   left: 0;
   top: 0;
@@ -129,9 +131,11 @@ collapse-title {
 .sidebar li {
   color: #f2f2f2;
   font-size: medium;
-  margin: 10px;
+  /*margin: 10px;*/
+  padding-top: 10px;
+  padding-bottom: 10px;
   height: 100%;
-  padding: 2px;
+  /*padding: 2px;*/
   width: 100%;
   cursor: pointer;
 }
@@ -144,6 +148,8 @@ collapse-title {
   padding: 1px;
   width: 100%;
   display: block;
+  align-items: center;
+  text-align: center;
 }
 
 .selectedClass {
@@ -158,7 +164,7 @@ collapse-title {
   font-size: 18px;
   padding: 2px;
   margin-left: 15px;
-  width: 70%;
+  width: 80%;
 }
 
 .secondMenu {
@@ -167,11 +173,16 @@ collapse-title {
   font-size: 18px;
   padding: 0;
   margin-left: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+  justify-items: center;
 }
 
 .unselectedClass {
   /*background-color: #203030;*/
-  background: linear-gradient(to right, #2f4f4f, #4f6f6f); /* 渐变高亮 */
+  background: linear-gradient(to right, #5e6c7f, #627185); /* 渐变高亮 */
 }
 
 .sidebar.collapsed {

@@ -1,15 +1,22 @@
 <script setup>
-import Sidebar from "@/components/Sidebar.vue";
-import UserInfoBar from "@/components/TopBar.vue";
+import Sidebar from "@/components/Sidebar1.vue";
+import UserInfoBar from "@/components/TopBar1.vue";
 import Content from "@/components/Content.vue";
 </script>
 
 <template>
-  <div id="app" :class="[!$route.meta.showBar ? 'layout' :'']">
-    <UserInfoBar :collapse="collapse" v-if="!$route.meta.showBar" @changeBar="changeCollapse"/>
-    <Sidebar :collapse="collapse" class="sidebar" v-if="!$route.meta.showBar"/>
-    <Content :class="{'content': !$route.meta.showBar, 'beforeContent': $route.meta.showBar, 'content-collapse': collapse}"></Content>
-  </div>
+
+  <el-container>
+    <el-aside width="200px"><Sidebar/></el-aside>
+    <el-container>
+      <el-header>
+        <UserInfoBar/>
+      </el-header>
+      <el-main>
+        <Content></Content>
+      </el-main>
+    </el-container>
+  </el-container>
 </template>
 <script>
 import {heart, refreshAccessToken} from "@/api/interface/backendInterface.js";
@@ -65,15 +72,15 @@ import {heart, refreshAccessToken} from "@/api/interface/backendInterface.js";
   margin-top: 30vh;
   height: 90vh;
 }*/
-#app {
-  /*position: fixed;*/
+/*#app {
+  !*position: fixed;*!
   background-color: #F3F3F3;
   display: flex;
   width: 100%;
 }
 .layout {
   display: flex;
-  height: 98vh;
+  height: 100vh;
   width: 100%;
   padding: 0;
 }
@@ -84,18 +91,18 @@ import {heart, refreshAccessToken} from "@/api/interface/backendInterface.js";
   text-align: center;
   height: 7%;
   margin-bottom: 10px;
-  /*top: 0.8%;*/
-  /*left: 10.9%;*/
+  !*top: 0.8%;*!
+  !*left: 10.9%;*!
   position: fixed;
   background-color: white;
   flex-grow: 1;
 }
 .sidebar {
   position: fixed;
-  /*top: 1%;
+  top: 1%;
   left: 0.8%;
   padding: 0;
-  height: 98%;*/
+  height: 98%;
 }
 .beforeContent {
   position: fixed;
@@ -136,5 +143,40 @@ import {heart, refreshAccessToken} from "@/api/interface/backendInterface.js";
   margin-top: 0.1%;
   background-color: #20b978;
   bottom:12px;
+}*/
+
+
+.el-header, .el-footer {
+  background-color: #B3C0D1;
+  color: #333;
+  text-align: center;
+  line-height: 60px;
+}
+
+.el-aside {
+  background-color: #D3DCE6;
+  color: #333;
+  text-align: center;
+  line-height: 200px;
+}
+
+.el-main {
+  background-color: #E9EEF3;
+  color: #333;
+  text-align: center;
+  line-height: 160px;
+}
+
+body > .el-container {
+  margin-bottom: 40px;
+}
+
+.el-container:nth-child(5) .el-aside,
+.el-container:nth-child(6) .el-aside {
+  line-height: 260px;
+}
+
+.el-container:nth-child(7) .el-aside {
+  line-height: 320px;
 }
 </style>

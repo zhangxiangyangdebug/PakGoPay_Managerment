@@ -54,7 +54,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           border :data="merchantStatementsFormData"
           class="merchantInfos-table"
           style="width: 97%"
-          height="500px"
+          height="800px"
       >
         <el-table-column
             label="交易订单号"

@@ -227,14 +227,14 @@ export default {
     </form>
   </div>
 
-  <div class="reportInfo">
-    <el-tabs type="border-card">
-      <el-tab-pane label="代收报表">
+  <div class="reportInfo" style="margin-right: 3%">
+    <el-tabs type="border-card" style="width: 100%">
+      <el-tab-pane label="代收报表" style="width: 100%">
         <form id="reportInfo" class="reportInfoForm">
           <el-table
               border :data="collectingReportInfoData"
               class="reportInfo-table"
-              style="width: 97%"
+              style="width: 100%"
               height="470"
           >
             <el-table-column
@@ -316,7 +316,7 @@ export default {
               v-model:page-size="tab1PageSize"
               :page-sizes="pageSizes"
               @current-change="handleTab1CurrentChange"
-              @size-change="handleTab2SizeChange"
+              @size-change="handleTab1SizeChange"
               style="float:right; margin-right: 5%;"
           >
           </el-pagination>
@@ -480,6 +480,7 @@ export default {
     height: 70%;
     width: 300px;
     border-radius: 10px;
+    text-align: center;
   }
 
   .toolform-line {
@@ -533,7 +534,7 @@ export default {
   .reportInfo{
     margin-top: 1%;
     height: 60%;
-    margin-left: 3%;
+    margin-left: 2%;
   }
 
   .reportInfoForm {
@@ -550,24 +551,11 @@ export default {
     height: calc(100% - 23px);
   }
 
- /* .reportInfo{
-    margin-left: 2%;
-    margin-top: 1%;
-    background-color: white;
-    height: 62%;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    border-radius: 20px;
+  /deep/.el-table th.is-leaf {
+
+    background-color: lightskyblue;
+    color: white;
+    font-weight: bold;
+    font-size: larger;
   }
-  .reportInfoForm {
-    padding: 0;
-    margin-top: 1%;
-  }
-  .reportInfo-table{
-    margin-top: 0;
-    padding-top: 0;
-    width: 100%;
-    height: 80%;
-  }*/
 </style>

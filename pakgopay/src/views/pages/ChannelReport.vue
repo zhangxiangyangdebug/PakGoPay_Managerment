@@ -149,4 +149,12 @@ export default {
   width: 100%;
   height: calc(100% - 23px);
 }
+
+/deep/.el-table th.is-leaf {
+
+  background-color: lightskyblue;
+  color: white;
+  font-weight: bold;
+  font-size: larger;
+}
 </style>

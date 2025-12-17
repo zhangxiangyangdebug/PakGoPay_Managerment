@@ -1,14 +1,30 @@
 <script>
 import {heart, logOut, refreshAccessToken} from "@/api/interface/backendInterface.js";
 import router from "@/router/index.js";
+import SvgIcon from "@/components/SvgIcon/index.vue";
 export default {
   name: 'Topbar',
+  components: {SvgIcon},
   props: [
       'collapse'
   ],
   data() {
     return {
+      collapse: false,
       username: "",
+      selectedLang: 'en',
+      languageOptions: [
+        {
+          value: 'en',
+          label: 'En',
+          flag: 'english'
+        },
+        {
+          value: 'zh-cn',
+          label: '中文',
+          flag: 'chinese'
+        }
+      ]
     }
   },
   created() {
@@ -49,63 +65,130 @@ export default {
         }
       });
     },
-
+    changeLanauage(lang) {
+      this.$i18n.locale = lang;
+    },
+    changeCollapse() {
+      this.collapse = !this.collapse;
+      this.$emit("changeBar", this.collapse);
+    }
   },
 }
 </script>
 
 <template>
   <div :class="[collapse? 'topbar-collapsed':'topbar']">
+    <div v-if="!$route.meta.showBar" :class="[!collapse? 'zhedie':'zhedie-zhedie']" @click="changeCollapse()">
+      <SvgIcon width="30px" height="30px" :name="!collapse ? 'shouqi' : 'zhankai'" style="cursor: pointer;margin:0;"/>
+    </div>
     <!-- 顶部栏内容 -->
     <div class="userInfo" >
-      <div v-if="username">
-        <el-avatar style="font-size: 30px;color: black;background-color: #4f6f6f;height:30px;width:30px;border-radius: 30px">{{username.charAt(0)}}</el-avatar>
-        {{username}}
+      <div style="margin-left: 10%;display: flex;flex-direction: row;align-items: center;width: auto;">
+        <div style="display: flex; flex-direction: column">
+          <SvgIcon name="language" style="width: 25px;height: 25px;width: 50px;margin: 0" />
+          <div style="font-size: small;margin:0">{{$t('language')}}</div>
+        </div>
+        <el-select v-model="selectedLang"
+                   size="small"
+                   @change="changeLanauage"
+                   style="border: none;width: 60px"
+        >
+          <el-option
+              v-for="item in languageOptions"
+              :key = "item.value"
+              :value="item.value"
+              :label="item.label"
+          >
+            <SvgIcon :name="item.flag"/>{{ item.label }}
+          </el-option>
+        </el-select>
       </div>
-      <div v-else>
-        请登陆
-      </div>
-      <div>
-        <button @click="logOut()">退出</button>
+      <div style="display: flex;justify-content: center;align-items: center;">
+        <div v-if="username" style="display: flex; align-items: center;">
+          <el-avatar style="font-size: 30px;background-color: grey">{{username.charAt(0)}}</el-avatar>
+              {{username}}
+              <el-dropdown trigger="click">
+                <SvgIcon name="downBlack" style="width: 22px;height: 22px"/>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item @click="logOut">
+                      <SvgIcon name="logout" style="height:22px"/>
+                      {{$t('topbar.logout')}}
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+
+        </div>
+        <div v-else>
+          请登陆
+        </div>
       </div>
     </div>
   </div>
 </template>
-
-
-
 <style scoped>
 .topbar {
   color: black;
-  padding-top: 0;
   text-align: center;
   height: 10%;
-  display: flex;
+  display: grid;
   align-items: center;
-  width: 90%;
-  margin-top: 0.3%;
-  margin-left: 11.5%;
-  background-color: white;
+  width: 87%;
+  background-color: #20b978;
+  position: absolute;
+  top: 0;
+  left: 13%;
 }
 .topbar-collapsed {
   color: black;
-  padding-top: 0;
   text-align: center;
   height: 10%;
-  top: 0;
-  display: flex;
-  width: 100%;
-  margin-top: 0.3%;
-  margin-left: 0;
-  background-color: white;
+  display: grid;
   align-items: center;
+  width: 100%;
+  background-color: #20b978;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 
 .userInfo {
   height: 50px;
   right: 10px;
-  padding-right: 10px;
+  width: auto;
+  display: flex;
+  flex-direction: row;
+  justify-items: center;
+  position: absolute;
+  padding-right: 40px;
+}
+
+.el-dropdown-link {
+  cursor: pointer;
+  color: #409EFF;
+}
+.el-icon-arrow-down {
+  font-size: 12px;
+}
+
+.el-dropdown {
+  vertical-align: top;
+}
+.el-dropdown + .el-dropdown {
+  margin-left: 15px;
+}
+.el-icon-arrow-down {
+  font-size: 12px;
+}
+
+.zhedie {
   position: fixed;
+  background-color: #20b978;
+}
+.zhedie-zhedie {
+  position: fixed;
+  background-color: #20b978;
 }
 </style>

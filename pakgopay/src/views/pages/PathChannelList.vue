@@ -681,4 +681,11 @@ export default {
   float: right;
 }
 
+/deep/.el-table th.is-leaf {
+
+  background-color: lightskyblue;
+  color: white;
+  font-weight: bold;
+  font-size: larger;
+}
 </style>
