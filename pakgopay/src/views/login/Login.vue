@@ -700,9 +700,9 @@ import router from "@/router/index.js";
                    // 根据菜单提取路由
                    getAsyncRoutes(this.menuItems).forEach((route) => {
                      router.addRoute(route)
+                     router.push("/web/pakGoPay");
                    })
                  }
-                 router.push("/web/pakGoPay");
                })
              } catch (e) {
                console.error(e)

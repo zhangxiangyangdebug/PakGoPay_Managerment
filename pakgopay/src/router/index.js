@@ -202,7 +202,17 @@ window.addEventListener('load', () => {
                     router.push("/web/login").then(r => {})
                 }
             localStorage.setItem("token", res.data.data.token);
-             menu().then(res => {})
+             menu().then(res => {
+                 let menuJson = JSON.parse(res.data.data)
+                 let menu = JSON.stringify(JSON.parse(res.data.data))
+                 localStorage.setItem('menu', menu)
+                 // 根据菜单提取路由
+                 getAsyncRoutes(menuJson).forEach((route) => {
+                     router.addRoute(route)
+                     location.reload();
+                 })
+
+             })
             })
         }
         if (currentPath) {

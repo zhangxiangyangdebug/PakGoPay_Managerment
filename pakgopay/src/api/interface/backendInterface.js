@@ -72,7 +72,7 @@ export async function getQrCode(username, password) {
         url: '/api/pakGoPay/server/Login/getCode',
         method: 'GET',
         params: {
-            userId: username,
+            userName: username,
             password: password
         }
     })
@@ -98,5 +98,82 @@ export async function filterSearchMerchantStatement(form) {
         },
         data: form,
         responseType: 'json',
+    })
+}
+
+export async function roleList() {
+    return service({
+        url: '/api/pakGoPay/server/SystemConfig/roleList',
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+}
+
+export async function loginUserList() {
+    return service({
+        url: '/api/pakGoPay/server/SystemConfig/loginUserList',
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+}
+
+export async function loginUserByLoginName(loginName) {
+    return service({
+        url: '/api/pakGoPay/server/SystemConfig/loginUserByLoginName',
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        params: {
+            loginName: loginName
+        }
+    })
+}
+
+export async function addNewLoginUser(form) {
+    return service({
+        url: '/api/pakGoPay/server/SystemConfig/createUser',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        data: form,
+        responseType: 'json',
+    })
+}
+
+export function manageLoginUserStatus(user_id, status, googleCode) {
+    return service({
+        url: '/api/pakGoPay/server/SystemConfig/manageLoginUserStatus',
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        params: {
+            userId: user_id,
+            status: status,
+            googleCode: googleCode,
+            operatorId: `${localStorage.getItem('userId')}`
+        }
+    })
+}
+
+export function deleteLoginUser(user_id, googleCode) {
+    return service({
+        url: '/api/pakGoPay/server/SystemConfig/deleteLoginUser',
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        params: {
+            userId: user_id,
+            googleCode: googleCode,
+            operatorId: `${localStorage.getItem('userId')}`
+        }
     })
 }

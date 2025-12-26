@@ -45,7 +45,7 @@ import {getAsyncRoutes} from "@/router/asyncRouter.js";
                       let menu = JSON.stringify(JSON.parse(res.data.data))
                       localStorage.setItem('menu', menu)
                       // 根据菜单提取路由
-                      getAsyncRoutes(menuJson).forEach((route) => {
+                       getAsyncRoutes(menuJson).forEach((route) => {
                         router.addRoute(route)
                       })
                     }

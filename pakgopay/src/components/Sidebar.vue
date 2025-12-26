@@ -28,10 +28,7 @@
 </template>
 
 <script>
-import {menu} from "@/api/interface/backendInterface.js";
 import SvgIcon from "@/components/SvgIcon/index.vue";
-import {getAsyncRoutes} from "@/router/asyncRouter.js";
-import router from "@/router/index.js";
 
 export default {
   props: [

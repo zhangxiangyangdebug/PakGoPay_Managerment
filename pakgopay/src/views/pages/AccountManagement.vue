@@ -14,9 +14,9 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <template #label>
           <span>用户名称:</span>
         </template>
-        <el-input placeholder="输入用户名称">
+        <el-input v-model="filterbox.loginName" placeholder="输入用户名称">
           <template #append>
-            <el-button @click="createUser">
+            <el-button @click="search">
               <SvgIcon name="search"/>搜索
             </el-button>
           </template>
@@ -30,8 +30,11 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 
   <div class="main-views-form" style="width: 97%;margin-left: 2%;">
     <el-table
+
+      ref="loginUserTable"
+      element-loading-text="Loading"
       :data="allUserInfo"
-      style="width: 97%;height: 100%;"
+      style="width: 97%;height: 70vh;"
       :key="tablekey"
       border
     >
@@ -50,7 +53,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           align="center"
       >
         <div>
-          {{row.userName}}
+          {{row.loginName}}
         </div>
       </el-table-column>
       <el-table-column
@@ -69,12 +72,13 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       >
         <div>
           <el-switch
-              v-model="row.userStatus"
+              :model-value="row.status"
               active-color="#13ce66"
               inactive-color="#ff4949"
               active-text="启用"
               inactive-text="停用"
-              disabled
+              :active-value = "1"
+              :inactive-value="0"
           />
         </div>
       </el-table-column>
@@ -89,7 +93,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <SvgIcon name="more" width="30" height="30" />
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item @click="stopUser(row)">停用</el-dropdown-item>
+              <el-dropdown-item v-if="row.status === 1" @click="stopUser(row)">停用</el-dropdown-item>
+              <el-dropdown-item v-if="row.status === 0" @click="startUser(row)">启用</el-dropdown-item>
               <el-dropdown-item @click="editUser(row)">编辑</el-dropdown-item>
               <el-dropdown-item @click="deleteUser(row)">删除</el-dropdown-item>
             </el-dropdown-menu>
@@ -120,11 +125,11 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       style="height: 600px;align-content: center"
       >
       <el-form :model="createUserInfo" style="margin-top: 50px;width: 100%" :rules="rules" ref="createUserInfo">
-        <el-row style="width: 100%;" class="dialog-row">
+        <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="用户ID:" label-width="150px" size="medium" prop="userId">
-                <el-input autocomplete="new-password" type="text" v-model.trim="createUserInfo.userId" style="width: 200px"></el-input>
+              <el-form-item label="用户名称:" label-width="150px" size="medium" prop="loginName">
+                <el-input auto-complete="new-password" type="text" v-model.trim="createUserInfo.loginName" style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
@@ -132,17 +137,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="用户名称:" label-width="150px" size="medium" prop="userName">
-                <el-input auto-complete="new-password" type="text" v-model.trim="createUserInfo.userName" style="width: 200px"></el-input>
-              </el-form-item>
-            </div>
-          </el-col>
-        </el-row>
-        <el-row style="width: 100%" class="dialog-row">
-          <el-col :span="8">
-            <div class="el-form-line">
-              <el-form-item label="登陆密码:" label-width="150px" size="medium" prop="userPassword">
-                <el-input autocomplete="new-password" type="password" v-model.trim="createUserInfo.userPassword" style="width: 200px"></el-input>
+              <el-form-item label="登陆密码:" label-width="150px" size="medium" prop="password">
+                <el-input autocomplete="new-password" type="password" v-model.trim="createUserInfo.password" style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
@@ -168,8 +164,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                 >
                   <el-option
                     v-for="item in roleInfoOptions"
-                    :key="item.id"
-                    :value="item.id"
+                    :key="item.roleId"
+                    :value="item.roleId"
                     :label="item.roleName"
                   />
                 </el-select>
@@ -182,11 +178,13 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             <div class="el-form-line">
               <el-form-item label="是否启用:" label-width="150px" size="medium">
                 <el-switch
-                    v-model="createUserInfo.userStatus"
+                    v-model="createUserInfo.status"
                     active-color="#13ce66"
                     inactive-color="#ff4949"
                     active-text="开启"
                     inactive-text="关闭"
+                    :active-value="1"
+                    :inactive-value="0"
                 >
                 </el-switch>
               </el-form-item>
@@ -226,12 +224,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         width="40%"
         style="height: 250px;align-content: center"
     >
-      <el-form style="margin-top: 20px;width: 100%">
+      <el-form style="margin-top: 20px;width: 100%"
+               :model="stopUserInfo"
+      >
         <el-row style="width: 100%;" class="dialog-row">
           <el-col :span="24">
             <div class="el-form-line" style="display: flex;justify-content: center;align-items: center;">
               <el-form-item label="停用用户名:" label-width="150px" size="medium" prop="googleCode">
-                <el-input readonly autocomplete="new-password" type="text" v-model.trim="stopUserInfo.userName" style="width: 200px;font-weight: bold;"></el-input>
+                <el-input readonly autocomplete="new-password" type="text" v-model.trim="stopUserInfo.loginName" style="width: 200px;font-weight: bold;"></el-input>
               </el-form-item>
             </div>
           </el-col>
@@ -240,7 +240,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-col :span="24">
             <div class="el-form-line" style="display: flex;justify-content: center;align-items: center;">
               <el-form-item label="谷歌验证码:" label-width="150px" size="medium" prop="googleCode">
-                <el-input autocomplete="new-password" type="number" v-model.trim="googleCode" style="width: 200px"></el-input>
+                <el-input autocomplete="new-password" type="number" v-model.trim="stopUserInfo.googleCode" style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
@@ -255,7 +255,16 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 </template>
 
 <script>
+import {
+  addNewLoginUser,
+  loginUserList,
+  refreshAccessToken,
+  roleList,
+  manageLoginUserStatus, deleteLoginUser, loginUserByLoginName
+} from "@/api/interface/backendInterface.js";
+
 export default {
+
   data() {
     const validatePass = (rule, value, callback) => {
       if (value === '' || value === undefined) {
@@ -271,13 +280,20 @@ export default {
     const validatePass2 = (rule, value, callback) => {
       if (value === '' || value === undefined) {
         callback(new Error('请再次输入密码'))
-      } else if (value !== this.createUserInfo.userPassword) {
+      } else if (value !== this.createUserInfo.password) {
         callback(new Error("两次输入都密码不一致"))
       } else {
         callback()
       }
     };
+  /*  const loadingInstance = this.$loading({
+      lock: true,
+      text: 'Loading...',
+      target: this.$el.querySelector('el-table__body-wrapper')
+    })*/
     return {
+      filterbox: {},
+      loading: true,
       dialogVisible2: false,
       dialogTitle2: '',
       googleCode: '',
@@ -285,12 +301,12 @@ export default {
       stopUserInfo: {},
       allUserInfo: [],
       allUserInfoFromDababase: [
-        {
+        /*{
             userId: '001',
             userName: '预置登陆用户',
             roleId: '001',
             userStatus: true,
-        }
+        }*/
       ],
       splitPageUserInfo: [],
       totalCount: 0,
@@ -301,24 +317,21 @@ export default {
       dialogTitle: '',
       createUserInfo: {},
       roleInfoOptions: [
-        {
+        /*{
           id: '001',
           roleName: '超级管理员'
         },
         {
           id: '002',
           roleName: '客服'
-        }
+        }*/
       ],
       passwordmatch: true,
       rules: {
-        userName: [
+        loginName: [
           { required: true, message: '请输入用户名', trigger: 'blur' }
         ],
-        userId: [
-          { required: true, message: '请输入用户Id', trigger: 'blur' }
-        ],
-        userPassword: [
+        password: [
           { validator: validatePass, trigger: 'blur' }
         ],
         confirmPassword: [
@@ -334,13 +347,38 @@ export default {
 
     }
   },
+  created() {
+    this.loadData()
+  },
   methods: {
     createUser() {
       this.dialogVisible = true;
       this.dialogTitle = '创建用户'
     },
     search() {
-
+      if(!this.filterbox.loginName) {
+        this.loadData()
+        return
+      }
+      loginUserByLoginName(this.filterbox.loginName).then(response => {
+           if(response.status === 200 && response.data.code === 0) {
+             this.allUserInfo = [];
+             this.allUserInfo.push(JSON.parse(response.data.data))
+             try {
+               this.allUserInfo.forEach((item) => {
+                 item.roleId = this.roleInfoOptions.forEach(roleInfo => {
+                   if (item.roleId !== undefined && roleInfo.roleId === item.roleId) {
+                     item.roleName = roleInfo.roleName
+                   }
+                 })
+               })
+             } catch (e) {
+               console.log(e)
+             }
+             this.totalCount = this.allUserInfo.length
+             this.tablekey++
+           }
+        })
     },
     editUser(row) {
       this.createUserInfo = row;
@@ -348,12 +386,22 @@ export default {
       this.dialogTitle = '编辑'
     },
     deleteUser(row) {
-
+      this.dialogVisible2 = true;
+      this.dialogTitle2 = '删除用户'
+      this.stopUserInfo = row
+      this.stopUserInfo.type = 'delete'
     },
     stopUser(row) {
       this.dialogVisible2 = true;
       this.dialogTitle2 = '停用用户'
       this.stopUserInfo = row
+      this.stopUserInfo.status = 0
+    },
+    startUser(row) {
+      this.dialogVisible2 = true;
+      this.dialogTitle2 = '启用用户'
+      this.stopUserInfo = row
+      this.stopUserInfo.status = 1
     },
     handleCurrentChange(currentPage) {
 
@@ -372,9 +420,10 @@ export default {
       this.dialogTitle2 = ''
       this.stopUserInfo = {}
       this.googleCode = ''
+      this.loadData()
     },
     submit2(formName) {
-      if (this.googleCode ==='defined' || this.googleCode === '' || this.googleCode === null) {
+      if (this.stopUserInfo.googleCode ==='defined' || this.stopUserInfo.googleCode === '' || this.stopUserInfo.googleCode === null) {
         this.$notify({
           title:'错误',
           message: 'you need to input google code first!',
@@ -382,12 +431,92 @@ export default {
           position: 'bottom-right',
         })
       }
-      this.stopUserInfo.googleCode = this.googleCode;
+      if (this.stopUserInfo.type === 'delete') {
+        this.$confirm('are you sure deleting this user:'+this.stopUserInfo.loginName+'?', '提示', {
+          confirmButtonText: 'yes',
+          cancelButtonText: 'No',
+          type: 'warning',
+        }).then(() => {
+          deleteLoginUser(this.stopUserInfo.userId, this.stopUserInfo.googleCode).then(response => {
+              alert('status----'+JSON.stringify(response))
+              if (response.status === 200 && response.data.code === 0) {
+                this.dialogVisible2 = false
+                this.dialogTitle2 = ""
+                this.loadData()
+                this.$notify({
+                  title:'Success',
+                  message: response.data.message,
+                  type: 'success',
+                  position: 'bottom-right',
+                })
+              } else if (response.status === 401) {
+                this.$notify({
+                  title:'Notice',
+                  message: "Token is expired! refresh page again",
+                  type: 'info',
+                  position: 'bottom-right',
+                })
+              } else {
+                this.$notify({
+                  title:'Error',
+                  message: response.data.message,
+                  type: 'error',
+                  position: 'bottom-right',
+                })
+              }
+          })
+        })
+      } else {
+        manageLoginUserStatus(this.stopUserInfo.userId, this.stopUserInfo.status, this.stopUserInfo.googleCode).then(response => {
+          if (response.status === 200 && response.data.code === 0) {
+            this.dialogVisible2 = false
+            this.dialogTitle2 = ""
+            this.loadData()
+            this.$notify({
+              title:'Success',
+              message: 'start user success',
+              type: 'success',
+              position: 'bottom-right',
+            })
+          }
+        })
+      }
+
+
     },
     submit(createUserInfo) {
       this.$refs[createUserInfo].validate((valid) => {
         if (valid) {
-          alert('submit!');
+          this.createUserInfo.operatorId = localStorage.getItem("userId")
+          addNewLoginUser(this.createUserInfo).then(response => {
+            if (response.status !== 200) {
+              this.$notify({
+                title: 'Failed',
+                message: 'create new user failed.',
+                type: 'error',
+                position: 'bottom-right'
+              });
+            }
+            if (response.data.code === 0) {
+              this.dialogVisible = false
+              this.dialogTitle = ""
+              this.loadData()
+              this.$notify({
+                title: 'Success',
+                message: 'create new user successfully.',
+                type: 'success',
+                position: 'bottom-right'
+              });
+            }
+            if (response.data.code === 1) {
+              this.$notify({
+                title: 'Failed',
+                message: response.data.message,
+                type: 'error',
+                position: 'bottom-right'
+              })
+            }
+          })
         } else {
           this.$notify({
             title: '错误',
@@ -398,6 +527,7 @@ export default {
           return false;
         }
       });
+      this.tablekey++
     },
     checkPassword() {
       if (this.createUserInfo.userPassword === null || this.createUserInfo.userPassword == undefined) {
@@ -408,23 +538,66 @@ export default {
       } else {
           this.passwordmatch = true
       }
+    },
+    async loadData() {
+      await loginUserList().then(response => {
+        if (response.status === 401) {
+          refreshAccessToken(localStorage.getItem("refreshToken"));
+        } else if (response.status !== 200 && response.status !== 401) {
+          this.$notify({
+            title: '错误',
+            message: 'get role info failed',
+            type: 'error',
+            position: 'top-right',
+          })
+        } else if (response.status === 200) {
+          if (response.data.code === 0 && response.data.data.length > 0) {
+            this.allUserInfoFromDababase = JSON.parse(response.data.data)
+          }
+        }
+      })
+      this.allUserInfo = [];
+      this.allUserInfo = this.allUserInfoFromDababase
+      try {
+        this.allUserInfo.forEach((item) => {
+          item.roleId = this.roleInfoOptions.forEach(roleInfo => {
+            if (item.roleId !== undefined && roleInfo.roleId === item.roleId) {
+              item.roleName = roleInfo.roleName
+            }
+          })
+        })
+      } catch (e) {
+        console.log(e)
+      }
+      this.totalCount = this.allUserInfo.length
+      this.tablekey++
+      this.loading = false
     }
   },
-  mounted() {
-    this.allUserInfo = this.allUserInfoFromDababase
-    try{
-      this.allUserInfo.forEach((item) => {
-        item.roleId = this.roleInfoOptions.forEach(roleInfo => {
-          if (roleInfo.id === item.roleId) {
-            item.roleName = roleInfo.roleName
-            throw new Error()
-          }
-        })
-      })
-    } catch (e) {
+  async mounted() {
 
-    }
-    this.totalCount = this.allUserInfo.length
+    await roleList().then(response => {
+      if (response.status === 401) {
+        refreshAccessToken(localStorage.getItem("refreshToken"));
+      } else if (response.status !== 200 && response.status !== 401) {
+        this.$notify({
+          title: '错误',
+          message: 'get role info failed',
+          type: 'error',
+          position: 'top-right',
+        })
+      } else if (response.status === 200) {
+        if (response.data.code === 0 && response.data.data.length > 0) {
+          this.roleInfoOptions = JSON.parse(response.data.data)
+        }
+      }
+    })
+
+    this.loadData()
+
+
+
+
   }
 }
 </script>
@@ -444,4 +617,9 @@ export default {
 .notice {
   border: solid 1px red;
 }
+
+.el-table .el-loading-mask {
+  z-index: -1; /* 根据需要调整，确保它低于表头 */
+}
+
 </style>
