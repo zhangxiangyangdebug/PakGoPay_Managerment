@@ -112,18 +112,31 @@ export default {
     showNewMessage(message) {
       this.$notify({
         title: 'new message',
+        dangerouslyUseHTMLString: true,
+        customClass: 'noticeMessage',
         message: message,
         type: "info",
-        duration: 5000,
+        duration: 0,
         position: "top-right",
+        onClick: () => {
+          router.push({
+            path: '/web/AccountManagement'
+          })
+        }
       })
-      this.textToSpeak = message;
-      this.playNotice()
-      this.speak()
+      //this.textToSpeak = message;
+      //this.playNotice()
+      //this.speak()
     },
     async playNotice() {
       this.$refs.noticePlayer.muted=false
       await this.$refs.noticePlayer.play()
+    },
+    viewDetail() {
+      alert("出发")
+      router.push({
+        name: 'AccountManagement'
+      })
     }
   },
 }
@@ -247,5 +260,10 @@ export default {
 .zhedie-zhedie {
   position: fixed;
   background-color: #20b978;
+}
+</style>
+<style>
+.noticeMessage {
+  cursor: pointer;
 }
 </style>

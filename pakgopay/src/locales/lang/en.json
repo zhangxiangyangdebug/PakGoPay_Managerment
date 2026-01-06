@@ -3,6 +3,7 @@
   "route.merchantReport": "Merchant Report",
   "route.channelReport": "Channel Report",
   "route.agentReport": "Agent Report",
+  "route.pathChannelReport": "Path Channel Report",
   "route.merchantManagement": "Merchant Management",
   "route.merchantInfo": "Merchant Info",
   "route.withdrawlAccountManagement": "Withdraw Account Management",

@@ -161,7 +161,7 @@ export default {
   text-align: right;
 }
 
-/deep/.el-table th.is-leaf {
+:deep().el-table th.is-leaf {
 
   background-color: lightskyblue;
   color: white;
@@ -175,7 +175,7 @@ export default {
   align-content: center;
 }
 
-/deep/ .el-input__inner {
+:deep() .el-input__inner {
   text-align: center;
 }
 </style>

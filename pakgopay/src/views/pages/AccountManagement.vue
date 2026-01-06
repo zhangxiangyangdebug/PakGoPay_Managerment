@@ -382,6 +382,8 @@ export default {
     },
     editUser(row) {
       this.createUserInfo = row;
+      const filterInfo = this.roleInfoOptions.filter(roleInfo => (roleInfo.roleName === row.roleName))
+      this.createUserInfo.roleId = filterInfo ? filterInfo[0].roleId : ''
       this.dialogVisible = true;
       this.dialogTitle = '编辑'
     },
@@ -562,6 +564,7 @@ export default {
           item.roleId = this.roleInfoOptions.forEach(roleInfo => {
             if (item.roleId !== undefined && roleInfo.roleId === item.roleId) {
               item.roleName = roleInfo.roleName
+              item.roleId = roleInfo.roleId
             }
           })
         })

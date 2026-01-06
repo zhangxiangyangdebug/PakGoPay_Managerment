@@ -358,7 +358,7 @@ export default {
 }
 </script>
 <style scoped>
-/deep/.el-table th.is-leaf {
+:deep().el-table th.is-leaf {
 
   background-color: lightskyblue;
   color: white;

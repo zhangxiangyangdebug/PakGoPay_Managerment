@@ -15,16 +15,32 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-col :span="8" style="display: flex;justify-content: center;align-items: center;">
             <el-form-item label="商户名称:" style="height: 30px;"><el-input placeholder="商户名称" v-model="filterbox.merchantName" style="width: 200px;display: flex;text-align: center"/></el-form-item>
           </el-col>
-          <el-col :span="8" style="display: flex;justify-content: center;align-items: center;">
-            <el-form-item label="开始时间:" style="height: 30px;"><el-input type="date" placeholder="开始时间" v-model="filterbox.startTime" style="width: 200px"/></el-form-item>
+          <el-col :span="16" style="display: flex;justify-content: center;align-items: center;">
+            <div>
+
+            </div>
+            <el-form-item style="height: 30px;"><!--<el-input type="datetimerange" placeholder="开始时间" v-model="filterbox.startTime" style="width: 200px"/>-->
+              <template #label>
+                <span>时间范围:</span>
+              </template>
+              <el-date-picker
+                v-model="filterbox.timeRage"
+                type="datetimerange"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                placeholder="选择日期时间"
+                style="width: 400px"
+              >
+            </el-date-picker>
+              <el-button style="width: 80px;display: flex;align-items: center;background-color: deepskyblue;color: black"><SvgIcon name="search" style="width: 20px;height: 20px"/>查询</el-button>
+            </el-form-item>
           </el-col>
-          <el-col :span="8" style="display: flex;justify-content: center;align-items: center;">
+<!--          <el-col :span="8" style="display: flex;justify-content: center;align-items: center;">
             <el-form-item label="截止时间:" style="height: 30px;"><el-input type="date" placeholder="截止时间" v-model="filterbox.endTime" style="width: 280px;display: flex;">
               <template #append>
                 <el-button style="width: 80px;display: flex;align-items: center;background-color: deepskyblue;color: black"><SvgIcon name="search" style="width: 20px;height: 20px"/>查询</el-button>
               </template>
             </el-input></el-form-item>
-          </el-col>
+          </el-col>-->
         </el-row>
       </el-form>
     </div>
@@ -259,7 +275,7 @@ export default {
 }
 </style>
 <style scoped>
-/deep/.el-input__inner {
+:deep().el-input__inner {
   text-align: center;
 }
 </style>

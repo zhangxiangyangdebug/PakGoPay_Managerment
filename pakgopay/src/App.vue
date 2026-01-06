@@ -129,7 +129,7 @@ import {getAsyncRoutes} from "@/router/asyncRouter.js";
   top: 15%;
   margin-left: 13.5%;
   width: 88%;
-  height: 75%;
+  height: 90%;
   background-color: #F3F3F3;
 }
 

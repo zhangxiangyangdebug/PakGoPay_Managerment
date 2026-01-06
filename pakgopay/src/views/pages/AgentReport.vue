@@ -591,7 +591,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
     text-align: center;
   }
 
-  /deep/.el-table th.is-leaf {
+  :deep().el-table th.is-leaf {
 
     background-color: lightskyblue;
     color: white;

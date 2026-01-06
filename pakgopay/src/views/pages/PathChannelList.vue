@@ -681,7 +681,7 @@ export default {
   float: right;
 }
 
-/deep/.el-table th.is-leaf {
+:deep().el-table th.is-leaf {
 
   background-color: lightskyblue;
   color: white;

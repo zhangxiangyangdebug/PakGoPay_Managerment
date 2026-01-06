@@ -8,17 +8,47 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 import '@/api/common.css'
 import {ElPagination} from "element-plus";
 import 'element-plus/theme-chalk/el-pagination.css'
+import '@/api/common.css'
+import {ref} from "vue";
+const filterDateRange = ref('')
+const shortcuts = [
+  {
+    text: 'Last week',
+    value: () => {
+      const end = new Date()
+      const start = new Date()
+      start.setDate(start.getDate() - 7)
+      return [start, end]
+    },
+  },
+  {
+    text: 'Last month',
+    value: () => {
+      const end = new Date()
+      const start = new Date()
+      start.setMonth(start.getMonth() - 1)
+      return [start, end]
+    },
+  },
+  {
+    text: 'Last 3 months',
+    value: () => {
+      const end = new Date()
+      const start = new Date()
+      start.setMonth(start.getMonth() - 3)
+      return [start, end]
+    },
+  },
+]
 export default {
   components: {
     ElPagination
   },
   data() {
     return {
+      value:'',
+      timeRange:'',
       filterbox: {
-        merchantNum: '',
-        merchantAccount: '',
-        startTime: '',
-        endTime: '',
       },
       reportTitle : '代收订单订单总数｜代收订单成功率｜代收订单成功数｜代付订单总数｜代收订单成功率｜代收订单成功数｜代收/付商户手续费｜一二三级代理佣金｜代收/付总利润',
       tab1CurrentPage: 1,
@@ -132,6 +162,9 @@ export default {
     getAllReportInfoData() {
       //获取所有数据
     },
+    search() {
+      alert(JSON.stringify(this.filterbox.timeRange))
+    }
   },
   mounted() {
     this.tab1TotalCount = this.collectingReportInfoData.length
@@ -143,90 +176,93 @@ export default {
   <div class="title">
     商户报表
   </div>
-  <div class="toolbar">
-    <form class="toolform">
-      <div class="toolform-item-filter">
-<!--        <div v-on:click="exportMerchantInfo" style="height:30px;justify-content: left; border: solid 1px #6495ed; width:200px;border-radius: 15px;cursor: pointer;" class="toolform-line">
-          <div style="display: flex; flex-direction: row;justify-content: center;width: 90px;align-items: center;">
-            <SvgIcon height="20px" width="20px" name="filter"/>筛选
-          </div>
-&lt;!&ndash;          <input disabled type="text" style="border:none;width: 30px;">&ndash;&gt;
-          <div @click.stop="">
-            <el-form-item style="height:15px;display: flex; justify-content: center;">
-               <el-select
-                   style="width:100px;height: 100%;border: none;"
-                   placeholder="select"
-               >
-                 <el-option>sss</el-option>
-               </el-select>
-            </el-form-item></div>
-        </div>-->
-        <div class="toolform-line" style="justify-content: right;margin-right:3%;">
-          <div v-on:click="reset()" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="30px" name="reset"/>
-            <div style="width: 50px;color: white">重置</div>
-          </div>
-          <div v-on:click="search()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="30px" name="search"/>
-            <div style="width: 50px;color: white">查询</div>
-          </div>
-          <div v-on:click="exportMerchantInfo" style="background-color: limegreen;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="30px" name="export"/>
-            <div style="width: 50px;color: white">导出</div>
-          </div>
-        </div>
+  <el-collapse style="margin-top: 20px; width: 95%;margin-left: 2%;">
+    <el-collapse-item>
+      <template #title>
+        <span class="toolbarName">
+          工具栏&统计数据
+        </span>
+      </template>
+      <div class="toolbar" style="height: auto">
+        <el-form class="toolform">
+          <el-row>
+            <el-col :span="8" :offset="15" class="toolform-line" style="justify-content: right;margin-right:5%;">
+              <div v-on:click="reset()" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
+                <SvgIcon height="30px" width="30px" name="reset"/>
+                <div style="width: 50px;color: white">重置</div>
+              </div>
+              <div v-on:click="search()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
+                <SvgIcon height="30px" width="30px" name="search"/>
+                <div style="width: 50px;color: white">查询</div>
+              </div>
+              <div v-on:click="exportMerchantInfo" style="background-color: limegreen;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
+                <SvgIcon height="30px" width="30px" name="export"/>
+                <div style="width: 50px;color: white">导出</div>
+              </div>
+            </el-col>
+          </el-row>
+          <el-row class="toolform-item">
+<!--            <el-col :span="8"  style="display: flex;justify-content: center;align-items: center;">
+              <el-form-item label="商户编号:" label-width="150px">
+                <el-input v-model="filterbox.merchantNum" type="text" style="width: 200px;display: flex;text-align: center" placeholder="商户编号"/>
+              </el-form-item>
+            </el-col>-->
+            <el-col :span="8" class="toolform-line" style="display: flex;justify-content: center;align-items: center;">
+              <el-form-item label="商户名称:" label-width="150px">
+                <el-input v-model="filterbox.merchantAccount" type="text" style="width: 200px;display: flex;text-align: center" placeholder="商户账号"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8" class="toolform-line" style="display: flex;justify-content: center;align-items: center;">
+              <el-form-item label="时间范围:" label-width="150px">
+                <el-date-picker
+                    v-model="filterDateRange"
+                    type="daterange"
+                    range-separator="至"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
+                    format="YYYY/MM/DD"
+                    value-format="YYYY-MM-DD"
+                >
+                </el-date-picker>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
       </div>
-      <div class="toolform-item">
-        <div class="toolform-line">商户编号：<input v-model="filterbox.merchantNum" type="text" class="toolform-input" placeholder="商户编号"/></div>
-        <div class="toolform-line">商户账号：<input v-model="filterbox.merchantAccount" type="text" class="toolform-input" placeholder="商户账号"/></div>
-        <div class="toolform-line">开始时间：<input v-model="filterbox.startTime" type="date"  style="width: 100px;" class="toolform-input" placeholder="开始时间"/>&nbsp;~&nbsp;
-          <input v-model="filterbox.endTime" style="width: 100px;" type="date" class="toolform-input" placeholder="结束时间"/>
-        </div>
-      </div>
-<!--      <div class="toolform-item">
-        <div class="toolform-line"><input type="button" value="重置"><input type="button" value="搜索"></div>
-      </div>-->
-<!--      <div class="toolform-item">
-        <div class="toolform-line">商户编号：<input type="text" class="toolform-input" placeholder="商户编号"/></div>
-        <div class="toolform-line">商户编号：<input type="text" class="toolform-input" placeholder="商户编号"/></div>
-        <div class="toolform-line">商户编号：<input type="text" class="toolform-input" placeholder="商户编号"/></div>
-        <div class="toolform-line">商户编号：<input type="text" class="toolform-input" placeholder="商户编号"/></div>
-      </div>-->
-    </form>
-  </div>
-  <!-- 统计数据展示 -->
-  <div class="statistics-container">
-    <form id="statistics" class="statistics-form">
-      <div class="statistics-form-item">
-        <SvgIcon name="cash" width="100px" height="100px"/>
-        <div style="display: flex; flex-direction: column;width: 80%;">
-          <span>总账户金额:</span>
-          <textarea v-model="filterbox.merchantAccount" disabled class="cash-text-area"></textarea>
-        </div>
-      </div>
-    </form>
+      <!-- 统计数据展示 -->
+      <div class="statistics-container">
+        <el-card id="statistics" class="statistics-form">
+          <div class="statistics-form-item">
+            <SvgIcon name="cash" width="100px" height="100px"/>
+            <div style="display: flex; flex-direction: column;width: 80%;">
+              <span>总账户金额:</span>
+              <textarea v-model="filterbox.merchantAccount" disabled class="cash-text-area"></textarea>
+            </div>
+          </div>
+        </el-card>
 
-    <form id="statistics" class="statistics-form">
-      <div class="statistics-form-item">
-        <SvgIcon name="tixian" width="90px" height="90px"/>
-        <div style="display: flex; flex-direction: column;width: 80%;">
-          <span>提现总金额:</span>
-          <textarea v-model="filterbox.merchantAccount" disabled class="cash-text-area"></textarea>
-        </div>
-      </div>
-    </form>
+        <el-card id="statistics" class="statistics-form">
+          <div class="statistics-form-item">
+            <SvgIcon name="tixian" width="90px" height="90px"/>
+            <div style="display: flex; flex-direction: column;width: 80%;">
+              <span>提现总金额:</span>
+              <textarea v-model="filterbox.merchantAccount" disabled class="cash-text-area"></textarea>
+            </div>
+          </div>
+        </el-card>
 
-    <form id="statistics" class="statistics-form">
-      <div class="statistics-form-item">
-        <SvgIcon name="cash-freeze" width="100px" height="100px"/>
-        <div style="display: flex; flex-direction: column;width: 80%;">
-          <span>冻结总金额:</span>
-          <textarea v-model="filterbox.merchantAccount" disabled class="cash-text-area"></textarea>
-        </div>
+        <el-card id="statistics" class="statistics-form">
+          <div class="statistics-form-item">
+            <SvgIcon name="cash-freeze" width="100px" height="100px"/>
+            <div style="display: flex; flex-direction: column;width: 80%;">
+              <span>冻结总金额:</span>
+              <textarea v-model="filterbox.merchantAccount" disabled class="cash-text-area"></textarea>
+            </div>
+          </div>
+        </el-card>
       </div>
-    </form>
-  </div>
-
+    </el-collapse-item>
+  </el-collapse>
   <div class="reportInfo" style="margin-right: 3%">
     <el-tabs type="border-card" style="width: 100%">
       <el-tab-pane label="代收报表" style="width: 100%">
@@ -551,11 +587,18 @@ export default {
     height: calc(100% - 23px);
   }
 
-  /deep/.el-table th.is-leaf {
+  :deep().el-table th.is-leaf {
 
     background-color: lightskyblue;
     color: white;
     font-weight: bold;
     font-size: larger;
+  }
+
+  .toolbarName{
+    color: black;
+  }
+  :deep() .el-collapse-item__header {
+    background-color: deepskyblue;
   }
 </style>
