@@ -231,7 +231,7 @@ export function deleteRole(form) {
     })
 }
 
-export function getAllCurrencyType(form) {
+export function getAllCurrencyType() {
     return service({
         url: '/api/pakGoPay/server/CurrencyTypeManagement/currencyTypeInfo',
         method: 'GET',
@@ -259,6 +259,29 @@ export function getCurrencyById(id) {
 export function addCurrencyType(form) {
     return service({
         url: '/api/pakGoPay/server/CurrencyTypeManagement/addCurrencyType',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        data: form,
+    })
+}
+
+export function getMerchantReport(form) {
+    return service({
+        url: '/api/pakGoPay/server/queryMerchantReport',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form,
+    })
+}
+
+export function getChannelReport(form) {
+    return service({
+        url: '/api/pakGoPay/server/queryChannelReport',
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,

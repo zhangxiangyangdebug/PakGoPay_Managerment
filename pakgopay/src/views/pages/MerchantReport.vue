@@ -2,7 +2,7 @@
 <script setup>
 
 import SvgIcon from "@/components/SvgIcon/index.vue";
-import {getTimeFromTimestamp} from "@/api/common.js";
+import {getDateFromTimestamp, getFormateDate, getTimeFromTimestamp} from "@/api/common.js";
 
 </script>
 <script>
@@ -11,43 +11,27 @@ import {ElPagination} from "element-plus";
 import 'element-plus/theme-chalk/el-pagination.css'
 import '@/api/common.css'
 import {ref} from "vue";
-const filterDateRange = ref('')
-const shortcuts = [
-  {
-    text: 'Last week',
-    value: () => {
-      const end = new Date()
-      const start = new Date()
-      start.setDate(start.getDate() - 7)
-      return [start, end]
-    },
-  },
-  {
-    text: 'Last month',
-    value: () => {
-      const end = new Date()
-      const start = new Date()
-      start.setMonth(start.getMonth() - 1)
-      return [start, end]
-    },
-  },
-  {
-    text: 'Last 3 months',
-    value: () => {
-      const end = new Date()
-      const start = new Date()
-      start.setMonth(start.getMonth() - 3)
-      return [start, end]
-    },
-  },
-]
+import {getAllCurrencyType, getMerchantReport} from "@/api/interface/backendInterface.js";
+import {getTodayStartTimestamp, loadingBody} from "@/api/common.js";
 export default {
   components: {
-    ElPagination
   },
   data() {
     return {
+      currency: '',
+      currencyIcon: '',
+      currencyIcons: {},
+      currencyOptions: [],
+      currencyProps: {
+        value: 'currencyType',
+        label: 'name'
+      },
+      loadingInstance: null, // 用于存储loading实例
+      activeTabPane: 0,
+      starttingTime: '',
+      endingTime: '',
       value:'',
+      statisticsInfo:{},
       timeRange:'',
       filterbox: {
       },
@@ -60,44 +44,10 @@ export default {
       tab2TotalCount: 2,
       tab2PageSize: 1,
       collectingReportInfoData: [
-        {
-          dsOrderNumber: '100000000000',
-          dsOrderSuccessRate: '98%',
-          dsOrderSuccessNumber: 1000,
-          commission: 10000,
-          agencyCommission: 100000000,
-          totalProfit: 100000000000,
-          merchantAccount: '测试商户'
-        },
-        {
-          dsOrderNumber: '100000000000',
-          dsOrderSuccessRate: '98%',
-          dsOrderSuccessNumber: 1000,
-          commission: 10000,
-          agencyCommission: 100000000,
-          totalProfit: 100000000000,
-          merchantAccount: '测试商户2'
-        }
+
       ],
       payingReportInfoData: [
-        {
-          dfOrderNumber: '99',
-          dfOrderSuccessRate: '98%',
-          dfOrderSuccessNumber: 1000,
-          commission: 10000,
-          agencyCommission: 100000000,
-          totalProfit: 100000000000,
-          merchantAccount: '测试商户'
-        },
-        {
-          dfOrderNumber: '77',
-          dfOrderSuccessRate: '98%',
-          dfOrderSuccessNumber: 1000,
-          commission: 10000,
-          agencyCommission: 100000000,
-          totalProfit: 100000000000,
-          merchantAccount: '测试商户2'
-        }
+
       ],
       allCollectingReportInfoData: [
         {
@@ -130,6 +80,11 @@ export default {
     }
   },
   methods: {
+    handleCurrencyChange() {
+      this.currency = this.filterbox.currency;
+      this.currencyIcon = this.currencyIcons[this.currency]
+      this.filtersearch()
+    },
     exportMerchantInfo() {
       //导出报表方法
     },
@@ -138,14 +93,19 @@ export default {
       this.tab1PageSize = pageSize
       this.tab1CurrentPage = 1
       this.handleTab1CurrentChange(1)
+
     },
     handleTab1CurrentChange(currentPage) {
+      this.filterbox.isNeedCardData = false
       this.tab1CurrentPage = currentPage
       let pageSize = this.pageSize
       // 清空table绑定数据
       this.collectingReportInfoData = []
       // 获取当前页数数据范围 。(当前页-1)*每页数据 - 当前页*每页数据
-      this.collectingReportInfoData = this.allCollectingReportInfoData.slice((((currentPage -1)*pageSize)), ((currentPage)*pageSize))
+      /*this.collectingReportInfoData = this.allCollectingReportInfoData.slice((((currentPage -1)*pageSize)), ((currentPage)*pageSize))*/
+      this.filterbox.pageNo = currentPage
+      this.filterbox.pageSize = this.tab1PageSize
+      this.search(0)
     },
     handleTab2SizeChange(pageSize) {
       this.tab2PageSize = pageSize
@@ -153,71 +113,222 @@ export default {
       this.handleTab2CurrentChange(1)
     },
     handleTab2CurrentChange(currentPage) {
+      this.filterbox.isNeedCardData = false
       this.tab2CurrentPage = currentPage
       let pageSize = this.tab2PageSize
       // 清空table绑定数据
       this.payingReportInfoData = []
       // 获取当前页数数据范围 。(当前页-1)*每页数据 - 当前页*每页数据
-      this.payingReportInfoData = this.allPayingReportInfoData.slice((((currentPage -1)*pageSize)), ((currentPage)*pageSize))
+      /*this.payingReportInfoData = this.allPayingReportInfoData.slice((((currentPage -1)*pageSize)), ((currentPage)*pageSize))*/
+      this.filterbox.pageNo = currentPage
+      this.filterbox.pageSize = this.tab2PageSize
+      this.search(1)
+
     },
     getAllReportInfoData() {
       //获取所有数据
     },
-    search() {
+    filtersearch() {
+      this.collectingReportInfoData = []
+      this.payingReportInfoData = []
+      this.activeTabPane = '0'
+      this.search(0)
+      this.filterbox.isNeeded = true
+    },
+    search(orderType, paneName) {
+      let loadingClass = ''
+      if (paneName === '0') {
+         loadingClass = 'reportInfo-table1'
+      } else if (paneName === '1') {
+        loadingClass = 'reportInfo-table2'
+      } else {
+        loadingClass = 'reportInfo-table1'
+      }
+      /*this.loadingBody(loadingClass)*/
+      this.loadingInstance = loadingBody(this, loadingClass)
+      let timeRange = new String(this.filterbox.filterDateRange)
+      if (!this.filterbox.filterDateRange) {
+        this.filterbox.startTime = getTodayStartTimestamp()
+        this.filterbox.endTime = getTodayStartTimestamp()
+      } else {
+        this.filterbox.startTime = timeRange.split(',')[0]/1000
+        this.filterbox.endTime = timeRange.split(',')[1]/1000
+      }
+      if (!orderType) {
+        this.filterbox.orderType = 0;
+      } else {
+        this.filterbox.orderType = orderType
+      }
+      getMerchantReport(this.filterbox).then(res => {
+        if (res.status === 200 && res.data.code === 0) {
+          let resData = JSON.parse(res.data.data)
+            if (orderType === 0) {
+              this.collectingReportInfoData = resData.merchantReportDtoList
+              this.tab1CurrentPage = resData.pageNo
+              this.tab1TotalCount = resData.totalNumber
+              this.tab1PageSize = resData.pageSize
+            } else if (orderType === 1) {
+              this.payingReportInfoData = resData.merchantReportDtoList
+              this.tab2CurrentPage = resData.pageNo
+              this.tab2TotalCount = resData.totalNumber
+              this.tab2PageSize = resData.pageSize
+            }
+            const cardInfo = resData.cardInfo[this.filterbox.currency]
+            this.statisticsInfo.totalAmount = this.currencyIcon+cardInfo.total;
+            this.statisticsInfo.totalWithdrawlAmount = this.currencyIcon+cardInfo.withdraw;
+            this.statisticsInfo.totalFreezeAmount = this.currencyIcon+cardInfo.frozen;
+        } else if (res.status === 200 && res.data.code !== 0) {
+          this.$notify({
+            title: 'Error',
+            message: res.data.message,
+            duration: 3000,
+            type: 'error',
+            position: 'bottom-right',
+          })
+        } else {
+          this.$notify({
+            title: 'Error',
+            message: 'Some error occurred.',
+            duration: 3000,
+            type: 'error',
+            position: 'bottom-right'
+          })
+        }
+        this.loadingInstance.close()
+      }).catch(err => {
+        this.loadingInstance.close()
+      })
 
-    }
+    },
+    reset(form) {
+      this.$refs[form].resetFields();
+      this.filterbox.currency = this.currency
+      //filterDateRange.value = '';
+    },
+    handleTabClick(tab) {
+      this.filterbox.pageNo = 1;
+      this.filterbox.pageSize = 10;
+      if (tab.paneName === '0') {
+        this.tab2CurrentPage = 1;
+        this.tab2PageSize = 10;
+        this.search(0, tab.paneName)
+      } else if (tab.paneName === '1') {
+        this.tab1CurrentPage = 1;
+        this.tab1PageSize = 10;
+        this.search(1, tab.paneName)
+      }
+    },
+    /*loadingBody(loadingClassName) {
+      this.loadingInstance = this.$loading({
+        lock: true,       // 设置进入加载
+        text: 'loading...',           // 加载文字
+        // spinner: 'el-icon-loading',
+        // background: 'rgba(255, 255, 255, 0.7)',
+        target: document.querySelector('.'+loadingClassName).querySelector('.el-table__body') // 指定加载动画覆盖的DOM节点
+
+      })
+    },*/
   },
-  mounted() {
-    this.tab1TotalCount = this.collectingReportInfoData.length
+  async mounted() {
+    await getAllCurrencyType().then(res => {
+      if (res.status === 200) {
+        if (res.data.code === 0) {
+          this.currencyOptions = JSON.parse(res.data.data)
+          console.log('options----' + this.currencyOptions[0].currencyType)
+          this.currency = this.currencyOptions[0].currencyType
+          this.filterbox.currency = this.currencyOptions[0].currencyType
+          this.currencyIcons = {};
+          this.currencyOptions.forEach(currency => {
+            this.currencyIcons[currency.currencyType] = currency.icon
+          })
+          let iconKey = this.currency;
+          this.currencyIcon = this.currencyIcons[iconKey]
+        }
+      }
+    })
+    this.startTime = getTodayStartTimestamp()
+    this.endTime = getTodayStartTimestamp()
+    this.filterbox.isNeedCardData = true
+    this.activeTabPane = '0'
+    this.search(0)
     this.tab1TotalCount = this.collectingReportInfoData.length
     this.tab2TotalCount = this.payingReportInfoData.length
   }
 }
 </script>
 <template>
-  <div class="title">
-    商户报表
+  <div class="main-title" style="display: flex;flex-direction: row; align-items: center;">
+      商户报表
   </div>
-  <el-collapse style="margin-top: 20px; width: 95%;margin-left: 2%;">
+  <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0" >
+    <el-form-item style="margin-left: 2%;">
+      <template #label>
+          <span style="color: black;font-size: small;align-items: center">
+            统计币种:
+          </span>
+      </template>
+      <el-select
+          style="width: 100px;align-items: center"
+          :options="currencyOptions"
+          :props="currencyProps"
+          default-first-option
+          v-model="filterbox.currency"
+          @change="handleCurrencyChange"
+          filterable
+      />
+    </el-form-item>
+  </div>
+  <!-- 统计数据展示 -->
+  <div class="statistics-container" style="width: 95%;margin-right: 3%; padding: 0;margin-left: 0">
+    <el-card id="statistics" class="statistics-form">
+      <div class="statistics-form-item">
+        <SvgIcon name="cash" width="100px" height="100px"/>
+        <div style="display: flex; flex-direction: column;width: 80%;">
+          <span style="text-align: left;font-size: x-large">总账户金额:</span>
+          <textarea v-model="statisticsInfo.totalAmount" disabled class="cash-text-area"></textarea>
+        </div>
+      </div>
+    </el-card>
+
+    <el-card id="statistics" class="statistics-form">
+      <div class="statistics-form-item">
+        <SvgIcon name="tixian" width="90px" height="90px"/>
+        <div style="display: flex; flex-direction: column;width: 80%;">
+          <span style="text-align: left;font-size: x-large">提现总金额:</span>
+          <textarea v-model="statisticsInfo.totalWithdrawlAmount" disabled class="cash-text-area"></textarea>
+        </div>
+      </div>
+    </el-card>
+
+    <el-card id="statistics" class="statistics-form">
+      <div class="statistics-form-item">
+        <SvgIcon name="cash-freeze" width="100px" height="100px"/>
+        <div style="display: flex; flex-direction: column;width: 80%;">
+          <span style="text-align: left;font-size: x-large">冻结总金额:</span>
+          <textarea v-model="statisticsInfo.totalFreezeAmount" disabled class="cash-text-area"></textarea>
+        </div>
+      </div>
+    </el-card>
+  </div>
+  <el-collapse style="margin-top: 1%; width: 95%;margin-left: 1%;margin-right: 3%">
     <el-collapse-item>
       <template #title>
         <span class="toolbarName">
-          工具栏&统计数据
+          工具栏
         </span>
       </template>
       <div class="toolbar" style="height: auto">
-        <el-form class="toolform">
-          <el-row>
-            <el-col :span="8" :offset="15" class="toolform-line" style="justify-content: right;margin-right:5%;">
-              <div v-on:click="reset()" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-                <SvgIcon height="30px" width="30px" name="reset"/>
-                <div style="width: 50px;color: white">重置</div>
-              </div>
-              <div v-on:click="search()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-                <SvgIcon height="30px" width="30px" name="search"/>
-                <div style="width: 50px;color: white">查询</div>
-              </div>
-              <div v-on:click="exportMerchantInfo" style="background-color: limegreen;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-                <SvgIcon height="30px" width="30px" name="export"/>
-                <div style="width: 50px;color: white">导出</div>
-              </div>
-            </el-col>
-          </el-row>
+        <el-form class="toolform" :model="filterbox" ref="filterForm">
           <el-row class="toolform-item">
-<!--            <el-col :span="8"  style="display: flex;justify-content: center;align-items: center;">
-              <el-form-item label="商户编号:" label-width="150px">
-                <el-input v-model="filterbox.merchantNum" type="text" style="width: 200px;display: flex;text-align: center" placeholder="商户编号"/>
-              </el-form-item>
-            </el-col>-->
             <el-col :span="8" class="toolform-line" style="display: flex;justify-content: center;align-items: center;">
-              <el-form-item label="商户名称:" label-width="150px">
-                <el-input v-model="filterbox.merchantAccount" type="text" style="width: 200px;display: flex;text-align: center" placeholder="商户账号"/>
+              <el-form-item label="商户名称:" label-width="150px" prop="merchantAccount">
+                <el-input v-model="filterbox.merchantName" type="text" style="width: 200px;display: flex;text-align: center" placeholder="商户账号"/>
               </el-form-item>
             </el-col>
-            <el-col :span="8" class="toolform-line" style="display: flex;justify-content: center;align-items: center;">
-              <el-form-item label="时间范围:" label-width="150px">
+            <el-col :span="16" class="toolform-line" style="display: flex;justify-content: center;align-items: center;">
+              <el-form-item label="时间范围:" label-width="150px" prop="filterDateRange">
                 <el-date-picker
-                    v-model="filterDateRange"
+                    v-model="filterbox.filterDateRange"
                     type="daterange"
                     range-separator="至"
                     start-placeholder="开始日期"
@@ -226,54 +337,36 @@ export default {
                     value-format="x"
                 >
                 </el-date-picker>
+                <div style="display: flex;flex-direction: row">
+                  <div v-on:click="reset('filterForm')" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
+                    <SvgIcon height="30px" width="30px" name="reset"/>
+                    <div style="width: 50px;color: white">重置</div>
+                  </div>
+                  <div v-on:click="filtersearch" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
+                    <SvgIcon height="30px" width="30px" name="search"/>
+                    <div style="width: 50px;color: white">查询</div>
+                  </div>
+                  <div v-on:click="exportMerchantInfo" style="background-color: limegreen;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
+                    <SvgIcon height="30px" width="30px" name="export"/>
+                    <div style="width: 50px;color: white">导出</div>
+                  </div>
+                </div>
               </el-form-item>
             </el-col>
           </el-row>
         </el-form>
       </div>
-      <!-- 统计数据展示 -->
-      <div class="statistics-container">
-        <el-card id="statistics" class="statistics-form">
-          <div class="statistics-form-item">
-            <SvgIcon name="cash" width="100px" height="100px"/>
-            <div style="display: flex; flex-direction: column;width: 80%;">
-              <span style="text-align: left;font-size: x-large">总账户金额:</span>
-              <textarea v-model="filterbox.merchantAccount" disabled class="cash-text-area"></textarea>
-            </div>
-          </div>
-        </el-card>
-
-        <el-card id="statistics" class="statistics-form">
-          <div class="statistics-form-item">
-            <SvgIcon name="tixian" width="90px" height="90px"/>
-            <div style="display: flex; flex-direction: column;width: 80%;">
-              <span style="text-align: left;font-size: x-large">提现总金额:</span>
-              <textarea v-model="filterbox.merchantAccount" disabled class="cash-text-area"></textarea>
-            </div>
-          </div>
-        </el-card>
-
-        <el-card id="statistics" class="statistics-form">
-          <div class="statistics-form-item">
-            <SvgIcon name="cash-freeze" width="100px" height="100px"/>
-            <div style="display: flex; flex-direction: column;width: 80%;">
-              <span style="text-align: left;font-size: x-large">冻结总金额:</span>
-              <textarea v-model="filterbox.merchantAccount" disabled class="cash-text-area"></textarea>
-            </div>
-          </div>
-        </el-card>
-      </div>
     </el-collapse-item>
   </el-collapse>
-  <div class="reportInfo" style="margin-right: 3%">
-    <el-tabs type="border-card" style="width: 100%">
+  <div class="reportInfo" style="margin-left: 1%;margin-right: 3%;margin-top: 1%;width: 95%;">
+    <el-tabs type="border-card" style="width: 100%" @tab-click="handleTabClick" v-model="activeTabPane">
       <el-tab-pane label="代收报表" style="width: 100%">
-        <form id="reportInfo" class="reportInfoForm">
+        <form id="reportInfo" class="reportInfoForm" style="height: auto">
           <el-table
               border :data="collectingReportInfoData"
-              class="reportInfo-table"
+              class="reportInfo-table1"
               style="width: 100%"
-              height="470"
+              height="auto"
           >
             <el-table-column
                 label="商户名称"
@@ -282,17 +375,17 @@ export default {
                 width="150px"
             >
               <div>
-                {{row.merchantAccount}}
+                {{row.merchantName}}
               </div>
             </el-table-column>
             <el-table-column
-                prop="dsOrderNumber"
+                prop="orderQuantity"
                 label="代收订单总数"
                 v-slot="{row}"
                 align="center"
             >
               <div>
-                {{row.dsOrderNumber}}
+                {{row.orderQuantity}}
               </div>
             </el-table-column>
             <el-table-column
@@ -302,77 +395,77 @@ export default {
                 align="center"
             >
               <div>
-                {{row.dsOrderSuccessRate}}
+                {{((row.successQuantity/row.orderQuantity)*100).toFixed(2)}}%
               </div>
             </el-table-column>
             <el-table-column
-                prop="dsOrderSuccessNumber"
+                prop="successQuantity"
                 label="代收订单成功数"
                 v-slot="{row}"
                 align="center"
             >
               <div>
-                {{row.dsOrderSuccessNumber}}
+                {{row.successQuantity}}
               </div>
             </el-table-column>
             <el-table-column
-                prop="commission"
+                prop="merchantFee"
                 label="代收商户手续费"
                 v-slot="{row}"
                 align="center"
             >
               <div>
-                {{row.commission}}
+                {{row.merchantFee}}
               </div>
             </el-table-column>
             <el-table-column
-                prop="firstAgentCommission"
+                prop="agent1Fee"
                 label="一级代理佣金"
                 v-slot="{row}"
                 align="center"
             >
               <div>
-                {{row.firstLevelAgentCommission}}
+                {{row.agent1Fee}}
               </div>
             </el-table-column>
             <el-table-column
-                prop="secondLevelAgentCommission"
+                prop="agent2Fee"
                 label="二级代理佣金"
                 v-slot="{row}"
                 align="center"
             >
               <div>
-                {{row.secondLevelAgentCommission}}
+                {{row.agent2Fee}}
               </div>
             </el-table-column>
             <el-table-column
-                prop="thirdLevelAgentCommission"
+                prop="agent3Fee"
                 label="三级代理佣金"
                 v-slot="{row}"
                 align="center"
             >
               <div>
-                {{row.thirdLevelAgentCommission}}
+                {{row.agent3Fee}}
               </div>
             </el-table-column>
             <el-table-column
-                prop="totalProfit"
+                prop="orderProfit"
                 label="代收总利润"
                 v-slot="{row}"
                 align="center"
             >
               <div>
-                {{row.totalProfit}}
+                {{row.orderProfit}}
               </div>
             </el-table-column>
             <el-table-column
-                prop="time"
+                prop="recordDate"
                 label="时间"
                 v-slot="{row}"
                 align="center"
             >
               <div>
-                {{getTimeFromTimestamp(row.time)}}
+                {{(getFormateDate(row.recordDate))}}
               </div>
             </el-table-column>
           </el-table>
@@ -390,13 +483,13 @@ export default {
           </el-pagination>
         </form>
       </el-tab-pane>
-      <el-tab-pane label="代付报表">
-        <form id="reportInfo" class="reportInfoForm">
+      <el-tab-pane label="代付报表"  style="width: 100%">
+        <form id="reportInfo" class="reportInfoForm" style="height: auto">
           <el-table
               border :data="payingReportInfoData"
-              class="reportInfo-table"
-              style="width: 97%"
-              height="470"
+              class="reportInfo-table2"
+              style="width: 100%"
+              height="auto"
           >
             <el-table-column
                 label="商户名称"
@@ -405,7 +498,7 @@ export default {
                 width="150px"
             >
               <div>
-                {{row.merchantAccount}}
+                {{row.merchantName}}
               </div>
             </el-table-column>
             <el-table-column
@@ -415,7 +508,7 @@ export default {
                 align="center"
             >
               <div>
-                {{row.dfOrderNumber}}
+                {{row.orderQuantity}}
               </div>
             </el-table-column>
             <el-table-column
@@ -425,7 +518,7 @@ export default {
                 align="center"
             >
               <div>
-                {{row.dfOrderSuccessRate}}
+                {{((row.successQuantity/row.orderQuantity)*100).toFixed(2)}}%
               </div>
             </el-table-column>
             <el-table-column
@@ -435,7 +528,7 @@ export default {
                 align="center"
             >
               <div>
-                {{row.dfOrderSuccessNumber}}
+                {{row.successQuantity}}
               </div>
             </el-table-column>
             <el-table-column
@@ -445,7 +538,7 @@ export default {
                 align="center"
             >
               <div>
-                {{row.commission}}
+                {{row.merchantFee}}
               </div>
             </el-table-column>
             <el-table-column
@@ -455,7 +548,7 @@ export default {
                 align="center"
             >
               <div>
-                {{row.firstLevelAgentCommission}}
+                {{row.agent1Fee}}
               </div>
             </el-table-column>
             <el-table-column
@@ -465,7 +558,7 @@ export default {
                 align="center"
             >
               <div>
-                {{row.secondLevelAgentCommission}}
+                {{row.agent2Fee}}
               </div>
             </el-table-column>
             <el-table-column
@@ -475,7 +568,7 @@ export default {
                 align="center"
             >
               <div>
-                {{row.thirdLevelAgentCommission}}
+                {{row.agent3Fee}}
               </div>
             </el-table-column>
             <el-table-column
@@ -485,7 +578,7 @@ export default {
                 align="center"
             >
               <div>
-                {{row.totalProfit}}
+                {{row.orderProfit}}
               </div>
             </el-table-column>
             <el-table-column
@@ -495,7 +588,7 @@ export default {
                 align="center"
             >
               <div>
-                {{getTimeFromTimestamp(row.time)}}
+                {{(getFormateDate(row.recordDate))}}
               </div>
             </el-table-column>
           </el-table>

@@ -5,99 +5,102 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 
 <template>
   <div class="main-title">商户账号</div>
-  <div class="main-toolbar">
-    <el-form class="main-toolform">
-<!--      <div class="main-toolform-item">
-        <div class="main-toolform-line" style="justify-content: right;margin-right: 4%;">
-          <div v-on:click="reset()" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="30px" name="reset"/>
-            <div style="width: 50px;color: white">重置</div>
-          </div>
-          <div v-on:click="search()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="30px" name="search"/>
-            <div style="width: 50px;color: white">查询</div>
-          </div>
-        </div>
-      </div>-->
-<!--      <div class="main-toolform-item">
-        <div class="main-toolform-line">商户账号：<input v-model="filterbox.merchantAccount"  type="text" class="main-toolform-input" placeholder="商户账号"/></div>
-        <div class="main-toolform-line">提现账号：<input v-model="filterbox.withdrawlAccount"  type="text" class="main-toolform-input" placeholder="提现账号"/></div>
-      </div>-->
-      <el-row style="display: flex;justify-content: space-around;">
-        <el-form-item label="商户账号" label-width="150px">
-          <el-input style="width: 200px" v-model="filterbox.merchantName"/>
-        </el-form-item>
-        <el-form-item label="收款账号" label-width="150px">
-          <el-input style="width: 200px" v-model="filterbox.withdrawlAccount"/>
-        </el-form-item>
-        <el-form-item label="录入时间" label-width="150px">
-          <el-date-picker
-              v-model="filterDateRange"
-              type="daterange"
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              format="YYYY/MM/DD"
-              value-format="x"
-          >
-          </el-date-picker>
-          <div style="display: flex;flex-direction: row;">
-            <div v-on:click="reset()" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-              <SvgIcon height="30px" width="30px" name="reset"/>
-              <div style="width: 50px;color: white">重置</div>
-            </div>
-            <div v-on:click="search()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-              <SvgIcon height="30px" width="30px" name="search"/>
-              <div style="width: 50px;color: white">查询</div>
-            </div>
-          </div>
-        </el-form-item>
-      </el-row>
-    </el-form>
-  </div>
-  <div style="display: flex;height: 12vh;justify-content: space-between;margin-right: 10%;margin-left: 10%;">
-    <el-card style="width: 30%;height: 100%;margin-top: 1%;">
-      <div style="display: flex;">
-        <SvgIcon name="cash" width="100px" height="100px"/>
-        <div style="display: flex; flex-direction: column;width: 80%;">
-          <span>总账户金额:</span>
-          <textarea v-model="filterbox.merchantAccount" disabled class="cash-text-area"></textarea>
-        </div>
+
+  <el-collapse style="margin-top: 20px; width: 95%;margin-left: 1%;margin-right: 3%;">
+    <el-collapse-item>
+      <template #title>
+         <span class="toolbarName">
+          工具栏&统计数据
+        </span>
+      </template>
+      <div class="main-toolbar">
+        <el-form class="main-toolform">
+          <el-row style="display: flex;justify-content: space-around;">
+            <el-form-item label="商户账号" label-width="150px">
+              <el-input style="width: 200px" v-model="filterbox.merchantName"/>
+            </el-form-item>
+            <el-form-item label="收款账号" label-width="150px">
+              <el-input style="width: 200px" v-model="filterbox.withdrawlAccount"/>
+            </el-form-item>
+            <el-form-item label="录入时间" label-width="150px">
+              <el-date-picker
+                  v-model="filterDateRange"
+                  type="daterange"
+                  range-separator="至"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  format="YYYY/MM/DD"
+                  value-format="x"
+              >
+              </el-date-picker>
+              <div style="display: flex;flex-direction: row;">
+                <div v-on:click="reset()" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
+                  <SvgIcon height="30px" width="30px" name="reset"/>
+                  <div style="width: 50px;color: white">重置</div>
+                </div>
+                <div v-on:click="search()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
+                  <SvgIcon height="30px" width="30px" name="search"/>
+                  <div style="width: 50px;color: white">查询</div>
+                </div>
+              </div>
+            </el-form-item>
+          </el-row>
+        </el-form>
       </div>
-    </el-card>
-    <el-card style="width: 30%;height: 100%;margin-top: 1%;">
-        <div style="display: flex;">
-          <SvgIcon name="cash-freeze" width="100px" height="100px"/>
-          <div style="display: flex; flex-direction: column;width: 80%;">
-            <span>冻结总金额:</span>
-            <textarea v-model="filterbox.merchantAccount" disabled class="cash-text-area"></textarea>
+      <div class="statistics-container" style="display: flex;justify-content: space-around;height: auto;justify-items: center;align-items: center;margin-top:1%;">
+        <el-card style="width: 30%;height: 100%;">
+          <div style="display: flex;">
+            <SvgIcon name="cash" width="100px" height="100px"/>
+            <div style="display: flex; flex-direction: column;width: 80%;">
+              <span>总账户金额:</span>
+              <textarea v-model="filterbox.merchantAccount" disabled class="cash-text-area"></textarea>
+            </div>
           </div>
-        </div>
-    </el-card>
-    <el-card style="width: 30%;height: 100%;margin-top: 1%;">
-      <div style="display: flex;">
-        <SvgIcon name="tixian" width="90px" height="90px"/>
-        <div style="display: flex; flex-direction: column;width: 80%;">
-          <span>提现总金额:</span>
-          <textarea v-model="filterbox.merchantAccount" disabled class="cash-text-area"></textarea>
-        </div>
+        </el-card>
+        <el-card style="width: 30%;height: 100%;">
+          <div style="display: flex;">
+            <SvgIcon name="cash-freeze" width="100px" height="100px"/>
+            <div style="display: flex; flex-direction: column;width: 80%;">
+              <span>冻结总金额:</span>
+              <textarea v-model="filterbox.merchantAccount" disabled class="cash-text-area"></textarea>
+            </div>
+          </div>
+        </el-card>
+        <el-card style="width: 30%;height: 100%;">
+          <div style="display: flex;">
+            <SvgIcon name="tixian" width="90px" height="90px"/>
+            <div style="display: flex; flex-direction: column;width: 80%;">
+              <span>提现总金额:</span>
+              <textarea v-model="filterbox.merchantAccount" disabled class="cash-text-area"></textarea>
+            </div>
+          </div>
+        </el-card>
       </div>
-    </el-card>
-  </div>
-  <div class="main-views-container" style="height: 550px;margin-top: 3%;">
+    </el-collapse-item>
+  </el-collapse>
+
+  <div class="reportInfo" style="margin-left: 1%;margin-right: 3%;margin-top: 1%;width: 95%;">
     <!--
      商户展示为一条 提现账户展示多条
      客服/管理员展示所有商户下的所有账号
      -->
-    <form class="main-views-form" style="height: 600px;width: 97%;">
+    <form class="main-views-form" style="height: auto;width: 100%;">
       <div style="display: flex;flex-direction: row;float: right">
-        <el-button v-on:click="exportStatements()" style="width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
-          <SvgIcon height="30px" width="30px" name="export"/>
-          <div style="width: 50px;color: black">导出</div>
+        <el-button @click="exportStatements()">
+          <template #icon>
+            <div style="width: 100%">
+              <SvgIcon height="40px" width="40px" name="export"/>
+            </div>
+          </template>
+          <div style="color: black">导出</div>
         </el-button>
-        <el-button v-on:click="addWithdrawlAccount()" style="width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
-          <SvgIcon height="30px" width="30px" name="add"/>
-          <div style="width: 50px;color: black">新增</div>
+        <el-button @click="addWithdrawlAccount()" style="margin: 0">
+          <template #icon>
+            <div style="width: 100%">
+              <SvgIcon height="40px" width="40px" name="add"/>
+            </div>
+          </template>
+          <div style="color: black">新增</div>
         </el-button>
       </div>
       <el-table
@@ -375,6 +378,8 @@ export default {
 }
 </script>
 <style scoped>
+@import "@/api/common.css";
+@import "@/assets/base.css";
 .cash-text-area {
   width: 90%;
   height: 100%;

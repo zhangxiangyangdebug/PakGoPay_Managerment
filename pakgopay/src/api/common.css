@@ -14,6 +14,7 @@
     border-radius: 10px;
     width: 95%;
     color: deepskyblue;
+    height: 50px;
 }
 
 .main-toolbar{
@@ -91,6 +92,7 @@
 
 .toolbarName{
     color: black;
+    margin-left: 1%;
 }
 
 .statistics-container{
