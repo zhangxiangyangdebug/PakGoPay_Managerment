@@ -17,6 +17,7 @@ service.interceptors.request.use(config => {
 })
 
 service.interceptors.response.use(response => {
+    let currentPath = localStorage.getItem('currentPath')
     localStorage.setItem('unauthorizedShown', "false");
     return response;
 }, error => {
@@ -24,14 +25,18 @@ service.interceptors.response.use(response => {
 
         if (localStorage.getItem('unauthorizedShown')!=='true') {
             localStorage.setItem('unauthorizedShown', "true");
-            ElNotification({
-                title: 'warn',
-                message: 'this page is timed out. Please fresh page and try again',
-                closeIcon: CloseBold,
-                type: 'error',
-                position: 'bottom-right',
-                offset: 500
-            })
+            if (localStorage.getItem('currentPath') && !localStorage.getItem('unauthorizedShown').includes('/web/login')) {
+                ElNotification({
+                    title: 'warn',
+                    message: 'this page is timed out. will refresh this page',
+                    closeIcon: CloseBold,
+                    type: 'error',
+                    position: 'bottom-right',
+                    offset: 500
+                })
+                this.router.push(localStorage.getItem('currentPath'))
+            }
+
         }
         return Promise.reject(error);
     }

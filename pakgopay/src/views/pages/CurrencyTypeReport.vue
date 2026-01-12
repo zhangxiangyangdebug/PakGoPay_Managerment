@@ -1,15 +1,57 @@
 <script setup>
 
 import SvgIcon from "@/components/SvgIcon/index.vue";
+import {getFormateDate} from "@/api/common.js";
 </script>
 
 <template>
  <div class="main-title" style="margin-top: 0">币种报表</div>
+  <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0" >
+    <el-form-item style="margin-left: 2%;">
+      <template #label>
+          <span style="color: black;font-size: small;align-items: center;">
+            统计币种:
+          </span>
+      </template>
+      <el-select
+          style="width: 150px;align-items: center;text-align: center;"
+          :options="currencyOptions"
+          :props="currencyProps"
+          default-first-option
+          v-model="filterbox.currency"
+          @change="handleCurrencyChange"
+          filterable
+          placeholder="select currency"
+      />
+    </el-form-item>
+  </div>
+  <div class="statistics-container"  style="flex-direction: row;justify-content: space-around">
+    <el-card id="statistics" class="statistics-form" v-if="statisticsInfo.collectionCard">
+      <div class="statistics-form-item">
+        <SvgIcon name="tixian" width="100px" height="100px"/>
+        <div style="display: flex; flex-direction: column;width: 80%;">
+          <span style="text-align: left;font-size: x-large">代收总金额:</span>
+          <textarea v-model="statisticsInfo.collectionCurrencyAmount" disabled class="cash-text-area"></textarea>
+        </div>
+      </div>
+    </el-card>
+
+    <el-card id="statistics" class="statistics-form" v-if="statisticsInfo.payingCard">
+      <div class="statistics-form-item">
+        <SvgIcon name="paying" width="90px" height="90px"/>
+        <div style="display: flex; flex-direction: column;width: 80%;">
+          <span style="text-align: left;font-size: x-large">代付总金额:</span>
+          <textarea v-model="statisticsInfo.payingCurrencyAmount" disabled class="cash-text-area"></textarea>
+        </div>
+      </div>
+    </el-card>
+  </div>
+
   <el-collapse style="margin-top: 20px; width: 95%;margin-left: 1%;margin-right: 3%;">
     <el-collapse-item>
       <template #title>
         <span class="toolbarName">
-          工具栏&统计数据
+          工具栏
         </span>
       </template>
       <div class="toolbar" style="width: 96%">
@@ -44,44 +86,24 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                 value-format="x"
             >
             </el-date-picker>
-            <el-button @click="search" style="color: deepskyblue">搜索</el-button>
+            <el-button @click="filterSearch" style="color: deepskyblue">搜索</el-button>
             <el-button @click="exportData" style="color: deepskyblue;margin: 0"><SvgIcon name="export"/>导出</el-button>
           </el-form-item>
         </el-row>
-      </div>
-      <div class="statistics-container" style="justify-content: space-around">
-        <el-card id="statistics" class="statistics-form">
-          <div class="statistics-form-item">
-            <SvgIcon name="tixian" width="100px" height="100px"/>
-            <div style="display: flex; flex-direction: column;width: 80%;justify-items: right">
-              <span style="text-align: left;font-size: x-large">代收总金额:</span>
-              <textarea v-model="totalbox.collectionAmount" disabled class="cash-text-area"></textarea>
-            </div>
-          </div>
-        </el-card>
-
-        <el-card id="statistics" class="statistics-form">
-          <div class="statistics-form-item">
-            <SvgIcon name="paying" width="90px" height="90px"/>
-            <div style="display: flex; flex-direction: column;width: 80%;">
-              <span style="text-align: left;font-size: x-large">代付总金额:</span>
-              <textarea v-model="totalbox.payingAmount" disabled class="cash-text-area"></textarea>
-            </div>
-          </div>
-        </el-card>
       </div>
     </el-collapse-item>
   </el-collapse>
 
 
   <div class="reportInfo" style="margin-left: 1%;margin-right: 3%;margin-top: 1%;width: 95%;">
-    <el-tabs style="height: 100%;width: 100%">
+    <el-tabs style="height: 100%;width: 100%" @tab-click="handleTabClick" v-model="activeTabPane">
       <el-tab-pane label="代收" class="tabTable" style="width: 100%">
         <el-table
-          :data="collectingData"
+          :data="collectionCurrencyInfo"
           height="auto"
           border
           style="width: 100%"
+          class="reportInfo-table1"
         >
           <el-table-column
             label="币种"
@@ -89,23 +111,31 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             align="center"
             v-slot="{row}"
           >
-            <div>{{row.currencyType}}</div>
+            <div>{{row.currency}}</div>
           </el-table-column>
           <el-table-column
-              label="订单数量"
-              prop="orderAmount"
+              label="代收订单数量"
+              prop="orderQuantity"
               align="center"
               v-slot="{row}"
           >
-            <div>{{row.orderAmount}}</div>
+            <div>{{row.orderQuantity}}</div>
           </el-table-column>
           <el-table-column
-              label="币种"
-              prop="currencyType"
+              label="代收成功订单数"
+              prop="successQuantity"
               align="center"
               v-slot="{row}"
           >
-            <div>row.currencyType</div>
+            <div>{{row.successQuantity}}</div>
+          </el-table-column>
+          <el-table-column
+              label="代收失败订单数"
+              prop="failureQuantity"
+              align="center"
+              v-slot="{row}"
+          >
+            <div>{{row.orderQuantity-row.successQuantity}}</div>
           </el-table-column>
           <el-table-column
               label="成功率"
@@ -113,15 +143,31 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               align="center"
               v-slot="{row}"
           >
-            <div>{{row.successRate}}</div>
+            <div>{{((row.successQuantity/row.orderQuantity)*100).toFixed(2)}}%</div>
           </el-table-column>
           <el-table-column
-              label="金额"
+              label="代收商户手续费"
               prop="amount"
               align="center"
               v-slot="{row}"
           >
             <div>{{row.amount}}</div>
+          </el-table-column>
+          <el-table-column
+              label="代收总利润"
+              prop="amount"
+              align="center"
+              v-slot="{row}"
+          >
+            <div>{{row.orderBalance}}</div>
+          </el-table-column>
+          <el-table-column
+              label="日期"
+              prop="recordDate"
+              align="center"
+              v-slot="{row}"
+          >
+            <div>{{getFormateDate(row.recordDate)}}</div>
           </el-table-column>
         </el-table>
         <el-pagination
@@ -139,33 +185,42 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       </el-tab-pane>
       <el-tab-pane label="代付" class="tabTable" style="width: 100%">
         <el-table
-          :data="payingData"
+          :data="payingCurrencyInfo"
           height="auto"
           border
+          class="reportInfo-table2"
         >
           <el-table-column
               label="币种"
-              prop="currencyType"
+              prop="currency"
               align="center"
               v-slot="{row}"
           >
-            <div>{{row.currencyType}}</div>
+            <div>{{row.currency}}</div>
           </el-table-column>
           <el-table-column
-              label="订单数量"
-              prop="orderAmount"
+              label="代付订单数量"
+              prop="orderQuantity"
               align="center"
               v-slot="{row}"
           >
-            <div>{{row.orderAmount}}</div>
+            <div>{{row.orderQuantity}}</div>
           </el-table-column>
           <el-table-column
-              label="币种"
-              prop="currencyType"
+              label="代付成功订单数"
+              prop="successQuantity"
               align="center"
               v-slot="{row}"
           >
-            <div>row.currencyType</div>
+            <div>row.successQuantity</div>
+          </el-table-column>
+          <el-table-column
+              label="代付失败订单数"
+              prop="failureQuantity"
+              align="center"
+              v-slot="{row}"
+          >
+            <div>row.orderQuantity-row.successQuantity</div>
           </el-table-column>
           <el-table-column
               label="成功率"
@@ -173,15 +228,31 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               align="center"
               v-slot="{row}"
           >
-            <div>{{row.successRate}}</div>
+            <div>{{((row.successQuantity/row.orderQuantity)*100).toFixed(2)}}%</div>
           </el-table-column>
           <el-table-column
-              label="金额"
+              label="代付商户手续费"
               prop="amount"
               align="center"
               v-slot="{row}"
           >
             <div>{{row.amount}}</div>
+          </el-table-column>
+          <el-table-column
+              label="代付总利润"
+              prop="orderBalance"
+              align="center"
+              v-slot="{row}"
+          >
+            <div>{{row.orderBalance}}</div>
+          </el-table-column>
+          <el-table-column
+              label="日期"
+              prop="amount"
+              align="center"
+              v-slot="{row}"
+          >
+            <div>{{getFormateDate(row.recordDate)}}</div>
           </el-table-column>
         </el-table>
         <el-pagination
@@ -203,12 +274,31 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 
 <script>
 import {ref} from "vue";
+import {
+  getAllCurrencyType,
+  getCurrencyReport,
+} from "@/api/interface/backendInterface.js";
+import {getTodayStartTimestamp, loadingBody} from "@/api/common.js";
 
 const filterDateRange = ref('')
 export default {
   name: 'CurrencyTypeReport',
   data() {
     return {
+      timeRange: [],
+      currency: '',
+      currencyIcon: '',
+      currencyIcons: {},
+      currencyOptions: [],
+      currencyProps: {
+        value: 'currencyType',
+        label: 'name'
+      },
+      activeTabPane: '0',
+      statisticsInfo: {},
+      payingCurrencyInfo : [],
+      collectionCurrencyInfo : [],
+      loadingInstance: '',
       totalbox: {},
       tab1TotalCount: 0,
       tab2TotalCount: 0,
@@ -218,23 +308,103 @@ export default {
       tab1PageSize:10,
       tab2PageSize:10,
       filterbox: {},
-      currencyOptions: [
-        {
-          value: 1,
-          label: '马币'
-        },
-        {
-          value: 2,
-          label: '美元'
-        }
-      ]
     }
   },
   methods: {
-    exportData() {
+    handleCurrencyChange() {
+      this.currency = this.filterbox.currency;
+      this.currencyIcon = this.currencyIcons[this.currency]
+      this.filterSearch()
     },
-    search() {
+    handleTabClick(tab) {
+      this.filterbox.pageNo = 1;
+      this.filterbox.pageSize = 10;
+      if (tab.paneName === '0') {
+        this.tab2CurrentPage = 1;
+        this.tab2PageSize = 10;
+        this.search(0, tab.paneName)
+      } else if (tab.paneName === '1') {
+        this.tab1CurrentPage = 1;
+        this.tab1PageSize = 10;
+        this.search(1, tab.paneName)
+      }
+    },
+    filterSearch() {
+      this.payingCurrencyInfo = []
+      this.collectionCurrencyInfo = []
+      this.activeTabPane = '0'
+      this.search(0)
+      this.filterbox.isNeed = true
+    },
+    search(orderType, paneName){
+      let loadingClass = ''
+      if (paneName === '0') {
+        loadingClass = 'reportInfo-table1'
+      } else if (paneName === '1') {
+        loadingClass = 'reportInfo-table2'
+      } else {
+        loadingClass = 'reportInfo-table1'
+      }
+      /*this.loadingBody(loadingClass)*/
+      this.loadingInstance = loadingBody(this, loadingClass)
+      let timeRange = new String(this.filterbox.filterDateRange)
+      if (!this.filterbox.filterDateRange) {
+        this.filterbox.startTime = getTodayStartTimestamp()
+        this.filterbox.endTime = getTodayStartTimestamp()
+      } else {
+        this.filterbox.startTime = timeRange.split(',')[0]/1000
+        this.filterbox.endTime = timeRange.split(',')[1]/1000
+      }
+      if (!orderType) {
+        this.filterbox.orderType = 0;
+      } else {
+        this.filterbox.orderType = orderType
+      }
 
+      getCurrencyReport(this.filterbox).then(response => {
+        if (response.status === 200 && response.data.code === 0) {
+          let resData = JSON.parse(response.data.data)
+          const cardInfo = resData.cardInfo[this.filterbox.currency]
+          if (orderType === 0) {
+            this.collectionCurrencyInfo = resData.channelReportDtoList
+            this.tab1CurrentPage = resData.pageNo
+            this.tab1TotalCount = resData.totalNumber
+            this.tab1PageSize = resData.pageSize
+            this.statisticsInfo.collectionCurrencyAmount = this.currencyIcon + cardInfo.total
+            this.statisticsInfo.collectionCard = true
+            this.statisticsInfo.payingCard = false
+          } else if (orderType === 1) {
+            this.payingCurrencyInfo = resData.channelReportDtoList
+            this.tab2CurrentPage = resData.pageNo
+            this.tab2TotalCount = resData.totalNumber
+            this.tab2PageSize = resData.pageSize
+            this.statisticsInfo.payingCurrencyAmount = this.currencyIcon + cardInfo.total
+            this.statisticsInfo.payingCard = true
+            this.statisticsInfo.collectionCard = false
+          }
+        } else if (response.data.code !==0) {
+          this.$notify({
+            title: 'Error',
+            message: response.data.message,
+            duration: 3000,
+            type: 'error',
+            position: 'bottom-right',
+          })
+        } else {
+          this.$notify({
+            title: 'Error',
+            message: 'Some error occurred.',
+            duration: 3000,
+            type: 'error',
+            position: 'bottom-right'
+          })
+        }
+        this.loadingInstance.close()
+      }).catch(err => {
+        this.loadingInstance.close()
+      })
+    },
+    exportData() {
     },
     handleTab1CurrentChange(val) {
 
@@ -248,6 +418,33 @@ export default {
     handleTab2PageSizeChange(val) {
 
     }
+  },
+  async mounted() {
+    await getAllCurrencyType().then(res => {
+      if (res.status === 200) {
+        if (res.data.code === 0) {
+          this.currencyOptions = JSON.parse(res.data.data)
+          this.currency = this.currencyOptions[0].currencyType
+          this.filterbox.currency = this.currencyOptions[0].currencyType
+          this.currencyIcons = {};
+          this.currencyOptions.forEach(currency => {
+            this.currencyIcons[currency.currencyType] = currency.icon
+          })
+          let iconKey = this.currency;
+          this.currencyIcon = this.currencyIcons[iconKey]
+          this.statisticsInfo.collectionCurrencyAmount = this.currencyIcon+0;
+          this.statisticsInfo.payingCurrencyAmount = this.currencyIcon+0;
+        }
+      }
+    })
+
+    this.startTime = getTodayStartTimestamp()
+    this.endTime = getTodayStartTimestamp()
+    this.filterbox.isNeedCardData = true
+    this.activeTabPane = '0'
+    this.search(0)
+    this.tab1TotalCount = this.collectionCurrencyInfo.length
+    this.tab2TotalCount = this.payingCurrencyInfo.length
   }
 }
 </script>

@@ -147,7 +147,7 @@ export default {
       } else {
         this.filterbox.orderType = orderType
       }
-
+      this.filterbox.channelId = '1'
       getChannelReport(this.filterbox).then(response => {
          if (response.status === 200 && response.data.code === 0) {
            let resData = JSON.parse(response.data.data)
@@ -201,7 +201,6 @@ export default {
       if (res.status === 200) {
         if (res.data.code === 0) {
           this.currencyOptions = JSON.parse(res.data.data)
-          console.log('options----' + this.currencyOptions[0].currencyType)
           this.currency = this.currencyOptions[0].currencyType
           this.filterbox.currency = this.currencyOptions[0].currencyType
           this.currencyIcons = {};
@@ -244,7 +243,7 @@ export default {
     </el-form-item>
   </div>
   <div class="statistics-container"  style="flex-direction: row;justify-content: space-around">
-    <el-card id="statistics" class="statistics-form" v-if="this.statisticsInfo.collectionCard">
+    <el-card id="statistics" class="statistics-form" v-if="statisticsInfo.collectionCard">
       <div class="statistics-form-item">
         <SvgIcon name="tixian" width="100px" height="100px"/>
         <div style="display: flex; flex-direction: column;width: 80%;">
@@ -254,7 +253,7 @@ export default {
       </div>
     </el-card>
 
-    <el-card id="statistics" class="statistics-form" v-if="this.statisticsInfo.payingCard">
+    <el-card id="statistics" class="statistics-form" v-if="statisticsInfo.payingCard">
       <div class="statistics-form-item">
         <SvgIcon name="paying" width="90px" height="90px"/>
         <div style="display: flex; flex-direction: column;width: 80%;">

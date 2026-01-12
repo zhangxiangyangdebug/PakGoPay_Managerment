@@ -24,7 +24,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
   </div>
 
   <div class="statistics-container" style="justify-content: space-around">
-    <el-card id="statistics" class="statistics-form" v-if="this.statisticsInfo.collectionCard">
+    <el-card id="statistics" class="statistics-form" v-if="statisticsInfo.collectionCard">
       <div class="statistics-form-item">
         <SvgIcon name="tixian" width="100px" height="100px"/>
         <div style="display: flex; flex-direction: column;width: 80%;justify-items: right">
@@ -34,7 +34,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       </div>
     </el-card>
 
-    <el-card id="statistics" class="statistics-form" v-if="this.statisticsInfo.payingCard">
+    <el-card id="statistics" class="statistics-form" v-if="statisticsInfo.payingCard">
       <div class="statistics-form-item">
         <SvgIcon name="paying" width="90px" height="90px"/>
         <div style="display: flex; flex-direction: column;width: 80%;">
@@ -507,7 +507,7 @@ export default {
     this.activeTabPane = '0'
     this.search(0)
     this.tab1TotalCount = this.collectionAgentReportInfo.length
-    this.tab2TotalCount = this.collectionAgentReportInfo.length
+    this.tab2TotalCount = this.payingAgentReportInfo.length
   }
 
 

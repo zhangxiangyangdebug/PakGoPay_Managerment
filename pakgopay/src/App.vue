@@ -36,14 +36,15 @@ import {getAsyncRoutes} from "@/router/asyncRouter.js";
           if (res.data === 'refresh') {
             refreshAccessToken(localStorage.getItem("refreshToken")).then((response) => {
                 if (response && response.data) {
-                  if (response.data.code === 100108) {
+                  if (response.data.code !== 0) {
                     localStorage.removeItem("token");
                     localStorage.removeItem("menu")
                     localStorage.removeItem("userName")
                     localStorage.removeItem("userId")
                     localStorage.removeItem("currentPath")
                     /*localStorage.removeItem("refreshToken")*/
-                    router.replace("/web/login").then()
+                    router.push("/web/login")
+                    return
                   }
                   localStorage.setItem("userName", response.data.userName);
                   localStorage.setItem("userId", response.data.userId);
