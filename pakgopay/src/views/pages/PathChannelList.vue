@@ -15,7 +15,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </span>
       </template>
       <div class="main-toolbar" style="height: auto;">
-        <el-form style="width: 100%">
+        <el-form style="width: 100%" ref="filterboxForm" :model="filterbox">
           <el-row style="width: 100%;">
             <el-col :span="24">
               <div style="display: flex;flex-direction: row;justify-content: right;margin-right:20px">
@@ -24,7 +24,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
                   <SvgIcon height="30px" width="30px" name="search"/>
                   <div style="width: 50px;color: white">查询</div>
                 </div>
-                <div v-on:click="reset()"
+                <div v-on:click="reset('filterboxForm')"
                      style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
                   <SvgIcon height="30px" width="30px" name="reset"/>
                   <div style="width: 50px;color: white">重置</div>
@@ -40,27 +40,30 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
           <el-row style="width: 100%;margin-top:10px">
             <div style="display: flex;flex-direction: row;width: 100%">
               <el-col :span="5">
-                <el-form-item label="通道名称:" label-width="150px">
-                  <input v-model="filterbox.pathChannelName" type="text" class="main-toolform-input"
+                <el-form-item label="通道名称:" label-width="150px" prop="paymentName">
+                  <input v-model="filterbox.paymentName" type="text" class="main-toolform-input"
                          placeholder="通道名称" style="width: 200px;height: 100%"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="支付类型:" label-width="150px">
+                <el-form-item label="支付类型:" label-width="150px" prop="supportType">
                   <el-select v-model="filterbox.supportType" class="main-toolform-input" placeholder="支付方式"
-                             :options="supportTypeOptions" style="width: 200px;height: 100%"
+                             :options="supportTypeOptions"
+                             style="width: 200px;height: 100%"
+                             clearable
                   />
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="通道类型:" label-width="150px">
+                <el-form-item label="通道类型:" label-width="150px" prop="paymentType">
                   <el-select v-model="filterbox.paymentType" class="main-toolform-input" placeholder="通道类型"
                              :options="paymentTypeOptions" style="width: 200px;height: 100%"
+                             clearable
                   />
                 </el-form-item>
               </el-col>
               <el-col :span="4">
-                <el-form-item label="通道状态:" label-width="150px">
+                <el-form-item label="通道状态:" label-width="150px" prop="status">
                   <el-switch v-model="filterbox.status" placeholder="支付方式"
                              style="width: 200px;height: 100%"
                              active-color="#13ce66"
@@ -73,7 +76,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
                 </el-form-item>
               </el-col>
               <el-col :span="3">
-                <el-form-item label="币种:" label-width="100px">
+                <el-form-item label="币种:" label-width="100px" prop="currency">
                   <el-select
                       style="width: 100px;align-items: center;text-align: center;"
                       :options="currencyOptions"
@@ -92,12 +95,19 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
     </el-collapse-item>
   </el-collapse>
 
-  <div class="main-views-container" style="height: auto">
+  <div class="main-views-container" style="height: 100%">
     <div class="main-views-form" style="height: 100%">
+      <div style="width: 97%">
+        <el-button @click="createPathChannel" style="float: right">
+          <svgIcon height="25px" width="25px" name="add"/>
+          <div>新增</div>
+        </el-button>
+      </div>
+
       <el-table
           border :data="PathChannelTableInfo"
-          class="merchantInfos-table"
-          style="width: 97%;height: 100%;"
+          class="paymentList"
+          style="width: 97%;height: 80%;"
           :key="tableKey"
       >
         <el-table-column
@@ -125,7 +135,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
           </div>
         </el-table-column>
         <el-table-column
-            prop="pathChannelStatus"
+            prop="status"
             label="通道状态"
             v-slot="{row}"
             align="center"
@@ -133,11 +143,13 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         >
           <div>
             <el-switch
-                v-model="row.pathChannelStatus"
+                v-model="row.status"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
                 active-text="启用"
                 inactive-text="停用"
+                :active-value="1"
+                :inactive-value="0"
                 disabled
             ></el-switch>
           </div>
@@ -161,7 +173,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             width="100px"
         >
           <div>
-            {{ (row.supportType === '0') ? '代收' : (row.supportType === '1') ? '代付' : '代收/代付' }}
+            {{ (row.supportType === 0) ? '代收' : (row.supportType === 1) ? '代付' : '代收/代付' }}
           </div>
         </el-table-column>
         <el-table-column
@@ -471,7 +483,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
           v-model:page-size="pageSize"
           :page-sizes="pageSizes"
           style="float:right; margin-right: 5%;"
-          @current-change="handleChange"
+          @current-change="handleCurrentPageChange"
           @size-change="handleSizeChange"
       >
 
@@ -488,16 +500,255 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
     style="height: 600px;align-content: center"
   >
     <el-form
-        style="margin-top: 50px;width: 100%"
+        style="margin-top: 10px;width: 100%;margin-left: 2%;"
         :model="paymentDetailInfo"
     >
       <el-row style="width: 100%">
-        <el-col :span="24">
+        <el-col :span="6">
           <el-form-item
               label="通道编号:"
-              v-slot="{row}"
+              label-width="150px"
           >
-            {{row}}
+            {{paymentDetailInfo.paymentNo}}
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="通道名称:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.paymentName}}
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="通道状态:"
+              label-width="150px"
+          >
+            <el-switch
+                :model-value="paymentDetailInfo.status"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
+                active-text="启用"
+                inactive-text="停用"
+                :active-value = "1"
+                :inactive-value="0"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="是否三方:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.isThird === '0' ? '系统支付' : '三方支付'}}
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row style="width: 100%">
+        <el-col :span="6">
+          <el-form-item
+              label="支付类型:"
+              label-width="150px"
+          >
+            {{ (paymentDetailInfo.supportType === 0) ? '代收' : (paymentDetailInfo.supportType === 1) ? '代付' : '代收/代付' }}
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="通道可用时间段:"
+              label-width="150px"
+          >
+            {{
+              !paymentDetailInfo.enableTimePeriod ? 'all' : getFormateTimeByTimeBystamp(paymentDetailInfo.enableTimePeriod ? paymentDetailInfo.enableTimePeriod.split('/')[0] : '') + '-' + getFormateTimeByTimeBystamp(paymentDetailInfo.enableTimePeriod ? paymentDetailInfo.enableTimePeriod.split('/')[1] : '')
+            }}
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="通道类型:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.paymentType === '1' ? 'app支付':'银行卡支付'}}
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="是否支持收银台:"
+              prop="isCheckoutCounter"
+              label-width="150px"
+          >
+            <el-switch
+                :model-value="paymentDetailInfo.isCheckoutCounter"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
+                active-text="启用"
+                inactive-text="停用"
+                :active-value = "1"
+                :inactive-value="0"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row style="width: 100%">
+        <el-col :span="6">
+          <el-form-item
+              label="通道单笔限额:"
+              label-width="150px"
+          >
+            [{{paymentDetailInfo.paymentMinAmount}},{{paymentDetailInfo.paymentMaxAmount}}]
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="通道代收日限额:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.collectionDailyLimit}}
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="通道代收月限额:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.collectionMonthlyLimit}}
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="通道代付日限额:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.payDailyLimit}}
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row style="width: 100%">
+        <el-col :span="6">
+          <el-form-item
+              label="通道代付月限额:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.payMonthlyLimit}}
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="代付API地址:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.paymentRequestCollectionUrl}}
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="代收API地址:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.paymentRequestCollectionUrl}}
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="代收费率:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.paymentCollectionRate}}
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row style="width: 100%">
+        <el-col :span="6">
+          <el-form-item
+              label="代付费率:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.paymentPayRate}}
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="代付订单校验地址:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.paymentCheckPayUrl}}
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="代收订单校验地址:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.paymentCheckCollectionUrl}}
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="代收回调地址:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.collectionCallbackAddr}}
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row style="width: 100%">
+        <el-col :span="6">
+          <el-form-item
+              label="代付回调地址:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.payCallbackAddr}}
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="代收接口参数:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.collectionInterfaceParam}}
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="代付接口参数:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.payInterfaceParam}}
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="银行名称:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.bankName}}
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row style="width: 100%">
+        <el-col :span="6">
+          <el-form-item
+              label="银行账号:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.bankAccount}}
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="银行用户名:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.bankUserName}}
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="币种:"
+              label-width="150px"
+          >
+            {{paymentDetailInfo.currency}}
           </el-form-item>
         </el-col>
       </el-row>
@@ -511,224 +762,463 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       width="90%"
       style="height: 600px;align-content: center"
   >
-    <el-form style="margin-top: 50px;width: 100%">
+    <el-form style="margin-top: 50px;width: 100%" ref="createPaymentForm" :rules="createPaymentInfoRules" :model="createPathChannelInfo">
       <el-row style="width: 100%">
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="通道名称:" label-width="150px" size="medium">
-              <el-input type="text" v-model="createPathChannelInfo.pathChannelName" style="width: 200px"></el-input>
-            </el-form-item>
-          </div>
+        <el-col :span="6">
+          <el-form-item
+              label="通道编号:"
+              label-width="150px"
+              prop="paymentNo"
+          >
+            <el-input v-model="createPathChannelInfo.paymentNo" style="width: 200px"></el-input>
+          </el-form-item>
         </el-col>
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="支付方式:" label-width="150px" size="medium">
-              <el-select v-model="createPathChannelInfo.payingType"
-                         style="width: 200px" placeholder="select payingType"
-                         @change="handlePayingTypeChange"
-              >
-                <el-option
-                    v-for="item in payingTypeOptions"
-                    :label="item.label"
-                    :key="item.value"
-                    :value="item.value"
-                />
-              </el-select>
-              <el-input style="width: 200px" v-if="createPathChannelInfo.payingType=== '三方支付' || showURL"
-                        :model-value="createPathChannelInfo.payingURL" type="text" placeholder="input URL"/>
-            </el-form-item>
-          </div>
+        <el-col :span="6">
+          <el-form-item
+              label="通道名称:"
+              label-width="150px"
+              prop="paymentName"
+          >
+            <el-input v-model="createPathChannelInfo.paymentName" style="width: 200px"></el-input>
+          </el-form-item>
         </el-col>
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="通道日限额:" label-width="150px" size="medium">
-              <el-input type="text" v-model="createPathChannelInfo.pathDayLimit" style="width: 200px"></el-input>
-            </el-form-item>
-          </div>
+        <el-col :span="6">
+          <el-form-item
+              label="通道状态:"
+              label-width="150px"
+              prop="status"
+          >
+            <el-radio-group
+                v-model="createPathChannelInfo.status"
+
+            >
+              <el-radio :label="0">停用</el-radio>
+              <el-radio :label="1">启用</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="是否三方:"
+              label-width="150px"
+              prop="isThird"
+          >
+            <el-radio-group v-model="createPathChannelInfo.isThird">
+              <el-radio value="0">系统支付</el-radio>
+              <el-radio value="1">三方支付</el-radio>
+            </el-radio-group>
+          </el-form-item>
         </el-col>
       </el-row>
       <el-row style="width: 100%">
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="通道月限额:" label-width="150px" size="medium">
-              <el-input type="text" v-model="createPathChannelInfo.pathMonthLimit" style="width: 200px"></el-input>
-            </el-form-item>
-          </div>
+        <el-col :span="6">
+          <el-form-item
+              label="支付类型:"
+              label-width="150px"
+              prop="supportType"
+          >
+            <el-select
+                :options="supportTypeOptions"
+                v-model="createPathChannelInfo.supportType"
+                style="width: 200px"
+            />
+          </el-form-item>
         </el-col>
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="通道单笔下限:" label-width="150px" size="medium">
-              <el-input type="text" v-model="createPathChannelInfo.pathEachMin" style="width: 200px"></el-input>
-            </el-form-item>
-          </div>
+        <el-col :span="6">
+          <el-form-item
+              label="通道可用时间段:"
+              label-width="150px"
+              prop="enableTimePeriod"
+          >
+            <el-time-picker
+            type="time"
+            v-model="createPathChannelInfo.enableTimePeriod"
+            value-format="HH:mm:ss"
+            format="HH:mm:ss"
+            is-range
+            range-separator="-"
+            />
+          </el-form-item>
         </el-col>
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="通道单笔上限:" label-width="150px" size="medium">
-              <el-input type="text" v-model="createPathChannelInfo.pathEachMax" style="width: 200px"></el-input>
-            </el-form-item>
-          </div>
+        <el-col :span="6">
+          <el-form-item
+              label="通道类型:"
+              label-width="150px"
+              prop="paymentType"
+          >
+            <el-select
+              :options="paymentTypeOptions"
+              :props="paymentTypeOptions"
+              v-model="createPathChannelInfo.paymentType"
+              style="width: 200px"
+            />
+          </el-form-item>
         </el-col>
-      </el-row>
-      <el-row style="width: 100%">
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="是否启用通道:" label-width="150px" size="medium">
-              <el-switch
-                  v-model="createPathChannelInfo.pathChannelStatus"
-                  active-color="#13ce66"
-                  inactive-color="#ff4949"
-                  active-text="启用"
-                  inactive-text="停用"
-              >
-              </el-switch>
-            </el-form-item>
-          </div>
-        </el-col>
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="通道币种:" label-width="150px" size="medium">
-              <el-select
-                  v-model="createPathChannelInfo.pathChannelCurrencyType"
-                  style="width: 200px"
-                  placeholder="select currency type"
-              >
-                <el-option
-                    v-for="item in pathChannelCurrencyTypeOptions"
-                    :label="item.label"
-                    :value="item.value"
-                    :key="item.value"
-                />
-              </el-select>
-            </el-form-item>
-          </div>
-        </el-col>
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="通道费率:" label-width="150px" size="medium">
-              <el-input type="text" v-model="createPathChannelInfo.pathChannelRate" style="width: 200px"></el-input>
-            </el-form-item>
-          </div>
+        <el-col :span="6">
+          <el-form-item
+              label="是否支持收银台:"
+              prop="isCheckoutCounter"
+              label-width="150px"
+          >
+            <el-radio-group
+                v-model="createPathChannelInfo.isCheckoutCounter"
+            >
+              <el-radio :value="0">否</el-radio>
+              <el-radio :value="1">是</el-radio>
+            </el-radio-group>
+          </el-form-item>
         </el-col>
       </el-row>
       <el-row style="width: 100%">
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="通道类型:" label-width="150px" size="medium">
-              <el-select
-                  v-model="createPathChannelInfo.pathChannelType"
-                  style="width: 200px"
-                  placeholder="select path type"
-              >
-                <el-option
-                    v-for="item in pathChannelTypeOptions"
-                    :key="item.value"
-                    :value="item.value"
-                    :label="item.label"
-                />
-              </el-select>
-            </el-form-item>
-          </div>
+        <el-col :span="6">
+          <el-form-item
+              label="通道单笔最低限额:"
+              label-width="150px"
+              prop="paymentMinAmount"
+          >
+            <el-input v-model="createPathChannelInfo.paymentMinAmount" style="width: 200px"/>
+          </el-form-item>
         </el-col>
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="支付频率/min:" label-width="150px" size="medium">
-              <el-input type="text" v-model="createPathChannelInfo.pathChannelRate" style="width: 200px"></el-input>
-            </el-form-item>
-          </div>
+        <el-col :span="6">
+          <el-form-item
+              label="通道单笔最高限额:"
+              label-width="150px"
+              prop="paymentMaxAmount"
+          >
+            <el-input v-model="createPathChannelInfo.paymentMaxAmount" style="width: 200px"/>
+          </el-form-item>
         </el-col>
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="通道回调地址:" label-width="150px" size="medium">
-              <el-input type="text" v-model="createPathChannelInfo.pathReturnUrl" style="width: 200px"></el-input>
-            </el-form-item>
-          </div>
+        <el-col :span="6">
+          <el-form-item
+              label="币种:"
+              label-width="150px"
+              prop="currency"
+          >
+            <el-select
+              :options="currencyOptions"
+              :props="currencyProps"
+              v-model="createPathChannelInfo.currency"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row style="width: 100%" v-if="createPathChannelInfo.supportType === 0 || createPathChannelInfo.supportType === 2">
+        <el-col :span="6">
+          <el-form-item
+              label="通道代收日限额:"
+              label-width="150px"
+              prop="collectionDailyLimit"
+          >
+            <el-input v-model="createPathChannelInfo.collectionDailyLimit" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="通道代收月限额:"
+              label-width="150px"
+              prop="collectionMonthlyLimit"
+          >
+            <el-input v-model="createPathChannelInfo.collectionMonthlyLimit" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="代收API地址:"
+              label-width="150px"
+              prop="paymentRequestCollectionUrl"
+          >
+            <el-input v-model="createPathChannelInfo.paymentRequestCollectionUrl" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="代收费率:"
+              label-width="150px"
+              prop="paymentCollectionRate"
+          >
+            <el-input v-model="createPathChannelInfo.paymentCollectionRate" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row style="width: 100%" v-if="createPathChannelInfo.supportType === 0 || createPathChannelInfo.supportType === 2">
+        <el-col :span="6">
+          <el-form-item
+              label="代收订单校验地址:"
+              label-width="150px"
+              prop="paymentCheckCollectionUrl"
+          >
+            <el-input v-model="createPathChannelInfo.paymentCheckCollectionUrl" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="代收回调地址:"
+              label-width="150px"
+              prop="collectionCallbackAddr"
+          >
+            <el-input v-model="createPathChannelInfo.collectionCallbackAddr" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="代收接口参数:"
+              label-width="150px"
+              prop="collectionInterfaceParam"
+          >
+            <el-input v-model="createPathChannelInfo.collectionInterfaceParam" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row style="width: 100%" v-if="createPathChannelInfo.supportType === 1 || createPathChannelInfo.supportType === 2">
+        <el-col :span="6">
+          <el-form-item
+              label="通道代付日限额:"
+              label-width="150px"
+              prop="payDailyLimit"
+          >
+            <el-input v-model="createPathChannelInfo.payDailyLimit" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="通道代付月限额:"
+              label-width="150px"
+              prop="payMonthlyLimit"
+          >
+            <el-input v-model="createPathChannelInfo.payMonthlyLimit" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="代付API地址:"
+              label-width="150px"
+              prop="paymentRequestCollectionUrl"
+          >
+            <el-input v-model="createPathChannelInfo.paymentRequestCollectionUrl" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="代付费率:"
+              label-width="150px"
+              prop="paymentPayRate"
+          >
+            <el-input v-model="createPathChannelInfo.paymentPayRate" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row style="width: 100%" v-if="createPathChannelInfo.supportType === 1 || createPathChannelInfo.supportType === 2">
+        <el-col :span="6">
+          <el-form-item
+              label="代付订单校验地址:"
+              label-width="150px"
+              prop="paymentCheckPayUrl"
+          >
+            <el-input v-model="createPathChannelInfo.paymentCheckPayUrl" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="代付回调地址:"
+              label-width="150px"
+              prop="payCallbackAddr"
+          >
+            <el-input v-model="createPathChannelInfo.payCallbackAddr" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="代付接口参数:"
+              label-width="150px"
+              prop="payInterfaceParam"
+          >
+            <el-input v-model="createPathChannelInfo.payInterfaceParam" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row style="width: 100%" v-if="createPathChannelInfo.paymentType === 2">
+        <el-col :span="6">
+          <el-form-item
+              label="银行名称:"
+              label-width="150px"
+              prop="bankName"
+          >
+            <el-input v-model="createPathChannelInfo.bankName" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="银行账号:"
+              label-width="150px"
+              prop="bankAccount"
+          >
+            <el-input v-model="createPathChannelInfo.bankAccount" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item
+              label="银行用户名:"
+              label-width="150px"
+              prop="bankUserName"
+          >
+            <el-input v-model="createPathChannelInfo.bankUserName" style="width: 200px"/>
+          </el-form-item>
         </el-col>
       </el-row>
       <el-row style="width: 100%">
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="通道余额查询地址:" label-width="150px" size="medium">
-              <el-input type="text" v-model="createPathChannelInfo.pathBalanceQueryUrl" style="width: 200px"></el-input>
-            </el-form-item>
-          </div>
-        </el-col>
-        <el-col v-if="createPathChannelInfo.pathChannelType==='2' || createPathChannelInfo.pathChannelType === '3'"
-                :span="8">
-          <div class="el-form-line">
-            <el-form-item label="通道代付查询地址:" label-width="150px" size="medium">
-              <el-input type="text" v-model="createPathChannelInfo.pathPayingQueryUrl" style="width: 200px"></el-input>
-            </el-form-item>
-          </div>
-        </el-col>
-        <el-col v-if="createPathChannelInfo.pathChannelType==='1' || createPathChannelInfo.pathChannelType === '3'"
-                :span="8">
-          <div class="el-form-line">
-            <el-form-item label="通道代收查询地址:" label-width="150px" size="medium">
-              <el-input type="text" v-model="createPathChannelInfo.pathCollectingQueryUrl"
-                        style="width: 200px"></el-input>
-            </el-form-item>
-          </div>
-        </el-col>
-      </el-row>
-      <el-row style="width: 100%">
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="谷歌验证码:" label-width="150px" size="medium">
-              <el-input type="text" v-model="createPathChannelInfo.googleCode" style="width: 200px"/>
-            </el-form-item>
-          </div>
+        <el-col :span="6">
+          <el-form-item
+              label="谷歌验证码:"
+              label-width="150px"
+              prop="googleCode"
+          >
+            <el-input v-model="createPathChannelInfo.googleCode" type="number" style="width: 200px"/>
+          </el-form-item>
         </el-col>
       </el-row>
     </el-form>
     <div slot="footer" class="dialog-footer" style="float: right;">
       <el-button @click="cancelDialog">取 消</el-button>
-      <el-button type="primary">确 定</el-button>
+      <el-button type="primary" @click="submitCreatePaymentInfo(submitType)">确 定</el-button>
     </div>
   </el-dialog>
 </template>
 
 <script>
 import {getAllCurrencyType, getPaymentInfo} from "@/api/interface/backendInterface.js";
-
+import {loadingBody} from "@/api/common.js";
 export default {
   name: "PathChannelList",
   data() {
-    return {
-      currencyMaps: {},
-      paymentDetailInfo: [
-        {
-          paymentId: '001',
-          paymentNo: '#1',
-          paymentName: '测试通道一',
-          supportType: '1',
-          isThird: '0',
-          paymentPayRate: '0.02',
-          paymentCollectionRate: '0.02',
-          paymentRequestPayUrl: '/pakgopay/pay/',
-          paymentRequestCollectionUrl: '/pakgopay/pay/',
-          payCheckPayUrl: '/pakgopay/pay/',
-          payCheckCollectionUrl: '/pakgopay/pay/',
-          paymentMaxAmount: '20000',
-          paymentMinAmount: '200',
-          collectionDailyLimit: '100',
-          collectionMonthlyLimit: '3000',
-          payDailyLimit: '300',
-          payMonthlyLimit: '9000',
-          collectionInterfaceParam: '{"key":123,"value":123"}',
-          payInterfaceParam: '{"key":123,"value":123"}',
-          collectionCallbackAddr: 'http://chousabi',
-          payCallbackAddr: 'http://chousabi2',
-          currency: 'US',
-          isCheckoutCounter: '1',
-          checkoutCounterUrl: 'http://pakgopay/payPage',
-          paymentType: '1',
-          status: '1',
-          enableTimePeriod: '1768285440/1768285444',
-          paymentCheckPayUrl: 'http://pakgopay/pay/check',
-          paymentCheckCollectionUrl: 'http://pakgopay/pay/checkCollection',
+    const validateCollection = (rule, value, callback) => {
+      if (this.createPathChannelInfo.supportType === '1' || this.createPathChannelInfo.supportType === '3') {
+         // if support type is 1 or 3 then should verify some data about collection
+        if (value == '' || value === undefined) {
+          callback(new Error('please check must form data!'))
         }
-      ],
+        callback();
+      } else {
+         callback();
+      }
+    };
+
+    const validatePay = (rule, value, callback) => {
+      if (this.createPathChannelInfo.supportType === '2' || this.createPathChannelInfo.supportType === '3') {
+        // if support type is 1 or 3 then should verify some data about collection
+        if (value == '' || value === undefined) {
+          callback(new Error('please check must form data!'))
+        }
+        callback()
+      } else {
+        callback();
+      }
+    };
+
+    const validBank = (rule, value, callback) => {
+      if (this.createPathChannelInfo.paymentType === '2') {
+        if (value == '' || value === undefined) {
+          callback(new Error('please check must form data!'))
+        }
+        callback();
+      } else {
+        callback();
+      }
+    }
+
+    return {
+      createPaymentInfoRules : {
+        paymentNo: {
+          required: true, messages: 'you need to input paymentNo', trigger: 'blur'
+        },
+        paymentName: {
+          required: true, messages: 'you need to input paymentName', trigger: 'blur'
+        },
+        status: {
+          required: true, type: 'number', messages: 'you need to input status', trigger: 'blur'
+        },
+        isThird: {
+          required: true, messages: 'you need to input whther is third', trigger: 'blur'
+        },
+        supportType: {
+          required: true, type: 'number', messages: 'you need to input support type', trigger: 'blur'
+        },
+        /*enableTimePeriod: {
+          required: true, messages: 'you need to input enableTimePeriod', trigger: 'blur'
+        },*/
+        paymentType: {
+          required: true, messages: 'you need to input paymentType', trigger: 'blur'
+        },
+        isCheckoutCounter: {
+          required: true, type: 'number', messages: 'you need to input where need checkout counter', trigger: 'blur'
+        },
+        paymentMinAmount: {
+          required: true, type: 'number', messages: 'you need to input payment min acount', trigger: 'blur'
+        },
+        paymentMaxAmount: {
+          required: true, type: 'number', messages: 'you need to input payment max acount', trigger: 'blur'
+        },
+        collectionDailyLimit: {
+          required: true,validator: validateCollection, messages: 'you need to input collection daily limit', trigger: 'blur'
+        },
+        collectionMonthlyLimit: {
+          required: true,validator: validateCollection, messages: 'you need to input collection monthly limit', trigger: 'blur'
+        },
+        payDailyLimit: {
+          required: true,validator: validatePay, messages: 'you need to input collection daily limit', trigger: 'blur'
+        },
+        payMonthlyLimit: {
+          required: true,validator: validatePay, messages: 'you need to input collection monthly limit', trigger: 'blur'
+        },
+        paymentRequestCollectionUrl: {
+          required: true,validator: validateCollection, messages: 'you need to input collection requestCollectionUrl', trigger: 'blur'
+        },
+        paymentRequestPayUrl: {
+          required: true,validator: validatePay, messages: 'you need to input collection rrequestPayUrl', trigger: 'blur'
+        },
+        paymentCollectionRate: {
+          required: true,validator: validateCollection, messages: 'you need to input collection rate', trigger: 'blur'
+        },
+        paymentPayRate: {
+          required: true,validator: validatePay, messages: 'you need to input pay rate', trigger: 'blur'
+        },
+        paymentCheckPayUrl: {
+          required: true,validator: validatePay, messages: 'you need to input checkPayUrl', trigger: 'blur'
+        },
+        paymentCheckCollectionUrl: {
+          required: true,validator: validateCollection, messages: 'you need to input checkCollectionUrl', trigger: 'blur'
+        },
+        collectionCallbackAddr: {
+          required: true,validator: validateCollection, messages: 'you need to input collectionCallbackAddr', trigger: 'blur'
+        },
+        payCallbackAddr: {
+          required: true,validator: validatePay, messages: 'you need to input collectionCallbackAddr',trigger: 'blur'
+        },
+        collectionInterfaceParam: {
+          required: true,validator: validateCollection, messages: 'you need to input collectionInterfaceParam',trigger: 'blur'
+        },
+        payInterfaceParam: {
+          required: true,validator: validatePay, messages: 'you need to input collectionInterfaceParam',trigger: 'blur'
+        },
+        bankName: {
+          required: true,validator: validBank, messages: 'you need to input bankName',trigger: 'blur'
+        },
+        bankAccount: {
+          required: true,validator: validBank, messages: 'you need to input bankAccount',trigger: 'blur'
+        },
+        bankUserName: {
+          required: true,validator: validBank, messages: 'you need to input bankUserName',trigger: 'blur'
+        },
+        currency: {
+          required: true, messages: 'you need to input currency',trigger: 'blur'
+        },
+        googleCode: {
+          required: true, messages: 'you need to input googleCode',trigger: 'blur'
+        }
+      },
+      submitType: "",
+      loadingInstance: null, // 用于存储loading实例
+      currencyMaps: {},
+      paymentDetailInfo:{},
       paymentDetailDialogTitle: '详情',
       paymentDetailVisible: false,
       showURL: false,
@@ -740,7 +1230,7 @@ export default {
       toolbarIsVisible: true,
       pathChannelDialogTitle: "",
       dialogFormVisible: false,
-      pathChannelTypeOptions: [
+      /*pathChannelTypeOptions: [
         {
           value: '1',
           label: '代收'
@@ -753,7 +1243,7 @@ export default {
           value: '3',
           label: '代收/代付'
         }
-      ],
+      ],*/
       pathChannelCurrencyTypeOptions: [
         {
           value: 1,
@@ -766,12 +1256,16 @@ export default {
       ],
       supportTypeOptions: [
         {
-          value: '0',
-          label: '系统支付'
+          value: 0,
+          label: '代收'
         },
         {
-          value: '1',
-          label: '三方支付'
+          value: 1,
+          label: '代付'
+        },
+        {
+          value: 2,
+          label: '代收/代付'
         }
       ],
       paymentTypeOptions: [
@@ -793,151 +1287,118 @@ export default {
         label: 'name'
       },
       filterbox: {
-        pathChannelNO: '',
-        pathChannelName: '',
-        pathChannelStatus: '',
-        pathChannelStatusOptions: [
-          {
-            value: '1',
-            label: '已启用'
-          },
-          {
-            value: '0',
-            label: '未启用'
-          }
-        ]
+        status: 1,
+
       },
       PathChannelTableInfo: [
-        /*{
-          pathChannelID: '',
-          pathChannelName: '',
-          pathChannelIncome: '',
-          payingType: '',
-          pathDayLimit: '',
-          pathMonthLimit: '',
-          pathEachLimit: '',
-          pathChannelStatus: '',
-          pathChannelOpenTime: '',
-          pathChannelCloseTime: '',
-          pathChannelSpending: '',
-          pathChannelCurrencyType: '',
-          pathChannelRate: '',
-          pathChannelType: '',
-        }*/
+
       ],
       PathChannelFormInfo: [
-        /*{
-          pathChannelID: '1234',
-          pathChannelName: '预置通道一',
-          pathChannelIncome: '200000000',
-          payingType: '1',
-          pathDayLimit: '1000',
-          pathMonthLimit: '30000',
-          pathEachLimit: '300,1000',
-          pathChannelStatus: true,
-          pathChannelOpenTime: '2025-12-01',
-          pathChannelCloseTime: '2025-12-11',
-          pathChannelSpending: '1000',
-          pathChannelCurrencyType: 'HK',
-          pathChannelRate: '0.2%',
-          pathChannelType: '2',
-          supportType: '1',
-        },
-        {
-          pathChannelID: '1234567',
-          pathChannelName: '预置通道二',
-          pathChannelIncome: '9999999',
-          payingType: '2',
-          pathDayLimit: '10000',
-          pathMonthLimit: '300000',
-          pathEachLimit: '3000,10000',
-          pathChannelStatus: true,
-          pathChannelOpenTime: '2025-12-01',
-          pathChannelCloseTime: '2025-12-21',
-          pathChannelSpending: '999',
-          pathChannelCurrencyType: 'US',
-          pathChannelRate: '0.1%',
-          pathChannelType: '1',
-          supportType: '0',
-        },
-        {
-          pathChannelID: '9527',
-          pathChannelName: '预置通道三',
-          pathChannelIncome: '120000000',
-          payingType: '2',
-          pathDayLimit: '10000',
-          pathMonthLimit: '300000',
-          pathEachLimit: '3000,10000',
-          pathChannelStatus: true,
-          pathChannelOpenTime: '2025-12-01',
-          pathChannelCloseTime: '2025-12-21',
-          pathChannelSpending: '999',
-          pathChannelCurrencyType: 'US',
-          pathChannelRate: '0.1%',
-          pathChannelType: '3',
-          supportType: '2',
-        }*/
+
         ],
 
-      createPathChannelInfo: [],
+      createPathChannelInfo: {},
     }
   },
   methods: {
+    reset(form) {
+      this.$refs[form].resetFields();
+    },
+    search() {
+      this.loadingInstance = loadingBody(this, 'paymentList')
+      if (this.filterbox.paymentName) {
+        this.filterbox.paymentName = new String(this.filterbox.paymentName).trim()
+      }
+      if(this.filterbox.paymentName === "") {
+        delete this.filterbox.paymentName
+      }
+      getPaymentInfo(this.filterbox).then(res => {
+        if (res.status === 200 && res.data.code === 0) {
+          const allData = JSON.parse(res.data.data);
+          this.PathChannelTableInfo = allData.paymentDtoList
+          this.currentPage = allData.pageNo
+          this.totalCount = allData.totalNumber
+          this.pageSize = allData.pageSize
+        } else {
+          this.$notify({
+            title:'Error',
+            message:res.data.message,
+            duration:3000,
+            type: 'error'
+          })
+        }
+
+      })
+      this.loadingInstance.close()
+    },
     editPathChannelInfo(row) {
-      /*this.createPathChannelInfo = []
+      console.log('editInfo----'+JSON.stringify(row))
       this.createPathChannelInfo = row
-      this.createPathChannelInfo.pathEachMin = row.pathEachLimit.split(',')[0]
-      this.createPathChannelInfo.pathEachMax = row.pathEachLimit.split(',')[1]
       this.dialogFormVisible = true
-      this.pathChannelDialogTitle = '编辑通道信息'
-      if(row.payingType === '1') {
-        this.createPathChannelInfo.payingType = '系统支付'
-      } else if(row.payingType === '2') {
-        this.createPathChannelInfo.payingType = '三方支付'
-      }*/
+      this.pathChannelDialogTitle = '修改'
+      this.submitType='edit'
     },
     PathChannelDetailInfo(row) {
+      console.log(JSON.stringify(row));
       this.paymentDetailVisible = true;
-      this.paymentDetailInfo.push(row)
+      //this.paymentDetailInfo.push(row)
+      this.paymentDetailInfo = {}
+      this.paymentDetailInfo = row;
     },
     changeToolBar() {
       this.toolbarIsVisible = !this.toolbarIsVisible;
     },
-    handleChange() {
-
-      let startNum = (this.currentPage - 1) * this.pageSize
-      let endNum = startNum + this.pageSize
-      if (this.PathChannelFormInfo.length <= endNum) {
-        endNum = this.PathChannelFormInfo.length
-      }
+    handleCurrentPageChange(currentPage) {
+      this.filterbox.pageNo = currentPage;
+      this.filterbox.pageSize = this.pageSize;
       this.PathChannelTableInfo = []
-      for (let i = startNum; i < endNum; i++) {
-        this.PathChannelTableInfo.push(this.PathChannelFormInfo[i])
-      }
-      this.tablekey++
+      this.search()
+
     },
-    handleSizeChange() {
+    handleSizeChange(pageSize) {
       this.currentPage = 1
-      this.PathChannelTableInfo = []
-      let circleSize = this.pageSize > this.PathChannelFormInfo.length ? this.PathChannelFormInfo.length : this.pageSize
-      for (let i = 0; i < circleSize; i++) {
-        this.PathChannelTableInfo.push(this.PathChannelFormInfo[i])
-      }
-
-      this.tablekey++;
+      this.pageSize = pageSize
+      this.handleCurrentPageChange(1)
     },
     cancelDialog() {
       this.dialogFormVisible = false
       this.createPathChannelInfo = []
       this.pathChannelDialogTitle = ''
+      this.$refs['createPaymentForm'].resetFields()
     },
     createPathChannel() {
       this.dialogFormVisible = true
       this.pathChannelDialogTitle = '创建通道'
+      // set default status
+      this.createPathChannelInfo.status = 1
+      // set default supportType
+      this.createPathChannelInfo.isThird = '0'
+      // set default checkout counter
+      this.createPathChannelInfo.isCheckoutCounter = 0
+      this.submitType = "create"
     },
     handlePayingTypeChange(val) {
       if (val === '2') {
         this.showURL = true;
+      }
+    },
+    submitCreatePaymentInfo(type) {
+      if (type === 'create') {
+        this.$refs['createPaymentForm'].validate(valid => {
+          if (valid) {
+            alert('校验通过')
+          } else {
+            alert('未通过')
+          }
+        })
+      } else {
+        this.$refs['createPaymentForm'].validate(valid => {
+          if (valid) {
+            alert('you are modifying data')
+          } else {
+            alert('you are modifying data, but some data must been inputed')
+          }
+        })
       }
     }
   },
@@ -947,7 +1408,7 @@ export default {
         if (res.data.code === 0) {
           this.currencyOptions = JSON.parse(res.data.data)
           this.currency = this.currencyOptions[0].currencyType
-          this.filterbox.currency = this.currencyOptions[0].currencyType
+          //this.filterbox.currency = this.currencyOptions[0].currencyType
           this.currencyIcons = {};
           this.currencyMaps = {};
           this.currencyOptions.forEach(currency => {
@@ -959,14 +1420,7 @@ export default {
         }
       }
     })
-
-    await getPaymentInfo(this.filterbox).then(res => {
-       console.log('payment----'+JSON.stringify(res))
-    })
-    this.filterbox.status = 1
-    //this.PathChannelTableInfo = this.paymentDetailInfo
-    this.totalCount = this.PathChannelTableInfo.length;
-    this.tableKey++;
+    this.search()
   }
 }
 </script>
