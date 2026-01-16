@@ -48,7 +48,6 @@ export default {
         value: 'channelId',
         label: 'channelName'
       },
-      loadingInstance: '',
       payingChannelInfo: [],
       collectionChannelInfo: [],
       activeTabPane: '0',
@@ -154,7 +153,7 @@ export default {
         loadingClass = 'reportInfo-table1'
       }
       /*this.loadingBody(loadingClass)*/
-      this.loadingInstance = loadingBody(this, loadingClass)
+      const loadingInstance = loadingBody(this, loadingClass)
       let timeRange = new String(this.filterbox.filterDateRange)
       if (!this.filterbox.filterDateRange) {
         this.filterbox.startTime = getTodayStartTimestamp()
@@ -206,9 +205,9 @@ export default {
              position: 'bottom-right'
            })
          }
-        this.loadingInstance.close()
+        loadingInstance.close()
       }).catch(err => {
-        this.loadingInstance.close()
+        loadingInstance.close()
       })
     },
     reset(form) {
@@ -240,7 +239,6 @@ export default {
         //this.filterbox.channelId = this.channelOptions[0].channelId
       }
     }).catch(error => {
-      this.loadingInstance.close()
       /*this.$notify({
         title: 'Error',
         message: error.message,

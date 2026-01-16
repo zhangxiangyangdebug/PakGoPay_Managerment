@@ -283,7 +283,6 @@ export default {
       },
       currencyMaps: {},
       dialogType: "",
-      loadingInstance: '',
       filterbox: {
         agentName: '',
       },
@@ -317,7 +316,7 @@ export default {
   methods: {
     search() {
       this.filterbox.isNeedCardData = true
-      this.loadingInstance = loadingBody(this, 'agentAccountTable')
+      const loadingInstance = loadingBody(this, 'agentAccountTable')
       getAgentAccountInfo(this.filterbox).then(res => {
         if (res.status === 200 && res.data.code === 0) {
           let allData = JSON.parse(res.data.data)
@@ -354,9 +353,9 @@ export default {
             type: 'error'
           })
         }
-        this.loadingInstance.close()
+        loadingInstance.close()
       }).catch((err) => {
-        this.loadingInstance.close()
+        loadingInstance.close()
         this.$notify({
           title: 'Error',
           message: err.message,

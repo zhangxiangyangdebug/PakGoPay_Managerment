@@ -40,7 +40,6 @@ export default {
         value: 'currencyType',
         label: 'name'
       },
-      loadingInstance: '',
       activeTabPane: '0',
       statisticsInfo: {},
       totalbox: {},
@@ -155,7 +154,7 @@ export default {
         loadingClass = 'reportInfo-table1'
       }
       /*this.loadingBody(loadingClass)*/
-      this.loadingInstance = loadingBody(this, loadingClass)
+      const loadingInstance = loadingBody(this, loadingClass)
       let timeRange = new String(this.filterbox.filterDateRange)
       if (!this.filterbox.filterDateRange) {
         this.filterbox.startTime = getTodayStartTimestamp()
@@ -207,12 +206,12 @@ export default {
                 position: 'bottom-right'
               })
             }
-               this.loadingInstance.close()
+               loadingInstance.close()
           }
       ).
         catch(err => {
           alert(err.message)
-          this.loadingInstance.close()
+          loadingInstance.close()
         })
       }
     },

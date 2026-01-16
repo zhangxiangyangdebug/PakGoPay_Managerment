@@ -32,7 +32,6 @@ export default {
         value: 'currencyType',
         label: 'name'
       },
-      loadingInstance: null, // 用于存储loading实例
       activeTabPane: 0,
       starttingTime: '',
       endingTime: '',
@@ -214,7 +213,7 @@ export default {
         loadingClass = 'reportInfo-table1'
       }
       /*this.loadingBody(loadingClass)*/
-      this.loadingInstance = loadingBody(this, loadingClass)
+      const loadingInstance = loadingBody(this, loadingClass)
       let timeRange = new String(this.filterbox.filterDateRange)
       if (!this.filterbox.filterDateRange) {
         this.filterbox.startTime = getTodayStartTimestamp()
@@ -263,9 +262,9 @@ export default {
             position: 'bottom-right'
           })
         }
-        this.loadingInstance.close()
+        loadingInstance.close()
       }).catch(err => {
-        this.loadingInstance.close()
+        loadingInstance.close()
       })
 
     },
@@ -287,16 +286,6 @@ export default {
         this.search(1, tab.paneName)
       }
     },
-    /*loadingBody(loadingClassName) {
-      this.loadingInstance = this.$loading({
-        lock: true,       // 设置进入加载
-        text: 'loading...',           // 加载文字
-        // spinner: 'el-icon-loading',
-        // background: 'rgba(255, 255, 255, 0.7)',
-        target: document.querySelector('.'+loadingClassName).querySelector('.el-table__body') // 指定加载动画覆盖的DOM节点
-
-      })
-    },*/
   },
   async mounted() {
     await getAllCurrencyType().then(res => {

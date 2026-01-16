@@ -306,7 +306,6 @@ export default {
         startTime: '',
         endTime: '',
       },
-      loadingInstance: '',
     }
   },
   methods: {
@@ -353,7 +352,7 @@ export default {
       } else {
         loadingClass = 'reportInfo-table1'
       }
-      this.loadingInstance = loadingBody(this, loadingClass)
+      const loadingInstance = loadingBody(this, loadingClass)
       let timeRange = new String(this.filterbox.filterDateRange)
       if (!this.filterbox.filterDateRange) {
         this.filterbox.startTime = getTodayStartTimestamp()
@@ -408,10 +407,10 @@ export default {
             position: 'bottom-right'
           })
         }
-        this.loadingInstance.close()
+        loadingInstance.close()
       }).catch(error => {
         console.log(error)
-        this.loadingInstance.close()
+        loadingInstance.close()
         this.$notify({
           title: 'Error',
           message: error.message,

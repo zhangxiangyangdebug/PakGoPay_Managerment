@@ -308,7 +308,6 @@ export default {
   data() {
     return {
       submitType: "",
-      loadingInstance: '',
       currency: '',
       currencyIcon: '',
       currencyIcons: [],
@@ -368,7 +367,7 @@ export default {
       this.$refs[form].resetFields();
     },
     search() {
-      this.loadingInstance = loadingBody(this, 'channelTable')
+      const loadingInstance = loadingBody(this, 'channelTable')
       getChannelInfo(this.filterbox).then(response => {
         if (response.status === 200 && response.data.code === 0) {
           const allData = JSON.parse(response.data.data)
@@ -398,10 +397,10 @@ export default {
             item.paySupportPayment = paySupportPamentList
             item.paymentIds = paymentIds
           })
-          this.loadingInstance.close()
+          loadingInstance.close()
         }
       }).catch(error => {
-        this.loadingInstance.close()
+        loadingInstance.close()
         this.$notify({
           title: 'Error',
           message: error.message,

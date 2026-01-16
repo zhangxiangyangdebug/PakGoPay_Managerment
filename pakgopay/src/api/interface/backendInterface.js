@@ -489,6 +489,18 @@ export function createAgentInfo(form) {
     })
 }
 
+export function modifyAgentInfo(form) {
+    return service({
+        url: '/api/pakGoPay/server/editAgent',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
 export function getAgentInfo(form) {
     return service({
         url: '/api/pakGoPay/server/queryAgent',

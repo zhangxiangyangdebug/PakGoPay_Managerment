@@ -305,7 +305,6 @@ export default {
       statisticsInfo: {},
       payingCurrencyInfo : [],
       collectionCurrencyInfo : [],
-      loadingInstance: '',
       totalbox: {},
       tab1TotalCount: 0,
       tab2TotalCount: 0,
@@ -353,7 +352,7 @@ export default {
         loadingClass = 'reportInfo-table1'
       }
       /*this.loadingBody(loadingClass)*/
-      this.loadingInstance = loadingBody(this, loadingClass)
+      const loadingInstance = loadingBody(this, loadingClass)
       let timeRange = new String(this.filterbox.filterDateRange)
       if (!this.filterbox.filterDateRange) {
         this.filterbox.startTime = getTodayStartTimestamp()
@@ -406,9 +405,9 @@ export default {
             position: 'bottom-right'
           })
         }
-        this.loadingInstance.close()
+        loadingInstance.close()
       }).catch(err => {
-        this.loadingInstance.close()
+        loadingInstance.close()
       })
     },
     exportCurrencyInfo() {

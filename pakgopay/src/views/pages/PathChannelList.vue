@@ -1219,7 +1219,6 @@ export default {
         }
       },
       submitType: "",
-      loadingInstance: null, // 用于存储loading实例
       currencyMaps: {},
       paymentDetailInfo:{},
       paymentDetailDialogTitle: '详情',
@@ -1371,7 +1370,7 @@ export default {
       this.$refs[form].resetFields();
     },
     search() {
-      this.loadingInstance = loadingBody(this, 'paymentList')
+      const loadingInstance = loadingBody(this, 'paymentList')
       if (this.filterbox.paymentName) {
         this.filterbox.paymentName = new String(this.filterbox.paymentName).trim()
       }
@@ -1395,7 +1394,7 @@ export default {
         }
 
       })
-      this.loadingInstance.close()
+      loadingInstance.close()
     },
     editPathChannelInfo(row) {
       console.log('editInfo----'+JSON.stringify(row))

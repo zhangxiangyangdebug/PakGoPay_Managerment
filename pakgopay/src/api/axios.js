@@ -34,7 +34,7 @@ service.interceptors.response.use(response => {
                     position: 'bottom-right',
                     offset: 500
                 })
-                this.router.redirect(localStorage.getItem('currentPath'))
+                this.router.replace(localStorage.getItem('currentPath'))
             }
 
         }

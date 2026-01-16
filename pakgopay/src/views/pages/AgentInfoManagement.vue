@@ -13,15 +13,15 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </span>
       </template>
       <div class="main-toolbar" style="height: 100px;">
-        <el-form class="main-toolform" style="display: grid;align-items: center;">
-          <div style="display: flex; align-items: center;">
+        <el-form class="main-toolform" style="display: grid;align-items: center;" ref="filterboxForm" :model="filterbox">
+<!--          <div style="display: flex; align-items: center;">
             <div class="main-toolform-line" style="justify-content: left;margin-left: 3%;">
               代理名称：<input v-model="filterbox.agentName" type="text" class="main-toolform-input"
                               style="width: 150px;" placeholder="代理名称"/>
             </div>&nbsp;
             <div class="main-toolform-line" style="justify-content: left;margin-left: 3%;">
               代理账号：<input v-model="filterbox.agentAccount" type="text" class="main-toolform-input"
-                              style="width: 150px;" placeholder="代理名称"/>
+                              style="width: 150px;" placeholder="代理账号"/>
             </div>&nbsp;
             <div class="main-toolform-line" style="justify-content: left;margin-left: 3%;">
               状态：
@@ -30,19 +30,54 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                 <el-option :value="0">停用</el-option>
               </el-select>
             </div>
-            <div style="display: flex; flex-direction: row;">
-              <el-button @click="reset()" type="danger"
-                   style="width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-                <SvgIcon height="20px" width="20px" name="reset"/>
-                <div style="color: black;">重置</div>
-              </el-button>&nbsp;
-              <el-button @click="search()"
-                   style="background-color: deepskyblue;margin: 0">
-                <SvgIcon height="20px" width="20px" name="search"/>
-                <div style="color: white;font-size: 13px;">查询</div>
-              </el-button>&nbsp;
-            </div>
-          </div>
+
+          </div>-->
+          <el-row>
+            <el-col :span="6">
+              <div>
+                <el-form-item label="代理名称:" label-width="150px" prop="agentName">
+                  <el-input v-model="filterbox.agentName" style="width: 200px;" />
+                </el-form-item>
+              </div>
+            </el-col>
+            <el-col :span="6">
+              <div>
+                <el-form-item label="代理账号:" label-width="150px" prop="accountName">
+                  <el-input v-model="filterbox.accountName" style="width: 200px;"/>
+                </el-form-item>
+              </div>
+            </el-col>
+            <el-col :span="6">
+              <div>
+                <el-form-item label="状态:" label-width="150px" prop="status">
+                  <el-select
+                    style="width: 200px;"
+                    placeholder="代理状态"
+                    v-model="filterbox.status"
+                  >
+                    <el-option label="停用" :value="0">停用</el-option>
+                    <el-option label="启用" :value="1">启用</el-option>
+                  </el-select>
+                </el-form-item>
+              </div>
+            </el-col>
+            <el-col :span="6">
+              <el-form-item>
+                <div style="display: flex; flex-direction: row;">
+                  <el-button @click="reset('filterboxForm')" type="danger"
+                             style="width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
+                    <SvgIcon height="20px" width="20px" name="reset"/>
+                    <div style="color: black;">重置</div>
+                  </el-button>&nbsp;
+                  <el-button @click="search()"
+                             style="background-color: deepskyblue;margin: 0">
+                    <SvgIcon height="20px" width="20px" name="search"/>
+                    <div style="color: white;font-size: 13px;">查询</div>
+                  </el-button>&nbsp;
+                </div>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-form>
       </div>
     </el-collapse-item>
@@ -343,9 +378,9 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="渠道配置:" label-width="150px" prop="channelIds">
+              <el-form-item label="渠道配置:" label-width="150px" prop="channelIdList">
                 <el-select
-                    v-model="agentInfo.channelIds"
+                    v-model="agentInfo.channelIdList"
                     style="width: 200px" placeholder="请选择渠道"
                     :options="createType === 'firstLevel' ? channelOptions : agentInfo.parentChannelDtoList"
                     :props="channelProps"
@@ -593,9 +628,16 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 </template>
 
 <script>
-import {createAgentInfo, getAgentInfo, getChannelInfo, getPaymentInfo} from "@/api/interface/backendInterface.js";
+import {
+  createAgentInfo,
+  getAgentInfo,
+  getChannelInfo,
+  getPaymentInfo,
+  modifyAgentInfo
+} from "@/api/interface/backendInterface.js";
 import validator from "axios/unsafe/helpers/validator.js";
 import {loadingBody} from "@/api/common.js";
+import {nextTick} from "vue";
 
 export default {
   name: 'ChannelList',
@@ -653,7 +695,6 @@ export default {
       }
     }
     return {
-      loadingInstance: '',
       createType: '',
       modifyType: '',
       tablekey: 0,
@@ -830,7 +871,7 @@ export default {
         accountConfirmPwd: {
           required: true, validator: validatePass2, trigger: 'blur',
         },
-        channelIds: {
+        channelIdList: {
           required: true,trigger: 'blur',
         },
         googleCode: {
@@ -880,9 +921,9 @@ export default {
     this.search()
   },
   methods: {
-    async search() {
-      this.loadingInstance =  loadingBody(this, 'agentInfoTable')
-      await getAgentInfo(this.filterbox).then((res) => {
+    search() {
+      const loadingInstance =  loadingBody(this, 'agentInfoTable')
+      getAgentInfo(this.filterbox).then((res) => {
         if (res.status === 200 && res.data.code === 0) {
           const allData = JSON.parse(res.data.data)
           this.agentInfoTableData = allData.agentInfoDtoList
@@ -905,13 +946,9 @@ export default {
             message: 'some error occurred, please try again'
           })
         }
-        setTimeout(()=>{
-          this.loadingInstance.close()
-          this.loadingInstance = null
-        }, 500)
-
+        loadingInstance.close()
       }).catch((err) => {
-        this.loadingInstance.close()
+        loadingInstance.close()
         this.$notify({
           title: 'Error',
           type: 'error',
@@ -921,15 +958,79 @@ export default {
         })
       })
     },
+    reset(form) {
+      this.$refs[form].resetFields()
+    },
     submit(form) {
       this.$refs[form].validate(valid => {
         if (valid) {
-           alert("formdata---"+JSON.stringify(this.agentInfo))
-           createAgentInfo(this.agentInfo).then((res) => {
-                this.search()
-                this.dialogFormVisible = false
-                this.dialogTitle = ''
-           })
+           this.agentInfo.channelIds = this.agentInfo.channelIdList
+           if (this.modifyType === 'edit') {
+             // modify
+             modifyAgentInfo(this.agentInfo).then((res) => {
+               if (res.status === 200 && res.data.code === 0) {
+                 this.search()
+                 this.dialogFormVisible = false
+                 this.dialogTitle = ''
+                 this.$notify({
+                   title: 'Success',
+                   type: 'success',
+                   duration: 5000,
+                   position: 'bottom-right',
+                   message: 'modify agent successfully'
+                 })
+               } else if (res.status === 200 && res.data.code !== 0) {
+                 this.$notify({
+                   title: 'Error',
+                   type: 'error',
+                   duration: 5000,
+                   position: 'bottom-right',
+                   message: res.data.message,
+                 })
+               } else {
+                 this.$notify({
+                   title: 'Error',
+                   type: 'error',
+                   duration: 5000,
+                   position: 'bottom-right',
+                   message: 'some error occurred, please try again'
+                 })
+               }
+             })
+           } else {
+             createAgentInfo(this.agentInfo).then((res) => {
+               if (res.status === 200 && res.data.code === 0) {
+                 this.search()
+                 this.dialogFormVisible = false
+                 this.dialogTitle = ''
+                 this.$notify({
+                   title: 'Success',
+                   type: 'success',
+                   duration: 5000,
+                   position: 'bottom-right',
+                   message: 'create agent successfully'
+                 })
+               } else if (res.status === 200 && res.data.code !== 0) {
+                 this.$notify({
+                   title: 'Error',
+                   type: 'error',
+                   duration: 5000,
+                   position: 'bottom-right',
+                   message: res.data.message,
+                 })
+               } else {
+                 this.$notify({
+                   title: 'Error',
+                   type: 'error',
+                   duration: 5000,
+                   position: 'bottom-right',
+                   message: 'some error occurred, please try again'
+                 })
+               }
+               this.modifyType = ''
+               this.createType = ''
+             })
+           }
         }
       })
     },
@@ -941,6 +1042,8 @@ export default {
       this.createType = 'firstLevel'
     },
     cancelDialog(form) {
+      this.modifyType = ''
+      this.createType = ''
       this.$refs[form].resetFields()
       this.dialogFormVisible = false;
       this.dialogTitle = ''
