@@ -6,11 +6,43 @@ import '@/assets/base.css'
 
 <template>
   <div class="main-title">{{$t('route.merchantInfo')}}</div>
+  <!-- 统计数据展示 -->
+  <div class="statistics-container">
+    <el-card id="statistics" class="statistics-form">
+      <div class="statistics-form-item">
+        <SvgIcon name="cash" width="100px" height="100px"/>
+        <div style="display: flex; flex-direction: column;width: 80%;">
+          <span>总账户金额:</span>
+          <textarea v-model="merchantReport.merchantAmount" disabled class="cash-text-area"></textarea>
+        </div>
+      </div>
+    </el-card>
+
+    <el-card id="statistics" class="statistics-form">
+      <div class="statistics-form-item">
+        <SvgIcon name="tixian" width="90px" height="90px"/>
+        <div style="display: flex; flex-direction: column;width: 80%;">
+          <span>提现总金额:</span>
+          <textarea v-model="merchantReport.merchantWithdrawlAmount" disabled class="cash-text-area"></textarea>
+        </div>
+      </div>
+    </el-card>
+
+    <el-card id="statistics" class="statistics-form">
+      <div class="statistics-form-item">
+        <SvgIcon name="cash-freeze" width="100px" height="100px"/>
+        <div style="display: flex; flex-direction: column;width: 80%;">
+          <span>冻结总金额:</span>
+          <textarea v-model="merchantReport.merchantFreezeAmount" disabled class="cash-text-area"></textarea>
+        </div>
+      </div>
+    </el-card>
+  </div>
   <el-collapse style="margin-top: 20px; width: 95%;margin-left: 2%;">
     <el-collapse-item>
       <template #title>
         <span class="toolbarName">
-          工具栏&统计数据
+          工具栏
         </span>
       </template>
       <!-- 工具栏 -->
@@ -52,38 +84,6 @@ import '@/assets/base.css'
             </div>
           </div>
         </form>
-      </div>
-      <!-- 统计数据展示 -->
-      <div class="statistics-container">
-        <el-card id="statistics" class="statistics-form">
-          <div class="statistics-form-item">
-            <SvgIcon name="cash" width="100px" height="100px"/>
-            <div style="display: flex; flex-direction: column;width: 80%;">
-              <span>总账户金额:</span>
-              <textarea v-model="merchantReport.merchantAmount" disabled class="cash-text-area"></textarea>
-            </div>
-          </div>
-        </el-card>
-
-        <el-card id="statistics" class="statistics-form">
-          <div class="statistics-form-item">
-            <SvgIcon name="tixian" width="90px" height="90px"/>
-            <div style="display: flex; flex-direction: column;width: 80%;">
-              <span>提现总金额:</span>
-              <textarea v-model="merchantReport.merchantWithdrawlAmount" disabled class="cash-text-area"></textarea>
-            </div>
-          </div>
-        </el-card>
-
-        <el-card id="statistics" class="statistics-form">
-          <div class="statistics-form-item">
-            <SvgIcon name="cash-freeze" width="100px" height="100px"/>
-            <div style="display: flex; flex-direction: column;width: 80%;">
-              <span>冻结总金额:</span>
-              <textarea v-model="merchantReport.merchantFreezeAmount" disabled class="cash-text-area"></textarea>
-            </div>
-          </div>
-        </el-card>
       </div>
     </el-collapse-item>
   </el-collapse>
