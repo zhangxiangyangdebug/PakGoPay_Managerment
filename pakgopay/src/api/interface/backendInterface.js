@@ -315,6 +315,18 @@ export function getCurrencyReport(form) {
     })
 }
 
+export function getPaymentReport(form) {
+    return service({
+        url: '/api/pakGoPay/server/queryPaymentReport',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form,
+    })
+}
+
 export function exportMerchantReport(form) {
     return service({
         url: '/api/pakGoPay/server/exportMerchantReport',
@@ -367,6 +379,32 @@ export function exportChannelReport(form) {
     })
 }
 
+export function exportPaymentReport(form) {
+    return service({
+        url: '/api/pakGoPay/server/exportPaymentReport',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        responseType: 'blob',
+        data: form,
+    })
+}
+
+export function exportPayment(form) {
+    return service({
+        url: '/api/pakGoPay/server/exportPayment',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        responseType: 'blob',
+        data: form,
+    })
+}
+
 export function getPaymentInfo(form) {
     return service({
         url: '/api/pakGoPay/server/queryPayment',
@@ -394,6 +432,78 @@ export function editPaymentInfo(form) {
 export function createPaymentInfo(form) {
     return service({
         url: '/api/pakGoPay/server/addPayment',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
+export function getChannelInfo(form) {
+    return service({
+        url: '/api/pakGoPay/server/queryChannel',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
+export function modifyChannelInfo(form) {
+    return service({
+        url: '/api/pakGoPay/server/editChannel',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
+export function createChannelInfo(form) {
+    return service({
+        url: '/api/pakGoPay/server/addChannel',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
+export function createAgentInfo(form) {
+    return service({
+        url: '/api/pakGoPay/server/addAgent',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
+export function getAgentAccountInfo(form) {
+    return service({
+        url: '/api/pakGoPay/server/queryAgentAccount',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
+export function createAgentAccountInfo(form) {
+    return service({
+        url: '/api/pakGoPay/server/addAgentAccount',
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,

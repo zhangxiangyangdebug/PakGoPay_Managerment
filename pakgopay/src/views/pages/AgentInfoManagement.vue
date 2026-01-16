@@ -5,66 +5,90 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 
 <template>
   <div class="main-title">代理信息管理</div>
-  <div class="main-toolbar" style="height: 100px;">
-    <form class="main-toolform" style="display: grid;align-items: center;">
-      <div style="display: flex; align-items: center;">
-        <div class="main-toolform-line" style="justify-content: left;margin-left: 3%;">
-          代理名称：<input v-model="filterbox.agentName"  type="text" class="main-toolform-input" style="width: 150px;" placeholder="代理名称"/>&nbsp;
-          <div v-on:click="reset()" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="30px" name="reset"/>
-            <div style="width: 50px;color: white;font-size: 13px;">重置</div>
-          </div>&nbsp;
-          <div v-on:click="search()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="30px" name="search"/>
-            <div style="width: 50px;color: white;font-size: 13px;">查询</div>
-          </div>&nbsp;
-        </div>
-        <div class="main-toolform-line" style="justify-content: right;margin-right: 0.5%">
-          <div v-on:click="addFistLevelAgent" style="background-color: deepskyblue;width:100px;display: flex; flex-direction: row;justify-content: center;cursor: pointer;align-items: center;color: greenyellow;">
-            <SvgIcon height="30px" width="30px" name="add"/>
-            <div style="width: 120px;color: white;font-size: 13px;">新增一级代理</div>
+  <el-collapse style="margin-top: 1%; width: 95%;margin-left: 1%;margin-right: 3%;">
+    <el-collapse-item>
+      <template #title>
+        <span class="toolbarName">
+          工具栏
+        </span>
+      </template>
+      <div class="main-toolbar" style="height: 100px;">
+        <el-form class="main-toolform" style="display: grid;align-items: center;">
+          <div style="display: flex; align-items: center;">
+            <div class="main-toolform-line" style="justify-content: left;margin-left: 3%;">
+              代理名称：<input v-model="filterbox.agentName" type="text" class="main-toolform-input"
+                              style="width: 150px;" placeholder="代理名称"/>
+            </div>&nbsp;
+            <div class="main-toolform-line" style="justify-content: left;margin-left: 3%;">
+              代理账号：<input v-model="filterbox.agentAccount" type="text" class="main-toolform-input"
+                              style="width: 150px;" placeholder="代理名称"/>
+            </div>&nbsp;
+            <div class="main-toolform-line" style="justify-content: left;margin-left: 3%;">
+              状态：
+              <el-select v-model="filterbox.status" style="width: 200px;">
+                <el-option :value="1">启用</el-option>
+                <el-option :value="0">停用</el-option>
+              </el-select>
+            </div>
+            <div style="display: flex; flex-direction: row;">
+              <el-button @click="reset()" type="danger"
+                   style="width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
+                <SvgIcon height="20px" width="20px" name="reset"/>
+                <div style="color: black;">重置</div>
+              </el-button>&nbsp;
+              <el-button @click="search()"
+                   style="background-color: deepskyblue;margin: 0">
+                <SvgIcon height="20px" width="20px" name="search"/>
+                <div style="color: white;font-size: 13px;">查询</div>
+              </el-button>&nbsp;
+            </div>
           </div>
-          <div v-on:click="exportAgentInfo" style="background-color:forestgreen;width:50px;display: flex; flex-direction: row;justify-content: center;cursor: pointer;align-items: center;color: greenyellow;">
-            <SvgIcon height="30px" width="70px" name="export"/>
-            <div style="width: 120px;color: white;font-size: 13px;">导出</div>
-          </div>
-        </div>
+        </el-form>
       </div>
-    </form>
-  </div>
+    </el-collapse-item>
+  </el-collapse>
 
-  <div class="main-views-container" style="height: 85%;overflow: visible">
+  <div class="main-views-container" style="height:65%;margin-top: 2%;margin-left:1%;height: 100%">
     <form class="main-views-form" style="height: 100%;overflow: visible;">
+      <div style="display: flex;flex-direction: row;width: 97%;justify-content: right;margin-left: 0">
+        <el-button type="success" @click="addFistLevelAgent" style="margin: 0">
+          <SvgIcon height="20px" width="20px" name="add"/>
+          <div style="color: black;">新增一级代理</div>
+        </el-button>
+        <el-button v-on:click="exportAgentInfo" style="margin:0">
+          <SvgIcon height="20px" width="20px" name="export"/>
+          <div style="color: black;font-size: 13px;">导出</div>
+        </el-button>
+      </div>
       <el-table
           border :data="agentInfoTableData"
           class="merchantInfos-table"
-          style="width: 97%;height: 100%;"
+          style="width: 97%;height: auto;"
           :key="tablekey"
       >
-        <el-table-column
-            prop="agentNO"
-            label="编号"
-            v-slot="{row}"
-            align="center"
-            width="60px"
-        >
-          <div>
-            {{row.agentNO}}
-          </div>
-        </el-table-column>
         <el-table-column
             prop="firstLevelAgent"
             label="代理信息"
             v-slot="{row}"
             align="center"
-            style="height: 100px;"
+            width="300px"
+            style="height: 95%;"
         >
-          <div style="height: auto;display: flex; justify-content: center;width: auto;">
-              <el-card class="box-card">
-                <div style="background-color: darkgrey">账号：{{row.agentAccount}}</div>
-                <div style="background-color: lightblue">名称：{{row.agentName}}</div>
-                <div style="background-color: lightgreen">支付渠道：{{row.payingChannel}}</div>
-              </el-card>
+          <div style="height: auto;display: flex; justify-content: center;width: 100%;">
+            <el-card class="box-card" style="width: 100%">
+              <div style="background-color: darkgrey">账号：{{ row.accountName }}</div>
+              <div style="background-color: lightblue">名称：{{ row.agentName }}</div>
+              <div v-if="row.channelDtoList" style="background-color: lightgreen">
+                <div style="display: flex;align-items: center">
+                  <div style="height:100%;width:150px;align-items: center;justify-items: center;text-align: center;">支付渠道：</div>
+                  <div style="width: 150px;border-left: solid 1px black">
+                    <div style="flex: 2;width: 130px;" v-for="item in row.channelDtoList">
+                      {{item.channelName}}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </el-card>
           </div>
         </el-table-column>
         <el-table-column
@@ -72,35 +96,45 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             label="上级代理"
             v-slot="{row}"
             align="center"
+            width="300px"
         >
-          <div style="height: auto;display: flex; justify-content: center;width: auto;">
-            <el-card v-if="row.parentAgentInfo" class="box-card">
-              <div style="background-color: darkgrey">账号：{{row.parentAgentInfo.agentAccount}}</div>
-              <div style="background-color: lightblue">名称：{{row.parentAgentInfo.agentName}}</div>
-              <div style="background-color: lightgreen">支付渠道：{{row.parentAgentInfo.payingChannel}}</div>
+          <div style="height: auto;display: flex; justify-content: center;width: 100%;">
+            <el-card v-if="row.parentUserName" class="box-card" style="width: 100%">
+              <div style="background-color: darkgrey;width: 100%">账号：{{ row.parentUserName }}</div>
+              <div style="background-color: lightblue;width: 100%">名称：{{ row.parentAgentName }}</div>
+              <div style="background-color: lightgreen">
+                <div style="display: flex;align-items: center">
+                  <div style="height:100%;width:150px;align-items: center;justify-items: center;text-align: center;">支付渠道：</div>
+                  <div style="width: 150px;border-left: solid 1px black">
+                    <div style="flex: 2;width: 130px;" v-for="item in row.parentChannelDtoList">
+                      {{item.channelName}}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </el-card>
           </div>
         </el-table-column>
         <el-table-column
-          prop="agentLevel"
-          label="层级"
-          v-slot="{row}"
-          align="center"
-          width="100px"
+            prop="agentLevel"
+            label="层级"
+            v-slot="{row}"
+            align="center"
+            width="100px"
         >
           <div>
-            {{row.agentLevel}}
+            {{ row.level }}
           </div>
         </el-table-column>
         <el-table-column
-          prop="agentStatus"
-          label="状态"
-          v-slot="{row}"
-          align="center"
+            prop="agentStatus"
+            label="状态"
+            v-slot="{row}"
+            align="center"
         >
           <div>
             <el-switch
-                v-model="row.agentStatus"
+                v-model="row.status"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
                 active-text="启用"
@@ -110,61 +144,110 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </div>
         </el-table-column>
         <el-table-column
-          label="登陆IP"
-          v-slot="{row}"
-          align="center"
+            prop="agentLevel"
+            label="费率"
+            v-slot="{row}"
+            align="center"
+            width="auto"
         >
-          <div>{{row.loginIP}}</div>
+          <div>
+            代收费率:{{row.collectionRate ? row.collectionRate : 0 }}% + {{row.collectionFixedFee? row.collectionFixedFee : 0}}
+          </div>
+          <div>
+            代付费率:{{row.payRate? row.payRate : 0}}% + {{row.payFixedFee? row.payFixedFee : 0}}
+          </div>
         </el-table-column>
+<!--        <el-table-column
+            label="登陆IP"
+            v-slot="{row}"
+            align="center"
+        >
+          <div>{{ row.loginIP }}</div>
+        </el-table-column>-->
         <el-table-column
             label="登陆IP白名单"
             v-slot="{row}"
             align="center"
         >
-          <div>{{row.loginIPWhiteList}}</div>
+          <div>{{ row.loginIps }}</div>
         </el-table-column>
         <el-table-column
-          label="最近登陆时间"
+            label="提现IP白名单"
+            v-slot="{row}"
+            align="center"
+        >
+          <div>{{ row.withdrawIps }}</div>
+        </el-table-column>
+        <el-table-column
+            label="代理账户余额"
+            v-slot="{row}"
+            align="center"
+        >
+          <div>{{ row.loginIPWhiteList }}</div>
+        </el-table-column>
+        <el-table-column
+          label="联系人信息"
           v-slot="{row}"
           align="center"
         >
-          <div>{{row.lastLoginTime}}</div>
+            <div style="background-color: #aaaaaa">
+              联系人: {{row.contactName? row.contactName : '-'}}
+            </div>
+          <div style="background-color: lightskyblue">
+            手机号: {{row.contactPhone ? row.contactPhone: '-'}}
+          </div>
+          <div style="background-color: lightgreen">
+            邮箱: {{row.contactEmail ? row.contactEmail: '-'}}
+          </div>
+        </el-table-column>
+<!--        <el-table-column
+            label="最近登陆时间"
+            v-slot="{row}"
+            align="center"
+        >
+          <div>{{ row.lastLoginTime }}</div>
         </el-table-column>
         <el-table-column
             label="创建时间"
             v-slot="{row}"
             align="center"
         >
-          <div>{{row.createTime}}</div>
-        </el-table-column>
+          <div>{{ row.createTime }}</div>
+        </el-table-column>-->
         <el-table-column
-          label="操作"
-          align="center"
-          v-slot="{row}"
-          width="100px"
-          style="overflow: auto"
+            label="操作"
+            align="center"
+            v-slot="{row}"
+            width="100px"
+            style="overflow: auto"
         >
-<!--          <el-dropdown>
-            <SvgIcon name="more" width="30px" height="30px"/>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>新增下一级代理</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>-->
-
           <el-dropdown trigger="click">
-            <SvgIcon name="more" width="30" height="30" />
+            <SvgIcon name="more" width="30" height="30"/>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item @click="editAgentInfo(row)">编辑</el-dropdown-item>
                 <el-dropdown-item @click="deleteAgentInfo(row)">删除</el-dropdown-item>
-                <el-dropdown-item v-if="row.agentLevel !== 3" @click="addNextLevelAgent(row)">增加下一级代理</el-dropdown-item>
+                <el-dropdown-item v-if="row.level !== 3" @click="addNextLevelAgent(row)">增加下一级代理
+                </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
 
         </el-table-column>
       </el-table>
+      <el-pagination
+          background
+          layout="sizes, prev, pager, next, jumper, total"
+          :total="totalCount"
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="pageSizes"
+          style="float:right; margin-right: 5%;"
+          @current-change="handleCurrentPageChange"
+          @size-change="handleSizeChange"
+      >
 
+      </el-pagination>
     </form>
 
 
@@ -174,73 +257,201 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         v-model="dialogFormVisible"
         class="dialog"
         center="true"
-        width="40%"
-        style="height: 600px;border:solid 1px lightseagreen"
+        width="70%"
+        style="height: 500px;overflow: auto;"
     >
-      <el-form style="margin-top: 50px">
-        <div class="el-form-line">
-          <el-form-item label="代理名称:" label-width="150px" size="medium">
-            <el-input type="text" v-model="agentInfo.agentName" style="width: 200px"></el-input>
-          </el-form-item>
-        </div>
-        <div class="el-form-line">
-          <el-form-item label="代理账号:" label-width="150px" size="medium">
-            <el-input autocomplete="new-password" type="text" v-model="agentInfo.agentAccount" style="width: 200px"></el-input>
-          </el-form-item>
-        </div>
-        <div class="el-form-line">
-          <el-form-item label="代理账号密码:" label-width="150px" size="medium">
-            <el-input autocomplete="new-password" type="password" v-model="agentInfo.agentPassword" style="width: 200px"></el-input>
-          </el-form-item>
-        </div>
-        <div class="el-form-line">
-          <el-form-item label="确认密码:" label-width="150px" size="medium">
-            <el-input type="password" v-model="agentInfo.agentConfirmPassword" style="width: 200px"></el-input>
-          </el-form-item>
-        </div>
-        <div class="el-form-line">
-          <el-form-item label="代理状态:" label-width="150px" size="medium" style="width: 350px;">
-            <el-switch
-                v-model="agentInfo.agentStatus"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
-                active-text="启用"
-                inactive-text="停用"
-            >
-            </el-switch>
-          </el-form-item>
-        </div>
-        <div class="el-form-line">
-          <el-form-item label="渠道费率:" label-width="150px" size="medium">
-            <el-input type="number" v-model="agentInfo.channelRate" style="width: 200px"></el-input>
-          </el-form-item>
-        </div>
-        <div class="el-form-line">
-          <el-form-item label="渠道配置:" label-width="150px" size="medium">
-            <el-select v-model="agentInfo.channelConfig" style="width: 200px" placeholder="请选择渠道">
-              <el-option
-                v-for="item in agentInfo.channelOptions"
-                :key="item.value"
-                :value="item.value"
-                :label="item.label"
-              />
-            </el-select>
-          </el-form-item>
-        </div>
-        <div class="el-form-line">
-          <el-form-item label="代理费率:" label-width="150px" size="medium">
-            <el-input type="number" v-model="agentInfo.agentRate" style="width: 200px"></el-input>
-          </el-form-item>
-        </div>
-        <div class="el-form-line">
-          <el-form-item label="谷歌验证码:" label-width="150px" size="medium">
-            <el-input type="number" v-model="agentInfo.googleCode" style="width: 200px"></el-input>
-          </el-form-item>
-        </div>
+      <el-form style="margin-top: 50px" ref="createAgentForm" :rules="createAgentRule" :model="agentInfo">
+        <el-row>
+          <el-col :span="8">
+            <div class="el-form-line">
+              <el-form-item label="代理名称:" label-width="150px" prop="agentName">
+                <el-input type="text" v-model="agentInfo.agentName" style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="el-form-line">
+              <el-form-item label="代理账号:" label-width="150px" prop="accountName">
+                <el-input autocomplete="new-password" type="text" v-model="agentInfo.accountName"
+                          style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="el-form-line">
+              <el-form-item label="代理层级:" label-width="150px" prop="level">
+                <el-input autocomplete="new-password" type="text" v-model="agentInfo.level"
+                          disabled
+                          style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="8">
+            <div class="el-form-line">
+              <el-form-item label="联系人:" label-width="150px" prop="contactName">
+                <el-input v-model.number="agentInfo.contactName" style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="el-form-line">
+              <el-form-item label="手机号:" label-width="150px" prop="contactPhone">
+                <el-input v-model.number="agentInfo.contactPhone" style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="el-form-line">
+              <el-form-item label="邮箱:" label-width="150px" prop="contactEmail">
+                <el-input v-model="agentInfo.contactEmail" style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="8">
+            <div class="el-form-line">
+              <el-form-item label="代收固定费率:" label-width="150px" prop="collectionFixedFee">
+                <el-input type="number" v-model.number="agentInfo.collectionFixedFee" style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="el-form-line">
+              <el-form-item label="代收百分比费率:" label-width="150px" prop="collectionRate">
+                <el-input type="number" v-model.number="agentInfo.collectionRate" style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="el-form-line">
+              <el-form-item label="代付固定费率:" label-width="150px" prop="payFixedFee">
+                <el-input type="number" v-model.number="agentInfo.payFixedFee" style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="8">
+            <div class="el-form-line">
+              <el-form-item label="代付百分比费率:" label-width="150px" prop="payRate">
+                <el-input type="number" v-model.number="agentInfo.payRate" style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="el-form-line">
+              <el-form-item label="渠道配置:" label-width="150px" prop="channelIds">
+                <el-select
+                    v-model="agentInfo.channelIds"
+                    style="width: 200px" placeholder="请选择渠道"
+                    :options="createType === 'firstLevel' ? channelOptions : agentInfo.parentChannelDtoList"
+                    :props="channelProps"
+                    multiple
+                >
+                </el-select>
+              </el-form-item>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="el-form-line">
+              <el-form-item label="代理状态:" label-width="150px" style="width: 350px;" prop="status">
+                <el-switch
+                    v-model="agentInfo.status"
+                    active-color="#13ce66"
+                    inactive-color="#ff4949"
+                    active-text="启用"
+                    inactive-text="停用"
+                    :active-value="1"
+                    :inactive-value="0"
+                >
+                </el-switch>
+              </el-form-item>
+            </div>
+          </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="8">
+              <div class="el-form-line">
+                <el-form-item label="登陆ip白名单:" label-width="150px" prop="loginIps">
+                  <el-input autocomplete="new-password" v-model="agentInfo.loginIps"
+                            style="width: 200px"></el-input>
+                </el-form-item>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="el-form-line">
+                <el-form-item label="提现ip白名单:" label-width="150px" prop="withdrawIps">
+                  <el-input autocomplete="new-password" v-model="agentInfo.withdrawIps"
+                            style="width: 200px"></el-input>
+                </el-form-item>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="el-form-line">
+                <el-form-item label="代收单笔最大费用:" label-width="150px" prop="collectionMaxFee">
+                  <el-input autocomplete="new-password" v-model="agentInfo.collectionMaxFee"
+                            style="width: 200px"></el-input>
+                </el-form-item>
+              </div>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="8">
+              <div class="el-form-line">
+                <el-form-item label="代收单笔最小费用:" label-width="150px" prop="collectionMaxFee">
+                  <el-input autocomplete="new-password" v-model="agentInfo.collectionMinFee"
+                            style="width: 200px"></el-input>
+                </el-form-item>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="el-form-line">
+                <el-form-item label="代付单笔最大费用:" label-width="150px" prop="payMaxFee">
+                  <el-input autocomplete="new-password" v-model="agentInfo.payMaxFee"
+                            style="width: 200px"></el-input>
+                </el-form-item>
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div class="el-form-line">
+                <el-form-item label="代付单笔最小费用:" label-width="150px" prop="payMinFee">
+                  <el-input autocomplete="new-password" v-model="agentInfo.payMinFee"
+                            style="width: 200px"></el-input>
+                </el-form-item>
+              </div>
+            </el-col>
+          </el-row>
+          <el-row>
+          <el-col :span="8" v-if="modifyType !== 'edit'">
+            <div class="el-form-line">
+              <el-form-item label="代理账号密码:" label-width="150px" prop="accountPwd">
+                <el-input autocomplete="new-password" type="password" v-model="agentInfo.accountPwd"
+                          style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+          <el-col :span="8" v-if="modifyType !== 'edit'">
+            <div class="el-form-line">
+              <el-form-item label="确认密码:" label-width="150px" prop="accountConfirmPwd">
+                <el-input type="password" v-model="agentInfo.accountConfirmPwd" style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="el-form-line">
+              <el-form-item label="谷歌验证码:" label-width="150px" prop="googleCode">
+                <el-input type="number" v-model="agentInfo.googleCode" style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="cancelDialog">取 消</el-button>
-        <el-button type="primary">确 定</el-button>
+        <el-button @click="cancelDialog('createAgentForm')">取 消</el-button>
+        <el-button type="primary" @click="submit('createAgentForm')">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -258,14 +469,16 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-col :span="8">
             <div class="el-form-line">
               <el-form-item label="上级代理名称:" label-width="150px" size="medium">
-                <el-input disabled type="text" v-model="nextLevelAgentInfo.parentAgentName" style="width: 200px"></el-input>
+                <el-input disabled type="text" v-model="nextLevelAgentInfo.parentAgentName"
+                          style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
               <el-form-item label="上级代理账号:" label-width="150px" size="medium">
-                <el-input disabled type="text" v-model="nextLevelAgentInfo.parentAgentAccount" style="width: 200px"></el-input>
+                <el-input disabled type="text" v-model="nextLevelAgentInfo.parentAgentAccount"
+                          style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
@@ -281,21 +494,24 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-col :span="8">
             <div class="el-form-line">
               <el-form-item label="代理账号:" label-width="150px" size="medium">
-                <el-input autocomplete="new-password" type="text" v-model="nextLevelAgentInfo.agentAccount" style="width: 200px"></el-input>
+                <el-input autocomplete="new-password" type="text" v-model="nextLevelAgentInfo.agentAccount"
+                          style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
               <el-form-item label="代理账号密码:" label-width="150px" size="medium">
-                <el-input autocomplete="new-password" type="password" v-model="nextLevelAgentInfo.agentPassword" style="width: 200px"></el-input>
+                <el-input autocomplete="new-password" type="password" v-model="nextLevelAgentInfo.agentPassword"
+                          style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
               <el-form-item label="确认密码:" label-width="150px" size="medium">
-                <el-input type="password" v-model="nextLevelAgentInfo.agentConfirmPassword" style="width: 200px"></el-input>
+                <el-input type="password" v-model="nextLevelAgentInfo.agentConfirmPassword"
+                          style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
@@ -377,10 +593,67 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 </template>
 
 <script>
+import {createAgentInfo, getChannelInfo, getPaymentInfo} from "@/api/interface/backendInterface.js";
+import validator from "axios/unsafe/helpers/validator.js";
+
 export default {
   name: 'ChannelList',
   data() {
+    const validatePass = (rule, value, callback) => {
+      if (value === '' || value === undefined) {
+        callback(new Error('请输入密码'))
+      } else {
+        if (this.agentInfo.accountConfirmPwd !== '' && this.agentInfo.accountConfirmPwd !== 'undefined') {
+          this.$refs.createAgentForm.validateField('accountConfirmPwd');
+        }
+        callback()
+      }
+    };
+
+    const validatePass2 = (rule, value, callback) => {
+      if (value === '' || value === undefined) {
+        callback(new Error('请再次输入密码'))
+      } else if (value !== this.agentInfo.accountPwd) {
+        callback(new Error("两次输入都密码不一致"))
+      } else {
+        callback()
+      }
+    };
+
+    const validCollectionFee = (rule, value, callback) => {
+      if ( !value && !this.agentInfo.collectionRate) {
+        callback(new Error('fixedFee or rate need at least one '))
+      } else {
+        callback()
+      }
+    };
+
+    const validCollectionRate = (rule, value, callback) => {
+      if ( !value && !this.agentInfo.collectionFixedFee) {
+        callback(new Error('fixedFee or rate need at least one '))
+      } else {
+        callback()
+      }
+    };
+
+    const validPayFee = (rule, value, callback) => {
+      if ( !value && !this.agentInfo.payRate) {
+        callback(new Error('fixedFee or rate need at least one '))
+      } else {
+        callback()
+      }
+    };
+
+    const validPayRate = (rule, value, callback) => {
+      if ( !value && !this.agentInfo.payFixedFee) {
+        callback(new Error('fixedFee or rate need at least one '))
+      } else {
+        callback()
+      }
+    }
     return {
+      createType: '',
+      modifyType: '',
       tablekey: 0,
       filterbox: {
         agentName: '',
@@ -388,172 +661,257 @@ export default {
       dialogFormVisible: false,
       parentDialogTitle: '',
       parentDialogVisible: false,
+      channelOptions: [],
+      channelProps: {
+        value: 'channelId',
+        label: 'channelName'
+      },
       dialogTitle: '',
       agentInfo: {
-        agentName: '',
-        agentAccount: '',
-        agentPassword: '',
-        agentConfirmPassword: '',
-        agentStatus: false,
-        loginIPWhiteList:'',
-        channelRate: '',
-        channelConfig: '',
-        channelOptions: [
-          {
-            value: '1',
-            label: '渠道1'
-          },
-          {
-            value: '2',
-            label: '渠道2'
-          }
-        ],
-        agentRate: '',
-        googleCode: '',
       },
       nextLevelAgentInfo: {
         parentAgentName: '',
         parentAgentAccount: '',
         agentName: '',
         agentAccount: '',
-        agentPassword: '',
-        agentConfirmPassword: '',
+        accountPwd: '',
+        accountConfirmPwd: '',
         agentStatus: false,
-        loginIPWhiteList:'',
+        loginIPWhiteList: '',
         channelRate: '',
         channelConfig: '',
-        channelOptions: [
+        parentChannelDtoList: [
           {
+            channelId: '001',
+            channelName: '上级代理'
+          },
+          {
+            channelId: '002',
+            channelName: '上级代理2'
+          }
+        ],
+        channelOptions: [
+          /*{
             value: '1',
             label: '渠道1'
           },
           {
             value: '2',
             label: '渠道2'
-          }
+          }*/
         ],
         agentRate: '',
         googleCode: '',
       },
       agentInfoFormData: [
-        {
+        /*{
           agentName: '代理一',
-          agentAccount: 'dali1',
+          accountName: 'dali1',
           agentNO: '001',
-          agentLevel: 1,
+          level: 1,
           agentStatus: true,
-          loginIP: '127.0.0.1',
-          loginIPWhiteList: '127.0.0.1,192.168.1.1',
-          payingChannel: '支付宝'
+          loginIps: '127.0.0.1',
+          withdrawIps: '127.0.0.1,192.168.1.1',
+          payingChannel: '支付宝',
+          contactName: '花大姐',
+          contactPhone: '123456789',
+          contactEmail: 'test@gmail.com',
+          collectionFixedFee: '6',
+          collectionRate: '0.2',
+          payFixedFee: '6',
+          payRate: '0.1',
+          channelOptions: [
+            {
+              channelName: '支付渠道一'
+            },
+            {
+              channelName: '支付渠道一32'
+            }
+          ],
+          parentChannelDtoList: [
+            {
+              channelId: '001',
+              channelName: '上级渠道一'
+            },
+            {
+              channelId: '002',
+              channelName: '上级渠道二'
+            }
+          ],
+          channelDtoList: [
+            {
+              channelId: '001',
+              channelName: '上级渠道一'
+            }
+          ]
         },
         {
           agentName: '一级代理一',
-          agentAccount: 'dali11',
+          accountName: 'dali11',
           agentNO: '002',
-          agentLevel: 1,
+          level: 1,
           agentStatus: true,
-          loginIP: '127.0.0.1',
-          loginIPWhiteList: '127.0.0.1,192.168.1.1',
+          loginIps: '127.0.0.1',
+          withdrawIps: '127.0.0.1,192.168.1.1',
           payingChannel: '支付宝'
         },
         {
           agentName: '代理二',
-          agentAccount: 'dalichousabo',
+          accountName: 'dalichousabo',
           agentNO: '003',
-          agentLevel: 2,
+          level: 2,
           loginIP: '127.0.0.1',
           loginIPWhiteList: '127.0.0.1,192.168.0.1',
           payingChannel: '抖音月付',
-          parentAgentInfo: {
-            agentName: '代理一',
-            agentAccount: 'dali1',
-            payingChannel: '支付宝',
-
-          },
+          parentAgentName: '父代理',
+          parentUserName: '父代理账号',
+          parentChannelDtoList: [
+            {
+              channelId: 'parentChannel001',
+              channelName: '父渠道一'
+            },
+            {
+              channelId: 'parentChannel002',
+              channelName: '父渠道二'
+            }
+          ],
+          channelDtoList: [
+            {
+              channelId: 'parentChannel001',
+              channelName: '父渠道一'
+            },
+            {
+              channelId: 'parentChannel002',
+              channelName: '父渠道二'
+            }
+          ]
         },
         {
           agentName: '代理三',
-          agentAccount: 'dalisan',
+          accountName: 'dalisan',
           agentNO: '004',
-          agentLevel: 2,
+          level: 2,
           payingChannel: '微信',
           parentAgentInfo: {
             agentName: '代理一',
-            agentAccount: 'dali1',
+            userName: 'dali1',
             payingChannel: '支付宝',
           },
         },
         {
           agentName: '代理四',
-          agentAccount: 'hualala',
+          accountName: 'hualala',
           payingChannel: '京东白条',
           agentNO: '005',
-          agentLevel: 3,
+          level: 3,
           parentAgentInfo: {
             agentName: '代理三',
-            agentAccount: 'dalisan',
+            userName: 'dalisan',
             payingChannel: '微信',
           },
-        },
+        },*/
       ],
       agentInfoTableData: [
-        /*{
-          agentLevel: 0,
-          agentStatus: false,
-          agentNO: 0,
-          loginIP:'',
-          loginIPWhiteList:'',
-          lastLoginTime:'',
-          createTime:'',
-          firstLevelAgent: {
-
-          },
-          secondLevelAgent: {
-
-          },
-          thirdLevelAgent: {
-
-          },
-        }*/
-
       ],
+      createAgentRule: {
+        agentName: {
+          required: true, trigger: 'blur',
+        },
+        accountName: {
+          required: true,trigger: 'blur',
+        },
+        level: {
+          required: true,trigger: 'blur',
+        },
+        accountPwd: {
+          required: true, validator: validatePass, trigger: 'blur',
+        },
+        accountConfirmPwd: {
+          required: true, validator: validatePass2, trigger: 'blur',
+        },
+        channelIds: {
+          required: true,trigger: 'blur',
+        },
+        googleCode: {
+          required: true,trigger: 'blur',
+        },
+        collectionFixedFee: {
+          required: true, trigger: 'blur', validator: validCollectionFee,
+        },
+        collectionRate: {
+          required: true, trigger: 'blur', validator: validCollectionRate
+        },
+        payFixedFee: {
+          required: true, trigger: 'blur', validator: validPayFee,
+        },
+        payRate: {
+          required: true, trigger: 'blur', validator: validPayRate
+        },
+        collectionMaxFee: {
+          required: true, trigger: 'blur',
+        },
+        collectionMinFee: {
+          required: true, trigger: 'blur',
+        },
+        payMaxFee: {
+          required: true, trigger: 'blur',
+        },
+        payMinFee: {
+          required: true, trigger: 'blur',
+        }
+      },
       totalCount: 100,
       pageSize: 10,
       pageSizes: [1, 5, 10, 20, 50, 100],
       currentPage: 1,
     }
   },
-  mounted() {
+  async mounted() {
     this.agentInfoTableData = this.agentInfoFormData
     this.totalCount = this.agentInfoTableData.length
+    // get paymentInfos
+    await getChannelInfo({pageSize: 1000}).then((res) => {
+      if (res.status === 200 && res.data.code === 0) {
+        this.channelOptions = JSON.parse(res.data.data).channelDtoList
+      }
+    })
   },
   methods: {
     search() {
-      if(!this.filterbox.agentName) {
+      if (!this.filterbox.agentName) {
         this.agentInfoTableData = this.agentInfoFormData
         this.tablekey++
         return;
       }
       this.agentInfoTableData = []
       this.agentInfoFormData.forEach((item) => {
-        /*if (item.firstLevelAgent && item.firstLevelAgent.agentName === this.filterbox.agentName) {
-          this.agentInfoTableData.push(item)
-        } else if(item.secondLevelAgent && item.secondLevelAgent.agentName === this.filterbox.agentName) {
-          this.agentInfoTableData.push(item)
-        } else if (item.thirdLevelAgent && item.thirdLevelAgent.agentName === this.filterbox.agentName) {
-          this.agentInfoTableData.push(item)
-        }*/
-        if(item.agentName === this.filterbox.agentName) {
+        if (item.agentName === this.filterbox.agentName) {
           this.agentInfoTableData.push(item)
         }
         this.tablekey++
       })
     },
-    addFistLevelAgent() {
-      this.dialogFormVisible = true;
-      this.dialogTitle= '新增一级代理'
+    submit(form) {
+      this.$refs[form].validate(valid => {
+        if (valid) {
+           alert("formdata---"+JSON.stringify(this.agentInfo))
+           createAgentInfo(this.agentInfo).then((res) => {
+                this.search()
+                this.dialogFormVisible = false
+                this.dialogTitle = ''
+           })
+        }
+      })
     },
-    cancelDialog() {
+    addFistLevelAgent() {
+      this.modifyType = ''
+      this.dialogFormVisible = true;
+      this.dialogTitle = '新增一级代理'
+      this.agentInfo.level = 1
+      this.createType = 'firstLevel'
+    },
+    cancelDialog(form) {
+      this.$refs[form].resetFields()
       this.dialogFormVisible = false;
       this.dialogTitle = ''
       this.agentInfo = []
@@ -563,7 +921,7 @@ export default {
       this.nextLevelAgentInfo = []
     },
     handleChange() {
-      let startNum = (this.currentPage-1) * this.pageSize
+      let startNum = (this.currentPage - 1) * this.pageSize
       let endNum = startNum + this.pageSize
       if (this.agentInfoFormData.length <= endNum) {
         endNum = this.agentInfoFormData.length
@@ -584,20 +942,27 @@ export default {
       this.tablekey++;
     },
     editAgentInfo(val) {
-
-      this.agentInfo.agentName = val.agentName
-      this.agentInfo.agentAccount = val.agentAccount
-      this.agentInfo.agentStatus = val.agentStatus
-      this.agentInfo.loginIP = val.loginIP
-      this.agentInfo.loginIPWhiteList = val.loginIPWhiteList
+      this.agentInfo = val
+      /*this.agentInfo.agentName = val.agentName
+      this.agentInfo.userName = val.userName
+      this.agentInfo.status = val.status
+      this.agentInfo.loginIps = val.loginIps
+      this.agentInfo.whthdrawIps = val.whthdrawIps*/
       this.dialogTitle = 'edit agentInfo'
       this.dialogFormVisible = true;
+      this.modifyType = 'edit'
     },
     addNextLevelAgent(val) {
-      this.nextLevelAgentInfo.parentAgentName    = val.agentName
+      /*this.nextLevelAgentInfo.parentAgentName = val.agentName
       this.nextLevelAgentInfo.parentAgentAccount = val.agentAccount
       this.parentDialogVisible = true
-      this.parentDialogTitle = '增加下一级代理'
+      this.parentDialogTitle = '增加下一级代理'*/
+      //this.agentInfo = val
+      this.agentInfo.level = val.level + 1
+      this.dialogTitle = '新增下级代理'
+      this.dialogFormVisible = true;
+      this.createType = 'nextLevel'
+
     },
     deleteAgentInfo() {
       this.$confirm('are you sure deleting this data?', '提示', {
@@ -618,13 +983,16 @@ export default {
 }
 </script>
 <style scoped>
-  .dialog-footer{
-    display: flex;
-    justify-content: right;
-  }
+@import "@/api/common.css";
+@import "@/assets/base.css";
 
-  .el-form-line {
-    display: flex;
-    justify-content: center;
-  }
+.dialog-footer {
+  display: flex;
+  justify-content: right;
+}
+
+.el-form-line {
+  display: flex;
+  justify-content: center;
+}
 </style>

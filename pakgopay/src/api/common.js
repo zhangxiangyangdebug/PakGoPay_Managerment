@@ -66,8 +66,27 @@ export function getCurrencyReportTitle(i18n) {
         {key: "successQuantity", title: i18n.$t('exportReportTitle.successQuantity')},
         {key: "merchantFee", title: i18n.$t('exportReportTitle.merchantFee')},
         {key: "orderProfit", title: i18n.$t('exportReportTitle.orderProfit')},
+        {key:'orderBalance', title: i18n.$t('exportReportTitle.orderBalance')},
+        {key:"timeDate", title: i18n.$t('exportReportTitle.timeDate')},
     ]
     return Currency_Report_Title
+}
+
+export function getPaymentReportTitle(i18n) {
+    const Payment_Report_Title = [
+        {key:"paymentName", title: i18n.$t('exportReportTitle.paymentName')},
+        {key:"paymentNo", title: i18n.$t('exportReportTitle.paymentNo')},
+        {key:"orderQuantity", title: i18n.$t('exportReportTitle.orderQuantity')},
+        {key:"orderSuccessRate", title: i18n.$t('exportReportTitle.orderSuccessRate')},
+        {key:"failedQuantity", title: i18n.$t('exportReportTitle.failedQuantity')},
+        {key:"successQuantity", title: i18n.$t('exportReportTitle.successQuantity')},
+        {key:"merchantFee", title: i18n.$t('exportReportTitle.merchantFee')},
+        {key:"orderProfit", title: i18n.$t('exportReportTitle.orderProfit')},
+        {key:"orderBalance", title: i18n.$t('exportReportTitle.orderBalance')},
+        {key:"currency", title: i18n.$t('exportReportTitle.currency')},
+        {key:"timeDate", title: i18n.$t('exportReportTitle.timeDate')},
+    ]
+    return Payment_Report_Title
 }
 
 export function getFormateDate(ts) {
@@ -105,10 +124,15 @@ export function getFormateTimeByTimeBystamp(ts) {
 
 export function getTimeFromTimestamp(timestamp) {
     if (!timestamp) {
-        return 'No data';
+        return '-';
     }
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    return dayjs.unix(timestamp*1000).tz(timeZone).format('YYYY-MM-DD HH:mm:ss');
+    let time = ''
+    try {
+        time = dayjs.unix(timestamp*1000).tz(timeZone).format('YYYY-MM-DD HH:mm:ss')
+    } catch (e) {
+        return '-';
+    }
 }
 export function getDateFromTimestamp(timestamp) {
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -151,7 +175,7 @@ export async function exportExcel(res, fileName, that) {
             const blobData = res.data;
             const jsonData = JSON.parse(await blobData.text())
             if (jsonData.code !== 0) {
-                this.$notify({
+                that.$notify({
                     title: 'Failed',
                     message: jsonData.message,
                     duration: 3000,
@@ -196,6 +220,6 @@ export async function exportExcel(res, fileName, that) {
         }
 
     }
-    this.filterbox.orderType = '0'
+    that.filterbox.orderType = '0'
 
 }

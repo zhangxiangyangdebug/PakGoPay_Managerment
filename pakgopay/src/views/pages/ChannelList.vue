@@ -1,71 +1,90 @@
 <script setup>
 
 import SvgIcon from "@/components/SvgIcon/index.vue";
+import {getTimeFromTimestamp} from "@/api/common.js";
 </script>
 
 <template>
 <div class="main-title">渠道列表</div>
 
   <div class="main-toolbar" style="height: 120px;">
-    <form class="main-toolform">
-      <div class="main-toolform-item">
-        <!--        <div class="main-toolform-line" style="justify-content: left; margin-left: 4%;cursor: pointer;background-color: lightskyblue;width: 5%;height: 30px;">
-                  <el-button @click="changeToolBar">关闭搜索</el-button>
-                </div>-->
-        <div class="main-toolform-line" style="justify-content: right;margin-right: 4%;">
-          <div v-on:click="search()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="30px" name="search"/>
-            <div style="width: 50px;color: white">查询</div>
+    <el-form class="main-toolform" ref="filterboxForm" :model="filterbox">
+      <el-row style="width: 100%;">
+        <el-col :span="24">
+          <div style="display: flex;flex-direction: row;justify-content: right;margin-right:3%">
+            <div v-on:click="search()"
+                 style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
+              <SvgIcon height="30px" width="30px" name="search"/>
+              <div style="width: 50px;color: white">查询</div>
+            </div>
+            <div v-on:click="reset('filterboxForm')"
+                 style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
+              <SvgIcon height="30px" width="30px" name="reset"/>
+              <div style="width: 50px;color: white">重置</div>
+            </div>
+            <div v-on:click="exportPathChannelInfos"
+                 style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
+              <SvgIcon height="30px" width="30px" name="export"/>
+              <div style="width: 50px;color: white">导出</div>
+            </div>
           </div>
-          <div v-on:click="reset()" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="30px" name="reset"/>
-            <div style="width: 50px;color: white">重置</div>
-          </div>
-          <div v-on:click="exportPathChannelInfos()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="30px" name="export"/>
-            <div style="width: 50px;color: white">导出</div>
-          </div>
-          <div v-on:click="createPathChannel()" style="background-color: limegreen;width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="30px" name="add"/>
-            <div style="width: 50px;color: white">新增</div>
-          </div>
+        </el-col>
+      </el-row>
+      <el-row style="width: 100%;margin-top:10px">
+        <div style="display: flex;flex-direction: row;width: 100%;justify-content: space-around">
+          <el-col :span="5">
+            <el-form-item label="通道:" label-width="150px" prop="paymentId">
+              <el-select
+                :options="paymentOptions"
+                :props="paymentProps"
+                filterable
+                v-model="filterbox.paymentId"
+                class="main-toolform-input"
+                style="height: 100%;width: 200px"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="渠道名称:" label-width="150px" prop="channelName">
+              <el-input v-model="filterbox.channelName" placeholder="渠道名称" class="main-toolform-input" style="width: 200px;height: 100%" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="启用状态:" label-width="150px" prop="status">
+              <el-select v-model="filterbox.status" class="main-toolform-input" placeholder="渠道状态"
+                         style="width: 200px;height: 100%"
+                         clearable
+                         :options="channelStatusOptions"
+              >
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="币种:" label-width="150px" prop="currency">
+              <el-select v-model="filterbox.currency" class="main-toolform-input" placeholder="币种"
+                         style="width: 200px;height: 100%"
+                         clearable
+                         :options="currencyOptions"
+                         :props="currencyProps"
+              />
+            </el-form-item>
+          </el-col>
         </div>
-      </div>
-      <div class="main-toolform-item">
-        <div class="main-toolform-line" style="display:flex;justify-content: space-between;margin-right: 4%;margin-top: 50px;margin-left: 4%;">
-          <div style="height: 100%;">通道名称：<input v-model="filterbox.channelName"  type="text"  class="main-toolform-input" placeholder="通道名称"/></div>
-          <div style="height: 100%;">通道编号：<input v-model="filterbox.channelID"  type="text" class="main-toolform-input" placeholder="通道编号"/></div>
-          <div style="height: 100%;">
-            启用状态:
-            <el-select v-model="filterbox.channelStatus" style="width: 180px;" placeholder="select path status">
-              <el-option v-for="item in filterbox.channelStatusOptions" :key="item.value" :label="item.label" :value="item.value" />
-            </el-select>
-          </div>
-        </div>
-      </div>
-    </form>
+      </el-row>
+    </el-form>
   </div>
 
-  <div class="main-views-container" style="height: auto">
-    <div class="main-views-form" style="height: 80%">
+  <div class="main-views-container" style="height: 90%">
+    <div class="main-views-form" style="height: 100%">
+      <div style="float: right;display: flex;margin-right: 3%">
+        <el-button @click="createNewChannel"><SvgIcon name="add" style="width: 20px;height: 20px"/>新增渠道</el-button>
+      </div>
       <el-table
           border :data="channelTableInfo"
-          class="merchantInfos-table"
-          style="width: 100%;height: 100%;"
+          class="channelTable"
+          style="width: 97%;height: 80%;"
           :key="tableKey"
       >
-        <el-table-column
-            prop="channelID"
-            label="渠道编号"
-            v-slot="{row}"
-            align="center"
-            fixed="left"
-            width="80px"
-        >
-          <div>
-            {{row.channelID}}
-          </div>
-        </el-table-column>
         <el-table-column
             prop="channelName"
             label="渠道名称"
@@ -79,53 +98,48 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </el-table-column>
         <el-table-column
             prop="pathChannelList"
-            label="通道列表"
+            label="代收通道列表"
             v-slot="{row}"
             align="center"
         >
           <div>
-            <el-card v-for="item in row.pathChannelList" class="merchantInfos-table">
-              <div>通道编号:{{item.pathChannelID}}</div>
-              <div>通道名称:{{item.pathChannelName}}</div>
+            <el-card v-for="item in row.collectionSupportPayment" class="merchantInfos-table">
+              <div>通道编号:{{item.paymentNo}}</div>
+              <div>通道名称:{{item.paymentName}}</div>
             </el-card>
           </div>
         </el-table-column>
         <el-table-column
-            prop="channelRate"
-            label="渠道费率"
+            prop="pathChannelList"
+            label="代付通道列表"
             v-slot="{row}"
             align="center"
         >
           <div>
-            {{row.channelRate}}
+            <el-card v-for="item in row.paySupportPayment" class="merchantInfos-table">
+              <div>通道编号:{{item.paymentNo}}</div>
+              <div>通道名称:{{item.paymentName}}</div>
+            </el-card>
           </div>
         </el-table-column>
         <el-table-column
-            prop="channelStatus"
+            prop="status"
             label="启用状态"
             v-slot="{row}"
             align="center"
         >
           <div>
             <el-switch
-              v-model="row.channelStatus"
+              v-model="row.status"
               active-color="#13ce66"
               inactive-color="#ff4949"
               active-text="启用"
               inactive-text="停用"
+              :active-value="1"
+              :inactive-value="0"
               disabled
             >
             </el-switch>
-          </div>
-        </el-table-column>
-        <el-table-column
-            prop="channelAccountBalance"
-            label="渠道账户余额"
-            v-slot="{row}"
-            align="center"
-        >
-          <div>
-            {{row.channelAccountBalance}}
           </div>
         </el-table-column>
         <el-table-column
@@ -135,9 +149,17 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             align="center"
         >
           <div>
-            <div v-for="item in row.supportCurrencyType">
-              {{item}};
-            </div>
+            {{row.currency}}
+          </div>
+        </el-table-column>
+        <el-table-column
+            prop="channelAccountBalance"
+            label="创建时间"
+            v-slot="{row}"
+            align="center"
+        >
+          <div>
+            {{getTimeFromTimestamp(row.createTime)}}
           </div>
         </el-table-column>
         <el-table-column
@@ -153,8 +175,9 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <SvgIcon name="more" width="30" height="30" />
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item @click="editChannelInfo(row)">编辑</el-dropdown-item>
-                  <el-dropdown-item @click="stopChannel(row)">停用</el-dropdown-item>
+                  <el-dropdown-item @click="editChannel(row)">编辑</el-dropdown-item>
+                  <el-dropdown-item v-if="row.status === 1" @click="stopChannel(row)">停用</el-dropdown-item>
+                  <el-dropdown-item v-if="row.status === 0" @click="startChannel(row)">启用</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -169,7 +192,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           v-model:page-size="pageSize"
           :page-sizes="pageSizes"
           style="float:right; margin-right: 5%;"
-          @current-change="handleChange"
+          @current-change="handleCurrentPageChange"
           @size-change="handleSizeChange"
       >
       </el-pagination>
@@ -183,177 +206,385 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       width="90%"
       style="height: 600px;align-content: center"
   >
-    <el-form style="margin-top: 50px;width: 100%">
-      <el-row style="width: 100%">
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="渠道名称:" label-width="150px" size="medium">
-              <el-input type="text" v-model="createChannelInfo.channelName" style="width: 200px"></el-input>
+    <el-form style="margin-top: 50px;width: 100%" ref="editChannelForm" :rules="editChannelRules" :model="editChannelInfo">
+<!--      <el-row style="width: 100%">-->
+        <el-col :span="24">
+          <div class="el-form-line" style="display: flex;justify-content: center;">
+            <el-form-item label="渠道名称:" label-width="150px" prop="channelName">
+              <el-input type="text" v-model="editChannelInfo.channelName" style="width: 200px"></el-input>
             </el-form-item>
           </div>
         </el-col>
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="通道列表:" label-width="150px" size="medium">
+        <el-col :span="24">
+          <div class="el-form-line" style="display: flex;justify-content: center;">
+            <el-form-item label="通道列表:" label-width="150px" prop="paymentIds">
               <el-select
-                  v-model="createChannelInfo.selectedPathChannelList"
+                  v-model="editChannelInfo.paymentIds"
+                  :options="paymentOptions"
+                  :props="paymentProps"
                   @change="handleChange"
                   multiple
                   style="width: 200px"
-              >
-                <el-option
-                  v-for="item in pathChannelListOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
+                  filterable
+              />
             </el-form-item>
           </div>
         </el-col>
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="渠道费率:" label-width="150px" size="medium">
-              <el-input type="text" v-model="createChannelInfo.channelRate" style="width: 200px"></el-input>
-            </el-form-item>
-          </div>
-        </el-col>
-      </el-row>
-      <el-row style="width: 100%">
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="启用状态:" label-width="150px" size="medium">
+        <el-col :span="24">
+          <div class="el-form-line" style="display: flex;justify-content: center;">
+            <el-form-item label="启用状态:" label-width="150px" prop="status">
               <el-switch
-                  v-model="createChannelInfo.channelStatus"
+                  v-model="editChannelInfo.status"
                   active-color="#13ce66"
                   inactive-color="#ff4949"
                   active-text="启用"
                   inactive-text="停用"
+                  :inactive-value="0"
+                  :active-value="1"
+                  style="width: 200px"
               ></el-switch>
             </el-form-item>
           </div>
         </el-col>
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="渠道账户余额:" label-width="150px" size="medium">
-              <el-input type="text" v-model="createChannelInfo.channelAccountBalance" style="width: 200px"></el-input>
+        <el-col :span="24">
+          <div class="el-form-line" style="display: flex;justify-content: center;">
+            <el-form-item label="谷歌验证码" label-width="150px" prop="googleCode">
+              <el-input type="text" v-model="editChannelInfo.googleCode" style="width: 200px" placeholder="input google verify code"/>
             </el-form-item>
           </div>
         </el-col>
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="支持币种:" label-width="150px" size="medium">
-              <el-input type="text" v-model="createChannelInfo.supportCurrencyType" style="width: 200px"></el-input>
-            </el-form-item>
-          </div>
-        </el-col>
-      </el-row>
-      <el-row style="width: 100%">
-        <el-col :span="8">
-          <div class="el-form-line">
-            <el-form-item label="谷歌验证码" label-width="150px" size="medium">
-              <el-input type="text" v-model="createChannelInfo.googleCode" style="width: 200px" placeholder="input google verify code"/>
-            </el-form-item>
-          </div>
-        </el-col>
-      </el-row>
     </el-form>
     <div slot="footer" class="dialog-footer" style="float: right;">
       <el-button @click="cancelDialog">取 消</el-button>
-      <el-button type="primary">确 定</el-button>
+      <el-button type="primary" @click="submitForm('editChannelForm', this.submitType)">确 定</el-button>
+    </div>
+  </el-dialog>
+  <el-dialog
+      :title="stopDialogTitle"
+      v-model="stopDialogVisible"
+      class="dialog"
+      center="true"
+      width="50%"
+      style="height: auto;align-content: center;position: absolute;
+      top: 50%;
+      left: 50%;
+      margin: 0 !important;
+      transform: translate(-50%, -50%)"
+  >
+   <el-form
+     ref="stopForm"
+     :rules = 'editChannelRules'
+     :model = 'editChannelInfo'
+     style="margin-top: 50px;width: 100%"
+   >
+     <el-col :span="24">
+       <div class="el-form-line" style="display: flex;justify-content: center;">
+         <el-form-item label="谷歌验证码" label-width="150px" prop="googleCode">
+           <el-input type="text" v-model="editChannelInfo.googleCode" style="width: 200px" placeholder="input google verify code"/>
+         </el-form-item>
+       </div>
+     </el-col>
+   </el-form>
+    <div slot="footer" class="dialog-footer" style="float: right;">
+      <el-button @click="cancelStopDialog('stopForm')">取 消</el-button>
+      <el-button type="primary" @click="submitForm('stopForm', 'edit')">确 定</el-button>
     </div>
   </el-dialog>
 </template>
 
 
 <script>
+import {
+  createChannelInfo,
+  getAllCurrencyType,
+  getChannelInfo,
+  getPaymentInfo,
+  modifyChannelInfo
+} from "@/api/interface/backendInterface.js";
+import {loadingBody} from "@/api/common.js";
+
 export default {
   name: 'ChannelList',
   data() {
     return {
+      submitType: "",
+      loadingInstance: '',
+      currency: '',
+      currencyIcon: '',
+      currencyIcons: [],
+      currencyOptions: [],
+      currencyProps: {
+        value: 'currencyType',
+        label: 'name'
+      },
+      currencyMaps: {},
+      paymentOptions: [],
+      channelStatusOptions: [
+        {
+          value: 1,
+          label: '启用',
+        },
+        {
+          value: 0,
+          label: '停用'
+        }
+      ],
+      paymentProps: {
+        value: 'paymentId',
+        label: 'paymentName'
+      },
       totalCount: 0,
       pageSize: 10,
       currentPage: 1,
-      pageSizes: [10, 20, 30, 40],
+      pageSizes: [1,10, 20, 30, 40],
       filterbox: {
         channelName: '',
         channelID: '',
         channelStatus: '',
-        channelStatusOptions: [
-          {
-            value: '1',
-            label: '启用',
-          },
-          {
-            value: '2',
-            label: '停用'
-          }
-        ]
       },
       /** 此下拉菜单选项需要调用接口从后端实时获取 */
       pathChannelListOptions: [
-        {
-          value: '001', /** 对应通道编号 */
-          label: '通道一' /** 对应通道名称 */
-        },
-        {
-          value: '002', /** 对应通道编号 */
-          label: '通道二' /** 对应通道名称 */
-        }
+
       ],
       channelTableInfo: [
-        {
-          channelID: 1,
-          channelName: '预置渠道一',
-          pathChannelList: [{
-            pathChannelID: '001',
-            pathChannelName: '通道一',
-          },
-            {
-              pathChannelID: '002',
-              pathChannelName: '通道二',
-            }],
-          channelRate: '0.5%',
-          channelStatus: true,
-          channelAccountBalance: '102',
-          supportCurrencyType: ['脚盆鸡','大不列颠'],
-        }
       ],
       channelFormInfo: [],
       createChannelInfo: {},
+      editChannelInfo: {},
       tableKey: 0,
       dialogFormVisible: false,
-      channelDialogTitle: ''
+      channelDialogTitle: '',
+      stopDialogVisible: false,
+      stopDialogTitle: '',
+      editChannelRules: {
+        googleCode: {
+          required: true, messages: 'you need to specify a google Code', trigger: 'blur',
+        }
+      }
     }
   },
   methods: {
-    handleSizeChange(val) {
-
+    reset(form) {
+      this.$refs[form].resetFields();
     },
-    handleChange(val) {
-
-    },
-    editChannelInfo(row) {
-      this.createChannelInfo = row;
-      this.createChannelInfo.selectedPathChannelList = []
-      row.pathChannelList.forEach(item => {
-        this.createChannelInfo.selectedPathChannelList.push(item.pathChannelID)
+    search() {
+      this.loadingInstance = loadingBody(this, 'channelTable')
+      getChannelInfo(this.filterbox).then(response => {
+        if (response.status === 200 && response.data.code === 0) {
+          const allData = JSON.parse(response.data.data)
+          this.totalCount = allData.totalNumber
+          this.channelTableInfo = allData.channelDtoList
+          this.channelTableInfo.forEach(item => {
+            let currencyList = []
+            let collectionSupportPamentList = []
+            let paySupportPamentList = []
+            let paymentIds = []
+            item.paymentDtoList.forEach(paymentItem => {
+              paymentIds.push(paymentItem.paymentId)
+              if (!currencyList.includes(paymentItem.currency)) {
+                currencyList.push(this.currencyMaps[paymentItem.currency])
+              }
+              if (paymentItem.supportType === 0 ) {
+                collectionSupportPamentList.push(paymentItem)
+              } else if (paymentItem.supportType === 1) {
+                paySupportPamentList.push(paymentItem)
+              } else if (paymentItem.supportType === 2) {
+                collectionSupportPamentList.push(paymentItem)
+                paySupportPamentList.push(paymentItem)
+              }
+            })
+            item.currency = currencyList.toLocaleString()
+            item.collectionSupportPayment = collectionSupportPamentList
+            item.paySupportPayment = paySupportPamentList
+            item.paymentIds = paymentIds
+          })
+          this.loadingInstance.close()
+        }
+      }).catch(error => {
+        this.loadingInstance.close()
+        this.$notify({
+          title: 'Error',
+          message: error.message,
+          duration: 5000,
+          type: 'error',
+          position: 'bottom-right'
+        })
       })
+    },
+    submitForm(form, submitType) {
+      this.$refs[form].validate(valid => {
+        if (valid) {
+            if(submitType === 'edit') {
+              modifyChannelInfo(this.editChannelInfo).then(res => {
+                if (res.status === 200 && res.data.code === 0) {
+                  this.$notify({
+                    title:'Success',
+                    message: 'Modify channel: '+ this.editChannelInfo.channelName + 'successfully.',
+                    duration: 3000,
+                    type: 'success',
+                    position:'bottom-right'
+                  })
+                } else if (res.status === 200 && res.data.code !== 0) {
+                  this.$notify({
+                    title:'Error',
+                    message:res.data.message,
+                    duration: 3000,
+                    type: 'error',
+                    position: 'bottom-right'
+                  })
+                } else {
+                  this.$notify({
+                    title:'Error',
+                    message: 'Some error occurred. please try again.',
+                    duration: 3000,
+                    type: 'error',
+                    position: 'bottom-right'
+                  })
+                }
+                this.dialogFormVisible = false;
+                this.channelDialogTitle = ''
+                this.stopDialogTitle = ''
+                this.stopDialogVisible = false
+                this.search()
+              }).catch( err => {
+                this.$notify({
+                  title:'Error',
+                  message:err.message,
+                  duration: 3000,
+                  type: 'error',
+                  position: 'bottom-right'
+                })
+                this.dialogFormVisible = false;
+                this.channelDialogTitle = ''
+                this.search()
+              })
+            } else if (submitType === 'create') {
+              createChannelInfo(this.editChannelInfo).then(res => {
+                if (res.status === 200 && res.data.code === 0) {
+                  this.$notify({
+                    title:'Success',
+                    message: 'create new channel successfully.',
+                    duration: 3000,
+                    type: 'success',
+                    position:'bottom-right'
+                  })
+                  this.search()
+                } else if (res.status === 200 && res.data.code !== 0) {
+                  this.$notify({
+                    title:'Error',
+                    message:res.data.message,
+                    duration: 3000,
+                    type: 'error',
+                    position: 'bottom-right'
+                  })
+                } else {
+                  this.$notify({
+                    title:'Error',
+                    message: 'Some error occurred. please try again.',
+                    duration: 3000,
+                    type: 'error',
+                    position: 'bottom-right'
+                  })
+                }
+                this.dialogFormVisible = false;
+                this.channelDialogTitle = ''
+              }).catch( err => {
+                this.$notify({
+                  title:'Error',
+                  message:err.message,
+                  duration: 3000,
+                  type: 'error',
+                  position: 'bottom-right'
+                })
+                this.dialogFormVisible = false;
+                this.channelDialogTitle = ''
+              })
+            }
+
+        }
+      })
+    },
+    createNewChannel() {
+      this.editChannelInfo = {}
+      this.dialogFormVisible = true
+      this.channelDialogTitle = '新增渠道'
+      this.submitType = 'create'
+    },
+    handleCurrentPageChange(currentPage) {
+      this.filterbox.pageNo = currentPage;
+      this.filterbox.pageSize = this.pageSize;
+      this.PathChannelTableInfo = []
+      this.search()
+
+    },
+    handleSizeChange(pageSize) {
+      this.currentPage = 1
+      this.pageSize = pageSize
+      this.handleCurrentPageChange(1)
+    },
+    editChannel(row) {
+      //this.editChannelInfo = row;
+      this.editChannelInfo.channelName = row.channelName;
+      this.editChannelInfo.channelId = row.channelId;
+      this.editChannelInfo.paymentIds = row.paymentIds;
+      this.editChannelInfo.status = row.status;
       this.dialogFormVisible = true;
       this.channelDialogTitle = '编辑渠道'
+      this.submitType = 'edit'
       this.tableKey++
     },
     stopChannel(row) {
+      this.stopDialogVisible = true
+      this.channelDialogTitle = '停用渠道'
+      this.editChannelInfo = row
+      this.editChannelInfo.status = 0;
     },
-    createPathChannel() {
-      this.dialogFormVisible = true;
-      this.channelDialogTitle = '新增渠道'
+    startChannel(row) {
+      this.stopDialogVisible = true
+      this.stopDialogTitle = '启用渠道'
+      this.editChannelInfo = row
+      this.editChannelInfo.status = 1;
     },
     cancelDialog() {
       this.dialogFormVisible = false;
       this.createChannelInfo = {}
       this.channelDialogTitle = ''
+    },
+    cancelStopDialog(form) {
+      this.stopDialogVisible = false
+      this.stopDialogTitle = ''
+      this.$refs[form].resetFields()
     }
+  },
+  async mounted() {
+    await getAllCurrencyType().then(res => {
+      if (res.status === 200) {
+        if (res.data.code === 0) {
+          this.currencyOptions = JSON.parse(res.data.data)
+          this.currency = this.currencyOptions[0].currencyType
+          //this.filterbox.currency = this.currencyOptions[0].currencyType
+          this.currencyIcons = {};
+          this.currencyMaps = {};
+          this.currencyOptions.forEach(currency => {
+            this.currencyIcons[currency.currencyType] = currency.icon
+            this.currencyMaps[currency.currencyType] = currency.name
+          })
+          let iconKey = this.currency;
+          this.currencyIcon = this.currencyIcons[iconKey]
+        }
+      }
+    })
+
+    await getPaymentInfo({pageSize: 1000}).then(res => {
+      if (res.status === 200) {
+        if (res.data.code === 0) {
+          const allData = JSON.parse(res.data.data);
+          this.paymentOptions = allData.paymentDtoList
+        }
+      }
+    })
+
+    this.search()
   }
 }
 </script>
@@ -365,4 +596,10 @@ export default {
   font-weight: bold;
   font-size: larger;
 }
+
+:deep() .el-switch is-disabled is-checked {
+
+}
+
+
 </style>

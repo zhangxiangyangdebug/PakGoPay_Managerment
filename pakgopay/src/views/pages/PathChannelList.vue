@@ -29,7 +29,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
                   <SvgIcon height="30px" width="30px" name="reset"/>
                   <div style="width: 50px;color: white">重置</div>
                 </div>
-                <div v-on:click="exportPathChannelInfos()"
+                <div v-on:click="exportPathChannelInfos"
                      style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
                   <SvgIcon height="30px" width="30px" name="export"/>
                   <div style="width: 50px;color: white">导出</div>
@@ -64,14 +64,10 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
               </el-col>
               <el-col :span="4">
                 <el-form-item label="通道状态:" label-width="150px" prop="status">
-                  <el-switch v-model="filterbox.status" placeholder="支付方式"
-                             style="width: 200px;height: 100%"
-                             active-color="#13ce66"
-                             inactive-color="#ff4949"
-                             active-text="启用"
-                             inactive-text="停用"
-                             :active-value="1"
-                             :inactive-value="0"
+                  <el-select v-model="filterbox.status"
+                     :options="paymentStatusOptions"
+                      placeholder="select paymentStatus"
+                      clearable
                   />
                 </el-form-item>
               </el-col>
@@ -173,7 +169,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             width="100px"
         >
           <div>
-            {{ (row.supportType === 0) ? '代收' : (row.supportType === 1) ? '代付' : '代收/代付' }}
+            {{ (row.supportType === 0) ? '代收' : (row.supportType === 1) ? '代付' : (row.supportType === 2) ? '代收/代付' : '-' }}
           </div>
         </el-table-column>
         <el-table-column
@@ -198,7 +194,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             align="center"
             width="150px"
         >
-          {{ row.paymentType === 1 ? 'app支付' : '银行卡支付' }}
+          {{ row.paymentType === '1' ? 'app支付' : row.paymentType === '2' ? '银行卡支付' : 'invalid' }}
         </el-table-column>
         <el-table-column
             prop="isCheckoutCounter"
@@ -1089,11 +1085,11 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
 <script>
 import {
   createPaymentInfo,
-  editPaymentInfo,
+  editPaymentInfo, exportMerchantReport, exportPayment,
   getAllCurrencyType,
   getPaymentInfo
 } from "@/api/interface/backendInterface.js";
-import {loadingBody} from "@/api/common.js";
+import {exportExcel, getFormateTime, loadingBody} from "@/api/common.js";
 export default {
   name: "PathChannelList",
   data() {
@@ -1237,20 +1233,16 @@ export default {
       toolbarIsVisible: true,
       pathChannelDialogTitle: "",
       dialogFormVisible: false,
-      /*pathChannelTypeOptions: [
+      paymentStatusOptions: [
         {
-          value: '1',
-          label: '代收'
+          value: 0,
+          label: '停用'
         },
         {
-          value: '2',
-          label: '代付'
-        },
-        {
-          value: '3',
-          label: '代收/代付'
+          value: 1,
+          label: '启用'
         }
-      ],*/
+      ],
       pathChannelCurrencyTypeOptions: [
         {
           value: 1,
@@ -1294,7 +1286,7 @@ export default {
         label: 'name'
       },
       filterbox: {
-        status: 1,
+        //status: 1,
 
       },
       PathChannelTableInfo: [
@@ -1308,6 +1300,70 @@ export default {
     }
   },
   methods: {
+    exportPathChannelInfos() {
+     /* exportPayment(this.filterbox).then(async res => {
+        const fileName = this.$t('exportPaymentListName') + getFormateTime()
+        await exportExcel(res, fileName, this)
+      })*/
+
+      exportPayment(this.filterbox).then(async res => {
+        const fileName = this.$t('exportPaymentListName') + getFormateTime()
+        await exportExcel(res, fileName, this)
+        /*if (res.status === 200) {
+          if (res.data.type === 'application/json') {
+            const blobData = res.data;
+            const jsonData = JSON.parse(await blobData.text())
+            if (jsonData.code !== 0) {
+              this.$notify({
+                title: 'Failed',
+                message: jsonData.message,
+                duration: 3000,
+                type: 'error',
+                position: 'bottom-right',
+              })
+            }
+          } else {
+            const blob = new Blob([res.data], {type: "application/vnd.ms-excel;charset=UTF-8"});
+            console.log('blob---'+ blob.size)
+            if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+              window.navigator.msSaveOrOpenBlob(blob, fileName)
+            } else {
+              const downLoadElement = document.createElement('a');
+              const href = window.URL.createObjectURL(blob);
+              downLoadElement.href = href;
+              downLoadElement.download = fileName;
+              document.body.appendChild(downLoadElement);
+              downLoadElement.click();
+              document.body.removeChild(downLoadElement);
+              window.URL.revokeObjectURL(href);
+            }
+            this.$notify({
+              title: 'Success',
+              message: 'export data success',
+              duration: 3000,
+              type: 'success',
+              position: 'bottom-right',
+            })
+          }
+        } else {
+          if (res.data.type === 'application/json') {
+            const blobData = res.data;
+            const jsonData = JSON.parse(await blobData.text())
+            this.$notify({
+              title: 'Error',
+              message: jsonData.message,
+              duration: 3000,
+              type: 'error',
+              position: 'bottom-right',
+            })
+          }
+
+        }
+        this.filterbox.orderType = '0'*/
+      }).catch(err => {
+        console.log(err)
+      })
+    },
     timeChange(val) {
       this.createPathChannelInfo.enableTimePeriod = val.toLocaleString()
     },

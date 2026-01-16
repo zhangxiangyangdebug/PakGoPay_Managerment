@@ -10,7 +10,12 @@ import {ElPagination} from "element-plus";
 import 'element-plus/theme-chalk/el-pagination.css'
 import '@/api/common.css'
 import {ref} from "vue";
-import {exportChannelReport, getAllCurrencyType, getChannelReport} from "@/api/interface/backendInterface.js";
+import {
+  exportChannelReport,
+  getAllCurrencyType,
+  getChannelInfo,
+  getChannelReport
+} from "@/api/interface/backendInterface.js";
 import {exportExcel, getChannelReportTitle, getFormateTime, getTodayStartTimestamp, loadingBody} from "@/api/common.js";
 export default {
   name: "ChannelReport",
@@ -30,14 +35,14 @@ export default {
       },
       statisticsInfo: {},
       channelOptions: [
-        {
+        /*{
           channelId: 1,
           channelName: '渠道一'
         },
         {
           channelId: 2,
           channelName: '渠道二'
-        }
+        }*/
       ],
       channelProps: {
         value: 'channelId',
@@ -163,7 +168,6 @@ export default {
       } else {
         this.filterbox.orderType = orderType
       }
-      this.filterbox.channelId = 1
       getChannelReport(this.filterbox).then(response => {
          if (response.status === 200 && response.data.code === 0) {
            let resData = JSON.parse(response.data.data)
@@ -185,7 +189,7 @@ export default {
                this.statisticsInfo.payingCard = true
                this.statisticsInfo.collectionCard = false
              }
-         } else if (response.data.code !==0) {
+         } else if (response.status === 200 && response.data.code !==0) {
            this.$notify({
              title: 'Error',
              message: response.data.message,
@@ -227,6 +231,23 @@ export default {
           this.currencyIcon = this.currencyIcons[iconKey]
         }
       }
+    })
+
+    await getChannelInfo({pageSize:1000}).then(response => {
+      if (response.status === 200 && response.data.code === 0) {
+        this.channelOptions = JSON.parse(response.data.data).channelDtoList
+        this.filterbox.channelId = this.channelOptions[0].channelId
+        //this.filterbox.channelId = this.channelOptions[0].channelId
+      }
+    }).catch(error => {
+      this.loadingInstance.close()
+      /*this.$notify({
+        title: 'Error',
+        message: error.message,
+        duration: 5000,
+        type: 'error',
+        position: 'bottom-right'
+      })*/
     })
     this.startTime = getTodayStartTimestamp()
     this.endTime = getTodayStartTimestamp()
