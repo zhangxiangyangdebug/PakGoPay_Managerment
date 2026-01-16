@@ -593,7 +593,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 </template>
 
 <script>
-import {createAgentInfo, getChannelInfo, getPaymentInfo} from "@/api/interface/backendInterface.js";
+import {createAgentInfo, getAgentInfo, getChannelInfo, getPaymentInfo} from "@/api/interface/backendInterface.js";
 import validator from "axios/unsafe/helpers/validator.js";
 
 export default {
@@ -875,10 +875,12 @@ export default {
         this.channelOptions = JSON.parse(res.data.data).channelDtoList
       }
     })
+
+    this.search()
   },
   methods: {
     search() {
-      if (!this.filterbox.agentName) {
+     /* if (!this.filterbox.agentName) {
         this.agentInfoTableData = this.agentInfoFormData
         this.tablekey++
         return;
@@ -889,6 +891,9 @@ export default {
           this.agentInfoTableData.push(item)
         }
         this.tablekey++
+      })*/
+      getAgentInfo({pageSize: 1000}).then((res) => {
+        this.agentInfoTableData = JSON.parse(res.data.data).agentInfoDtoList
       })
     },
     submit(form) {
