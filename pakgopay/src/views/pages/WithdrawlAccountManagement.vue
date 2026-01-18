@@ -1,30 +1,77 @@
 <script setup>
 
 import SvgIcon from "@/components/SvgIcon/index.vue";
+import {getFormateTimeByTimeBystamp} from "@/api/common.js";
 </script>
 
 <template>
   <div class="main-title">商户账号</div>
-
+  <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0">
+    <el-form-item style="margin-left: 2%;">
+      <template #label>
+          <span style="color: black;font-size: small;align-items: center;">
+            统计币种:
+          </span>
+      </template>
+      <el-select
+          style="width: 100px;align-items: center;text-align: center;"
+          :options="currencyOptions"
+          :props="currencyProps"
+          default-first-option
+          v-model="filterbox.currency"
+          @change="handleCurrencyChange"
+          filterable
+      />
+    </el-form-item>
+  </div>
+  <div class="statistics-container" style="display: flex;justify-content: space-around;height: auto;justify-items: center;align-items: center;margin-top:1%;">
+    <el-card style="width: 30%;height: 100%;">
+      <div style="display: flex;">
+        <SvgIcon name="cash" width="100px" height="100px"/>
+        <div style="display: flex; flex-direction: column;width: 80%;">
+          <span>总账户金额:</span>
+          <textarea v-model="statisticsInfo.total" disabled class="cash-text-area"></textarea>
+        </div>
+      </div>
+    </el-card>
+    <el-card style="width: 30%;height: 100%;">
+      <div style="display: flex;">
+        <SvgIcon name="cash-freeze" width="100px" height="100px"/>
+        <div style="display: flex; flex-direction: column;width: 80%;">
+          <span>冻结总金额:</span>
+          <textarea v-model="statisticsInfo.frozen" disabled class="cash-text-area"></textarea>
+        </div>
+      </div>
+    </el-card>
+    <el-card style="width: 30%;height: 100%;">
+      <div style="display: flex;">
+        <SvgIcon name="tixian" width="90px" height="90px"/>
+        <div style="display: flex; flex-direction: column;width: 80%;">
+          <span>提现总金额:</span>
+          <textarea v-model="statisticsInfo.withdraw" disabled class="cash-text-area"></textarea>
+        </div>
+      </div>
+    </el-card>
+  </div>
   <el-collapse style="margin-top: 20px; width: 95%;margin-left: 1%;margin-right: 3%;">
     <el-collapse-item>
       <template #title>
          <span class="toolbarName">
-          工具栏&统计数据
+          工具栏
         </span>
       </template>
       <div class="main-toolbar">
-        <el-form class="main-toolform">
+        <el-form class="main-toolform" ref="filterboxForm" :model="filterbox">
           <el-row style="display: flex;justify-content: space-around;">
-            <el-form-item label="商户账号" label-width="150px">
-              <el-input style="width: 200px" v-model="filterbox.merchantName"/>
+            <el-form-item label="商户账号" label-width="150px" prop="name">
+              <el-input style="width: 200px" v-model="filterbox.name"/>
             </el-form-item>
-            <el-form-item label="收款账号" label-width="150px">
-              <el-input style="width: 200px" v-model="filterbox.withdrawlAccount"/>
+            <el-form-item label="收款账号" label-width="150px" prop="walletAddr">
+              <el-input style="width: 200px" v-model="filterbox.walletAddr"/>
             </el-form-item>
-            <el-form-item label="录入时间" label-width="150px">
+            <el-form-item label="录入时间" label-width="150px" prop="filterDateRange">
               <el-date-picker
-                  v-model="filterDateRange"
+                  v-model="filterbox.filterDateRange"
                   type="daterange"
                   range-separator="至"
                   start-placeholder="开始日期"
@@ -34,7 +81,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               >
               </el-date-picker>
               <div style="display: flex;flex-direction: row;">
-                <div v-on:click="reset()" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
+                <div v-on:click="reset('filterboxForm')" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
                   <SvgIcon height="30px" width="30px" name="reset"/>
                   <div style="width: 50px;color: white">重置</div>
                 </div>
@@ -46,35 +93,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             </el-form-item>
           </el-row>
         </el-form>
-      </div>
-      <div class="statistics-container" style="display: flex;justify-content: space-around;height: auto;justify-items: center;align-items: center;margin-top:1%;">
-        <el-card style="width: 30%;height: 100%;">
-          <div style="display: flex;">
-            <SvgIcon name="cash" width="100px" height="100px"/>
-            <div style="display: flex; flex-direction: column;width: 80%;">
-              <span>总账户金额:</span>
-              <textarea v-model="filterbox.merchantAccount" disabled class="cash-text-area"></textarea>
-            </div>
-          </div>
-        </el-card>
-        <el-card style="width: 30%;height: 100%;">
-          <div style="display: flex;">
-            <SvgIcon name="cash-freeze" width="100px" height="100px"/>
-            <div style="display: flex; flex-direction: column;width: 80%;">
-              <span>冻结总金额:</span>
-              <textarea v-model="filterbox.merchantAccount" disabled class="cash-text-area"></textarea>
-            </div>
-          </div>
-        </el-card>
-        <el-card style="width: 30%;height: 100%;">
-          <div style="display: flex;">
-            <SvgIcon name="tixian" width="90px" height="90px"/>
-            <div style="display: flex; flex-direction: column;width: 80%;">
-              <span>提现总金额:</span>
-              <textarea v-model="filterbox.merchantAccount" disabled class="cash-text-area"></textarea>
-            </div>
-          </div>
-        </el-card>
       </div>
     </el-collapse-item>
   </el-collapse>
@@ -106,7 +124,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       <el-table
           border :data="withdrawAccountFormData"
           class="merchantInfos-table"
-          style="width: 100%;height: 100%;"
+          style="width: 100%;height: 60%;"
       >
         <el-table-column
             prop="商户名称"
@@ -116,7 +134,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             style="height: 100%;"
         >
           <div>
-            {{row.merchantName}}
+            {{row.name}}
           </div>
         </el-table-column>
         <el-table-column
@@ -125,7 +143,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             align="center"
         >
           <div>
-            {{row.merchantAccount}}
+            {{row.userName}}
           </div>
         </el-table-column>
         <el-table-column
@@ -135,7 +153,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             align="center"
         >
           <div>
-            {{row.merchantWithdrawAccountr}}
+            {{row.walletAddr}}
           </div>
         </el-table-column>
         <el-table-column
@@ -145,7 +163,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             align="center"
         >
           <div>
-            {{row.createTime}}
+            {{getFormateTimeByTimeBystamp(row.createTime)}}
           </div>
         </el-table-column>
         <el-table-column
@@ -156,13 +174,25 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         >
           <div>
             <el-switch
-                v-model="row.withdrawlAccountStatus"
+                v-model="row.status"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
                 active-text="启用"
                 inactive-text="停用"
+                :inactive-value="0"
+                :active-value="1"
                 disabled>
             </el-switch>
+          </div>
+        </el-table-column>
+        <el-table-column
+            prop="createBy"
+            label="创建人"
+            v-slot="{row}"
+            align="center"
+        >
+          <div>
+            {{row.createBy}}
           </div>
         </el-table-column>
         <el-table-column
@@ -174,7 +204,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <div>
             <div>
               <el-button style="background-color: mediumseagreen" @click.prevent="editMerchantInfo(row)">编辑</el-button>
-              <el-popconfirm
+<!--              <el-popconfirm
                   title="Are you sure deleting this data?"
                   confirm-button-text="确认"
                   icon-color="red"
@@ -186,7 +216,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                 <template #reference>
                   <el-button style="background-color: orangered">删除</el-button>
                 </template>
-              </el-popconfirm>
+              </el-popconfirm>-->
               <!--<el-button style="background-color: orangered" @click.prevent="delete(row.merchantAccount)">删除</el-button>-->
             </div>
           </div>
@@ -199,7 +229,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
           :page-sizes="pageSizes"
-          style="position: sticky; bottom: 0px;float: right;right: 40px"
+          @current-change="handleCurrentChange"
+          style="float:right; margin-right: 5%;"
       >
       </el-pagination>
     </form>
@@ -210,7 +241,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       :title="dialogTitle"
       v-model="dialogFormVisible"
       class="dialog"
-      center="true"
+      center
       width="70%"
       height="50%"
   >
@@ -218,38 +249,52 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       客服：各列信息由后端返回列表，前端页面下拉选择
       商户：后端返回单列表，下拉结果回显
      -->
-    <el-form ref="form" :model="withdrawAccountInfo" label-width="100%" class="form">
+    <el-form :model="withdrawAccountInfo" label-width="100%" class="form" ref="createMerchantAccountForm" :rules="merchantAccountRule">
           <div class="el-form-line">
-            <el-form-item label="商户名称:" label-width="150px" size="medium" style="width: 400px;">
+            <el-form-item label="商户名称:" label-width="150px" prop="name">
 <!--              <el-input v-model="withdrawAccountInfo.merchantAccount" style="width: 200px"/>-->
-              <el-select v-model="selectedMerchentName"
+              <el-select v-model="withdrawAccountInfo.name"
                          @change="handleChange"
                          placeholder="请选择商户"
+                         style="width: 200px"
+                         :options="merchantAccountOptions"
+                         :props="merchantAccountProps"
+                         :disabled="selectAccountVisible"
               >
-                <el-option
+<!--                <el-option
                   v-for = "item in merchantAccountOptions"
                   :key = "item.value"
                   :label="item.label"
                   :value="item.value"
                   :disabled="selectAccountVisible"
-                />
+                />-->
               </el-select>
             </el-form-item>
           </div>
           <div class="el-form-line">
-            <el-form-item label="商户账号:" label-width="150px" size="medium" style="width: 400px;">
-              <el-input disabled v-model="withdrawAccountInfo.merchantAccount" style="width: 200px"></el-input>
+            <el-form-item label="商户账号:" label-width="150px" prop="userName">
+              <el-input disabled v-model="withdrawAccountInfo.userName" style="width: 200px"></el-input>
             </el-form-item>
           </div>
-          <div class="el-form-line">
+      <div class="el-form-line">
+        <el-form-item label="收款账号:" label-width="150px" prop="walletName">
+          <el-input v-model="withdrawAccountInfo.walletName" style="width: 200px"></el-input>
+        </el-form-item>
+      </div>
+      <div class="el-form-line">
+        <el-form-item label="收款账号地址:" label-width="150px" prop="walletAddr">
+          <el-input v-model="withdrawAccountInfo.walletAddr" style="width: 200px"></el-input>
+        </el-form-item>
+      </div>
+<!--          <div class="el-form-line">
             <el-form-item label="可用余额:" label-width="150px" size="medium" style="width: 400px;">
               <el-input disabled v-model="withdrawAccountInfo.balance" style="width: 200px"></el-input>
             </el-form-item>
-          </div>
-          <div class="el-form-line">
+          </div>-->
+<!--          <div class="el-form-line">
             <el-form-item label="收款账号:" label-width="150px" size="medium" style="width: 400px;">
               <el-select
-                  v-model="withdrawAccountInfo.withdrawlAccount"
+                  v-model="withdrawAccountInfo.walletName"
                   multiple
                   placeholder="请选择收款账号"
                   style="width: 200px"
@@ -262,16 +307,16 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                 ></el-option>
               </el-select>
             </el-form-item>
-          </div>
+          </div>-->
           <div class="el-form-line">
-            <el-form-item label="谷歌验证码:" label-width="150px" size="medium" style="width: 400px;">
+            <el-form-item label="谷歌验证码:" label-width="150px" prop="googleCode">
               <el-input type="number" v-model="withdrawAccountInfo.googleCode" style="width: 200px" @mousewheel.native.prevent/>
             </el-form-item>
           </div>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="cancelDialog">取 消</el-button>
-      <el-button type="primary">确 定</el-button>
+      <el-button @click="cancelDialog('createMerchantAccountForm')">取 消</el-button>
+      <el-button type="primary" @click="submitMerchantAccount('createMerchantAccountForm')">确 定</el-button>
     </div>
   </el-dialog>
 </template>
@@ -282,16 +327,39 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
  -->
 <script>
 import {ref} from "vue";
+import {
+  createMerchantAccount,
+  createMerchantInfo, getAllCurrencyType, getMerchantAccount,
+  getMerchantInfo,
+  modifyMerchantInfo
+} from "@/api/interface/backendInterface.js";
+import {loadingBody} from "@/api/common.js";
 
 const filterDateRange = ref('')
 export default {
   data() {
     return {
+      currency: '',
+      currencyIcon: '',
+      currencyIcons: {},
+      currencyOptions: [],
+      currencyProps: {
+        value: 'currencyType',
+        label: 'name'
+      },
+      currencyMaps: {},
+      submitType: '',
+      statisticsInfo: {},
       dialogFormVisible: false,
       dialogTitle: '',
       selectedMerchentName: '',
       selectAccountVisible: true,
       merchantAccountOptions: [],
+      merchantAccountProps: {
+        value: 'userId',
+        label: 'merchantName',
+      },
+      withdrawAccountFormData: [],
       allMerchantInfo: [
         {
           merchantName:'123',
@@ -325,6 +393,23 @@ export default {
         merchantAccount: "",
         withdrawlAccount: "",
       },
+      merchantAccountRule: {
+          name: {
+            required: true, trigger: 'blur'
+          },
+          userName: {
+            required: true, trigger: 'blur'
+          },
+          walletName: {
+            required: true, trigger: 'blur'
+          },
+          walletAddr: {
+            required: true, trigger: 'blur'
+          },
+          googleCode: {
+            required: true, trigger: 'blur'
+          }
+      },
       totalCount: 0,
       pageSize: 10,
       currentPage: 1,
@@ -332,48 +417,208 @@ export default {
     }
   },
   methods: {
+    reset(form) {
+      this.$refs[form].resetFields()
+    },
+    search() {
+      const loadingInstance = loadingBody(this, 'merchantInfos-table')
+      this.filterbox.isNeedCardData = true
+      getMerchantAccount(this.filterbox).then(res => {
+        if (res.status === 200 && res.data.code === 0) {
+          const all = JSON.parse(res.data.data)
+          const allData = all.withdrawalAccountsDtoList
+          const allCardData = all.cardInfo
+          if (allCardData) {
+            const cardInfo = allCardData[this.currency]
+            this.statisticsInfo.total = cardInfo.total
+            this.statisticsInfo.frozen = cardInfo.frozen
+            this.statisticsInfo.withdraw = cardInfo.withdraw
+          }  else {
+            this.statisticsInfo.total = this.currencyIcons[this.currency] + 0
+            this.statisticsInfo.frozen = this.currencyIcons[this.currency] + 0
+            this.statisticsInfo.withdraw = this.currencyIcons[this.currency] + 0
+          }
+          this.totalCount = all.totalNumber
+          this.withdrawAccountFormData = allData
+        } else if (res.status === 200 && res.data.code !== 0) {
+          this.$notify({
+            title: 'Error',
+            type: 'error',
+            message: res.data.message,
+            duration: 3000,
+            position: "bottom-right"
+          })
+        } else {
+          this.$notify({
+            title: 'Error',
+            type: 'error',
+            message: 'something wrong happened, try it again',
+            duration: 3000,
+            position: "bottom-right"
+          })
+        }
+        loadingInstance.close()
+      }).catch(err => {
+        loadingInstance.close()
+        this.$notify({
+          title: 'Error',
+          type: 'error',
+          message: err.message,
+          duration: 3000,
+          position: "bottom-right"
+        })
+      })
+    },
+    handleCurrencyChange() {
+      this.currency = this.filterbox.currency;
+      this.currencyIcon = this.currencyIcons[this.currency]
+      this.search()
+    },
     addWithdrawlAccount() {
       this.dialogFormVisible = true;
       this.dialogTitle = '新增收款账号'
-
-      /**
-       *  客服点击新增后,页面选择商户后，根据商户账号获取该账户可用余额自动填充
-       *  商户点击新增后，直接填充
-       * */
-      // 商户处理方案：
-      //填充新增页面商户账号值
-      /*if (localStorage.getItem('role') === '006') {
-        this.selectedMerchentAccount = this.allMerchantInfo[0].merchantAccount;
-      this.withdrawAccountInfo.balance = this.allMerchantInfo[0].balance;
-      this.withdrawAccountInfo.merchantName = this.allMerchantInfo[0].merchantName;
-      }*/
-      //客服处理方案 下拉用户，在此之前需要先对商户账号/商户名称/可用余额进行关联处理
-      //生成可显示的option
-      let options = [];
-      this.allMerchantInfo.forEach(item => {
-          let option = {
-            value: item.merchantAccount,
-            label: item.merchantName
-          }
-          options.push(option)
-      });
-      this.merchantAccountOptions = options;
       this.selectAccountVisible = false;
-
+    },
+    editMerchantInfo(row) {
+      this.withdrawAccountInfo = row
+      this.dialogFormVisible = true;
+      this.dialogTitle = '新增收款账号'
+      this.selectAccountVisible = true;
     },
     handleChange(val) {
       //选择商户后自动填充商户账号
-      this.allMerchantInfo.forEach(item => {
+      /*this.allMerchantInfo.forEach(item => {
         if (item.merchantAccount === val) {
           this.withdrawAccountInfo.merchantAccount = item.merchantAccount;
           this.withdrawAccountInfo.balance = item.balance;
           return
         }
-      })
+      })*/
+      this.withdrawAccountInfo.name = val
     },
-    cancelDialog() {
+    handleCurrentChange(currentPage) {
+      this.search()
+    },
+    handleSizeChange(pageSize) {
+      this.currentPage = 1
+      this.pageSize = pageSize
+      this.filterbox.pageSize = pageSize
+      this.filterbox.pageNo = 1
+      this.handleCurrentChange()
+    },
+    cancelDialog(form) {
       this.dialogFormVisible = false;
+      this.dialogTitle = ''
+      this.$refs[form].resetFields()
+    },
+    submitMerchantAccount(form) {
+      this.$refs[form].validate(validate => {
+        if (validate) {
+          if(this.submitType === 'create') {
+            createMerchantAccount(this.withdrawAccountInfo).then(res => {
+              if (res.status === 200 && res.data.code === 0) {
+                this.$notify({
+                  title: 'Success',
+                  type: 'success',
+                  message: 'Create New Merchant Account Successfully.',
+                  duration: 3000,
+                  position: 'bottom-right'
+                })
+                this.dialogTitle = ''
+                this.dialogFormVisible = false
+                this.$refs[form].resetFields()
+              } else if (res.status === 200 && res.data.code !== 0) {
+                this.$notify({
+                  title: 'Failed',
+                  type: 'error',
+                  message: res.data.message,
+                  duration: 3000,
+                  position: 'bottom-right'
+                })
+              } else {
+                this.$notify({
+                  title: 'Error',
+                  type: 'error',
+                  message: 'somethind went wrong, try it again',
+                  duration: 3000,
+                  position: 'bottom-right'
+                })
+              }
+            })
+          } else if (this.submitType === 'edit') {
+            modifyMerchantInfo(this.withdrawAccountInfo).then(res => {
+              if (res.status === 200 && res.data.code === 0) {
+                this.$notify({
+                  title: 'Success',
+                  type: 'success',
+                  message: 'Modify Merchant Account Successfully.',
+                  duration: 3000,
+                  position: 'bottom-right'
+                })
+                this.dialogTitle = ''
+                this.dialogFormVisible = false
+                this.$refs[form].resetFields()
+              } else if (res.status === 200 && res.data.code !== 0) {
+                this.$notify({
+                  title: 'Failed',
+                  type: 'error',
+                  message: res.data.message,
+                  duration: 3000,
+                  position: 'bottom-right'
+                })
+              } else {
+                this.$notify({
+                  title: 'Error',
+                  type: 'error',
+                  message: 'somethind went wrong, try it again',
+                  duration: 3000,
+                  position: 'bottom-right'
+                })
+              }
+            })
+          }
+        }
+      })
+      this.submitType = ''
     }
+  },
+  mounted() {
+
+    // get all merchant info
+    getMerchantInfo({pageSize: 1000}).then(res => {
+      if (res.status === 200 && res.data.code === 0) {
+          this.merchantAccountOptions = JSON.parse(res.data.data).merchantDtoList
+      } else {
+        this.$notify({
+          title: 'Error',
+          type: 'error',
+          message: 'get merchant info failed, fresh page again',
+          duration: 3000,
+          position: 'bottom-right'
+        })
+      }
+    })
+
+    getAllCurrencyType().then(res => {
+      if (res.status === 200) {
+        if (res.data.code === 0) {
+          this.currencyOptions = JSON.parse(res.data.data)
+          this.currency = this.currencyOptions[0].currencyType
+          this.filterbox.currency = this.currencyOptions[0].currencyType
+          //this.filterbox.currency = this.currencyOptions[0].currencyType
+          this.currencyIcons = {};
+          this.currencyMaps = {};
+          this.currencyOptions.forEach(currency => {
+            this.currencyIcons[currency.currencyType] = currency.icon
+            this.currencyMaps[currency.currencyType] = currency.name
+          })
+          let iconKey = this.currency;
+          this.currencyIcon = this.currencyIcons[iconKey]
+        }
+      }
+      this.search()
+    })
+
   }
 }
 </script>
