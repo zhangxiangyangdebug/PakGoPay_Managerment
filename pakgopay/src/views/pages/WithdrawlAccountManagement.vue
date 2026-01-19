@@ -1,7 +1,7 @@
 <script setup>
 
 import SvgIcon from "@/components/SvgIcon/index.vue";
-import {getFormateTimeByTimeBystamp} from "@/api/common.js";
+import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
 </script>
 
 <template>
@@ -166,7 +166,7 @@ import {getFormateTimeByTimeBystamp} from "@/api/common.js";
             align="center"
         >
           <div>
-            {{ getFormateTimeByTimeBystamp(row.createTime) }}
+            {{ getFormateDate(row.createTime) }}
           </div>
         </el-table-column>
         <el-table-column
@@ -328,10 +328,10 @@ import {ref} from "vue";
 import {
   createMerchantAccount,
   createMerchantInfo, getAllCurrencyType, getMerchantAccount,
-  getMerchantInfo,
+  getMerchantInfo, modifyMerchantAccount,
   modifyMerchantInfo
 } from "@/api/interface/backendInterface.js";
-import {loadingBody} from "@/api/common.js";
+import {getTodayStartTimestamp, loadingBody} from "@/api/common.js";
 
 const filterDateRange = ref('')
 export default {
@@ -420,7 +420,13 @@ export default {
     },
     search() {
       const loadingInstance = loadingBody(this, 'merchantInfos-table')
+      let timeRange = null;
       this.filterbox.isNeedCardData = true
+      if (this.filterbox.filterDateRange) {
+        timeRange = new String(this.filterbox.filterDateRange)
+        this.filterbox.startTime = timeRange.split(',')[0] / 1000
+        this.filterbox.endTime = timeRange.split(',')[1] / 1000
+      }
       getMerchantAccount(this.filterbox).then(res => {
         if (res.status === 200 && res.data.code === 0) {
           const all = JSON.parse(res.data.data)
@@ -548,7 +554,7 @@ export default {
               }
             })
           } else if (this.filterbox.submitType === 'edit') {
-            modifyMerchantInfo(this.withdrawAccountInfo).then(res => {
+            modifyMerchantAccount(this.withdrawAccountInfo).then(res => {
               if (res.status === 200 && res.data.code === 0) {
                 this.$notify({
                   title: 'Success',

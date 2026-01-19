@@ -2,7 +2,7 @@
 import SvgIcon from "@/components/SvgIcon/index.vue";
 import merchantReport from "@/views/pages/MerchantReport.vue";
 import '@/assets/base.css'
-import {getFormateTimeByTimeBystamp} from "@/api/common.js";
+import {getFormateDate} from "@/api/common.js";
 </script>
 
 <template>
@@ -284,7 +284,7 @@ import {getFormateTimeByTimeBystamp} from "@/api/common.js";
             align="center"
         >
           <div>
-            {{row.createTime? getFormateTimeByTimeBystamp(row.createTime) : '-'}}
+            {{row.createTime? getFormateDate(row.createTime) : '-'}}
           </div>
         </el-table-column>
         <el-table-column
