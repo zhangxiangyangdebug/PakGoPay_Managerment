@@ -9,6 +9,7 @@ import {ElPagination} from "element-plus";
 import 'element-plus/theme-chalk/el-pagination.css'
 import {ref} from "vue";
 import {
+  exportPayment,
   exportPaymentReport,
   getAllCurrencyType,
   getPaymentInfo,
@@ -17,7 +18,7 @@ import {
 import {
   exportExcel,
   getChannelReportTitle,
-  getFormateTime,
+  getFormateTime, getPaymentListTitle,
   getPaymentReportTitle,
   getTodayStartTimestamp,
   loadingBody
@@ -121,18 +122,19 @@ export default {
     exportPathChannelInfo() {
       //export data
       this.filterbox.orderType = null
-      this.filterbox.columns = getPaymentReportTitle(this)
-      let timeRange = null
-      if (this.filterbox.filterDateRange) {
+      this.filterbox.columns = getPaymentListTitle(this)
+      //let timeRange = null
+     /* if (this.filterbox.filterDateRange) {
         timeRange = new String(this.filterbox.filterDateRange)
         this.filterbox.startTime = timeRange.split(',')[0] / 1000
         this.filterbox.endTime = timeRange.split(',')[1] / 1000
       } else {
         this.filterbox.startTime = getTodayStartTimestamp(this.filterbox.startTime)
         this.filterbox.endTime = getTodayStartTimestamp()
-      }
-      exportPaymentReport(this.filterbox).then(async res => {
-         const fileName = this.$t('exportPaymentReportName') + getFormateTime()
+      }*/
+      exportPayment(this.filterbox).then(async res => {
+         /*const fileName = this.$t('exportPaymentReportName') + getFormateTime()*/
+        const fileName = "通道列表" + getFormateTime()
         await exportExcel(res, fileName, this)
         this.filterbox.orderType = '0'
       })
@@ -173,7 +175,7 @@ export default {
               let resData = JSON.parse(res.data.data)
               const cardInfo = resData.cardInfo[this.filterbox.currency]
               if (orderType === 0) {
-                this.collectionPaymentInfo = resData.channelReportDtoList
+                this.collectionPaymentInfo = resData.paymentReportDtoList
                 this.tab1CurrentPage = resData.pageNo
                 this.tab1TotalCount = resData.totalNumber
                 this.tab1PageSize = resData.pageSize
@@ -181,7 +183,7 @@ export default {
                 this.statisticsInfo.collectionCard = true
                 this.statisticsInfo.payingCard = false
               } else if (orderType === 1) {
-                this.payingPaymentInfo = resData.channelReportDtoList
+                this.payingPaymentInfo = resData.paymentReportDtoList
                 this.tab2CurrentPage = resData.pageNo
                 this.tab2TotalCount = resData.totalNumber
                 this.tab2PageSize = resData.pageSize
@@ -498,7 +500,7 @@ export default {
                 align="center"
                 v-slot="{row}"
             >
-              <div>{{ row.paymentlName }}</div>
+              <div>{{ row.paymentName }}</div>
             </el-table-column>
             <el-table-column
                 prop="orderQuantity"

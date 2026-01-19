@@ -1089,7 +1089,7 @@ import {
   getAllCurrencyType,
   getPaymentInfo
 } from "@/api/interface/backendInterface.js";
-import {exportExcel, getFormateTime, loadingBody} from "@/api/common.js";
+import {exportExcel, getAgentAccountTitle, getFormateTime, getPaymentListTitle, loadingBody} from "@/api/common.js";
 export default {
   name: "PathChannelList",
   data() {
@@ -1304,7 +1304,7 @@ export default {
         const fileName = this.$t('exportPaymentListName') + getFormateTime()
         await exportExcel(res, fileName, this)
       })*/
-
+      this.filterbox.columns = getPaymentListTitle(this)
       exportPayment(this.filterbox).then(async res => {
         const fileName = this.$t('exportPaymentListName') + getFormateTime()
         await exportExcel(res, fileName, this)

@@ -91,7 +91,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
   </el-collapse>
   <div class="main-views-container" style="margin-top: 4%;margin-left:1%;height: 100%">
     <div style="display: flex;justify-content: right;margin-right:3%">
-      <el-button v-on:click="exportStatements()" style="width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;margin:0">
+      <el-button v-on:click="exportAgentStatement()" style="width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;margin:0">
         <SvgIcon name="export"/>导出
       </el-button>
       <el-button v-on:click="addWithdrawlAccount" style="width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;margin:0">
@@ -283,12 +283,12 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 
 <script>
 import {
-  createAgentAccountInfo,
+  createAgentAccountInfo, exportAgentAccount, exportMerchantAccount,
   getAgentAccountInfo, getAgentInfo,
   getAllCurrencyType, modifyAgentAccountInfo,
   modifyAgentInfo
 } from "@/api/interface/backendInterface.js";
-import {loadingBody} from "@/api/common.js";
+import {exportExcel, getAgentAccountTitle, getFormateTime, getMerchantAccountTitle, loadingBody} from "@/api/common.js";
 
 export default {
   name: 'WithdrawlHistory',
@@ -341,6 +341,20 @@ export default {
     }
   },
   methods: {
+    exportAgentStatement() {
+      this.filterbox.columns = getAgentAccountTitle(this)
+      let timeRange = null
+      if (this.filterbox.filterDateRange) {
+        timeRange = new String(this.filterbox.filterDateRange)
+        this.filterbox.startTime = timeRange.split(',')[0] / 1000
+        this.filterbox.endTime = timeRange.split(',')[1] / 1000
+      }
+      exportAgentAccount(this.filterbox).then(async res => {
+        //const fileName = this.$t('exportPaymentReportName') + getFormateTime()
+        const fileName = '代理账号信息表' + getFormateTime()
+        await exportExcel(res, fileName, this)
+      })
+    },
     handleAgentChange(val) {
       this.createAgentAccountModel.name = val;
     },

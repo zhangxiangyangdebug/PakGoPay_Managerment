@@ -72,7 +72,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <SvgIcon height="20px" width="20px" name="add"/>
           <div style="color: black;">新增一级代理</div>
         </el-button>
-        <el-button v-on:click="exportAgentInfo" style="margin:0">
+        <el-button v-on:click="exportAgent" style="margin:0">
           <SvgIcon height="20px" width="20px" name="export"/>
           <div style="color: black;font-size: 13px;">导出</div>
         </el-button>
@@ -620,14 +620,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 
 <script>
 import {
-  createAgentInfo,
+  createAgentInfo, exportAgentInfo, exportMerchantAccount,
   getAgentInfo,
   getChannelInfo,
   getPaymentInfo,
   modifyAgentInfo
 } from "@/api/interface/backendInterface.js";
 import validator from "axios/unsafe/helpers/validator.js";
-import {loadingBody} from "@/api/common.js";
+import {exportExcel, getAgentInfoTitle, getFormateTime, getMerchantAccountTitle, loadingBody} from "@/api/common.js";
 import {nextTick} from "vue";
 
 export default {
@@ -912,6 +912,20 @@ export default {
     this.search()
   },
   methods: {
+    exportAgent() {
+      this.filterbox.columns = getAgentInfoTitle(this)
+      let timeRange = null
+      if (this.filterbox.filterDateRange) {
+        timeRange = new String(this.filterbox.filterDateRange)
+        this.filterbox.startTime = timeRange.split(',')[0] / 1000
+        this.filterbox.endTime = timeRange.split(',')[1] / 1000
+      }
+      exportAgentInfo(this.filterbox).then(async res => {
+        //const fileName = this.$t('exportPaymentReportName') + getFormateTime()
+        const fileName = '代理信息表' + getFormateTime()
+        await exportExcel(res, fileName, this)
+      })
+    },
     search() {
       const loadingInstance =  loadingBody(this, 'agentInfoTable')
       getAgentInfo(this.filterbox).then((res) => {

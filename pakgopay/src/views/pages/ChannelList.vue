@@ -295,13 +295,18 @@ import {getTimeFromTimestamp} from "@/api/common.js";
 
 <script>
 import {
-  createChannelInfo,
+  createChannelInfo, exportChannelList, exportPayment,
   getAllCurrencyType,
   getChannelInfo,
   getPaymentInfo,
   modifyChannelInfo
 } from "@/api/interface/backendInterface.js";
-import {loadingBody} from "@/api/common.js";
+import {
+  exportExcel,
+  getChannelListTitle,
+  getFormateTime,
+  loadingBody
+} from "@/api/common.js";
 
 export default {
   name: 'ChannelList',
@@ -363,6 +368,67 @@ export default {
     }
   },
   methods: {
+    exportPathChannelInfos() {
+      this.filterbox.columns = getChannelListTitle(this)
+      exportChannelList(this.filterbox).then(async res => {
+        /*const fileName = this.$t('exportPaymentListName') + getFormateTime()*/
+        const fileName = "渠道表" + getFormateTime()
+        await exportExcel(res, fileName, this)
+        /*if (res.status === 200) {
+          if (res.data.type === 'application/json') {
+            const blobData = res.data;
+            const jsonData = JSON.parse(await blobData.text())
+            if (jsonData.code !== 0) {
+              this.$notify({
+                title: 'Failed',
+                message: jsonData.message,
+                duration: 3000,
+                type: 'error',
+                position: 'bottom-right',
+              })
+            }
+          } else {
+            const blob = new Blob([res.data], {type: "application/vnd.ms-excel;charset=UTF-8"});
+            console.log('blob---'+ blob.size)
+            if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+              window.navigator.msSaveOrOpenBlob(blob, fileName)
+            } else {
+              const downLoadElement = document.createElement('a');
+              const href = window.URL.createObjectURL(blob);
+              downLoadElement.href = href;
+              downLoadElement.download = fileName;
+              document.body.appendChild(downLoadElement);
+              downLoadElement.click();
+              document.body.removeChild(downLoadElement);
+              window.URL.revokeObjectURL(href);
+            }
+            this.$notify({
+              title: 'Success',
+              message: 'export data success',
+              duration: 3000,
+              type: 'success',
+              position: 'bottom-right',
+            })
+          }
+        } else {
+          if (res.data.type === 'application/json') {
+            const blobData = res.data;
+            const jsonData = JSON.parse(await blobData.text())
+            this.$notify({
+              title: 'Error',
+              message: jsonData.message,
+              duration: 3000,
+              type: 'error',
+              position: 'bottom-right',
+            })
+          }
+
+        }
+        this.filterbox.orderType = '0'*/
+      }).catch(err => {
+        console.log(err)
+      })
+    },
     reset(form) {
       this.$refs[form].resetFields();
     },

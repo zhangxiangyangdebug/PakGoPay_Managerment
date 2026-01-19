@@ -120,6 +120,65 @@ export function getAgentInfoTitle(i18n) {
         {key: "collectionMaxFee", title: "代收单笔最大费用"},
         {key: "collectionMinFee", title: "代收单笔最小金额"},
     ]
+    return Agent_Info_Title
+}
+
+export function getAgentAccountTitle(i18n) {
+    const Agent_Account_Title = [
+        {key: "agentName", title: '代理名称'},
+        {key: "accountName", title: '代理账号'},
+        {key: "walletAddr", title: '代理提现账户'},
+        {key: "status", title: '状态'},
+        {key: "createTime", title: '创建时间'},
+        {key: "createBy", title: '创建人'},
+    ]
+    return Agent_Account_Title
+}
+
+export function getPaymentListTitle(i18n) {
+    const Payment_List_Title = [
+        {key: 'paymentNo', title: '通道编号'},
+        {key: 'paymentName', title: '通道名称'},
+        {key: 'status', title: '通道状态'},
+        {key: 'isThird', title: '是否支持三方支付'},
+        {key: 'supportType', title: '支付类型'},
+        {key: 'enableTimePeriod', title: '可用时间'},
+        {key: 'paymentType', title: '通道类型'},
+        {key: 'isCheckoutCounter', title: '是否支持收银台'},
+        {key: 'collectionDailyLimit', title: '代收单日限额'},
+        {key: 'collectionMonthlyLimit', title: '代收月限额'},
+        {key: 'payDailyLimit', title: '代付日限额'},
+        {key: 'payMonthlyLimit', title: '代付月限额'},
+        {key: 'paymentRequestPayUrl', title: '代付api地址'},
+        {key: 'paymentRequestCollectionUrl', title: '代收api地址'},
+        {key: 'paymentCollectionRate', title: '通道代收费率'},
+        {key: 'paymentPayRate', title: '通道代付费率'},
+        {key: 'paymentCheckPayUrl', title: '代付订单校验地址'},
+        {key: 'paymentPayRate', title: '通道代付费率'},
+        {key: 'paymentCheckCollectionUrl', title: '代收订单校验地址'},
+        {key: 'collectionCallbackAddr', title: '代收回调地址'},
+        {key: 'payCallbackAddr', title: '代付回调地址'},
+        {key: 'checkoutCounterUrl', title: '收银台地址'},
+        {key: 'currency', title: '币种'},
+        {key: 'paymentMaxAmount', title: '最大金额'},
+        {key: 'paymentMinAmount', title: '最小金额'},
+        {key: 'bankName', title: '银行名称'},
+        {key: 'bankAccount', title: '银行账号'},
+        {key: 'bankUserName', title: '银行用户名'},
+    ]
+    return Payment_List_Title
+}
+
+export function getChannelListTitle(i18n) {
+    const ChannelList_Title = [
+        {key: 'channelName', title: '渠道名称'},
+        {key: 'collectPayment', title: '代收通道列表'},
+        {key: 'payPayment', title: '代付通道列表'},
+        {key: 'status', title: '状态'},
+        {key: 'currency', title: '币种'},
+        {key: 'createTime', title: '创建时间'},
+    ]
+    return ChannelList_Title
 }
 
 export function getFormateDate(ts) {

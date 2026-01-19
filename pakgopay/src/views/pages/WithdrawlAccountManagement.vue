@@ -328,11 +328,18 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
 import {ref} from "vue";
 import {
   createMerchantAccount,
-  createMerchantInfo, getAllCurrencyType, getMerchantAccount,
+  createMerchantInfo, exportMerchantAccount, exportPaymentReport, getAllCurrencyType, getMerchantAccount,
   getMerchantInfo, modifyMerchantAccount,
   modifyMerchantInfo
 } from "@/api/interface/backendInterface.js";
-import {getTodayStartTimestamp, loadingBody} from "@/api/common.js";
+import {
+  exportExcel,
+  getFormateTime,
+  getMerchantAccountTitle,
+  getPaymentReportTitle,
+  getTodayStartTimestamp,
+  loadingBody
+} from "@/api/common.js";
 
 const filterDateRange = ref('')
 export default {
@@ -416,6 +423,20 @@ export default {
     }
   },
   methods: {
+    exportStatements() {
+      this.filterbox.columns = getMerchantAccountTitle(this)
+      let timeRange = null
+      if (this.filterbox.filterDateRange) {
+        timeRange = new String(this.filterbox.filterDateRange)
+        this.filterbox.startTime = timeRange.split(',')[0] / 1000
+        this.filterbox.endTime = timeRange.split(',')[1] / 1000
+      }
+      exportMerchantAccount(this.filterbox).then(async res => {
+        //const fileName = this.$t('exportPaymentReportName') + getFormateTime()
+        const fileName = '商户账号信息表' + getFormateTime()
+        await exportExcel(res, fileName, this)
+      })
+    },
     reset(form) {
       this.$refs[form].resetFields()
     },
