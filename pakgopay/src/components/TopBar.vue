@@ -4,16 +4,16 @@ import router from "@/router/index.js";
 import SvgIcon from "@/components/SvgIcon/index.vue";
 import { connectWebSocket, disconnectWebSocket } from "@/util/websocket.js"
 
-/*const showNewMessage = (message) => {
-  /!*this.$notify({
+const showNewMessage = (message) => {
+  this.$notify({
     title: 'new message',
     message: message,
     type: "info",
     duration: 0,
     position: "top-right",
-  })*!/
+  })
   this.speak(message)
-}*/
+}
 export default {
   name: 'Topbar',
   components: {SvgIcon},
@@ -125,9 +125,9 @@ export default {
           })
         }
       })
-      //this.textToSpeak = message;
-      //this.playNotice()
-      //this.speak()
+      this.textToSpeak = message;
+      this.playNotice()
+      this.speak()
     },
     async playNotice() {
       this.$refs.noticePlayer.muted=false
