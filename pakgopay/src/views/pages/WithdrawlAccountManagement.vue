@@ -277,11 +277,11 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
           </el-select>
         </el-form-item>
       </div>
-      <div class="el-form-line">
+<!--      <div class="el-form-line">
         <el-form-item label="商户账号:" label-width="150px" prop="userName">
           <el-input disabled v-model="withdrawAccountInfo.userName" style="width: 200px"></el-input>
         </el-form-item>
-      </div>
+      </div>-->
       <div class="el-form-line">
         <el-form-item label="收款账号:" label-width="150px" prop="walletName">
           <el-input v-model="withdrawAccountInfo.walletName" style="width: 200px"></el-input>
@@ -548,6 +548,7 @@ export default {
           if (this.filterbox.submitType === 'create') {
             createMerchantAccount(this.withdrawAccountInfo).then(res => {
               if (res.status === 200 && res.data.code === 0) {
+                this.$refs[form].resetFields()
                 this.$notify({
                   title: 'Success',
                   type: 'success',

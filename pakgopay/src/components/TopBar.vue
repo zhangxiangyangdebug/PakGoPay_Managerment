@@ -28,6 +28,7 @@ export default {
       textToSpeak: '',
       collapse: false,
       username: "",
+      userId: "",
       selectedLang: 'zh-cn',
       languageOptions: [
         {
@@ -48,8 +49,9 @@ export default {
   },
   mounted() {
     this.username = localStorage.getItem("userName")
+    this.userId = localStorage.getItem("userId")
     if (this.username) {
-      this.stomp = connectWebSocket('newOrder', this.showNewMessage, null)
+      this.stomp = connectWebSocket(this.userId+'/newOrder', this.showNewMessage, null)
     }
 
     /*this.username = localStorage.getItem("userName");
