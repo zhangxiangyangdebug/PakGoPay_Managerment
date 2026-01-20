@@ -209,7 +209,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           >
 <!--            <el-input style="width: 200px" v-model="createAgentAccountModel.agentName"/>-->
             <el-select
-                v-model="createAgentAccountModel.name"
+                v-model="createAgentAccountModel.merchantAgentId"
                :options="agentOptions"
                :props="agentProps"
                 style="width: 200px"
@@ -219,7 +219,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </el-col>
       <el-col v-if="dialogType !== 'start' && dialogType !== 'stop'" :span="24" class="addDialog">
         <el-form-item
-            label="账号名称:"
+            label="钱包名称:"
             label-width="150px"
             prop="walletName"
         >
@@ -297,7 +297,7 @@ export default {
       agentOptions: [],
       agentProps: {
         label: 'agentName',
-        value: 'agentName'
+        value: 'userId'
       },
       submitType: '',
       currency: '',
