@@ -678,3 +678,17 @@ export function modifyAgentAccountInfo(form) {
         data: form
     })
 }
+
+export function createStatementeOrderApply(form) {
+    return service({
+        url: '/api/pakGoPay/server/merchant/addMerchantStatement',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
+

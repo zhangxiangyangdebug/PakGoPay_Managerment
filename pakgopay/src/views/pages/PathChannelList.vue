@@ -7,7 +7,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
 <template>
   <div class="main-title">通道列表</div>
 
-  <el-collapse style="margin-top: 20px; width: 95%;margin-left: 2%;">
+  <el-collapse style="margin-top: 20px; width: 95%;margin-left: 1%;">
     <el-collapse-item>
       <template #title>
         <span class="toolbarName">
@@ -91,7 +91,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
     </el-collapse-item>
   </el-collapse>
 
-  <div class="main-views-container" style="height: 100%">
+  <div class="main-views-container" style="height: 100%;margin-left: 1%">
     <div class="main-views-form" style="height: 100%">
       <div style="width: 97%">
         <el-button @click="createPathChannel" style="float: right">
@@ -896,6 +896,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
               :options="currencyOptions"
               :props="currencyProps"
               v-model="createPathChannelInfo.currency"
+              style="width: 200px"
             />
           </el-form-item>
         </el-col>
@@ -1034,7 +1035,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row style="width: 100%" v-if="createPathChannelInfo.paymentType === 2">
+      <el-row style="width: 100%" v-if="createPathChannelInfo.paymentType === '2'">
         <el-col :span="6">
           <el-form-item
               label="银行名称:"

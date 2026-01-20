@@ -6,46 +6,47 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 <template>
   <div class="main-container" style="height: 100%">
     <div class="main-title">{{$t('route.merchantRecharge')}}</div>
-    <div class="main-toolbar" style="height: 100px;flex-direction: column;position: relative;">
-      <el-form
-          prop="merchantName"
-          style="width: 100%;height:100%;display: flex;align-items: center;"
-      >
-        <el-row style="width: 90%;display: flex;margin-left: 5%;height: 100px;justify-items: center;">
-          <el-col :span="8" style="display: flex;justify-content: center;align-items: center;">
-            <el-form-item label="商户名称:" style="height: 30px;"><el-input placeholder="商户名称" v-model="filterbox.merchantName" style="width: 200px;display: flex;text-align: center"/></el-form-item>
-          </el-col>
-          <el-col :span="16" style="display: flex;justify-content: center;align-items: center;">
-            <div>
 
-            </div>
-            <el-form-item style="height: 30px;"><!--<el-input type="datetimerange" placeholder="开始时间" v-model="filterbox.startTime" style="width: 200px"/>-->
-              <template #label>
-                <span>时间范围:</span>
-              </template>
-              <el-date-picker
-                v-model="filterbox.timeRage"
-                type="datetimerange"
-                value-format="yyyy-MM-dd HH:mm:ss"
-                placeholder="选择日期时间"
-                style="width: 400px"
-              >
-            </el-date-picker>
-              <el-button style="width: 80px;display: flex;align-items: center;background-color: deepskyblue;color: black"><SvgIcon name="search" style="width: 20px;height: 20px"/>查询</el-button>
-            </el-form-item>
-          </el-col>
-<!--          <el-col :span="8" style="display: flex;justify-content: center;align-items: center;">
-            <el-form-item label="截止时间:" style="height: 30px;"><el-input type="date" placeholder="截止时间" v-model="filterbox.endTime" style="width: 280px;display: flex;">
-              <template #append>
-                <el-button style="width: 80px;display: flex;align-items: center;background-color: deepskyblue;color: black"><SvgIcon name="search" style="width: 20px;height: 20px"/>查询</el-button>
-              </template>
-            </el-input></el-form-item>
-          </el-col>-->
-        </el-row>
-      </el-form>
-    </div>
+    <el-collapse style="margin-top: 20px; width: 95%;margin-left: 1%;">
+      <el-collapse-item>
+        <template #title>
+        <span class="toolbarName">
+          工具栏
+        </span>
+        </template>
+        <div class="main-toolbar" style="height: auto;flex-direction: column;position: relative;">
+          <el-form
+              prop="merchantName"
+              style="width: 90%;height:auto;display: flex;align-items: center;"
+          >
+            <el-row style="width: 90%;">
+              <el-col :span="8" style="display: flex;justify-content: center;align-items: center;">
+                <el-form-item label="商户名称:" style="height: 30px;"><el-input placeholder="商户名称" v-model="filterbox.merchantName" style="width: 200px;display: flex;text-align: center"/></el-form-item>
+              </el-col>
+              <el-col :span="16" style="display: flex;justify-content: center;align-items: center;">
+                <el-form-item style="height: 30px;">
+                  <template #label>
+                    <span>时间范围:</span>
+                  </template>
+                  <el-date-picker
+                      v-model="filterbox.timeRage"
+                      type="datetimerange"
+                      value-format="yyyy-MM-dd HH:mm:ss"
+                      placeholder="选择日期时间"
+                      style="width: 400px"
+                  >
+                  </el-date-picker>
+                  <el-button style="width: 80px;display: flex;align-items: center;background-color: deepskyblue;color: black"><SvgIcon name="search" style="width: 20px;height: 20px"/>查询</el-button>
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-form>
+        </div>
+      </el-collapse-item>
+    </el-collapse>
 
-    <div class="main-views-container" style="margin-top: 3%;height: 90%;width:93%;overflow: auto;">
+
+    <div class="main-views-container" style="margin-top: 3%;height: 70%;width:95%;margin-left: 1%;">
       <div style="display: flex;position: relative;float: right">
         <el-button style="background-color: mediumseagreen" @click="rechargeAccount">
           <SvgIcon name="withdrawl"/>充值
@@ -53,7 +54,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       </div>
       <el-table
           :data="merchantRechargeInfo"
-          style="height: 90%;width: 100%"
+          style="height: auto;width: 100%"
           border
       >
         <el-table-column
@@ -275,6 +276,8 @@ export default {
 }
 </style>
 <style scoped>
+@import "@/api/common.css";
+@import "@/assets/base.css";
 :deep().el-input__inner {
   text-align: center;
 }

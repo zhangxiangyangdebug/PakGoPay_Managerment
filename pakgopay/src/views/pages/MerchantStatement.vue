@@ -10,7 +10,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
     <form class="main-toolform">
       <div class="main-toolform-item">
         <div class="main-toolform-line" style="justify-content: right;margin-right: 4%;">
-          <div v-on:click="reset()" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
+          <div v-on:click="reset('filterboxForm')" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
             <SvgIcon height="30px" width="30px" name="reset"/>
             <div style="width: 50px;color: white">重置</div>
           </div>
@@ -24,26 +24,55 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </div>
         </div>
       </div>
-      <div class="main-toolform-item">
-        <div class="main-toolform-line">交易订单号：<input v-model="filterbox.orderNO"  type="text" class="main-toolform-input" placeholder="交易订单号"/></div>
-        <div class="main-toolform-line">交易类型：
-              <el-select v-model="filterbox.selectedTransactionType" placeholder="请选择交易类型" style="width: 150px">
-                <el-option v-for="item in filterbox.transactionTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
-              </el-select>
-        </div>
-        <div class="main-toolform-line">
-          订单状态：
-          <el-select v-model="filterbox.transactionStatus" placeholder="请选择订单状态" style="width: 150px">
-            <el-option v-for="item in filterbox.transactionStatusOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </div>
-        <div class="main-toolform-line">商户名称：<input v-model="filterbox.merchantName"  type="text" class="main-toolform-input" placeholder="商户名称"/></div>
-        <div class="main-toolform-line">
-          创建时间：
-          <input v-model="filterbox.createStartTime" style="width: 150px"  type="date" class="main-toolform-input" placeholder="开始时间"/>
-          ～
-          <input v-model="filterbox.createEndTime"  style="width: 150px"  type="date" class="main-toolform-input" placeholder="截止时间"/>
-        </div>
+      <div class="main-toolform-item" style="margin-right: 3%;">
+        <el-form
+          ref="filterboxForm" class="form" :model="filterbox"
+          style="width: 100%"
+        >
+          <el-row>
+            <el-col :span="6">
+              <el-form-item label="商户名称:" label-width="150px">
+                <el-select
+                 :options="merchantAccountOptions"
+                 :props="merchantAccountProps"
+                 v-model="filterbox.merchantUserId"
+                 style="width: 200px"
+                ></el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="6">
+              <el-form-item label="交易订单号:" label-width="150px">
+                <el-input v-model="filterbox.orderNO" style="width: 200px"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="6">
+              <el-form-item label="交易类型:" label-width="150px">
+                <el-select
+                    v-model="filterbox.type"
+                    style="width: 200px"
+                >
+                  <el-option label="充值" :value="0"></el-option>
+                  <el-option label="提现" :value="1"></el-option>
+                  <el-option label="手工调账" :value="2"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="6">
+              <el-form-item label="时间:" label-width="150px">
+                <el-date-picker
+                    v-model="filterbox.filterDateRange"
+                    type="daterange"
+                    range-separator="至"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
+                    format="YYYY/MM/DD"
+                    value-format="x"
+                >
+                </el-date-picker>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
       </div>
     </form>
   </div>
@@ -85,7 +114,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             {{row.transactionType}}
           </div>
         </el-table-column>
-        <el-table-column
+<!--        <el-table-column
             prop="transactionStatus"
             label="交易状态"
             v-slot="{row}"
@@ -94,7 +123,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <div>
             {{row.transactionStatus}}
           </div>
-        </el-table-column>
+        </el-table-column>-->
         <el-table-column
             prop="transactionCurrencyType"
             label="交易币种"
@@ -115,7 +144,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             {{row.transactionCashAmount}}
           </div>
         </el-table-column>
-        <el-table-column
+<!--        <el-table-column
             prop="transactionCommission"
             label="手续费"
             v-slot="{row}"
@@ -124,8 +153,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <div>
             {{row.transactionCommission}}
           </div>
-        </el-table-column>
-        <el-table-column
+        </el-table-column>-->
+<!--        <el-table-column
             prop="beforeTransactionAccountBalance"
             label="交易前账户金额"
             v-slot="{row}"
@@ -135,8 +164,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <div style="width: 100%;">
             {{row.beforeTransactionAccountBalance}}
           </div>
-        </el-table-column>
-        <el-table-column
+        </el-table-column>-->
+<!--        <el-table-column
             prop="afterTransactionAccountBalance"
             label="交易后账户余额"
             v-slot="{row}"
@@ -145,7 +174,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <div>
             {{row.afterTransactionAccountBalance}}
           </div>
-        </el-table-column>
+        </el-table-column>-->
         <el-table-column
             prop="transactionTime"
             label="交易时间"
@@ -157,7 +186,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </div>
         </el-table-column>
         <el-table-column
-            label="交易原因"
+            label="备注"
             v-slot="{row}"
             align="center"
         >
@@ -192,7 +221,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 <script>
 import {ElPopconfirm} from "element-plus";
 import 'element-plus/theme-chalk/el-popconfirm.css'
-import {filterSearchMerchantStatement} from "@/api/interface/backendInterface.js";
+import {filterSearchMerchantStatement, getMerchantInfo} from "@/api/interface/backendInterface.js";
 export default {
   name: 'MerchantStatement',
   components: {
@@ -201,73 +230,17 @@ export default {
   data() {
     return {
       filterbox: {
-        transactionStatus: '',
-        orderNO: '',
-        transactionType: '',
-        merchantName: '',
-        createStartTime: '',
-        createEndTime: '',
-        selectedTransactionType: '',
-        transactionTypeOptions: [
-            {
-              value: '001',
-              label: '代付'
-            },
-          {
-            value: '002',
-            label: '代收'
-          },
-          {
-            value: '003',
-            label: '提现'
-          },
-          {
-            value: '004',
-            label: '充值'
-          },
-          {
-            value: '005',
-            label: '手工调账'
-          }
-        ],
-        transactionStatusOptions: [
-          {
-            value: '001',
-            label: '处理中'
-          },
-          {
-            value: '002',
-            label: '成功'
-          },
-          {
-            value: '003',
-            label: '失败'
-          },
-        ],
+      },
+      merchantAccountOptions: [],
+      merchantAccountProps: {
+        value: 'userId',
+        label: 'accountName'
       },
       filterForm: {
-        orderNO: '',
-        selectedTransactionType: '',
-        transactionStatus: '',
-        merchantName: '',
-        createStartTime: '',
-        createEndTime: '',
+
       },
       merchantStatementsFormData:[
-        /*{
-          orderNO: '',
-          merchantName: '',
-          transactionType: '',
-          transactionStatus: '',
-          transactionCurrencyType: '',
-          transactionCashAmount: '',
-          transactionCommission: '',
-          beforeTransactionAccountBalance: '',
-          afterTransactionAccountBalance: '',
-          transactionTime: '',
-          transactionReason: '',
-          operator: '',
-        }*/
+
       ],
       currentPage: 1,
       pageSize: 10,
@@ -286,10 +259,8 @@ export default {
     handleCurrentChange(val) {
 
     },
-    reset() {
-      this.filterbox = {
-
-      }
+    reset(form) {
+      this.$refs[form].resetFields();
     },
     async search() {
       this.filterForm.orderNO = this.filterbox.orderNO;
@@ -308,6 +279,13 @@ export default {
       })
     }
   },
+  mounted() {
+    getMerchantInfo({pageSize: 1000}).then(response => {
+      if (response.status === 200 && response.data.code === 0) {
+         this.merchantAccountOptions = JSON.parse(response.data.data).merchantInfoDtoList;
+      }
+    })
+  }
 
 }
 </script>
