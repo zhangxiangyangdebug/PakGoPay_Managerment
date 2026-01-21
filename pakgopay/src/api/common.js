@@ -250,12 +250,16 @@ function isValidIPv6(ip) {
 }
 
 export function loadingBody(that, loadingClassName) {
+    const container = document.querySelector('.' + loadingClassName);
+    const target = container
+        ? (container.querySelector('.el-table__body-wrapper') || container.querySelector('.el-table__body') || container)
+        : undefined;
     const loadingInstance = that.$loading({
         lock: true,       // 设置进入加载
         text: 'loading...',           // 加载文字
         // spinner: 'el-icon-loading',
         // background: 'rgba(255, 255, 255, 0.7)',
-        target: document.querySelector('.'+loadingClassName).querySelector('.el-table__body') // 指定加载动画覆盖的DOM节点
+        target: target // 指定加载动画覆盖的DOM节点
     })
     return loadingInstance
 }
