@@ -12,6 +12,7 @@ import Content from "@/components/Content.vue";
   </div>
 </template>
 <script>
+import { ElMessageBox } from 'element-plus'
 import {heart, menu, refreshAccessToken} from "@/api/interface/backendInterface.js";
   import router from "@/router/index.js";
 import {getAsyncRoutes} from "@/router/asyncRouter.js";
@@ -28,9 +29,45 @@ import {getAsyncRoutes} from "@/router/asyncRouter.js";
       },
       changeCollapse() {
         this.collapse = !this.collapse;
+      },
+      startHeartbeat() {
+        const runHeart = () => {
+          heart().then(res => {
+            if (res.status === 200 && res.data === 'refresh') {
+              if (this.heartPrompting) {
+                return
+              }
+              this.heartPrompting = true
+              ElMessageBox.confirm('页面已过期，点击确定刷新', '提示', {
+                confirmButtonText: '确定',
+                showCancelButton: false,
+                type: 'warning'
+              }).then(() => {
+                refreshAccessToken(localStorage.getItem("refreshToken")).then(response => {
+                  if (response && response.data && response.data.code === 0) {
+                    if (response.data.token) {
+                      localStorage.setItem("token", response.data.token);
+                    }
+                    if (response.data.refreshToken) {
+                      localStorage.setItem("refreshToken", response.data.refreshToken);
+                    }
+                    location.reload();
+                  }
+                }).finally(() => {
+                  this.heartPrompting = false
+                })
+              }).catch(() => {
+                this.heartPrompting = false
+              })
+            }
+          })
+        }
+        runHeart();
+        this.heartbeatTimer = setInterval(runHeart, 5 * 60 * 1000);
       }
     },
     mounted() {
+      this.startHeartbeat();
       heart().then(res => {
         if (res.status === 200) {
           if (res.data === 'refresh') {
@@ -72,9 +109,17 @@ import {getAsyncRoutes} from "@/router/asyncRouter.js";
         }
       })
     },
+    beforeUnmount() {
+      if (this.heartbeatTimer) {
+        clearInterval(this.heartbeatTimer);
+        this.heartbeatTimer = null;
+      }
+    },
     data() {
       return {
-        collapse : false
+        collapse : false,
+        heartbeatTimer: null,
+        heartPrompting: false
       }
     }
   }

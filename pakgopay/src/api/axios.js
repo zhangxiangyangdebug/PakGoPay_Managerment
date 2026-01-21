@@ -10,6 +10,25 @@ const service = axios.create({
     }
 });
 
+const refreshClient = axios.create({
+    timeout: 30000,
+    headers: {
+        'Content-Type': 'text/plain'
+    }
+});
+
+let isRefreshing = false;
+let refreshQueue = [];
+
+function clearAuthAndRedirect() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("menu")
+    localStorage.removeItem("userName")
+    localStorage.removeItem("userId")
+    localStorage.removeItem("currentPath")
+    router.push("/web/login");
+}
+
 service.interceptors.request.use(config => {
     return config;
 }, error => {
@@ -18,39 +37,73 @@ service.interceptors.request.use(config => {
 })
 
 service.interceptors.response.use(response => {
-    let currentPath = localStorage.getItem('currentPath')
-    localStorage.setItem('unauthorizedShown', "false");
     return response;
 }, error => {
     if (error.response && error.response.status === 401) {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) {
+            ElNotification({
+                title: 'warn',
+                message: 'login expired, please login again',
+                closeIcon: CloseBold,
+                type: 'error',
+                position: 'bottom-right',
+                offset: 500
+            })
+            clearAuthAndRedirect();
+            return Promise.reject(error);
+        }
 
-        if (localStorage.getItem('unauthorizedShown')!=='true') {
-            localStorage.setItem('unauthorizedShown', "true");
-            if (localStorage.getItem('currentPath') && !localStorage.getItem('unauthorizedShown').includes('/web/login')) {
+        if (isRefreshing) {
+            return new Promise((resolve, reject) => {
+                refreshQueue.push({ resolve, reject });
+            });
+        }
+
+        isRefreshing = true;
+        return refreshClient.get('/api/pakGoPay/server/Login/refreshToken', {
+            params: { freshToken: refreshToken }
+        }).then((res) => {
+            if (res?.data === 'refresh' || res?.data?.code !== 0) {
                 ElNotification({
                     title: 'warn',
-                    message: 'this page is timed out. will refresh this page',
+                    message: 'login expired, please login again',
                     closeIcon: CloseBold,
                     type: 'error',
                     position: 'bottom-right',
                     offset: 500
                 })
-                router.replace(localStorage.getItem('currentPath')).then((result) => {
-                    if (result) {
-                        this.$notify({
-                            title: 'success',
-                            message: 'refresh page successfully',
-                            type: 'success',
-                            position: 'bottom-right',
-                            duration: 1000
-                        })
-                    }
-                })
+                clearAuthAndRedirect();
+                refreshQueue.forEach(({ reject }) => reject(error));
+                refreshQueue = [];
+                return Promise.reject(error);
             }
 
-        }
-        return Promise.reject(error);
+            if (res?.data?.code === 0) {
+                const token = res?.data?.token || res?.data?.data?.token;
+                const newRefreshToken = res?.data?.refreshToken || res?.data?.data?.refreshToken;
+                if (token) {
+                    localStorage.setItem("token", token);
+                }
+                if (newRefreshToken) {
+                    localStorage.setItem("refreshToken", newRefreshToken);
+                }
+                refreshQueue.forEach(({ resolve }) => resolve());
+                refreshQueue = [];
+                location.reload();
+                return Promise.reject(error);
+            }
+
+            return Promise.reject(error);
+        }).catch((err) => {
+            refreshQueue.forEach(({ reject }) => reject(err));
+            refreshQueue = [];
+            return Promise.reject(err);
+        }).finally(() => {
+            isRefreshing = false;
+        });
     }
+    return Promise.reject(error);
 })
 
 export default service;

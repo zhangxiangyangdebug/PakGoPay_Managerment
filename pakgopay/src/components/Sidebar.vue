@@ -54,7 +54,8 @@ export default {
     }*/
   },
   mounted() {
-    this.menuItems = JSON.parse(localStorage.getItem('menu'))
+    this.menuItems = JSON.parse(localStorage.getItem('menu')) || []
+    this.expandActiveMenu()
   },
   methods: {
     /*async fetchMenu() {
@@ -85,11 +86,33 @@ export default {
       item.showItem = (item.showItem == true) ? false : true
       localStorage.setItem('menu',JSON.stringify(this.menuItems))
     },
+    expandActiveMenu() {
+      const currentPath = this.$route?.path || localStorage.getItem('currentPath')
+      if (!currentPath || !Array.isArray(this.menuItems)) {
+        return
+      }
+      this.menuItems.forEach(item => {
+        if (!Array.isArray(item.children)) {
+          return
+        }
+        const hasActiveChild = item.children.some(child => child.path === currentPath)
+        if (hasActiveChild) {
+          item.showItem = true
+        }
+      })
+      localStorage.setItem('menu', JSON.stringify(this.menuItems))
+    },
     testButton() {
 
     },
     changeCollapse() {
       this.collapse = !this.collapse
+    }
+  }
+  ,
+  watch: {
+    '$route.path'() {
+      this.expandActiveMenu()
     }
   }
 }

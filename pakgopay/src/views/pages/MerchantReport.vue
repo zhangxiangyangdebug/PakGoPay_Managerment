@@ -24,6 +24,7 @@ export default {
   components: {},
   data() {
     return {
+      activeTool: "1",
       currency: '',
       currencyIcon: '',
       currencyIcons: {},
@@ -323,7 +324,7 @@ export default {
 }
 </script>
 <template>
-  <div class="main-title" style="display: flex;flex-direction: row; align-items: center;">
+  <div class="main-title">
     商户报表
   </div>
   <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0">
@@ -376,8 +377,8 @@ export default {
       </div>
     </el-card>
   </div>
-  <el-collapse style="margin-top: 1%; width: 95%;margin-left: 1%;margin-right: 3%">
-    <el-collapse-item>
+  <el-collapse v-model="activeTool">
+    <el-collapse-item name="1">
       <template #title>
         <span class="toolbarName">
           工具栏
@@ -405,21 +406,21 @@ export default {
                 >
                 </el-date-picker>
                 <div style="display: flex;flex-direction: row">
-                  <div v-on:click="reset('filterForm')"
-                       style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-                    <SvgIcon height="30px" width="30px" name="reset"/>
-                    <div style="width: 50px;color: white">重置</div>
-                  </div>
-                  <div v-on:click="filtersearch"
-                       style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-                    <SvgIcon height="30px" width="30px" name="search"/>
-                    <div style="width: 50px;color: white">查询</div>
-                  </div>
-                  <div v-on:click="exportMerchantInfo"
-                       style="background-color: limegreen;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-                    <SvgIcon height="30px" width="30px" name="export"/>
-                    <div style="width: 50px;color: white">导出</div>
-                  </div>
+                  <el-button @click="reset('filterForm')"
+                       class="filterButton">
+                    <SvgIcon class="filterButtonSvg" name="reset"/>
+                    <div>重置</div>
+                  </el-button>
+                  <el-button @click="filtersearch"
+                       class="filterButton">
+                    <SvgIcon class="filterButtonSvg" name="search"/>
+                    <div>查询</div>
+                  </el-button>
+                  <el-button @click="exportMerchantInfo"
+                       class="filterButton">
+                    <SvgIcon class="filterButtonSvg" name="export"/>
+                    <div>导出</div>
+                  </el-button>
                 </div>
               </el-form-item>
             </el-col>
@@ -428,8 +429,8 @@ export default {
       </div>
     </el-collapse-item>
   </el-collapse>
-  <div class="reportInfo" style="margin-left: 1%;margin-right: 3%;margin-top: 1%;width: 95%;">
-    <el-tabs type="border-card" style="width: 100%" @tab-click="handleTabClick" v-model="activeTabPane">
+  <div class="reportInfo">
+    <el-tabs type="border-card" @tab-click="handleTabClick" v-model="activeTabPane">
       <el-tab-pane label="代收报表" style="width: 100%">
         <form id="reportInfo" class="reportInfoForm" style="height: auto">
           <el-table
@@ -680,6 +681,7 @@ export default {
   </div>
 </template>
 <style scoped>
+@import "@/assets/base.css";
 .title {
   /*margin-top: 1%;*/
   margin-top: 0;
@@ -793,12 +795,6 @@ export default {
   resize: none;
 }
 
-.reportInfo {
-  margin-top: 1%;
-  height: 60%;
-  margin-left: 2%;
-}
-
 .reportInfoForm {
   height: 100%;
 }
@@ -813,19 +809,9 @@ export default {
   height: calc(100% - 23px);
 }
 
-:deep().el-table th.is-leaf {
-
-  background-color: lightskyblue;
-  color: white;
-  font-weight: bold;
-  font-size: larger;
-}
 
 .toolbarName {
   color: black;
 }
 
-:deep() .el-collapse-item__header {
-  background-color: deepskyblue;
-}
 </style>

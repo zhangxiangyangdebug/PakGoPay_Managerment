@@ -1393,9 +1393,12 @@ export default {
             type: 'error'
           })
         }
-
+        loadingInstance.close()
+      }).catch(err => {
+        console.log(err)
+        loadingInstance.close()
       })
-      loadingInstance.close()
+
     },
     editPathChannelInfo(row) {
       console.log('editInfo----'+JSON.stringify(row))

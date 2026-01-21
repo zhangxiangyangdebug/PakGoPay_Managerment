@@ -178,7 +178,7 @@ export default {
       </div>
       <div style="display: flex;justify-content: center;align-items: center;">
         <div v-if="username" style="display: flex; align-items: center;">
-          <el-avatar style="font-size: 30px;background-color: grey">{{username.charAt(0)}}</el-avatar>
+          <el-avatar style="font-size: 30px;background-color: mediumseagreen; color: black;">{{username.charAt(0)}}</el-avatar>
               {{username}}
               <el-dropdown trigger="click">
                 <SvgIcon name="downBlack" style="width: 22px;height: 22px"/>
@@ -201,30 +201,7 @@ export default {
   </div>
 </template>
 <style scoped>
-.topbar {
-  color: black;
-  text-align: center;
-  height: 10%;
-  display: grid;
-  align-items: center;
-  width: 87%;
-  background-color: #20b978;
-  position: absolute;
-  top: 0;
-  left: 13%;
-}
-.topbar-collapsed {
-  color: black;
-  text-align: center;
-  height: 10%;
-  display: grid;
-  align-items: center;
-  width: 100%;
-  background-color: #20b978;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
+@import "@/assets/base.css";
 
 
 .userInfo {
@@ -258,11 +235,15 @@ export default {
 
 .zhedie {
   position: fixed;
-  background-color: #20b978;
+  margin-top:0;
+  top: 0;
+ /* background-color: #20b978;*/
 }
 .zhedie-zhedie {
+  margin-top:0;
+  top: 0;
   position: fixed;
-  background-color: #20b978;
+/*  background-color: #20b978;*/
 }
 </style>
 <style>

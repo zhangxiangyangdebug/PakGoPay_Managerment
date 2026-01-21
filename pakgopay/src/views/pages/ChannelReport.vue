@@ -24,6 +24,7 @@ export default {
   },
   data() {
     return {
+      activeTool: "1",
       timeRange: [],
       currency: '',
       currencyIcon: '',
@@ -298,8 +299,8 @@ export default {
       </div>
     </el-card>
   </div>
-  <el-collapse style="margin-top: 20px; width: 95%;margin-left: 2%;">
-    <el-collapse-item>
+  <el-collapse v-model="activeTool">
+    <el-collapse-item name="1">
       <template #title>
         <span class="toolbarName">
           工具栏
@@ -353,7 +354,7 @@ export default {
       </div>
     </el-collapse-item>
   </el-collapse>
-  <div class="reportInfo" style="width: 95%;margin-left: 2%;">
+  <div class="reportInfo">
     <el-tabs @tab-click="handleTabClick" v-model="activeTabPane">
       <el-tab-pane label="代收">
         <form id="reportInfoTable" class="reportInfoForm">
@@ -525,7 +526,8 @@ export default {
 </template>
 
 <style scoped>
-.reportInfo{
+@import "@/assets/base.css";
+/*.reportInfo{
   margin-top: 20px;
 }
 
@@ -534,18 +536,8 @@ export default {
   height: calc(100% - 23px);
 }
 
-:deep().el-table th.is-leaf {
-
-  background-color: lightskyblue;
-  color: white;
-  font-weight: bold;
-  font-size: larger;
-}
-
 .toolbarName{
   color: black;
-}
-:deep() .el-collapse-item__header {
-  background-color: deepskyblue;
-}
+}*/
+
 </style>

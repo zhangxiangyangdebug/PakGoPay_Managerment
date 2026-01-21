@@ -26,7 +26,7 @@ import {getFormateDate} from "@/api/common.js";
     </el-form-item>
   </div>
   <!-- 统计数据展示 -->
-  <div class="statistics-container">
+<!--  <div class="statistics-container">
     <el-card id="statistics" class="statistics-form">
       <div class="statistics-form-item">
         <SvgIcon name="cash" width="100px" height="100px"/>
@@ -56,9 +56,9 @@ import {getFormateDate} from "@/api/common.js";
         </div>
       </div>
     </el-card>
-  </div>
-  <el-collapse style="margin-top: 20px; width: 95%;margin-left: 2%;">
-    <el-collapse-item>
+  </div>-->
+  <el-collapse v-model="activeTool">
+    <el-collapse-item name="1">
       <template #title>
         <span class="toolbarName">
           工具栏
@@ -69,14 +69,14 @@ import {getFormateDate} from "@/api/common.js";
         <el-form class="main-toolform" ref="filterboxForm" :model="filterbox">
           <div class="main-toolform-item">
             <div class="main-toolform-line" style="justify-content: right;margin-right: 3%;">
-              <div v-on:click="reset('filterboxForm')" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-                <SvgIcon height="30px" width="30px" name="reset"/>
-                <div style="width: 50px;color: white">重置</div>
-              </div>
-              <div v-on:click="search()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-                <SvgIcon height="30px" width="30px" name="search"/>
-                <div style="width: 50px;color: white">查询</div>
-              </div>
+              <el-button @click="reset('filterboxForm')">
+                <SvgIcon class="filterButtonSvg" name="reset"/>
+                <div>重置</div>
+              </el-button>
+              <el-button @click="search()">
+                <SvgIcon class="filterButtonSvg" name="search"/>
+                <div>查询</div>
+              </el-button>
             </div>
           </div>
           <el-row>
@@ -117,16 +117,15 @@ import {getFormateDate} from "@/api/common.js";
       </div>
     </el-collapse-item>
   </el-collapse>
-  <div class="merchantInfos">
-    <form id="merchantInfoForm" class="merchantInfoFormT" style="height: 90%">
-      <el-button @click="addMerchant()" style="width:60px;display: flex; flex-direction: row;justify-content: center;cursor: pointer;align-items: center;float: right;margin-right: 3%">
-        <SvgIcon height="20px" width="20px" name="add" style="margin: 0"/>
-        <div style="color: black">新增</div>
+  <div class="reportInfo">
+    <form id="merchantInfoForm" class="merchantInfoFormT">
+      <el-button @click="addMerchant()" class="filterButton" style="float: right">
+        <SvgIcon name="add" class="filterButtonSvg"/>
+        <div>新增</div>
       </el-button>
       <el-table
           border :data="merchantInfoFormData"
           class="merchantInfos-table"
-          style="width: 97%;"
           height="100%"
       >
         <el-table-column
@@ -888,6 +887,7 @@ export default {
       }
     };
     return {
+      activeTool: "1",
       currency: '',
       currencyIcon: '',
       currencyIcons: {},
@@ -1069,7 +1069,7 @@ export default {
   methods: {
     search() {
       this.filterbox.isNeedCardData = true
-       const loadingInstance = loadingBody(this, 'merchantInfos-table')
+      const loadingInstance = loadingBody(this, 'merchantInfos-table')
       getMerchantInfo(this.filterbox).then(res => {
          //this.merchantInfoFormData
         if(res.status === 200 && res.data.code === 0) {
@@ -1362,6 +1362,7 @@ export default {
 }
 </script>
 <style scoped>
+@import "@/assets/base.css";
   .dialog-footer {
     display: flex;
     position: absolute;
@@ -1385,17 +1386,9 @@ export default {
     margin-left: 2%;
   }
 
-  :deep().el-table th.is-leaf {
 
-    background-color: lightskyblue;
-    color: white;
-    font-weight: bold;
-    font-size: larger;
-  }
   .toolbarName{
     color: black;
   }
-  :deep() .el-collapse-item__header {
-    background-color: deepskyblue;
-  }
+
 </style>

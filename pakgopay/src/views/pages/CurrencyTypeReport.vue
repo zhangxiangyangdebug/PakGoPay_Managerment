@@ -5,7 +5,7 @@ import {getFormateDate} from "@/api/common.js";
 </script>
 
 <template>
- <div class="main-title" style="margin-top: 0">币种报表</div>
+ <div class="main-title">币种报表</div>
   <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0" >
     <el-form-item style="margin-left: 2%;">
       <template #label>
@@ -47,8 +47,8 @@ import {getFormateDate} from "@/api/common.js";
     </el-card>
   </div>
 
-  <el-collapse style="margin-top: 20px; width: 95%;margin-left: 1%;margin-right: 3%;">
-    <el-collapse-item>
+  <el-collapse v-model="activeTool">
+    <el-collapse-item name="1">
       <template #title>
         <span class="toolbarName">
           工具栏
@@ -82,8 +82,8 @@ import {getFormateDate} from "@/api/common.js";
                 value-format="x"
             >
             </el-date-picker>
-            <el-button @click="filterSearch" style="color: deepskyblue">搜索</el-button>
-            <el-button @click="exportCurrencyInfo" style="color: deepskyblue;margin: 0"><SvgIcon name="export"/>导出</el-button>
+            <el-button @click="filterSearch" class="filterButton"><SvgIcon class="filterButtonSvg" name="search"/>搜索</el-button>
+            <el-button @click="exportCurrencyInfo" class="filterButton"><SvgIcon class="filterButtonSvg" name="export"/>导出</el-button>
           </el-form-item>
         </el-row>
       </div>
@@ -91,8 +91,8 @@ import {getFormateDate} from "@/api/common.js";
   </el-collapse>
 
 
-  <div class="reportInfo" style="margin-left: 1%;margin-right: 3%;margin-top: 1%;width: 95%;">
-    <el-tabs style="height: 100%;width: 100%" @tab-click="handleTabClick" v-model="activeTabPane">
+  <div class="reportInfo">
+    <el-tabs @tab-click="handleTabClick" v-model="activeTabPane">
       <el-tab-pane label="代收" class="tabTable" style="width: 100%">
         <el-table
           :data="collectionCurrencyInfo"
@@ -288,6 +288,7 @@ export default {
   name: 'CurrencyTypeReport',
   data() {
     return {
+      activeTool: "1",
       timeRange: [],
       currency: '',
       currencyIcon: '',
@@ -489,7 +490,7 @@ export default {
 </script>
 <style scoped>
 @import "@/assets/base.css";
-@import "@/api/common.css";
+
 .toolbar {
   margin-left: 2%;
   margin-top: 1%;

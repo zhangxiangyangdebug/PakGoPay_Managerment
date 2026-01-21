@@ -54,7 +54,7 @@ export function logOut() {
                 localStorage.removeItem("userName")
                 localStorage.removeItem("userId")
                 localStorage.removeItem("currentPath")
-                /*localStorage.removeItem("refreshToken")*/
+                localStorage.removeItem("refreshToken")
                 router.push("/web/login").then()
             } else {
                 this.$notify({

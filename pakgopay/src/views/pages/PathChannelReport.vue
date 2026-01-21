@@ -10,16 +10,13 @@ import 'element-plus/theme-chalk/el-pagination.css'
 import {ref} from "vue";
 import {
   exportPayment,
-  exportPaymentReport,
   getAllCurrencyType,
   getPaymentInfo,
   getPaymentReport
 } from "@/api/interface/backendInterface.js";
 import {
   exportExcel,
-  getChannelReportTitle,
   getFormateTime, getPaymentListTitle,
-  getPaymentReportTitle,
   getTodayStartTimestamp,
   loadingBody
 } from "@/api/common.js";
@@ -32,6 +29,8 @@ export default {
   },
   data() {
     return {
+      activeTool: "1",
+      collectionPaymentInfo: [],
       timeRange: [],
       currency: '',
       currencyIcon: '',
@@ -67,6 +66,9 @@ export default {
     }
   },
   methods: {
+    reset(form) {
+      this.$refs[form].resetFields();
+    },
     handleCurrencyChange() {
       this.currency = this.filterbox.currency;
       this.currencyIcon = this.currencyIcons[this.currency]
@@ -296,30 +298,30 @@ export default {
       </div>
     </el-card>
   </div>
-  <el-collapse style="margin-top: 20px; width: 95%;margin-left: 1%;margin-right: 3%;">
-    <el-collapse-item>
+  <el-collapse v-model="activeTool">
+    <el-collapse-item name="1">
       <template #title>
          <span class="toolbarName">
           工具栏
         </span>
       </template>
       <div class="main-toolbar">
-        <el-form style="width: 96%;">
+        <el-form style="width: 96%;" ref="filterboxForm" :model="filterbox">
           <el-row style="display: flex;justify-content: space-around;">
-            <el-form-item style="display: flex;justify-content: center;color: deepskyblue">
+            <el-form-item style="display: flex;justify-content: center;color: deepskyblue" prop="paymentNo">
               <template #label>
                 <span style="width: 150px;">通道:</span>
               </template>
               <el-select
                   :options="pathChannelOptions"
                   :props="pathChannelProps"
-                  v-model="filterbox.pathChannelName"
+                  v-model="filterbox.paymentNo"
                   style="width: 200px"
               />
             </el-form-item>
 
 
-            <el-form-item style="display: flex;justify-content: center;color: deepskyblue">
+            <el-form-item style="display: flex;justify-content: center;color: deepskyblue" prop="filterDateRange">
               <template #label>
                 <span style="width: 150px">时间范围:</span>
               </template>
@@ -333,27 +335,27 @@ export default {
                   value-format="x"
               >
               </el-date-picker>
-              <el-button type="primary" plain @click="reset">
+              <el-button @click="reset('filterboxForm')" class="filterButton">
                 <template #icon>
-                  <SvgIcon name="reset"/>
+                  <SvgIcon class="filterButtonSvg" name="reset"/>
                 </template>
-                <span style="color: black">重置</span>
+                <span>重置</span>
               </el-button>
-              <el-button type="success" @click="filterSearch" style="margin: 0">
+              <el-button @click="filterSearch" class="filterButton">
                 <template #icon>
                   <div style="width: 100%">
-                    <SvgIcon name="search" style="width: 20px;height: 20px"/>
+                    <SvgIcon class="filterButtonSvg" name="search"/>
                   </div>
                 </template>
-                <div style="color: black">查询</div>
+                <div>查询</div>
               </el-button>
-              <el-button @click="exportPathChannelInfo" style="margin: 0;float: right;">
+              <el-button @click="exportPathChannelInfo" class="filterButton">
                 <template #icon>
                   <div style="width: 100%">
-                    <SvgIcon name="export" style="width: 20px;height: 20px"/>
+                    <SvgIcon name="export" class="filterButtonSvg"/>
                   </div>
                 </template>
-                <div style="color: black">导出</div>
+                <div>导出</div>
               </el-button>
             </el-form-item>
           </el-row>
@@ -363,51 +365,7 @@ export default {
   </el-collapse>
 
 
-  <div class="reportInfo" style="margin-left: 1%;margin-right: 3%;margin-top: 1%;width: 95%;">
-    <!--    <form id="reportInfoTable" class="reportInfoForm">-->
-    <!--      <el-table style="width: 100%; height: 100%;" border :data="channelInfo" class="reportInfo-table">
-            <el-table-column
-                prop="channelName"
-                label="通道名称"
-                align="center"
-            />
-            <el-table-column
-                prop="channelLabelName"
-                label="通道代号"
-                align="center"
-            />
-            <el-table-column
-                prop="channelCollectingTotalAccount"
-                label="通道代收总金额"
-                align="center"
-            />
-            <el-table-column
-                prop="channelPayingTotalAccount"
-                label="通道代付总金额"
-                align="center"
-            />
-            <el-table-column
-                prop="channelRate"
-                label="通道费率"
-                align="center"
-            />
-            <el-table-column
-                prop="chennelNP"
-                label="通道净利润"
-                align="center"
-            />
-          </el-table>
-          <el-pagination
-              background
-              layout="sizes, prev, pager, next, jumper, total"
-              :total="totalCount"
-              v-model:current-page="currentPage"
-              v-model:page-size="pageSize"
-              :page-sizes="pageSizes"
-              @current-change="handleCurrentChange"
-              style="float:right; margin-right: 5%;"
-          >
-          </el-pagination>-->
+  <div class="reportInfo">
     <el-tabs @tab-click="handleTabClick" v-model="activeTabPane">
       <el-tab-pane label="代收">
         <form id="reportInfoTable" class="reportInfoForm">
@@ -580,21 +538,4 @@ export default {
 <style scoped>
 @import "@/assets/base.css";
 @import "@/api/common.css";
-
-.reportInfo {
-  margin-top: 20px;
-}
-
-.el-table .el-table_body-rapper {
-  width: 100%;
-  height: calc(100% - 23px);
-}
-
-:deep().el-table th.is-leaf {
-
-  background-color: lightskyblue;
-  color: white;
-  font-weight: bold;
-  font-size: larger;
-}
 </style>

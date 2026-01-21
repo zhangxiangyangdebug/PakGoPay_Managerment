@@ -566,9 +566,9 @@ export default {
   margin-left: 12px;
 }
 
-.el-table .el-table__header th {
+/*.el-table .el-table__header th {
   font-size: larger;
-  background-color: deepskyblue !important;
+  !*background-color: deepskyblue !important;*!
   color: white;
-}
+}*/
 </style>

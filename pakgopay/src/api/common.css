@@ -5,16 +5,19 @@
 
 .main-title{
     /*margin-top: 1%;*/
-    margin-left: 1%;
-    margin-right: 3%;
+    margin-left: 1% !important;
+    /*margin-right: 3%;*/
     font-size: 23px;
     font-weight: bold;
     background-color: white;
     padding-left: 10px;
     border-radius: 10px;
-    width: 95%;
-    color: deepskyblue;
+    width: 96%;
+   /* color: deepskyblue;*/
     height: 50px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .main-toolbar{

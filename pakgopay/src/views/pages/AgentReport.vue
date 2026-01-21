@@ -45,11 +45,11 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
     </el-card>
   </div>
 
-  <el-collapse style="margin-top: 20px; width: 95%;margin-left: 1%;margin-right: 3%;">
-    <el-collapse-item>
+  <el-collapse v-model="activeTool">
+    <el-collapse-item name="1">
       <template #title>
         <span class="toolbarName">
-          工具栏&统计数据
+          工具栏
         </span>
       </template>
       <div class="main-toolbar">
@@ -66,7 +66,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                 />
               </el-form-item>
             </el-col>
-            <el-col :span="8">
+            <el-col :span="10">
               <el-form-item label="时间范围:" label-width="150px" prop="filterDateRange">
                 <div style="display: flex; flex-direction: row;">
                   <el-date-picker
@@ -79,13 +79,13 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                       value-format="x"
                   >
                   </el-date-picker>
-                  <el-button @click="reset('filterForm')">
-                    <SvgIcon height="20px" width="20px" name="reset"/>
-                    <div style="color: black">重置</div>
+                  <el-button @click="reset('filterForm')" class="filterButton">
+                    <SvgIcon class="filterButtonSvg" name="reset"/>
+                    <div>重置</div>
                   </el-button>
-                  <el-button type="primary" @click="search()" style="margin:0">
-                    <SvgIcon height="20px" width="20px" name="search"/>
-                    <div style="color: black">查询</div>
+                  <el-button @click="search()" class="filterButton">
+                    <SvgIcon class="filterButtonSvg" name="search"/>
+                    <div>查询</div>
                   </el-button>
                 </div>
 
@@ -98,12 +98,12 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
   </el-collapse>
 
 
-  <div class="reportInfo" style="margin-left: 1%;margin-right: 3%;margin-top: 1%;width: 95%;">
+  <div class="reportInfo">
     <el-button @click="exportAgentInfo" style="margin:0;float: right">
       <SvgIcon height="20px" width="20px" name="export"/>
       <div style="color: black">导出</div>
     </el-button>
-    <el-tabs type="border-card" style="width: 100%;" @tab-click="handleTabClick" v-model="activeTabPane">
+    <el-tabs type="border-card" @tab-click="handleTabClick" v-model="activeTabPane">
       <el-tab-pane label="代收报表">
         <el-form style="width: 100%;">
           <el-table
@@ -278,6 +278,7 @@ const filterTimeRange = ref('')
 export default {
   data() {
     return {
+      activeTool: "1",
       agentOptions: [],
       agentProps: {
         value: 'accountName',
@@ -564,27 +565,12 @@ export default {
   text-align: left;
 }
 
-.reportInfo {
-  margin-top: 1%;
-  height: 60%;
-  margin-left: 3%;
-}
-
-.reportInfoForm {
+/*.reportInfoForm {
   height: 100%;
 }
 
 .reportInfo-table {
   height: 100%;
   text-align: center;
-}
-
-:deep().el-table th.is-leaf {
-
-  background-color: lightskyblue;
-  color: white;
-  font-weight: bold;
-  font-size: larger;
-}
-
+}*/
 </style>
