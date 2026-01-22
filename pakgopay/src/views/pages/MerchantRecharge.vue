@@ -128,7 +128,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       <div class="el-form-line">
         <el-row style="display: flex;justify-content: center;">
           <el-col :span="24" style="display: flex;justify-content: center;">
-            <el-form-item label="充值商户:" label-width="150px" size="medium" prop="merchantName">
+            <el-form-item label="充值商户:" label-width="150px"  prop="merchantName">
               <el-autocomplete
                   v-model="rechargeAccountInfo.merchantName"
                   placeholder="输入商户名称"
@@ -141,14 +141,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </el-row>
         <el-row style="display: flex;justify-content: center;">
           <el-col :span="24" style="display: flex;justify-content: center;">
-            <el-form-item label="充值金额:" label-width="150px" size="medium" prop="rechargeAmount">
+            <el-form-item label="充值金额:" label-width="150px"  prop="rechargeAmount">
               <el-input type="number" v-model="rechargeAccountInfo.rechargeAmount" placeholder="input recharge amount" style="width: 200px"/>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row style="display: flex;justify-content: center;">
           <el-col :span="24" style="display: flex;justify-content: center;">
-            <el-form-item label="谷歌验证码:" label-width="150px" size="medium" prop="googleCode">
+            <el-form-item label="谷歌验证码:" label-width="150px"  prop="googleCode">
               <el-input oninput="if(value.length>6)value=value.slice(0,6)" type="number" v-model="rechargeAccountInfo.googleCode" placeholder="input google verify code" style="width: 200px"/>
             </el-form-item>
           </el-col>

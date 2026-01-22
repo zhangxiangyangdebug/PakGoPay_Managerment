@@ -7,7 +7,7 @@ import {getFormateDate} from "@/api/common.js";
 
 <template>
   <div class="main-title">{{$t('route.merchantInfo')}}</div>
-  <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0">
+<!--  <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0">
     <el-form-item style="margin-left: 2%;">
       <template #label>
           <span style="color: black;font-size: small;align-items: center;">
@@ -24,7 +24,7 @@ import {getFormateDate} from "@/api/common.js";
           filterable
       />
     </el-form-item>
-  </div>
+  </div>-->
   <!-- 统计数据展示 -->
 <!--  <div class="statistics-container">
     <el-card id="statistics" class="statistics-form">
@@ -82,12 +82,12 @@ import {getFormateDate} from "@/api/common.js";
           <el-row>
             <el-col :span="6">
               <el-form-item label="商户账号:" label-width="150px" prop="merchantUserName">
-                 <el-input   v-model="filterbox.merchantUserName"  type="text" placeholder="商户账号" style="width: 200px"/>
+                 <el-input :disabled="filterAvaiable"  v-model="filterbox.merchantUserName"  type="text" placeholder="商户账号" style="width: 200px"/>
               </el-form-item>
             </el-col>
             <el-col :span="6">
                 <el-form-item label="商户名称:" label-width="150px" prop="merchantName">
-                  <el-input   v-model="filterbox.merchantName"  type="text" placeholder="商户名称" style="width: 200px"/>
+                  <el-input :disabled="filterAvaiable"   v-model="filterbox.merchantName"  type="text" placeholder="商户名称" style="width: 200px"/>
                 </el-form-item>
             </el-col>
             <el-col :span="6">
@@ -123,7 +123,7 @@ import {getFormateDate} from "@/api/common.js";
   </el-collapse>
   <div class="reportInfo">
     <form id="merchantInfoForm" class="merchantInfoFormT" style="height: auto">
-      <el-button @click="addMerchant()" class="filterButton" style="float: right">
+      <el-button v-if="isAdmin" @click="addMerchant()" class="filterButton" style="float: right">
         <SvgIcon name="add" class="filterButtonSvg"/>
         <div>新增</div>
       </el-button>
@@ -245,7 +245,7 @@ import {getFormateDate} from "@/api/common.js";
           <div style="width: 100%;">
             <!-- 返回的是json对象 包含总金额、可用金额、冻结金额 -->
             <div class="account-info-row account-total">账户总金额: <div class="account-info-value">{{row.merchantAccountInfo? row.merchantAccountInfo.totalAmount: '-'}}</div></div>
-            <div class="account-info-row account-usable">账户可用金额: <div class="account-info-value">{{rowmerchantAccountInfo? rowmerchantAccountInfo.toUseAmount: '-'}}</div></div>
+            <div class="account-info-row account-usable">账户可用金额: <div class="account-info-value">{{row.merchantAccountInfo? rowmerchantAccountInfo.toUseAmount: '-'}}</div></div>
             <div class="account-info-row account-frozen">冻结金额: <div class="account-info-value">{{row.merchantAccountInfo? row.merchantAccountInfo.freezeAmount : '-'}}</div></div>
           </div>
         </el-table-column>
@@ -342,22 +342,22 @@ import {getFormateDate} from "@/api/common.js";
     <el-form ref="merchantAddInfo" style="height: 500px" :model="merchantAddInfo" label-width="100%" class="form" :rules="merchantInfoAddRule" >
       <el-row>
         <el-col :span="6">
-          <el-form-item label="商户名称:" label-width="150px" size="medium" prop="merchantName">
-            <el-input v-model="merchantAddInfo.merchantName" style="width: 200px"></el-input>
+          <el-form-item label="商户名称:" label-width="150px"  prop="merchantName">
+            <el-input :disabled="dialogFlag === 'edit'" v-model="merchantAddInfo.merchantName" style="width: 200px"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item label="商户账号:" label-width="150px" size="medium" prop="accountName">
-            <el-input v-model="merchantAddInfo.accountName" style="width: 200px"></el-input>
+          <el-form-item label="商户账号:" label-width="150px"  prop="accountName">
+            <el-input :disabled="dialogFlag === 'edit'" v-model="merchantAddInfo.accountName" style="width: 200px"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6" v-if="dialogFlag !== 'edit'">
-          <el-form-item label="登陆密码:" label-width="150px" size="medium" prop="accountPwd">
+          <el-form-item label="登陆密码:" label-width="150px"  prop="accountPwd">
             <el-input v-model="merchantAddInfo.accountPwd" style="width: 200px"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6" v-if="dialogFlag !== 'edit'">
-          <el-form-item label="确认密码:" label-width="150px" size="medium" prop="accountConfirmPwd">
+          <el-form-item label="确认密码:" label-width="150px"  prop="accountConfirmPwd">
             <el-input v-model="merchantAddInfo.accountConfirmPwd" style="width: 200px"></el-input>
           </el-form-item>
         </el-col>
@@ -401,7 +401,7 @@ import {getFormateDate} from "@/api/common.js";
             </el-switch>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="6" v-if="dialogFlag !== 'edit'">
           <el-form-item label="启用代理" label-width="150px">
             <el-switch
                 v-model="merchantAddInfo.useAgent"
@@ -415,7 +415,7 @@ import {getFormateDate} from "@/api/common.js";
             />
           </el-form-item>
         </el-col>
-        <el-col v-if="merchantAddInfo.useAgent === 0" :span="6">
+        <el-col v-if="merchantAddInfo.useAgent === 0 && dialogFlag !== 'edit'" :span="6">
           <el-form-item label="渠道:" label-width="150px" prop="channelIds">
             <el-select
               :options="channelOptions"
@@ -427,7 +427,7 @@ import {getFormateDate} from "@/api/common.js";
             ></el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="6" v-if="merchantAddInfo.useAgent===1">
+        <el-col :span="6" v-if="merchantAddInfo.useAgent===1 && dialogFlag !== 'edit'">
           <el-form-item label="所属代理:" label-width="150px" prop="parentId">
             <el-select
                 :options="agentOptions"
@@ -441,7 +441,7 @@ import {getFormateDate} from "@/api/common.js";
       </el-row>
       <el-row>
         <el-col :span="6">
-          <el-form-item label="是否开启代付:" label-width="150px" size="medium" prop="supportPaying">
+          <el-form-item label="是否开启代付:" label-width="150px"  prop="supportPaying">
             <el-switch
                 v-model="merchantAddInfo.supportPaying"
                 active-color="#13ce66"
@@ -468,12 +468,12 @@ import {getFormateDate} from "@/api/common.js";
           </el-form-item>
         </el-col>
         <el-col :span="6">
-        <el-form-item label="代付IP白名单:" label-width="150px" size="medium" prop="payWhiteIps">
+        <el-form-item label="代付IP白名单:" label-width="150px"  prop="payWhiteIps">
           <el-input v-model="merchantAddInfo.payWhiteIps" style="width: 200px"/>
         </el-form-item>
         </el-col>
 <!--        <el-col :span="6">
-          <el-form-item label="代付渠道:" label-width="150px" size="medium" prop="payingChannel">
+          <el-form-item label="代付渠道:" label-width="150px"  prop="payingChannel">
             <el-select v-model="merchantInfo.payingChannel"
                        :props="channelProps"
                        :options="payingChannelOptions"
@@ -500,7 +500,7 @@ import {getFormateDate} from "@/api/common.js";
       </el-row>
       <el-row v-if="merchantAddInfo.supportPaying === 1">
 <!--        <el-col :span="6">
-          <el-form-item label="代付计费模式:" label-width="150px" size="medium">
+          <el-form-item label="代付计费模式:" label-width="150px" >
             <el-radio-group v-model="merchantAddInfo.payingChargingModel" size="small">
               <el-radio :value="1">比例</el-radio>
               <el-radio :value="2">固定</el-radio>
@@ -532,7 +532,6 @@ import {getFormateDate} from "@/api/common.js";
                 inactive-text="关闭"
                 :inactive-value="0"
                 :active-value="1"
-                @change="handleCollectionChange"
             >
             </el-switch>
           </el-form-item>
@@ -570,7 +569,7 @@ import {getFormateDate} from "@/api/common.js";
           </el-form-item>
         </el-col>
         <el-col v-if="merchantAddInfo.isFloat" :span="6">
-          <el-form-item  label="浮动金额:" label-width="150px" size="medium" prop="floatRange">
+          <el-form-item  label="浮动金额:" label-width="150px"  prop="floatRange">
             <el-input v-model="merchantAddInfo.floatRange" style="width: 200px;" type="number" placeholder="请输入浮动范围"></el-input>
           </el-form-item>
         </el-col>
@@ -585,7 +584,7 @@ import {getFormateDate} from "@/api/common.js";
       </el-row>
       <el-row v-if="merchantAddInfo.supportCollection === 1">
 <!--        <el-col :span="6">
-          <el-form-item label="代收计费模式:" label-width="150px" size="medium">
+          <el-form-item label="代收计费模式:" label-width="150px" >
             <el-radio-group v-model="merchantAddInfo.collectionChargingModel" size="small">
               <el-radio :value="1">比例</el-radio>
               <el-radio :value="2">固定</el-radio>
@@ -629,29 +628,29 @@ import {getFormateDate} from "@/api/common.js";
     <el-form ref="merchantEditInfo" :model="merchantInfo" label-width="100%" class="form" :rules="merchantInfoRule" >
       <el-row>
         <el-col :span="6">
-          <el-form-item label="商户账号:" label-width="150px" size="medium">
+          <el-form-item label="商户账号:" label-width="150px" >
             <el-input disabled v-model="merchantInfo.merchantAccount" style="width: 200px"/>
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item label="商户名称:" label-width="150px" size="medium" prop="merchantName">
+          <el-form-item label="商户名称:" label-width="150px"  prop="merchantName">
             <el-input v-model="merchantInfo.merchantName" style="width: 200px"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item label="登陆密码:" label-width="150px" size="medium" prop="merchantPassword">
+          <el-form-item label="登陆密码:" label-width="150px"  prop="merchantPassword">
             <el-input v-model="merchantInfo.merchantPassword" style="width: 200px"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item label="确认密码:" label-width="150px" size="medium" prop="merchantConfirmPassword">
+          <el-form-item label="确认密码:" label-width="150px"  prop="merchantConfirmPassword">
             <el-input v-model="merchantInfo.merchantConfirmPassword" style="width: 200px"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row>
         <el-col :span="6">
-          <el-form-item label="所属代理:" label-width="150px" size="medium" prop="merchantAgent">
+          <el-form-item label="所属代理:" label-width="150px"  prop="merchantAgent">
             <el-cascader
                 v-model="merchantInfo.merchantAgent"
                 :options="agentOptions"
@@ -663,22 +662,22 @@ import {getFormateDate} from "@/api/common.js";
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item label="代收白名单:" label-width="150px" size="medium" prop="collectingWhiteList">
+          <el-form-item label="代收白名单:" label-width="150px"  prop="collectingWhiteList">
             <el-input v-model="merchantInfo.collectingWhiteList" style="width: 200px"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item label="登陆提现IP白名单:" label-width="150px" size="medium" prop="loginIpWhiteList">
+          <el-form-item label="登陆提现IP白名单:" label-width="150px"  prop="loginIpWhiteList">
             <el-input v-model="merchantInfo.loginIpWhiteList" style="width: 200px"></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="6"><el-form-item label="代付白名单:" label-width="150px" size="medium" prop="payingWhiteList">
+        <el-col :span="6"><el-form-item label="代付白名单:" label-width="150px"  prop="payingWhiteList">
           <el-input v-model="merchantInfo.payingWhiteList" style="width: 200px"></el-input>
         </el-form-item></el-col>
       </el-row>
       <el-row>
         <el-col :span="6">
-          <el-form-item label="金额浮动模式:" label-width="150px" size="medium" prop="cashFloatModel">
+          <el-form-item label="金额浮动模式:" label-width="150px"  prop="cashFloatModel">
             <el-switch
                 v-model="merchantInfo.cashFloatModel"
                 active-color="#13ce66"
@@ -694,12 +693,12 @@ import {getFormateDate} from "@/api/common.js";
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item label="支付通道:" label-width="150px" size="medium" prop="payingChannel">
+          <el-form-item label="支付通道:" label-width="150px"  prop="payingChannel">
             <el-input v-model="merchantInfo.payingChannel" style="width: 200px"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item label="启用状态:" label-width="150px" size="medium">
+          <el-form-item label="启用状态:" label-width="150px" >
             <el-switch
                 v-model="merchantInfo.isInUse"
                 active-color="#13ce66"
@@ -711,14 +710,14 @@ import {getFormateDate} from "@/api/common.js";
           </el-form-item>
         </el-col>
         <el-col :span="6">
-          <el-form-item label="谷歌验证码:" label-width="150px" size="medium" prop="googleCode">
+          <el-form-item label="谷歌验证码:" label-width="150px"  prop="googleCode">
             <el-input type="number" maxlength="6" minlength="6" v-model="merchantInfo.googleCode" style="width: 200px"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row v-if="merchantInfo.cashFloatModel">
         <el-col :span="6">
-          <el-form-item label-width="150px" size="medium" label="浮动金额:" prop="cashFloatNum">
+          <el-form-item label-width="150px"  label="浮动金额:" prop="cashFloatNum">
             <el-input v-model="merchantInfo.cashFloatNum" style="width: 200px;" placeholder="请输入浮动范围"></el-input>
           </el-form-item>
         </el-col>
@@ -741,7 +740,7 @@ import {getFormateDate} from "@/api/common.js";
     <el-form style="height: 120px">
       <el-row style="display: flex;justify-items: center;">
         <el-col :span="24" style="display: flex;justify-content: center;align-items: center;height: 50px;">
-          <el-form-item label="谷歌验证码" label-width="150px" size="medium" >
+          <el-form-item label="谷歌验证码" label-width="150px"  >
             <el-input type="number" maxlength="6" v-model="deleteMerchantInfo.verifyCode" style="width: 200px"/>
           </el-form-item>
         </el-col>
@@ -894,6 +893,7 @@ export default {
       }
     };
     return {
+      isAdmin: false,
       filterAvaiable: false,
       tableKey: 0,
       activeTool: "1",
@@ -1087,8 +1087,13 @@ export default {
           this.totalCount = all.totalNumber
           const allList = all.merchantInfoDtoList
           this.merchantInfoFormData = allList
-          this.filterbox.merchantName = allList[0].merchantName
-          this.filterbox.merchantUserName = allList[0].accountName
+          if(!this.isAdmin) {
+            this.filterbox.merchantName = allList[0].merchantName
+            this.filterbox.merchantUserName = allList[0].accountName
+            this.agentOptions = allList[0].agentInfos
+            //this.channelOptions = allList[0].channelDtoList
+          }
+
           this.tableKey++
           /*if(all.cardInfo) {
             const cardInfo = all.cardInfo[this.filterbox.currency]
@@ -1171,7 +1176,9 @@ export default {
       this.deleteMerchantInfo = {}
     },
     editMerchantInfo(rowInfo) {
-      this.merchantAddInfo = rowInfo
+      this.merchantAddInfo = Object.assign({}, rowInfo)
+      this.merchantAddInfo.merchantUserId = rowInfo.userId
+      this.merchantAddInfo.channelIds = this.merchantAddInfo.channelIds.split(',')
       if(rowInfo.agentInfos) {
         this.merchantAddInfo.useAgent = 1
       }
@@ -1292,6 +1299,8 @@ export default {
               }
             })
           } else if(this.dialogFlag === 'edit') {
+            let idsData = this.merchantAddInfo.channelIds
+            this.merchantAddInfo.channelIds = idsData ? idsData.split(',') : []
             modifyMerchantInfo(this.merchantAddInfo).then(res => {
               if (res.status === 200 && res.data.code === 0) {
                 this.dialogAddFormVisible = false
@@ -1345,15 +1354,14 @@ export default {
         }
       }
     })
-    let filterData = {}
     let roleName = localStorage.getItem('roleName')
+    this.isAdmin = roleName === 'admin'
     if (roleName === 'merchant') {
       //filterData.merchantUserId = localStorage.getItem('userId')
-      filterData.merchantUserName = localStorage.getItem('userName')
+      this.filterbox.merchantUserName = localStorage.getItem('userName')
       this.filterAvaiable = true
-
     }
-    await getAgentInfo(filterData).then((res) => {
+    await getAgentInfo({}).then((res) => {
       if (res.status === 200 && res.data.code === 0) {
         this.agentOptions = JSON.parse(res.data.data).agentInfoDtoList
         this.agentOptions.forEach(agent => {

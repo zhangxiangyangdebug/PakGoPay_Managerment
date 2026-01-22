@@ -12,14 +12,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
     <div class="main-views-form" style="background-color: white;height: 500px;margin-top: 0;width: 96%;display: flex;justify-content: center;">
       <el-form style="margin-top: 100px;height: 80%;">
         <div class="el-form-line">
-          <el-form-item size="medium">
+          <el-form-item >
             <template #label>
               <div style="width: 250px;font-size: 16px;color: deepskyblue;">单笔订单请求次数(/min):</div>
             </template>
             <el-input :min="1" :step="1" class="center-input" type="number" v-model="merchantEachOrderTimes" style="width: 400px">
             </el-input>
           </el-form-item>
-          <el-form-item size="medium" style="height: 300px;margin-top: 50px;">
+          <el-form-item  style="height: 300px;margin-top: 50px;">
             <template #label>
                 <div style="width: 250px;font-size: 16px;color: deepskyblue;">固定IP QPS:</div>
             </template>

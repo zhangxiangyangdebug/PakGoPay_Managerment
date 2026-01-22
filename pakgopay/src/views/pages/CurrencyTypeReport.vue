@@ -21,7 +21,7 @@ import {getFormateDate} from "@/api/common.js";
                 <el-select
                     v-model="filterbox.currency"
                     placeholder="请选择币种"
-                    size="medium"
+
                     style="width: 150px;"
                     :options="currencyOptions"
                     :props="currencyProps"

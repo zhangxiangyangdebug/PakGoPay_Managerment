@@ -12,7 +12,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
     <div class="main-views-form" style="background-color: white;height: 500px;margin-top: 0;width: 96%;display: flex;justify-content: center;">
       <el-form style="margin-top: 100px;height: 80%;">
         <div class="el-form-line">
-          <el-form-item size="medium">
+          <el-form-item >
             <template #label>
               <span style="width: 250px;font-size: 16px;color: deepskyblue">代付订单手动回调:</span>
             </template>
@@ -23,7 +23,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-form-item>
         </div>
         <div class="el-form-line">
-          <el-form-item size="medium">
+          <el-form-item >
             <template #label>
               <span style="width: 250px;font-size: 16px;color: deepskyblue">提现申请确认:</span>
             </template>
@@ -34,7 +34,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-form-item>
         </div>
         <div class="el-form-line">
-          <el-form-item size="medium">
+          <el-form-item >
             <template #label>
               <span style="width: 250px;font-size: 16px;color: deepskyblue">商户余额通知:</span>
             </template>
@@ -45,7 +45,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-form-item>
         </div>
         <div class="el-form-line">
-          <el-form-item size="medium">
+          <el-form-item >
             <template #label>
               <span style="width: 250px;font-size: 16px;color: deepskyblue">失败订单数通知:</span>
             </template>

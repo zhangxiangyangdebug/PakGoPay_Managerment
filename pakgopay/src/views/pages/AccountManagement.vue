@@ -128,7 +128,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="用户名称:" label-width="150px" size="medium" prop="loginName">
+              <el-form-item label="用户名称:" label-width="150px"  prop="loginName">
                 <el-input auto-complete="new-password" type="text" v-model.trim="createUserInfo.loginName" style="width: 200px"></el-input>
               </el-form-item>
             </div>
@@ -137,7 +137,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="登陆密码:" label-width="150px" size="medium" prop="password">
+              <el-form-item label="登陆密码:" label-width="150px"  prop="password">
                 <el-input autocomplete="new-password" type="password" v-model.trim="createUserInfo.password" style="width: 200px"></el-input>
               </el-form-item>
             </div>
@@ -146,7 +146,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="确认密码:" label-width="150px" size="medium" prop="confirmPassword">
+              <el-form-item label="确认密码:" label-width="150px"  prop="confirmPassword">
                 <el-input type="password" v-model.trim="createUserInfo.confirmPassword" style="width: 200px"></el-input>
               </el-form-item>
             </div>
@@ -155,7 +155,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="用户角色:" label-width="150px" size="medium" prop="roleId">
+              <el-form-item label="用户角色:" label-width="150px"  prop="roleId">
                 <el-select
                   v-model.trim="createUserInfo.roleId"
                   placeholder="请选择用户角色"
@@ -176,7 +176,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="是否启用:" label-width="150px" size="medium">
+              <el-form-item label="是否启用:" label-width="150px" >
                 <el-switch
                     v-model="createUserInfo.status"
                     active-color="#13ce66"
@@ -194,7 +194,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="谷歌验证码:" label-width="150px" size="medium" prop="googleCode">
+              <el-form-item label="谷歌验证码:" label-width="150px"  prop="googleCode">
                 <el-input autocomplete="new-password" type="number" v-model.trim="createUserInfo.googleCode" style="width: 200px"></el-input>
               </el-form-item>
             </div>
@@ -230,7 +230,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%;" class="dialog-row">
           <el-col :span="24">
             <div class="el-form-line" style="display: flex;justify-content: center;align-items: center;">
-              <el-form-item label="停用用户名:" label-width="150px" size="medium" prop="googleCode">
+              <el-form-item label="停用用户名:" label-width="150px"  prop="googleCode">
                 <el-input readonly autocomplete="new-password" type="text" v-model.trim="stopUserInfo.loginName" style="width: 200px;font-weight: bold;"></el-input>
               </el-form-item>
             </div>
@@ -239,7 +239,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%;" class="dialog-row">
           <el-col :span="24">
             <div class="el-form-line" style="display: flex;justify-content: center;align-items: center;">
-              <el-form-item label="谷歌验证码:" label-width="150px" size="medium" prop="googleCode">
+              <el-form-item label="谷歌验证码:" label-width="150px"  prop="googleCode">
                 <el-input autocomplete="new-password" type="number" v-model.trim="stopUserInfo.googleCode" style="width: 200px"></el-input>
               </el-form-item>
             </div>

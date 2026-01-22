@@ -47,61 +47,61 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                       </el-row>-->
             <el-row>
               <el-col :span="6">
-                <el-form-item label="订单状态：" label-width="150px" size="medium">
+                <el-form-item label="订单状态：" label-width="150px" >
                   <el-input v-model="filterbox.orderStatus" style="width: 200px"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="订单编号：" label-width="150px" size="medium">
+                <el-form-item label="订单编号：" label-width="150px" >
                   <el-input v-model="filterbox.orderId" style="width: 200px"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="订单渠道：" label-width="150px" size="medium">
+                <el-form-item label="订单渠道：" label-width="150px" >
                   <el-input v-model="filterbox.orderChannel" style="width: 200px"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="商户编号：" label-width="150px" size="medium">
+                <el-form-item label="商户编号：" label-width="150px" >
                   <el-input v-model="filterbox.merchantAccount" style="width: 200px"/>
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="6">
-                <el-form-item label="商户名称：" label-width="150px" size="medium">
+                <el-form-item label="商户名称：" label-width="150px" >
                   <el-input v-model="filterbox.merchantName" style="width: 200px"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="订单类型：" label-width="150px" size="medium">
+                <el-form-item label="订单类型：" label-width="150px" >
                   <el-input v-model="filterbox.orderType" style="width: 200px"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="创建时间：" label-width="150px" size="medium">
+                <el-form-item label="创建时间：" label-width="150px" >
                   <el-input v-model="filterbox.createTime"style="width: 200px"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="商户代理：" label-width="150px" size="medium">
+                <el-form-item label="商户代理：" label-width="150px" >
                   <el-input v-model="filterbox.merchantAgent" style="width: 200px"/>
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="6">
-                <el-form-item label="币种：" label-width="150px" size="medium">
+                <el-form-item label="币种：" label-width="150px" >
                   <el-input v-model="filterbox.currencyType" style="width: 200px"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="订单金额：" label-width="150px" size="medium">
+                <el-form-item label="订单金额：" label-width="150px" >
                   <el-input v-model="filterbox.orderAmount" style="width: 200px"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="平台订单号：" label-width="150px" size="medium">
+                <el-form-item label="平台订单号：" label-width="150px" >
                   <el-input v-model="filterbox.platformOrderId" style="width: 200px"/>
                 </el-form-item>
               </el-col>

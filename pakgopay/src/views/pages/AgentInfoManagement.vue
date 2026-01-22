@@ -504,7 +504,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="上级代理名称:" label-width="150px" size="medium">
+              <el-form-item label="上级代理名称:" label-width="150px" >
                 <el-input disabled type="text" v-model="nextLevelAgentInfo.parentAgentName"
                           style="width: 200px"></el-input>
               </el-form-item>
@@ -512,7 +512,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="上级代理账号:" label-width="150px" size="medium">
+              <el-form-item label="上级代理账号:" label-width="150px" >
                 <el-input disabled type="text" v-model="nextLevelAgentInfo.parentAgentAccount"
                           style="width: 200px"></el-input>
               </el-form-item>
@@ -520,7 +520,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="代理名称:" label-width="150px" size="medium">
+              <el-form-item label="代理名称:" label-width="150px" >
                 <el-input type="text" v-model="nextLevelAgentInfo.agentName" style="width: 200px"></el-input>
               </el-form-item>
             </div>
@@ -529,7 +529,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="代理账号:" label-width="150px" size="medium">
+              <el-form-item label="代理账号:" label-width="150px" >
                 <el-input autocomplete="new-password" type="text" v-model="nextLevelAgentInfo.agentAccount"
                           style="width: 200px"></el-input>
               </el-form-item>
@@ -537,7 +537,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="代理账号密码:" label-width="150px" size="medium">
+              <el-form-item label="代理账号密码:" label-width="150px" >
                 <el-input autocomplete="new-password" type="password" v-model="nextLevelAgentInfo.agentPassword"
                           style="width: 200px"></el-input>
               </el-form-item>
@@ -545,7 +545,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="确认密码:" label-width="150px" size="medium">
+              <el-form-item label="确认密码:" label-width="150px" >
                 <el-input type="password" v-model="nextLevelAgentInfo.agentConfirmPassword"
                           style="width: 200px"></el-input>
               </el-form-item>
@@ -555,7 +555,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="代理状态:" label-width="150px" size="medium" style="width: 350px;">
+              <el-form-item label="代理状态:" label-width="150px"  style="width: 350px;">
                 <el-switch
                     v-model="nextLevelAgentInfo.agentStatus"
                     active-color="#13ce66"
@@ -569,14 +569,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="渠道费率:" label-width="150px" size="medium">
+              <el-form-item label="渠道费率:" label-width="150px" >
                 <el-input type="number" v-model="nextLevelAgentInfo.channelRate" style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="渠道配置:" label-width="150px" size="medium">
+              <el-form-item label="渠道配置:" label-width="150px" >
                 <el-select v-model="nextLevelAgentInfo.channelConfig" style="width: 200px" placeholder="请选择渠道">
                   <el-option
                       v-for="item in nextLevelAgentInfo.channelOptions"
@@ -592,14 +592,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="代理费率:" label-width="150px" size="medium">
+              <el-form-item label="代理费率:" label-width="150px" >
                 <el-input type="number" v-model="nextLevelAgentInfo.agentRate" style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="谷歌验证码:" label-width="150px" size="medium">
+              <el-form-item label="谷歌验证码:" label-width="150px" >
                 <el-input type="number" v-model="nextLevelAgentInfo.googleCode" style="width: 200px"></el-input>
               </el-form-item>
             </div>

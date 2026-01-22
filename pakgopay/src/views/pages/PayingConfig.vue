@@ -12,7 +12,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
     <div class="main-views-form" style="background-color: white;height: 500px;margin-top: 0;width: 96%;display: flex;justify-content: center;">
       <el-form style="margin-top: 100px;height: 80%;">
         <div class="el-form-line">
-          <el-form-item size="medium">
+          <el-form-item >
             <template #label>
               <span style="width: 250px;font-size: 16px;color: deepskyblue">代付订单失效时长(min):</span>
             </template>
@@ -21,7 +21,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-form-item>
         </div>
         <div class="el-form-line" style="width: auto">
-          <el-form-item size="medium">
+          <el-form-item >
             <template #label>
               <span style="width: 250px;font-size: 16px;color: deepskyblue">代付失败重试开关:</span>
             </template>
@@ -36,7 +36,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-form-item>
         </div>
         <div v-if="payingRetry" class="el-form-line" style="width: auto">
-          <el-form-item size="medium">
+          <el-form-item >
             <template #label>
               <span style="width: 250px;font-size: 16px;color: deepskyblue">代收回调失败重试配置(times):</span>
             </template>
@@ -45,7 +45,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-form-item>
         </div>
         <div class="el-form-line">
-          <el-form-item size="medium" class="large-label">
+          <el-form-item  class="large-label">
             <template #label>
               <span style="width: 200px;font-size: 16px;color: deepskyblue">代付通道匹配模式:</span>
             </template>

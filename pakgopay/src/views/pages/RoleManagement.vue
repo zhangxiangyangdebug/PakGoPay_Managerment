@@ -131,22 +131,22 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
    >
      <el-form style="margin-top: 50px" :model="roleInfo" :rules="addRoleRule" ref="roleInfo">
        <div class="el-form-line">
-         <el-form-item label="名称:" label-width="150px" size="medium" prop="roleName">
+         <el-form-item label="名称:" label-width="150px"  prop="roleName">
            <el-input type="text" v-model="roleInfo.roleName" style="width: 200px"></el-input>
          </el-form-item>
        </div>
        <div class="el-form-line">
-         <el-form-item label="标识:" label-width="150px" size="medium" prop="remark">
+         <el-form-item label="标识:" label-width="150px"  prop="remark">
            <el-input type="text" v-model="roleInfo.remark" style="width: 200px"></el-input>
          </el-form-item>
        </div>
        <div class="el-form-line">
-         <el-form-item label="谷歌验证码:" label-width="150px" size="medium" prop="googleCode">
+         <el-form-item label="谷歌验证码:" label-width="150px"  prop="googleCode">
            <el-input type="text" v-model="roleInfo.googleCode" style="width: 200px"></el-input>
          </el-form-item>
        </div>
        <div class="el-form-line">
-         <el-form-item size="medium" style="">
+         <el-form-item  style="">
            <template #label>
              <span style="color: skyblue;width: 150px;">菜单:</span>
            </template>
@@ -176,22 +176,22 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
    >
      <el-form style="margin-top: 50px" :model="roleInfo" :rules="addRoleRule" ref="roleInfo">
        <div class="el-form-line">
-         <el-form-item label="名称:" label-width="150px" size="medium" prop="roleName">
+         <el-form-item label="名称:" label-width="150px"  prop="roleName">
            <el-input type="text" v-model="roleInfo.roleName" style="width: 200px"></el-input>
          </el-form-item>
        </div>
        <div class="el-form-line">
-         <el-form-item label="标识:" label-width="150px" size="medium" prop="remark">
+         <el-form-item label="标识:" label-width="150px"  prop="remark">
            <el-input type="text" v-model="roleInfo.remark" style="width: 200px"></el-input>
          </el-form-item>
        </div>
        <div class="el-form-line">
-         <el-form-item label="谷歌验证码:" label-width="150px" size="medium" prop="googleCode">
+         <el-form-item label="谷歌验证码:" label-width="150px"  prop="googleCode">
            <el-input type="text" v-model="roleInfo.googleCode" style="width: 200px"></el-input>
          </el-form-item>
        </div>
        <div class="el-form-line">
-         <el-form-item size="medium" style="">
+         <el-form-item  style="">
            <template #label>
              <span style="color: skyblue;width: 150px;">菜单:</span>
            </template>
@@ -228,7 +228,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
        <el-row style="width: 100%;" class="dialog-row">
          <el-col :span="24">
            <div class="el-form-line" style="display: flex;justify-content: center;align-items: center;">
-             <el-form-item label="角色名称:" label-width="150px" size="medium" prop="roleName">
+             <el-form-item label="角色名称:" label-width="150px"  prop="roleName">
                <el-input readonly autocomplete="new-password" type="text" v-model.trim="roleInfo.roleName" style="width: 200px;font-weight: bold;"></el-input>
              </el-form-item>
            </div>
@@ -237,7 +237,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
        <el-row style="width: 100%;" class="dialog-row">
          <el-col :span="24">
            <div class="el-form-line" style="display: flex;justify-content: center;align-items: center;">
-             <el-form-item label-width="150px" size="medium" prop="googleCode">
+             <el-form-item label-width="150px"  prop="googleCode">
                <template #label>
                  <div style="display: flex;justify-content: center;align-items: center;">
                    <SvgIcon name="must"/>

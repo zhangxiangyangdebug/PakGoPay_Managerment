@@ -16,7 +16,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-select
               v-model="filterbox.selectedCurrency"
               placeholder="请选择币种"
-              size="medium"
+
               style="width: 150px;"
               clearable
           >
@@ -100,28 +100,28 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <div class="el-form-line">
           <el-row style="display: flex;justify-content: center;">
             <el-col :span="24" style="display: flex;justify-content: center;">
-              <el-form-item label="币种英文缩写:" label-width="150px" size="medium" prop="currencyType">
+              <el-form-item label="币种英文缩写:" label-width="150px"  prop="currencyType">
                 <el-input style="width: 200px;" v-model="addCurrencyTypeInfo.currencyType"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row style="display: flex;justify-content: center;">
             <el-col :span="24" style="display: flex;justify-content: center;">
-              <el-form-item label="币种简称:" label-width="150px" size="medium" prop="name">
+              <el-form-item label="币种简称:" label-width="150px"  prop="name">
                 <el-input style="width: 200px;" v-model="addCurrencyTypeInfo.name"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row style="display: flex;justify-content: center;">
             <el-col :span="24" style="display: flex;justify-content: center;">
-              <el-form-item label="币种符号:" label-width="150px" size="medium" prop="icon">
+              <el-form-item label="币种符号:" label-width="150px"  prop="icon">
                 <el-input v-model="addCurrencyTypeInfo.icon" style="width: 200px"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row style="display: flex;justify-content: center;">
             <el-col :span="24" style="display: flex;justify-content: center;">
-              <el-form-item label="币种最小单位:" label-width="150px" size="medium" prop="currencyAccuracy" style="display: flex;flex-direction: row;">
+              <el-form-item label="币种最小单位:" label-width="150px"  prop="currencyAccuracy" style="display: flex;flex-direction: row;">
                 <div style="display: grid;align-items: center;justify-content: center;">
                   <el-input type="number" v-model="addCurrencyTypeInfo.currencyAccuracy" style="width: 200px;">
                   </el-input>
@@ -137,7 +137,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-row>
           <el-row style="display: flex;justify-content: center;">
             <el-col :span="24" style="display: flex;justify-content: center;">
-              <el-form-item label="对USDT汇率模式:" label-width="150px" size="medium" prop="exchangeRate" style="display: flex;flex-direction: row">
+              <el-form-item label="对USDT汇率模式:" label-width="150px"  prop="exchangeRate" style="display: flex;flex-direction: row">
                 <el-select v-model="addCurrencyTypeInfo.isRate" style="width: 200px;text-align: center">
                   <el-option
                     v-for="item in exchangeRateOptions"
@@ -151,14 +151,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-row>
           <el-row v-if="addCurrencyTypeInfo.isRate === 2">
             <el-col :span="24" style="display: flex;justify-content: center;">
-              <el-form-item label="对USDT汇率:" label-width="150px" size="medium" prop="exchangeRate">
+              <el-form-item label="对USDT汇率:" label-width="150px"  prop="exchangeRate">
                 <el-input type="number" v-model="addCurrencyTypeInfo.exchangeRate" style="width: 200px"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row style="display: flex;justify-content: center;">
             <el-col :span="24" style="display: flex;justify-content: center;">
-              <el-form-item label="谷歌验证码:" label-width="150px" size="medium" prop="googleCode">
+              <el-form-item label="谷歌验证码:" label-width="150px"  prop="googleCode">
                 <el-input oninput="if(value.length>6)value=value.slice(0,6)" type="number" v-model="addCurrencyTypeInfo.googleCode" placeholder="input google verify code" style="width: 200px"/>
               </el-form-item>
             </el-col>
