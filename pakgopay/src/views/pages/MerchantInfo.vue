@@ -82,12 +82,12 @@ import {getFormateDate} from "@/api/common.js";
           <el-row>
             <el-col :span="6">
               <el-form-item label="商户账号:" label-width="150px" prop="merchantUserName">
-                 <el-input  v-model="filterbox.merchantUserName"  type="text" placeholder="商户账号" style="width: 200px"/>
+                 <el-input   v-model="filterbox.merchantUserName"  type="text" placeholder="商户账号" style="width: 200px"/>
               </el-form-item>
             </el-col>
             <el-col :span="6">
                 <el-form-item label="商户名称:" label-width="150px" prop="merchantName">
-                  <el-input  v-model="filterbox.merchantName"  type="text" placeholder="商户账号" style="width: 200px"/>
+                  <el-input   v-model="filterbox.merchantName"  type="text" placeholder="商户名称" style="width: 200px"/>
                 </el-form-item>
             </el-col>
             <el-col :span="6">
@@ -894,6 +894,7 @@ export default {
       }
     };
     return {
+      filterAvaiable: false,
       tableKey: 0,
       activeTool: "1",
       currency: '',
@@ -1086,6 +1087,8 @@ export default {
           this.totalCount = all.totalNumber
           const allList = all.merchantInfoDtoList
           this.merchantInfoFormData = allList
+          this.filterbox.merchantName = allList[0].merchantName
+          this.filterbox.merchantUserName = allList[0].accountName
           this.tableKey++
           /*if(all.cardInfo) {
             const cardInfo = all.cardInfo[this.filterbox.currency]
@@ -1342,7 +1345,15 @@ export default {
         }
       }
     })
-    await getAgentInfo({pageSize: 1000}).then((res) => {
+    let filterData = {}
+    let roleName = localStorage.getItem('roleName')
+    if (roleName === 'merchant') {
+      //filterData.merchantUserId = localStorage.getItem('userId')
+      filterData.merchantUserName = localStorage.getItem('userName')
+      this.filterAvaiable = true
+
+    }
+    await getAgentInfo(filterData).then((res) => {
       if (res.status === 200 && res.data.code === 0) {
         this.agentOptions = JSON.parse(res.data.data).agentInfoDtoList
         this.agentOptions.forEach(agent => {

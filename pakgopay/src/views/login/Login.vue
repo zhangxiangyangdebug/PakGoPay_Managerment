@@ -689,10 +689,11 @@ import router from "@/router/index.js";
                /*localStorage.setItem("userInfo", response.data.data.split("&&")[1]);
                localStorage.setItem("token", response.data.data.split("&&")[0]);*/
                localStorage.setItem("token", response.data.token);
-               localStorage.setItem("userInfo", response.data.userId)
+               /*localStorage.setItem("userInfo", response.data.userId)*/
                localStorage.setItem("userName", response.data.userName)
                localStorage.setItem("userId", response.data.userId)
                localStorage.setItem("refreshToken", response.data.refreshToken)
+               localStorage.setItem("roleName", response.data.roleName)
                menu().then(m => {
                  if (m.status === 200 && m.data.data) {
                    this.menuItems = JSON.parse(m.data.data)

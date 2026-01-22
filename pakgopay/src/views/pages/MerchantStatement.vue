@@ -10,18 +10,18 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
     <form class="main-toolform">
       <div class="main-toolform-item">
         <div class="main-toolform-line" style="justify-content: right;margin-right: 4%;">
-          <div v-on:click="reset('filterboxForm')" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="30px" name="reset"/>
-            <div style="width: 50px;color: white">重置</div>
-          </div>
-          <div v-on:click="search()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="30px" name="search"/>
-            <div style="width: 50px;color: white">查询</div>
-          </div>
-          <div v-on:click="exportStatements()" style="background-color: limegreen;width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="30px" name="export"/>
-            <div style="width: 50px;color: white">导出</div>
-          </div>
+          <el-button @click="reset('filterboxForm')" class="filterButton">
+            <SvgIcon class="filterButtonSvg" name="reset"/>
+            <div>重置</div>
+          </el-button>
+          <el-button @click="search()" class="filterButton">
+            <SvgIcon class="filterButtonSvg" name="search"/>
+            <div>查询</div>
+          </el-button>
+          <el-button @click="exportStatements()" class="filterButton">
+            <SvgIcon class="filterButtonSvg" name="export"/>
+            <div>导出</div>
+          </el-button>
         </div>
       </div>
       <div class="main-toolform-item" style="margin-right: 3%;">

@@ -26,6 +26,7 @@ function clearAuthAndRedirect() {
     localStorage.removeItem("userName")
     localStorage.removeItem("userId")
     localStorage.removeItem("currentPath")
+    localStorage.removeItem("roleName")
     router.push("/web/login");
 }
 

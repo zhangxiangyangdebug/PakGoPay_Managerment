@@ -6,7 +6,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
 
 <template>
   <div class="main-title">商户账号</div>
-  <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0">
+<!--  <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0">
     <el-form-item style="margin-left: 2%;">
       <template #label>
           <span style="color: black;font-size: small;align-items: center;">
@@ -23,7 +23,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
           filterable
       />
     </el-form-item>
-  </div>
+  </div>-->
   <!--  <div class="statistics-container"
          style="display: flex;justify-content: space-around;height: auto;justify-items: center;align-items: center;margin-top:1%;">
       <el-card style="width: 30%;height: 100%;">
@@ -65,10 +65,20 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
         <el-form class="main-toolform" ref="filterboxForm" :model="filterbox">
           <el-row style="display: flex;justify-content: space-around;">
             <el-form-item label="商户账号" label-width="150px" prop="name">
-              <el-input style="width: 200px" v-model="filterbox.name" placeholder="商户账号"/>
+              <el-input style="width: 200px" v-model="filterbox.name" placeholder="商户账号" :disabled="filterAvaiable"/>
             </el-form-item>
             <el-form-item label="收款账号" label-width="150px" prop="walletAddr">
-              <el-input style="width: 200px" v-model="filterbox.walletAddr" placeholder="收款账号"/>
+<!--              <el-input style="width: 200px" v-model="filterbox.walletAddr" placeholder="收款账号"/>-->
+              <el-select
+                :options="merchantAccountOptions"
+                :props="merchantWalletProps"
+                v-model="filterbox.walletAddr"
+                style="width: 200px"
+                clearable
+                filterable
+              >
+
+              </el-select>
             </el-form-item>
             <el-form-item label="录入时间" label-width="150px" prop="filterDateRange">
               <el-date-picker
@@ -82,16 +92,16 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
               >
               </el-date-picker>
               <div style="display: flex;flex-direction: row;">
-                <div v-on:click="reset('filterboxForm')"
-                     style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-                  <SvgIcon height="30px" width="30px" name="reset"/>
-                  <div style="width: 50px;color: white">重置</div>
-                </div>
-                <div v-on:click="search()"
-                     style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-                  <SvgIcon height="30px" width="30px" name="search"/>
-                  <div style="width: 50px;color: white">查询</div>
-                </div>
+                <el-button @click="reset('filterboxForm')"
+                     class="filterButton">
+                  <SvgIcon class="filterButtonSvg" name="reset"/>
+                  <div>重置</div>
+                </el-button>
+                <el-button @click="search()"
+                     class="filterButton">
+                  <SvgIcon class="filterButtonSvg" name="search"/>
+                  <div>查询</div>
+                </el-button>
               </div>
             </el-form-item>
           </el-row>
@@ -107,42 +117,42 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
      -->
     <form>
       <div style="display: flex;flex-direction: row;float: right">
-        <el-button @click="exportStatements()">
+        <el-button @click="exportStatements()" class="filterButton">
           <template #icon>
             <div style="width: 100%">
-              <SvgIcon style="height: 25px;width: 25px" name="export"/>
+              <SvgIcon class="filterButtonSvg" name="export"/>
             </div>
           </template>
           <div style="color: black;margin-left: 8px">导出</div>
         </el-button>
-        <el-button @click="addWithdrawlAccount()" style="margin: 0">
+        <el-button @click="addWithdrawlAccount()" class="filterButton">
           <template #icon>
             <div style="width: 100%">
-              <SvgIcon style="height: 25px;width: 25px" name="add"/>
+              <SvgIcon class="filterButtonSvg" name="add"/>
             </div>
           </template>
           <div style="color: black;margin-left: 8px">新增</div>
         </el-button>
-        <el-button @click="createWithdrawOrder" style="margin: 0">
+        <el-button @click="createWithdrawOrder" class="filterButton">
           <template #icon>
             <div style="width: 100%">
-              <SvgIcon style="height: 25px;width: 25px" name="withdrawl"/>
+              <SvgIcon class="filterButtonSvg" name="withdrawl"/>
             </div>
           </template>
           <div style="color: black;margin-left: 8px">提现</div>
         </el-button>
-        <el-button @click="createRechargeOrder" style="margin: 0">
+        <el-button @click="createRechargeOrder" class="filterButton">
           <template #icon>
             <div style="width: 100%">
-              <SvgIcon style="height: 25px;width: 25px" name="recharge"/>
+              <SvgIcon class="filterButtonSvg" name="recharge"/>
             </div>
           </template>
           <div style="color: black;margin-left: 8px">充值</div>
         </el-button>
-        <el-button @click="createManualAccountAdjustment" style="margin: 0">
+        <el-button @click="createManualAccountAdjustment" class="filterButton">
           <template #icon>
             <div style="width: 100%">
-              <SvgIcon height="50px" width="50px" name="manualaccountadjustment" style="height: 25px;width: 25px"/>
+              <SvgIcon class="filterButtonSvg" name="manualaccountadjustment"/>
             </div>
           </template>
           <div style="color: black;margin-left: 8px">手工调账</div>
@@ -271,8 +281,8 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
                      @change="handleChange"
                      placeholder="请选择商户"
                      style="width: 200px"
-                     :options="merchantAccountOptions"
-                     :props="merchantAccountProps"
+                     :options="merchantInfo"
+                     :props="merchantInfoProps"
                      :disabled="selectAccountVisible"
           >
           </el-select>
@@ -364,11 +374,11 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
           <el-input type="number" v-model="withdrawOrderInfo.withdrawAmount" style="width: 200px"/>
         </el-form-item>
       </div>
-      <div class="el-form-line">
+<!--      <div class="el-form-line">
         <el-form-item label="谷歌验证码:" label-width="150px" prop="googleCode">
           <el-input v-model="withdrawOrderInfo.googleCode" style="width: 200px"/>
         </el-form-item>
-      </div>
+      </div>-->
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="cancelWithdraw('withdrawOrderInfoForm')">取 消</el-button>
@@ -412,11 +422,11 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
           <el-input type="number" v-model="rechargeOrderInfo.amount" style="width: 200px"/>
         </el-form-item>
       </div>
-      <div class="el-form-line">
+<!--      <div class="el-form-line">
         <el-form-item label="谷歌验证码:" label-width="150px" prop="googleCode">
           <el-input v-model="rechargeOrderInfo.googleCode" style="width: 200px"/>
         </el-form-item>
-      </div>
+      </div>-->
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="cancelRecharge('rechargeOrderInfoForm')">取 消</el-button>
@@ -482,6 +492,31 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
       </el-button>
     </div>
   </el-dialog>
+  <el-dialog
+    :title="confirmDialogTitle"
+    v-model="confirmDialogVisible"
+    class="dialog"
+    center
+    width="30%"
+    height="200px"
+  >
+    <el-form ref="confirmDataForm" :rules="confirmRule" :model="confirmData" style="height:100px;margin-top: 20px">
+      <el-row>
+        <el-col :span="24" style="display: flex;justify-content: center;justify-items: center;align-items: center;">
+          <div>
+            <el-form-item label="谷歌验证码:" label-width="150px" prop="googleCode">
+                <el-input v-model="confirmData.googleCode" style="width: 200px"/>
+            </el-form-item>
+          </div>
+        </el-col>
+      </el-row>
+    </el-form>
+    <div slot="footer" class="dialog-footer" style="margin-right: 3%;height: 30px;">
+      <el-button @click="cancelConfirmDialog('confirmDataForm')">取 消</el-button>
+      <el-button type="primary" @click="submitConfirm('confirmDataForm')">确 定
+      </el-button>
+    </div>
+  </el-dialog>
 </template>
 <!--
  此页面需要根据用户角色进行数据预处理
@@ -506,6 +541,12 @@ const filterDateRange = ref('')
 export default {
   data() {
     return {
+      filterAvaiable: false,
+      roleName: '',
+      merchantInfo: [],
+      confirmDialogVisible: false,
+      confirmDialogTitle: "",
+      confirmData: {},
       activeTool: '1',
       currency: '',
       currencyIcon: '',
@@ -523,6 +564,10 @@ export default {
       selectedMerchentName: '',
       selectAccountVisible: true,
       merchantAccountOptions: [],
+      merchantInfoProps: {
+        value: 'userId',
+        label: 'accountName',
+      },
       merchantAccountProps: {
         value: 'merchantAgentId',
         label: 'name',
@@ -565,6 +610,11 @@ export default {
         merchantAccount: "",
         withdrawlAccount: "",
       },
+      confirmRule: {
+        googleCode: {
+          required: true, trigger: 'blur', message: 'googleCode is required'
+        }
+      },
       merchantAccountRule: {
         merchantAgentId: {
           required: true, trigger: 'blur'
@@ -592,9 +642,9 @@ export default {
         withdrawAmount: {
           required: true, trigger: 'blur'
         },
-        googleCode: {
+       /* googleCode: {
           required: true, trigger: 'blur'
-        }
+        }*/
       },
       withdrawOrderInfo: {},
       dialogWithdrawVisible: false,
@@ -623,9 +673,9 @@ export default {
         amount: {
           required: true, trigger: 'blur', message: 'type amount'
         },
-        googleCode: {
+       /* googleCode: {
           required: true, trigger: 'blur', message: 'you need to select googleCode'
-        }
+        }*/
       },
       totalCount: 0,
       pageSize: 10,
@@ -634,6 +684,11 @@ export default {
     }
   },
   methods: {
+    cancelConfirmDialog(form) {
+      this.$refs[form].resetFields();
+      this.confirmDialogVisible = false
+      this.confirmDialogTitle = ''
+    },
     handleMerchantChange(value) {
       let opt = {};
       opt = this.merchantAccountOptions.find((item) => {
@@ -655,6 +710,9 @@ export default {
         timeRange = new String(this.filterbox.filterDateRange)
         this.filterbox.startTime = timeRange.split(',')[0] / 1000
         this.filterbox.endTime = timeRange.split(',')[1] / 1000
+      } else {
+        this.filterbox.startTime = null
+        this.filterbox.endTime = null
       }
       exportMerchantAccount(this.filterbox).then(async res => {
         //const fileName = this.$t('exportPaymentReportName') + getFormateTime()
@@ -672,13 +730,18 @@ export default {
       if (this.filterbox.filterDateRange) {
         timeRange = new String(this.filterbox.filterDateRange)
         this.filterbox.startTime = timeRange.split(',')[0] / 1000
-        this.filterbox.endTime = timeRange.split(',')[1] / 1000
+        this.filterbox.endTime = timeRange.split(',')[1] / 1000 + 86399
+      } else {
+        this.filterbox.startTime = null
+        this.filterbox.endTime = null
       }
       getMerchantAccount(this.filterbox).then(res => {
         if (res.status === 200 && res.data.code === 0) {
           const all = JSON.parse(res.data.data)
           const allData = all.withdrawalAccountsDtoList
-          this.merchantAccountOptions = allData
+          if (this.merchantAccountOptions.length === 0) {
+            this.merchantAccountOptions = allData
+          }
           /*const allCardData = all.cardInfo
           if (allCardData) {
             const cardInfo = allCardData[this.currency]
@@ -871,15 +934,27 @@ export default {
     submitWithdraw(form) {
       this.$refs[form].validate(validate => {
         if (validate) {
-          createStatementeOrderApply(this.withdrawOrderInfo).then(res => {
+          this.dialogWithdrawVisible = false
+          this.dialogWithdrawTitle = ''
+          this.confirmData =  Object.assign({}, this.withdrawOrderInfo)
+          this.confirmDialogTitle = '谷歌验证'
+          this.confirmDialogVisible = true
+        }
+      })
+    },
+    submitConfirm(form) {
+      let orderMessage = form.orderType === 1 ? 'Recharge' : form.orderType === 2 ? 'Withdraw' : 'Manual Account Adjustment'
+      this.$refs[form].validate(validate => {
+        if (validate) {
+          createStatementeOrderApply(this.confirmData).then(res => {
+            this.confirmDialogTitle=''
+            this.confirmDialogVisible = false
             if (res.status === 200 && res.data.code === 0) {
-              this.dialogWithdrawVisible = false
-              this.dialogWithdrawTitle = ''
               this.$refs[form].resetFields()
               this.$notify({
                 title: 'Success',
                 type: 'success',
-                message: 'Create Withdraw Order Successfully.',
+                message: 'Create '+orderMessage+' Order Successfully.',
                 duration: 3000,
                 position: 'bottom-right'
               })
@@ -903,7 +978,8 @@ export default {
           })
         }
       })
-    },
+      },
+
     cancelRecharge(form) {
       this.dialogRechargeVisible = false
       this.dialogRechargeTitle = ''
@@ -912,10 +988,15 @@ export default {
     submitRecharge(form) {
       this.$refs[form].validate(validate => {
         if (validate) {
-          createStatementeOrderApply(this.rechargeOrderInfo).then(res => {
+          this.dialogRechargeVisible = false
+          this.dialogRechargeTitle = ''
+          this.confirmData = {}
+          this.confirmData = Object.assign({},this.rechargeOrderInfo)
+          this.confirmDialogTitle = '谷歌验证'
+          this.confirmDialogVisible = true
+          this.$refs[form].resetFields()
+          /*createStatementeOrderApply(this.rechargeOrderInfo).then(res => {
             if (res.status === 200 && res.data.code === 0) {
-              this.dialogRechargeVisible = false
-              this.dialogRechargeTitle = ''
               this.$refs[form].resetFields()
               this.$notify({
                 title: 'Success',
@@ -941,7 +1022,7 @@ export default {
                 position: 'bottom-right'
               })
             }
-          })
+          })*/
         }
       })
     },
@@ -953,36 +1034,11 @@ export default {
     submitManualAccountAdjustment(form) {
       this.$refs[form].validate(validate => {
         if (validate) {
-          createStatementeOrderApply(this.manualAccountAdjustmentOrderInfo).then(res => {
-            if (res.status === 200 && res.data.code === 0) {
-              this.dialogManualAccountAdjustmentVisible = false
-              this.dialogManualAccountAdjustmentTitle = ''
-              this.$refs[form].resetFields()
-              this.$notify({
-                title: 'Success',
-                type: 'success',
-                message: 'Create Manual Account Successfully.',
-                duration: 3000,
-                position: 'bottom-right'
-              })
-            } else if (res.status === 200 && res.data.code !== 0) {
-              this.$notify({
-                title: 'Failed',
-                type: 'error',
-                message: res.data.message,
-                duration: 3000,
-                position: 'bottom-right'
-              })
-            } else {
-              this.$notify({
-                title: 'Error',
-                type: 'error',
-                message: 'somethind went wrong, try it again',
-                duration: 3000,
-                position: 'bottom-right'
-              })
-            }
-          })
+          this.dialogWithdrawVisible = false
+          this.dialogWithdrawTitle = ''
+          this.confirmData =  Object.assign({}, this.manualAccountAdjustmentOrderInfo)
+          this.confirmDialogTitle = '谷歌验证'
+          this.confirmDialogVisible = true
         }
       })
     }
@@ -990,8 +1046,10 @@ export default {
   mounted() {
 
     // get all merchant info
-
-    getAllCurrencyType().then(res => {
+    this.roleName = localStorage.getItem("roleName")
+    this.filterbox.name = this.roleName=== 'merchant'? localStorage.getItem('userName') : null
+    this.filterAvaiable = this.roleName === 'merchant'
+        getAllCurrencyType().then(res => {
       if (res.status === 200) {
         if (res.data.code === 0) {
           this.currencyOptions = JSON.parse(res.data.data)
@@ -1009,6 +1067,14 @@ export default {
         }
       }
       this.search()
+    })
+
+    getMerchantInfo({}).then(res => {
+      if (res.status === 200) {
+        if (res.data.code === 0) {
+          this.merchantInfo = JSON.parse(res.data.data).merchantInfoDtoList
+        }
+      }
     })
 
   }
