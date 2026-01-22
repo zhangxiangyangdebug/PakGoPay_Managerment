@@ -1251,7 +1251,7 @@ export default {
       this.merchantAddInfo = Object.assign({},rowInfo)
       console.log('addInfo----'+JSON.stringify(this.merchantAddInfo))
       this.merchantAddInfo.merchantUserId = rowInfo.userId
-      this.merchantAddInfo.channelIds = this.merchantAddInfo.channelIds.split(',')
+      this.merchantAddInfo.channelIds = this.merchantAddInfo.channelIds ? this.merchantAddInfo.channelIds.split(',') : []
       if(rowInfo.agentInfos) {
         this.merchantAddInfo.useAgent = 1
       }
