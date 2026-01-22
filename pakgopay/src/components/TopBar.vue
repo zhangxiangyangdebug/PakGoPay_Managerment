@@ -178,7 +178,7 @@ export default {
       </div>
       <div style="display: flex;justify-content: center;align-items: center;">
         <div v-if="username" style="display: flex; align-items: center;">
-          <el-avatar style="font-size: 30px;background-color: mediumseagreen; color: black;">{{username.charAt(0)}}</el-avatar>
+          <el-avatar style="font-size: 30px;background-color: #647387; color: black;">{{username.charAt(0)}}</el-avatar>
               {{username}}
               <el-dropdown trigger="click">
                 <SvgIcon name="downBlack" style="width: 22px;height: 22px"/>
