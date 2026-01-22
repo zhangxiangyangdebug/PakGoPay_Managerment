@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router"
 import PAKGOPAY from "../components/PakGoPay.vue"
-import LOGIN from "../views/login/Login.vue"
+import LOGIN from "../views/login/LoginNew.vue"
 import {menu, refreshAccessToken} from "@/api/interface/backendInterface.js";
 import {getAsyncRoutes} from "@/router/asyncRouter.js";
 

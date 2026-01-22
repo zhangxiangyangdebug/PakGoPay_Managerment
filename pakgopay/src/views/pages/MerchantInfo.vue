@@ -603,18 +603,37 @@ import {getFormateDate} from "@/api/common.js";
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row>
-        <el-col :span="6">
-          <el-form-item label="谷歌验证码:" label-width="150px" prop="googleCode">
-            <el-input type="number" maxlength="6" minlength="6" v-model="merchantAddInfo.googleCode" style="width: 200px"></el-input>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancelAddDialog('merchantAddInfo')">取 消</el-button>
+        <el-button type="primary" @click="submitAddInfo('merchantAddInfo')">确 定</el-button>
+      </div>
+    </el-form>
+  </el-dialog>
+  <el-dialog
+      title="谷歌验证码"
+      v-model="editVerifyVisible"
+      class="dialog"
+      center
+      align-center
+      width="40%"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+  >
+    <el-form>
+      <el-row style="display: flex;justify-items: center;">
+        <el-col :span="24" style="display: flex;justify-content: center;align-items: center;height: 50px;">
+          <el-form-item label="谷歌验证码:" label-width="150px" required>
+            <el-input type="number" maxlength="6" v-model="editVerifyCode" style="width: 200px"/>
           </el-form-item>
         </el-col>
       </el-row>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="cancelAddDialog('merchantAddInfo')">取 消</el-button>
-          <el-button type="primary" @click="submitAddInfo('merchantAddInfo')">确 定</el-button>
-        </div>
     </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="editVerifyVisible = false">取 消</el-button>
+        <el-button type="primary" @click="confirmEditSubmit">确 定</el-button>
+      </div>
+    </template>
   </el-dialog>
   <el-dialog
       :title="dialogTitle"
@@ -709,11 +728,6 @@ import {getFormateDate} from "@/api/common.js";
             </el-switch>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
-          <el-form-item label="谷歌验证码:" label-width="150px"  prop="googleCode">
-            <el-input type="number" maxlength="6" minlength="6" v-model="merchantInfo.googleCode" style="width: 200px"></el-input>
-          </el-form-item>
-        </el-col>
       </el-row>
       <el-row v-if="merchantInfo.cashFloatModel">
         <el-col :span="6">
@@ -769,6 +783,17 @@ export default {
       } else {
         callback()
       }
+    };
+    const validateAddGoogleCode = (rule, value, callback) => {
+      if (this.dialogFlag === 'edit') {
+        callback()
+        return
+      }
+      if (!value) {
+        callback(new Error('googleCode is required'))
+        return
+      }
+      callback()
     };
     const validatePass = (rule, value, callback) => {
       if (!value) {
@@ -980,9 +1005,7 @@ export default {
         collectionRate: [
             {required: true, validator: validCollectionRate, trigger: 'blur'}
         ],
-        googleCode: [
-          {required: true, message: 'googleCode is required', trigger: 'blur'},
-        ],
+        googleCode: [],
         floatRange: [
           {required: true, validator: cashFloatNumValidate, trigger: 'blur'},
         ],
@@ -1025,6 +1048,9 @@ export default {
       },
       dialogAddTitle: "",
       dialogAddFormVisible: false,
+      editVerifyVisible: false,
+      editVerifyCode: '',
+      verifyAction: '',
       deleteMerchantInfo: {},
       dialogDeleteVisible: false,
       dialogDeleteTitle: "",
@@ -1076,6 +1102,58 @@ export default {
     }
   },
   methods: {
+    confirmEditSubmit() {
+      if (!this.editVerifyCode) {
+        this.$message({
+          type: 'error',
+          message: 'you need to type google code'
+        })
+        return
+      }
+      this.merchantAddInfo.googleCode = this.editVerifyCode
+      const request = this.verifyAction === 'create'
+        ? createMerchantInfo(this.merchantAddInfo)
+        : modifyMerchantInfo(this.merchantAddInfo)
+      request.then(res => {
+        if (res.status === 200 && res.data.code === 0) {
+          this.dialogAddFormVisible = false
+          this.dialogTitle = ''
+          if (this.verifyAction === 'create') {
+            this.$refs.merchantAddInfo?.resetFields()
+          }
+          this.search()
+          this.$notify({
+            title: 'Success',
+            type: 'success',
+            message: this.verifyAction === 'create'
+              ? 'Create New Merchant Successfully'
+              : 'Update New Merchant Successfully',
+            duration: 4000,
+            position: 'bottom-right'
+          })
+        } else if (res.status === 200 && res.data.code !== 0) {
+          this.$notify({
+            title: 'Failed',
+            type: 'error',
+            message: res.data.message,
+            duration: 4000,
+            position: 'bottom-right'
+          })
+        } else {
+          this.$message({
+            type: 'error',
+            title: 'Error',
+            message: 'some error occurred.',
+            duration: 4000,
+            position: 'bottom-right'
+          })
+        }
+      }).finally(() => {
+        this.editVerifyVisible = false
+        this.editVerifyCode = ''
+        this.verifyAction = ''
+      })
+    },
     search() {
       this.filterbox.isNeedCardData = true
       const loadingInstance = loadingBody(this, 'merchantInfos-table')
@@ -1086,33 +1164,26 @@ export default {
           this.pageSize = all.pageSize
           this.totalCount = all.totalNumber
           const allList = all.merchantInfoDtoList
-          this.merchantInfoFormData = allList
+          this.merchantInfoFormData = null;
+          this.merchantInfoFormData = Object.assign([], allList)
           if(!this.isAdmin) {
             this.filterbox.merchantName = allList[0].merchantName
             this.filterbox.merchantUserName = allList[0].accountName
             this.agentOptions = allList[0].agentInfos
             //this.channelOptions = allList[0].channelDtoList
           }
-
           this.tableKey++
-          /*if(all.cardInfo) {
-            const cardInfo = all.cardInfo[this.filterbox.currency]
-            this.statisticsInfo.total = cardInfo.total
-            this.statisticsInfo.frozen = cardInfo.frozen
-            this.statisticsInfo.withdraw = cardInfo.withdraw
-          } else {
-            this.statisticsInfo.total =  this.currencyIcons[this.currency] + 0
-            this.statisticsInfo.frozen = this.currencyIcons[this.currency] + 0
-            this.statisticsInfo.withdraw = this.currencyIcons[this.currency] + 0
-          }*/
         }
         loadingInstance.close()
       })
     },
     handleOpen(form) {
       this.$nextTick(() => {
-        /*this.$refs.form.resetFields();*/
-        this.$refs[form].resetFields();
+        if (this.dialogFlag === 'edit') {
+          this.$refs[form].clearValidate();
+        } else {
+          this.$refs[form].resetFields();
+        }
       });
     },
     handleCurrentChange(currentPage) {
@@ -1176,7 +1247,9 @@ export default {
       this.deleteMerchantInfo = {}
     },
     editMerchantInfo(rowInfo) {
-      this.merchantAddInfo = Object.assign({}, rowInfo)
+      console.log('rowInfo----'+JSON.stringify(rowInfo))
+      this.merchantAddInfo = Object.assign({},rowInfo)
+      console.log('addInfo----'+JSON.stringify(this.merchantAddInfo))
       this.merchantAddInfo.merchantUserId = rowInfo.userId
       this.merchantAddInfo.channelIds = this.merchantAddInfo.channelIds.split(',')
       if(rowInfo.agentInfos) {
@@ -1278,59 +1351,13 @@ export default {
           // 校验通过
           // request interface to create merchant
           if (this.dialogFlag === 'create') {
-            createMerchantInfo(this.merchantAddInfo).then(res => {
-              if (res.status === 200 && res.data.code === 0) {
-                this.dialogAddFormVisible = false
-                this.dialogTitle = ''
-                this.search()
-                this.$notify({
-                  title: 'Success',
-                  type: 'success',
-                  message: 'Create New Merchant Successfully',
-                  duration: 4000
-                })
-              } else if (res.status === 200 && res.data.code !== 0) {
-                this.$notify({
-                  title: 'Failed',
-                  type: 'error',
-                  message: res.data.message,
-                  duration: 4000
-                })
-              }
-            })
+            this.editVerifyCode = ''
+            this.verifyAction = 'create'
+            this.editVerifyVisible = true
           } else if(this.dialogFlag === 'edit') {
-            let idsData = this.merchantAddInfo.channelIds
-            this.merchantAddInfo.channelIds = idsData ? idsData.split(',') : []
-            modifyMerchantInfo(this.merchantAddInfo).then(res => {
-              if (res.status === 200 && res.data.code === 0) {
-                this.dialogAddFormVisible = false
-                this.dialogTitle = ''
-                this.search()
-                this.$notify({
-                  title: 'Success',
-                  type: 'success',
-                  message: 'Update New Merchant Successfully',
-                  duration: 4000,
-                  position: 'bottom-right'
-                })
-              } else if (res.status === 200 && res.data.code !== 0) {
-                this.$notify({
-                  title: 'Failed',
-                  type: 'error',
-                  message: res.data.message,
-                  duration: 4000,
-                  position: 'bottom-right'
-                })
-              } else {
-                this.$message({
-                  type: 'error',
-                  title: 'Error',
-                  message: 'some error occurred.',
-                  duration: 4000,
-                  position: 'bottom-right'
-                })
-              }
-            })
+            this.editVerifyCode = ''
+            this.verifyAction = 'edit'
+            this.editVerifyVisible = true
           }
         }
       })

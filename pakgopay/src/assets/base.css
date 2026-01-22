@@ -200,6 +200,10 @@ body {
     --el-switch-off-color: #c0c4cc;
 }
 
+:deep(.el-form-item__label) {
+    align-items: center;
+}
+
 :deep(.el-switch .el-switch__label) {
     color: #c0c4cc;
 }
