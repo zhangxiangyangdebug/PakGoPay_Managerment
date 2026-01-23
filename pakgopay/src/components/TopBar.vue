@@ -1,5 +1,5 @@
 <script>
-import {heart, logOut, refreshAccessToken} from "@/api/interface/backendInterface.js";
+import {getWsMessages, heart, logOut, refreshAccessToken} from "@/api/interface/backendInterface.js";
 import router from "@/router/index.js";
 import SvgIcon from "@/components/SvgIcon/index.vue";
 import { connectWebSocket, disconnectWebSocket } from "@/util/websocket.js"
@@ -7,7 +7,7 @@ import { connectWebSocket, disconnectWebSocket } from "@/util/websocket.js"
 const showNewMessage = (message) => {
   this.$notify({
     title: 'new message',
-    message: message,
+    message: message.content,
     type: "info",
     duration: 0,
     position: "top-right",
@@ -23,12 +23,15 @@ export default {
   emits: ["changeBar"],
   data() {
     return {
+      messageCount: 0,
+      messages: [],
       stomp: null,
       speech: null, //存储语音合成实例
       textToSpeak: '',
       collapse: false,
       username: "",
       userId: "",
+      notifications: [],
       selectedLang: 'zh-cn',
       languageOptions: [
         {
@@ -113,27 +116,52 @@ export default {
       }
     },
     showNewMessage(message) {
+      let messageData = JSON.parse(message).content
       this.$notify({
         title: 'new message',
         dangerouslyUseHTMLString: true,
         customClass: 'noticeMessage',
-        message: message,
+        message: messageData.content,
         type: "info",
         duration: 0,
         position: "top-right",
         onClick: () => {
           router.push({
-            path: '/web/AccountManagement'
+            name: "CollectingOrder"
           })
         }
       })
-      this.textToSpeak = message;
+      this.notifications.unshift({
+        id: messageData.id,
+        text: messageData.content,
+        read: false
+      })
+      this.textToSpeak = messageData.content;
       this.playNotice()
       this.speak()
     },
     async playNotice() {
       this.$refs.noticePlayer.muted=false
       await this.$refs.noticePlayer.play()
+    },
+    handleNotificationClick(notification) {
+      console.log('messagessss--'+JSON.stringify(notification));
+      this.notifications = this.notifications.filter(item => item.id !== notification.id);
+      router.push({
+        name: "CollectingOrder"
+      })
+    },
+    unreadCount() {
+      getWsMessages().then(res => {
+        if (res.status === 200 && res.data.code === 0) {
+          let data = JSON.parse(res.data.data)
+          this.messageCount = data.messageCount
+          this.messages = data.messages
+        }
+      })
+      console.log('messagecount----'+this.messageCount)
+      return this.messageCount
+      //return this.notifications.filter(item => !item.read).length;
     },
     viewDetail() {
       alert("出发")
@@ -178,6 +206,27 @@ export default {
       </div>
       <div style="display: flex;justify-content: center;align-items: center;">
         <div v-if="username" style="display: flex; align-items: center;">
+          <el-dropdown trigger="click" class="notice-dropdown">
+            <span class="notice-trigger">
+              <el-badge :value="unreadCount()" :hidden="unreadCount() === 0">
+                <SvgIcon name="bell" style="width: 22px;height: 22px"/>
+              </el-badge>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu class="notice-menu">
+                <el-dropdown-item v-if="notifications.length === 0" disabled>
+                  暂无消息
+                </el-dropdown-item>
+                <el-dropdown-item
+                  v-for="item in notifications"
+                  :key="item.id"
+                  @click="handleNotificationClick(item)"
+                >
+                  <span :class="{ 'notice-unread': !item.read }">{{ item.text }}</span>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
           <el-avatar style="font-size: 30px;background-color: #647387; color: black;">{{username.charAt(0)}}</el-avatar>
               {{username}}
               <el-dropdown trigger="click">
@@ -231,6 +280,24 @@ export default {
 }
 .el-icon-arrow-down {
   font-size: 12px;
+}
+
+.notice-dropdown {
+  margin-right: 12px;
+}
+
+.notice-trigger {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.notice-menu {
+  width: 260px;
+}
+
+.notice-unread {
+  font-weight: 600;
 }
 
 .zhedie {

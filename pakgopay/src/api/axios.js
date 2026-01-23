@@ -20,6 +20,15 @@ const refreshClient = axios.create({
 let isRefreshing = false;
 let refreshQueue = [];
 
+function isLoginRoute() {
+    const currentPath = router.currentRoute?.value?.path;
+    const currentMeta = router.currentRoute?.value?.meta;
+    if (currentPath === "/web/login" || currentMeta?.showBar) {
+        return true;
+    }
+    return window.location?.pathname === "/web/login";
+}
+
 function clearAuthAndRedirect() {
     localStorage.removeItem("token");
     localStorage.removeItem("menu")
@@ -41,6 +50,9 @@ service.interceptors.response.use(response => {
     return response;
 }, error => {
     if (error.response && error.response.status === 401) {
+        if (isLoginRoute()) {
+            return Promise.reject(error);
+        }
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) {
             ElNotification({

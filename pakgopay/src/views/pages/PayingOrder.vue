@@ -6,8 +6,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 <template>
   <div style="width: 100%;height: 110%; overflow-y: scroll;">
     <div class="main-title">代付订单</div>
-    <el-collapse style="margin-top: 20px; width: 95%;margin-left: 2%;">
-      <el-collapse-item>
+    <el-collapse v-model="activeTool">
+      <el-collapse-item name="1">
         <template #title>
         <span class="toolbarName">
           工具栏
@@ -15,6 +15,23 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </template>
         <div class="main-toolbar" style="height: 150px;width: 97%;">
           <el-form class="main-toolform" style="height: 100%;">
+            <el-row>
+              <el-col :span="6"></el-col>
+              <el-col :span="6"></el-col>
+              <el-col :span="6"></el-col>
+              <el-col :span="6">
+                <div class="toolbar-action-row">
+                  <el-button @click="search()" class="filterButton">
+                    <SvgIcon class="filterButtonSvg" name="search"/>
+                    <div>查询</div>
+                  </el-button>
+                  <el-button @click="reset()" class="filterButton">
+                    <SvgIcon class="filterButtonSvg" name="reset"/>
+                    <div>重置</div>
+                  </el-button>
+                </div>
+              </el-col>
+            </el-row>
             <!--          <el-row style="margin-right: 1%">
                         <el-col :span="24">
                           <div class="main-toolform-item">
@@ -102,31 +119,30 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                   <el-input v-model="filterbox.platformOrderId" style="width: 200px"/>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
-                <div style="width: auto; display: flex; flex-direction: row;justify-content: center">
-                  <div v-on:click="search()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-                    <SvgIcon height="30px" width="30px" name="search"/>
-                    <div style="width: 50px;color: white">查询</div>
-                  </div>
-                  <div v-on:click="reset()" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-                    <SvgIcon height="30px" width="30px" name="reset"/>
-                    <div style="width: 50px;color: white">重置</div>
-                  </div>
-                  <div v-on:click="exportPathChannelInfos()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
-                    <SvgIcon height="30px" width="30px" name="export"/>
-                    <div style="width: 50px;color: white">导出</div>
-                  </div>
-                  <div v-on:click="exportPathChannelInfos()" style="width:100px;background-color: deepskyblue;width:90px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
-                    <SvgIcon height="30px" width="22px" name="export"/>
-                    <div style="width: 60px;height:30px;color: white;display: flex;justify-content: center;align-items: center">导出历史</div>
-                  </div>
-                </div>
-              </el-col>
             </el-row>
           </el-form>
         </div>
       </el-collapse-item>
     </el-collapse>
+
+    <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0">
+      <div class="currency-tabs">
+        <span class="currency-tabs-label">统计币种:</span>
+        <el-tabs
+            v-model="filterbox.currencyType"
+            type="card"
+            class="currency-tabs-control"
+            @tab-click="handleCurrencyChange"
+        >
+          <el-tab-pane
+              v-for="item in currencyOptions"
+              :key="item.currencyType"
+              :label="item.name"
+              :name="item.currencyType"
+          />
+        </el-tabs>
+      </div>
+    </div>
 
     <!-- <div v-on:click="createPathChannel()" style="background-color: limegreen;width:100px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
                     <SvgIcon height="30px" width="22px" name="add"/>
@@ -199,32 +215,20 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
     </div>
 
     <!-- 订单列表 -->
-    <div class="main-views-container" style="width:auto;height: auto;">
-      <div class="main-views-form" style="width: auto;height:100%;">
-        <div style="display: flex; align-items: center;justify-content: right;margin-right: 3%;margin-bottom: 5px;">
-          <div v-on:click="createPathChannel()" style="background-color: deepskyblue;width:100px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="22px" name="createOrder"/>
-            <div style="width: 80px;height:30px;color: white;display: flex;align-items: center">创建订单</div>
-          </div>
-          <div v-on:click="createPathChannel()" style="background-color: limegreen;width:100px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
-            <SvgIcon height="30px" width="22px" name="callBack"/>
-            <div style="width: 80px;height:30px;color: white;display: flex;align-items: center">批量回调</div>
-          </div>
+    <div class="reportInfo">
+      <div class="main-views-form" style="width: auto;height:60%;overflow-y: auto">
+        <div style="display: flex; float: right">
+          <el-button @click="createPathChannel()" class="filterButton">
+            <SvgIcon class="filterButtonSvg" name="createOrder"/>
+            <div>创建订单</div>
+          </el-button>
         </div>
         <el-table
             border :data="collectingOrderTableInfo"
             class="merchantInfos-table"
-            style="width: 97%;height: 95%;"
+            style="height: auto;"
             :key="tableKey"
         >
-          <el-table-column
-              v-slot="{row}"
-              type="selection"
-              width="70px"
-              align="center"
-          >
-
-          </el-table-column>
           <el-table-column
               prop="orderId"
               label="订单号"
@@ -305,6 +309,24 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           >
             <div>{{row.requestIP}}</div>
           </el-table-column>
+          <el-table-column
+              width="100"
+              label="操作"
+              align="center"
+              v-slot="{row}"
+              fixed="right"
+          >
+            <el-dropdown trigger="click">
+              <SvgIcon name="more" width="30" height="30" />
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item v-if="row.orderStatus === 1" @click="startUser(row)">审核</el-dropdown-item>
+                  <!--                  <el-dropdown-item @click="editUser(row)">编辑</el-dropdown-item>-->
+                  <el-dropdown-item @click="callback(row)">回调</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </el-table-column>
         </el-table>
         <el-pagination
             background
@@ -323,6 +345,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
   </div>
 </template>
 <script>
+import { getAllCurrencyType } from "@/api/interface/backendInterface.js";
+
 export default {
   data() {
     return {
@@ -333,6 +357,7 @@ export default {
       activeToolBar: true,
       tableKey: 0,
       activeNames: '筛选',
+      activeTool: "1",
       checked: false,
       checkAll: false,
       filterbox: {
@@ -348,9 +373,19 @@ export default {
         orderAmount: '',
         platformOrderId: '',
       },
+      currency: '',
+      currencyIcon: '',
+      currencyIcons: {},
+      currencyOptions: [],
       staticsData: {
         orderTotalCount: 10000,
         ordereSuccessRate: '99.9%',
+        merchantCommission: '',
+        merchantEffectiveCommission: '',
+        merchantFreezeAmount: '',
+        merchantAvaiableAmount: '',
+      },
+      staticsRawData: {
         merchantCommission: 100000,
         merchantEffectiveCommission: 99990,
         merchantFreezeAmount: 1000,
@@ -364,7 +399,7 @@ export default {
           merchantAccount: 'lee01',
           merchantName: '商户一',
           currencyType: '马币',
-          orderStatus: '1',
+          orderStatus: 1,
           orderAmount: '1000',
           callBackStatus: '1',
           createTime: '2025-12-12',
@@ -376,7 +411,7 @@ export default {
           merchantAccount: 'lee01',
           merchantName: '商户一',
           currencyType: '马币',
-          orderStatus: '1',
+          orderStatus: 1,
           orderAmount: '10000',
           callBackStatus: '1',
           createTime: '2025-12-12',
@@ -388,7 +423,7 @@ export default {
           merchantAccount: 'lee01',
           merchantName: '商户一',
           currencyType: '马币',
-          orderStatus: '1',
+          orderStatus: 1,
           orderAmount: '10000',
           callBackStatus: '1',
           createTime: '2025-12-12',
@@ -400,7 +435,7 @@ export default {
           merchantAccount: 'lee01',
           merchantName: '商户一',
           currencyType: '马币',
-          orderStatus: '1',
+          orderStatus: 1,
           orderAmount: '10000',
           callBackStatus: '1',
           createTime: '2025-12-12',
@@ -412,7 +447,7 @@ export default {
           merchantAccount: 'lee01',
           merchantName: '商户一',
           currencyType: '马币',
-          orderStatus: '1',
+          orderStatus: 1,
           orderAmount: '10000',
           callBackStatus: '1',
           createTime: '2025-12-12',
@@ -424,7 +459,7 @@ export default {
           merchantAccount: 'lee01',
           merchantName: '商户一',
           currencyType: '马币',
-          orderStatus: '1',
+          orderStatus: 1,
           orderAmount: '10000',
           callBackStatus: '1',
           createTime: '2025-12-12',
@@ -436,7 +471,7 @@ export default {
           merchantAccount: 'lee01',
           merchantName: '商户一',
           currencyType: '马币',
-          orderStatus: '1',
+          orderStatus: 1,
           orderAmount: '10000',
           callBackStatus: '1',
           createTime: '2025-12-12',
@@ -448,7 +483,7 @@ export default {
           merchantAccount: 'lee01',
           merchantName: '商户一',
           currencyType: '马币',
-          orderStatus: '1',
+          orderStatus: 1,
           orderAmount: '10000',
           callBackStatus: '1',
           createTime: '2025-12-12',
@@ -460,7 +495,7 @@ export default {
           merchantAccount: 'lee01',
           merchantName: '商户一',
           currencyType: '马币',
-          orderStatus: '1',
+          orderStatus: 1,
           orderAmount: '10000',
           callBackStatus: '1',
           createTime: '2025-12-12',
@@ -472,7 +507,7 @@ export default {
           merchantAccount: 'lee01',
           merchantName: '商户一',
           currencyType: '马币',
-          orderStatus: '1',
+          orderStatus: 1,
           orderAmount: '10000',
           callBackStatus: '1',
           createTime: '2025-12-12',
@@ -484,7 +519,7 @@ export default {
           merchantAccount: 'lee01',
           merchantName: '商户一',
           currencyType: '马币',
-          orderStatus: '1',
+          orderStatus: 1,
           orderAmount: '10000',
           callBackStatus: '1',
           createTime: '2025-12-12',
@@ -496,7 +531,7 @@ export default {
           merchantAccount: 'lee01',
           merchantName: '商户一',
           currencyType: '马币',
-          orderStatus: '1',
+          orderStatus: 1,
           orderAmount: '10000',
           callBackStatus: '1',
           createTime: '2025-12-12',
@@ -506,6 +541,21 @@ export default {
     }
   },
   methods: {
+    applyCurrencyToStatics() {
+      const icon = this.currencyIcon || '';
+      this.staticsData.merchantCommission = icon + this.staticsRawData.merchantCommission;
+      this.staticsData.merchantEffectiveCommission = icon + this.staticsRawData.merchantEffectiveCommission;
+      this.staticsData.merchantFreezeAmount = icon + this.staticsRawData.merchantFreezeAmount;
+      this.staticsData.merchantAvaiableAmount = icon + this.staticsRawData.merchantAvaiableAmount;
+    },
+    handleCurrencyChange(tab) {
+      if (tab && tab.paneName !== undefined) {
+        this.filterbox.currencyType = tab.paneName;
+      }
+      this.currency = this.filterbox.currencyType;
+      this.currencyIcon = this.currencyIcons[this.currency] || '';
+      this.applyCurrencyToStatics();
+    },
     handleChange(currentPage) {
       this.collectingOrderTableInfo = []
       let startNum = (currentPage - 1) * this.pageSize;
@@ -523,7 +573,22 @@ export default {
       }
     },
   },
-  mounted() {
+  async mounted() {
+    await getAllCurrencyType().then(res => {
+      if (res.status === 200 && res.data.code === 0) {
+        this.currencyOptions = JSON.parse(res.data.data);
+        if (this.currencyOptions.length > 0) {
+          this.currency = this.currencyOptions[0].currencyType;
+          this.filterbox.currencyType = this.currencyOptions[0].currencyType;
+          this.currencyIcons = {};
+          this.currencyOptions.forEach(currency => {
+            this.currencyIcons[currency.currencyType] = currency.icon;
+          });
+          this.currencyIcon = this.currencyIcons[this.currency] || '';
+        }
+      }
+    });
+    this.applyCurrencyToStatics();
     this.collectingOrderTableInfo = this.collectingOrderFormInfo;
     this.totalCount = this.collectingOrderTableInfo.length;
     this.handleChange(this.currentPage);
@@ -532,36 +597,9 @@ export default {
 }
 </script>
 <style scoped>
-
+@import "@/assets/base.css";
 </style>
 <style>
-.toolbarName {
-  display:flex;
-  justify-content: left;
-  align-items: center;
-  margin-left: 1%;
-  color: #667eea;
-  font-size: large;
-}
 
-.cash-text-area {
-  width: 90%;
-  height: 100%;
-  background-color: transparent;
-  border: none;
-  resize: none;
-  font-size: xxx-large;
-  text-align: right;
-}
 
-.statics-title {
-  text-align: right;
-  width: 90%;
-  font-size: larger;
-}
-
-.el-table__header .el-table-column--selection .cell .el-checkbox:after {
-  content: "全选";
-  margin-left: 12px;
-}
 </style>

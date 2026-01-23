@@ -84,7 +84,7 @@ body {
 }
 
 .main-title{
-    /*margin-top: 1%;*/
+    margin-top: 1%;
     margin-left: 1% !important;
     /*margin-right: 3%;*/
     font-size: 23px;
@@ -149,8 +149,45 @@ body {
 }
 
 .toolbarName {
-    color: black;
+    display:flex;
+    justify-content: left;
+    align-items: center;
     margin-left: 1%;
+    color: #667eea;
+    font-size: large;
+}
+
+.toolbar-action-row {
+    width: 350px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
+
+.currency-tabs {
+    margin-left: 1%;
+}
+
+.currency-tabs-label {
+    color: black;
+    font-size: small;
+}
+
+.cash-text-area {
+    width: 90%;
+    height: 100%;
+    background-color: transparent;
+    border: none;
+    resize: none;
+    font-size: xxx-large;
+    text-align: right;
+}
+
+.statics-title {
+    text-align: right;
+    width: 90%;
+    font-size: larger;
 }
 
 .main-toolbar .el-input__inner,

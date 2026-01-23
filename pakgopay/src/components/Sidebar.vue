@@ -6,7 +6,7 @@
         <li v-for="item in menuItems" :key="item.menuId" @click="showItems(item)">
           <div style="display: flex; justify-content: space-between;align-items: center">
             <div style=" display: flex;width: 90%;justify-content: space-between;align-items: center;">
-              <SvgIcon :name="item.icon" style="height: 22px;width:30px;align-items: center;"/>
+              <SvgIcon :name="resolveMenuIcon(item)" style="height: 22px;width:30px;align-items: center;"/>
               <span v-if="!collapse" style="font-size: 15px;align-items: center;text-align: left;width: 75%;">{{ item.meta ? $t(JSON.parse(item.meta).title) : item.menuName}}</span>
             </div>
             <SvgIcon v-if="!collapse" style="height: 10px;" :name="item.showItem?'right':'down'"/>
@@ -55,9 +55,41 @@ export default {
   },
   mounted() {
     this.menuItems = JSON.parse(localStorage.getItem('menu')) || []
+    this.ensureHomeMenu()
     this.expandActiveMenu()
   },
   methods: {
+    resolveMenuIcon(item) {
+      const homePath = "/web/pakGoPay";
+      if (Array.isArray(item?.children) && item.children.some(child => child.path === homePath)) {
+        return "home";
+      }
+      return item?.icon || "orderNum";
+    },
+    ensureHomeMenu() {
+      const homePath = "/web/pakGoPay";
+      const hasHome = this.menuItems.some(item =>
+        Array.isArray(item.children) && item.children.some(child => child.path === homePath)
+      );
+      if (hasHome) {
+        return;
+      }
+      const homeMenu = {
+        menuId: "home",
+        menuName: "主页",
+        icon: "orderNum",
+        showItem: true,
+        children: [
+          {
+            menuId: "home-1",
+            menuName: "主页",
+            path: homePath
+          }
+        ]
+      };
+      this.menuItems.unshift(homeMenu);
+      localStorage.setItem("menu", JSON.stringify(this.menuItems));
+    },
     /*async fetchMenu() {
       try {
         await menu().then(res => {
@@ -208,7 +240,24 @@ collapse-title {
 .sidebar.collapsed {
   width: 60px; /* 或者任何你希望折叠后的宽度 */
   overflow: auto;
+}
 
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+}
+
+.iscollapsed::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 </style>

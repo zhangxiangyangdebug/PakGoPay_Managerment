@@ -20,6 +20,9 @@ import {getAsyncRoutes} from "@/router/asyncRouter.js";
   export default {
     name: 'app',
     methods: {
+      isLoginRoute() {
+        return this.$route?.path === "/web/login" || this.$route?.meta?.showBar;
+      },
       logOut() {
         localStorage.removeItem("token" );
         localStorage.removeItem("userName")
@@ -32,6 +35,9 @@ import {getAsyncRoutes} from "@/router/asyncRouter.js";
       },
       startHeartbeat() {
         const runHeart = () => {
+          if (this.isLoginRoute()) {
+            return;
+          }
           heart().then(res => {
             if (res.status === 200 && res.data === 'refresh') {
               if (this.heartPrompting) {
@@ -67,11 +73,14 @@ import {getAsyncRoutes} from "@/router/asyncRouter.js";
       }
     },
     mounted() {
+      if (this.isLoginRoute()) {
+        return;
+      }
       this.startHeartbeat();
       heart().then(res => {
         if (res.status === 200) {
           if (res.data === 'refresh') {
-            refreshAccessToken(localStorage.getItem("refreshToken")).then((response) => {
+                refreshAccessToken(localStorage.getItem("refreshToken")).then((response) => {
                 if (response && response.data) {
                   if (response.data.code !== 0) {
                     localStorage.removeItem("token");
@@ -173,7 +182,7 @@ import {getAsyncRoutes} from "@/router/asyncRouter.js";
 }
 .content {
   position: fixed;
-  top: 15%;
+  top: 10%;
   margin-left: 13.5%;
   width: 88%;
   height: 90%;
@@ -182,7 +191,7 @@ import {getAsyncRoutes} from "@/router/asyncRouter.js";
 
 .content-collapse {
   position: fixed;
-  top: 15%;
+  top: 10%;
   margin-left: 0;
   width: 100%;
   height: 75%;

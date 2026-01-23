@@ -691,4 +691,15 @@ export function createStatementeOrderApply(form) {
     })
 }
 
+export function getWsMessages() {
+    return service({
+        url: '/api/pakGoPay/server/notation/queryNotation',
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+    })
+}
+
 

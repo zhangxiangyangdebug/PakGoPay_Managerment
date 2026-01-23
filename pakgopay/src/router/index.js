@@ -186,6 +186,13 @@ router.beforeEach((to, from, next) => {
 
 window.addEventListener('load', () => {
     const currentPath = localStorage.getItem("currentPath");
+    const isLoginPage = window.location?.pathname === "/web/login";
+    if (isLoginPage || !localStorage.getItem("token")) {
+        if (currentPath && !isLoginPage) {
+            router.push(currentPath).then(r => {});
+        }
+        return;
+    }
     menu().then(res => {
         if (res.status === 200 && res.data.data) {
             let menuJson = JSON.parse(res.data.data)

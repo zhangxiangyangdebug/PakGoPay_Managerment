@@ -1318,7 +1318,7 @@ export default {
     submitAddInfo(form) {
       //if (this.dialogFlag === 'create') {
         if (this.merchantAddInfo.supportPaying === 1 && this.merchantAddInfo.supportCollection === 0) {
-          alert('1')
+
           this.merchantAddInfo.supportType = 1
           if(!this.merchantAddInfo.payRate) {
             this.merchantAddInfo.payRate = 0
@@ -1327,7 +1327,7 @@ export default {
           }
           this.merchantAddInfo.orderType = 0
         } else if (this.merchantAddInfo.supportCollection === 1 && this.merchantAddInfo.supportPaying === 0) {
-          alert('0')
+
           this.merchantAddInfo.supportType = 0
           if(!this.merchantAddInfo.collectionRate) {
             this.merchantAddInfo.collectionRate = 0
@@ -1335,7 +1335,7 @@ export default {
             this.merchantAddInfo.collectionFixedFee = 0
           }
         } else if (this.merchantAddInfo.supportCollection === 1 && this.merchantAddInfo.supportPaying === 1){
-          alert('2')
+
           this.merchantAddInfo.supportType = 2
           if(!this.merchantAddInfo.payRate) {
             this.merchantAddInfo.payRate = 0
