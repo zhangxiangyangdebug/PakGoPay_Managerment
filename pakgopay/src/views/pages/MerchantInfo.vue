@@ -1265,6 +1265,7 @@ export default {
         this.merchantAddInfo.supportCollection = 1
         this.merchantAddInfo.supportPaying = 1
       }
+      console.log('addInfo2----'+JSON.stringify(this.merchantAddInfo))
       this.dialogFlag = 'edit';
       this.dialogAddFormVisible = true
       this.dialogAddTitle = "修改商户信息"
@@ -1315,15 +1316,18 @@ export default {
       })
     },
     submitAddInfo(form) {
-      if (this.dialogFlag === 'create') {
+      //if (this.dialogFlag === 'create') {
         if (this.merchantAddInfo.supportPaying === 1 && this.merchantAddInfo.supportCollection === 0) {
+          alert('1')
           this.merchantAddInfo.supportType = 1
           if(!this.merchantAddInfo.payRate) {
             this.merchantAddInfo.payRate = 0
           } else if (!this.merchantAddInfo.payFixedFee) {
             this.merchantAddInfo.payFixedFee = 0
           }
+          this.merchantAddInfo.orderType = 0
         } else if (this.merchantAddInfo.supportCollection === 1 && this.merchantAddInfo.supportPaying === 0) {
+          alert('0')
           this.merchantAddInfo.supportType = 0
           if(!this.merchantAddInfo.collectionRate) {
             this.merchantAddInfo.collectionRate = 0
@@ -1331,6 +1335,7 @@ export default {
             this.merchantAddInfo.collectionFixedFee = 0
           }
         } else if (this.merchantAddInfo.supportCollection === 1 && this.merchantAddInfo.supportPaying === 1){
+          alert('2')
           this.merchantAddInfo.supportType = 2
           if(!this.merchantAddInfo.payRate) {
             this.merchantAddInfo.payRate = 0
@@ -1344,7 +1349,7 @@ export default {
             this.merchantAddInfo.collectionFixedFee = 0
           }
         }
-      }
+      //}
       this.merchantAddInfo.channelIds = this.merchantAddInfo.channelIds ? this.merchantAddInfo.channelIds : []
       this.$refs[form].validate(valid => {
         if (valid) {
