@@ -14,13 +14,10 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           工具栏
         </span>
         </template>
-        <div class="main-toolbar" style="height: 150px;width: 97%;">
+        <div class="main-toolbar" style="height: 230px;width: 97%;">
           <el-form class="main-toolform" style="height: 100%;">
             <el-row>
-              <el-col :span="6"></el-col>
-              <el-col :span="6"></el-col>
-              <el-col :span="6"></el-col>
-              <el-col :span="6">
+              <el-col :offset="18" :span="6">
                 <div class="toolbar-action-row">
                   <el-button @click="search()" class="filterButton">
                     <SvgIcon class="filterButtonSvg" name="search"/>
@@ -33,33 +30,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                 </div>
               </el-col>
             </el-row>
-            <!--          <el-row style="margin-right: 1%">
-                        <el-col :span="24">
-                          <div class="main-toolform-item">
-                            &lt;!&ndash;        <div class="main-toolform-line" style="justify-content: left; margin-left: 4%;cursor: pointer;background-color: lightskyblue;width: 5%;height: 30px;">
-                                      <el-button @click="changeToolBar">关闭搜索</el-button>
-                                    </div>&ndash;&gt;
-                            <div class="main-toolform-line" style="justify-content: right;margin-right: 4%;">
-                              <div v-on:click="search()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-                                <SvgIcon height="30px" width="30px" name="search"/>
-                                <div style="width: 50px;color: white">查询</div>
-                              </div>
-                              <div v-on:click="reset()" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-                                <SvgIcon height="30px" width="30px" name="reset"/>
-                                <div style="width: 50px;color: white">重置</div>
-                              </div>
-                              <div v-on:click="exportPathChannelInfos()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
-                                <SvgIcon height="30px" width="30px" name="export"/>
-                                <div style="width: 50px;color: white">导出</div>
-                              </div>
-                              <div v-on:click="createPathChannel()" style="background-color: limegreen;width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
-                                <SvgIcon height="30px" width="30px" name="add"/>
-                                <div style="width: 50px;color: white">新增</div>
-                              </div>
-                            </div>
-                          </div>
-                        </el-col>
-                      </el-row>-->
             <el-row>
               <el-col :span="6">
                 <el-form-item label="订单状态：" label-width="150px" >
@@ -90,7 +60,10 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               </el-col>
               <el-col :span="6">
                 <el-form-item label="订单类型：" label-width="150px" >
-                  <el-input v-model="filterbox.orderType" style="width: 200px"/>
+<!--                  <el-input v-model="filterbox.orderType" style="width: 200px"/>-->
+                  <el-select v-model="filterbox.orderType" disabled style="width: 200px">
+                    <el-option label="提现订单" :value="2"></el-option>
+                  </el-select>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
@@ -107,7 +80,13 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             <el-row>
               <el-col :span="6">
                 <el-form-item label="币种：" label-width="150px" >
-                  <el-input v-model="filterbox.currencyType" style="width: 200px"/>
+<!--                  <el-input v-model="filterbox.currencyType" style="width: 200px"/>-->
+                  <el-select
+                    :options="currencyOptions"
+                    :props="currencyProps"
+                    v-model="filterbox.currencyType"
+                    style="width: 200px"
+                  />
                 </el-form-item>
               </el-col>
               <el-col :span="6">
@@ -353,6 +332,10 @@ export default {
       currencyIcon: '',
       currencyIcons: {},
       currencyOptions: [],
+      currencyProps: {
+        value: 'currencyType',
+        label: 'name'
+      },
       staticsData: {
         orderTotalCount: 10000,
         ordereSuccessRate: '99.9%',

@@ -1,6 +1,7 @@
 <script setup>
 
 import SvgIcon from "@/components/SvgIcon/index.vue";
+import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
 </script>
 
 <template>
@@ -74,7 +75,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
              align="center"
          >
            <div>
-             {{row.createTime}}
+             {{getFormateDate(row.createTime)}}
            </div>
          </el-table-column>
          <el-table-column

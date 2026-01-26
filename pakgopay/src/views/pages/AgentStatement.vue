@@ -1,18 +1,15 @@
 <script setup>
-
 import SvgIcon from "@/components/SvgIcon/index.vue";
 </script>
 
 <template>
-  <div class="main-title">商户流水</div>
-  <!-- 工具栏 -->
+  <div class="main-title">代理流水</div>
   <el-collapse v-model="activeTool">
     <el-collapse-item name="1">
       <template #title>
-        <span class="toolbarName">
-          工具栏
-        </span>
+        <span class="toolbarName">工具栏</span>
       </template>
+      <!-- 工具栏 -->
       <div class="main-toolbar">
         <form class="main-toolform">
           <div class="main-toolform-item">
@@ -33,16 +30,18 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </div>
           <div class="main-toolform-item" style="margin-right: 3%;">
             <el-form
-                ref="filterboxForm" class="form" :model="filterbox"
+                ref="filterboxForm"
+                class="form"
+                :model="filterbox"
                 style="width: 100%"
             >
               <el-row>
                 <el-col :span="6">
-                  <el-form-item label="商户名称:" label-width="150px">
+                  <el-form-item label="代理名称:" label-width="150px">
                     <el-select
-                        :options="merchantAccountOptions"
-                        :props="merchantAccountProps"
-                        v-model="filterbox.merchantUserId"
+                        :options="agentOptions"
+                        :props="agentProps"
+                        v-model="filterbox.agentUserId"
                         style="width: 200px"
                     ></el-select>
                   </el-form-item>
@@ -89,123 +88,82 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
   <div class="reportInfo">
     <form class="main-views-form">
       <el-table
-          border :data="merchantStatementsFormData"
-          class="merchantInfos-table"
-          style="width: 100%;height: auto"
+        border :data="agentStatementsFormData"
+        class="merchantInfos-table"
+        style="width: 100%; height: auto"
       >
         <el-table-column
-            label="交易订单号"
-            v-slot="{row}"
-            align="center"
+          label="交易订单号"
+          v-slot="{row}"
+          align="center"
         >
           <div>
             {{row.orderNO}}
           </div>
         </el-table-column>
         <el-table-column
-            prop="商户名称"
-            label="商户名称"
-            v-slot="{row}"
-            align="center"
+          prop="agentName"
+          label="代理名称"
+          v-slot="{row}"
+          align="center"
         >
           <div>
-            {{row.merchantName}}
+            {{row.agentName}}
           </div>
         </el-table-column>
         <el-table-column
-            prop="transactionType"
-            label="交易类型"
-            v-slot="{row}"
-            align="center"
+          prop="transactionType"
+          label="交易类型"
+          v-slot="{row}"
+          align="center"
         >
           <div>
             {{row.transactionType}}
           </div>
         </el-table-column>
-<!--        <el-table-column
-            prop="transactionStatus"
-            label="交易状态"
-            v-slot="{row}"
-            align="center"
-        >
-          <div>
-            {{row.transactionStatus}}
-          </div>
-        </el-table-column>-->
         <el-table-column
-            prop="transactionCurrencyType"
-            label="交易币种"
-            v-slot="{row}"
-            align="center"
+          prop="transactionCurrencyType"
+          label="交易币种"
+          v-slot="{row}"
+          align="center"
         >
           <div>
             {{row.transactionCurrencyType}}
           </div>
         </el-table-column>
         <el-table-column
-            prop="transactionCashAmount"
-            label="交易金额"
-            v-slot="{row}"
-            align="center"
+          prop="transactionCashAmount"
+          label="交易金额"
+          v-slot="{row}"
+          align="center"
         >
           <div>
             {{row.transactionCashAmount}}
           </div>
         </el-table-column>
-<!--        <el-table-column
-            prop="transactionCommission"
-            label="手续费"
-            v-slot="{row}"
-            align="center"
-        >
-          <div>
-            {{row.transactionCommission}}
-          </div>
-        </el-table-column>-->
-<!--        <el-table-column
-            prop="beforeTransactionAccountBalance"
-            label="交易前账户金额"
-            v-slot="{row}"
-            align="center"
-            width="200px;"
-        >
-          <div style="width: 100%;">
-            {{row.beforeTransactionAccountBalance}}
-          </div>
-        </el-table-column>-->
-<!--        <el-table-column
-            prop="afterTransactionAccountBalance"
-            label="交易后账户余额"
-            v-slot="{row}"
-            align="center"
-        >
-          <div>
-            {{row.afterTransactionAccountBalance}}
-          </div>
-        </el-table-column>-->
         <el-table-column
-            prop="transactionTime"
-            label="交易时间"
-            v-slot="{row}"
-            align="center"
+          prop="transactionTime"
+          label="交易时间"
+          v-slot="{row}"
+          align="center"
         >
           <div>
             {{row.transactionTime}}
           </div>
         </el-table-column>
         <el-table-column
-            label="备注"
-            v-slot="{row}"
-            align="center"
+          label="备注"
+          v-slot="{row}"
+          align="center"
         >
           <div>
             {{row.transactionReason}}
           </div>
         </el-table-column>
         <el-table-column
-            label="操作人"
-            v-slot="{row}"
-            align="center"
+          label="操作人"
+          v-slot="{row}"
+          align="center"
         >
           <div>
             {{row.operator}}
@@ -213,93 +171,63 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </el-table-column>
       </el-table>
       <el-pagination
-          background
-          layout="sizes, prev, pager, next, jumper, total"
-          :total="totalCount"
-          v-model:current-page="currentPage"
-          v-model:page-size="pageSize"
-          :page-sizes="pageSizes"
-          @current-change="handleCurrentChange"
-          style="float:right; margin-right: 5%;"
+        background
+        layout="sizes, prev, pager, next, jumper, total"
+        :total="totalCount"
+        v-model:current-page="currentPage"
+        v-model:page-size="pageSize"
+        :page-sizes="pageSizes"
+        @current-change="handleCurrentChange"
+        style="float:right; margin-right: 5%;"
       >
       </el-pagination>
     </form>
   </div>
 </template>
+
 <script>
-import {ElPopconfirm} from "element-plus";
-import 'element-plus/theme-chalk/el-popconfirm.css'
-import {filterSearchMerchantStatement, getMerchantInfo} from "@/api/interface/backendInterface.js";
+import { getAgentInfo } from "@/api/interface/backendInterface.js";
+
 export default {
-  name: 'MerchantStatement',
-  components: {
-    'el-popconfirm': ElPopconfirm
-  },
+  name: "AgentStatement",
   data() {
     return {
       activeTool: '1',
-      filterbox: {
+      filterbox: {},
+      agentOptions: [],
+      agentProps: {
+        value: "userId",
+        label: "agentName"
       },
-      merchantAccountOptions: [],
-      merchantAccountProps: {
-        value: 'userId',
-        label: 'accountName'
-      },
-      filterForm: {
-
-      },
-      merchantStatementsFormData:[
-
-      ],
+      filterForm: {},
+      agentStatementsFormData: [],
       currentPage: 1,
       pageSize: 10,
-      pageSizes: [1,10,20,30,50],
-      totalCount: 1,
-
-    }
+      pageSizes: [10, 20, 30, 50],
+      totalCount: 0
+    };
   },
   methods: {
-    handleConfirm() {
-
-    },
-    handleCancel() {
-
-    },
-    handleCurrentChange(val) {
-
-    },
+    handleCurrentChange() {},
     reset(form) {
       this.$refs[form].resetFields();
     },
-    async search() {
-      this.filterForm.orderNO = this.filterbox.orderNO;
-      this.filterForm.selectedTransactionType = this.filterbox.transactionStatus;
-      this.filterForm.transactionStatus = this.filterbox.transactionStatus;
-      this.filterForm.merchantName = this.filterbox.merchantName;
-      this.filterForm.createStartTime = this.filterbox.createStartTime;
-      this.filterForm.createEndTime = this.filterbox.createEndTime;
-      await filterSearchMerchantStatement(this.filterForm).then(response => {
-        this.merchantStatementsFormData = [];
-        let result = JSON.parse(response.data.data);
-        this.merchantStatementsFormData = result;
-        this.totalCount = this.merchantStatementsFormData.length;
-        this.currentPage = 1;
-        this.pageSize = 1;
-      })
-    }
+    search() {},
+    exportStatements() {}
   },
   mounted() {
-    getMerchantInfo({pageSize: 1000}).then(response => {
+    getAgentInfo({ pageSize: 1000 }).then(response => {
       if (response.status === 200 && response.data.code === 0) {
-         this.merchantAccountOptions = JSON.parse(response.data.data).merchantInfoDtoList;
+        this.agentOptions = JSON.parse(response.data.data).agentDtoList || [];
       }
     })
   }
-
 }
 </script>
+
 <style scoped>
 @import "@/assets/base.css";
+
 .main-toolform-line {
   margin-right: 3%;
 }

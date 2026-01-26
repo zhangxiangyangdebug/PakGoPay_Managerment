@@ -138,10 +138,10 @@ import {getFormateDate} from "@/api/common.js";
   </el-collapse>
   <div class="reportInfo">
     <div style="display: flex;justify-content: right;">
-      <el-button @click="exportAgentStatement()" class="filterButton">
+<!--      <el-button @click="exportAgentStatement()" class="filterButton">
         <SvgIcon class="filterButtonSvg" name="export"/>
         导出
-      </el-button>
+      </el-button>-->
       <el-button @click="addWithdrawlAccount" class="filterButton">
         <SvgIcon name="add" class="filterButtonSvg"/>
         新增
@@ -149,6 +149,14 @@ import {getFormateDate} from "@/api/common.js";
       <el-button @click="createWithdrawlApply" class="filterButton">
         <SvgIcon name="withdrawl" class="filterButtonSvg"/>
         提现申请
+      </el-button>
+      <el-button @click="createManualAccountAdjustment" class="filterButton">
+        <template #icon>
+          <div style="width: 100%">
+            <SvgIcon class="filterButtonSvg" name="manualaccountadjustment"/>
+          </div>
+        </template>
+        <div>手工调账</div>
       </el-button>
     </div>
     <form class="main-views-form" style="height: 100%">
@@ -202,7 +210,7 @@ import {getFormateDate} from "@/api/common.js";
             label="录入时间"
             align="center"
         >
-          <div>{{ getFormateDate(row.createTime) }}</div>
+          <div>{{ formatTimeByZone(row.createTime) }}</div>
         </el-table-column>
         <el-table-column
             v-slot="{row}"
@@ -346,6 +354,7 @@ export default {
   name: 'WithdrawlHistory',
   data() {
     return {
+      timeZoneKey: localStorage.getItem("timeZone") || "UTC+8",
       tableKey: 0,
       activeTool: '1',
       agentOptions: [],
@@ -395,6 +404,22 @@ export default {
     }
   },
   methods: {
+    formatTimeByZone(ts) {
+      const match = /UTC([+-])(\d{1,2})(?::(\d{2}))?/.exec(this.timeZoneKey);
+      const baseMillis = ts * 1000;
+      if (!match) {
+        return getFormateDate(ts);
+      }
+      const sign = match[1] === "-" ? -1 : 1;
+      const hours = Number(match[2]);
+      const minutes = Number(match[3] || "0");
+      const offsetMinutes = sign * (hours * 60 + minutes);
+      const zoned = new Date(baseMillis + offsetMinutes * 60000);
+      const year = zoned.getFullYear();
+      const month = String(zoned.getMonth() + 1).padStart(2, '0');
+      const day = String(zoned.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    },
     reset(form) {
       this.$refs[form].resetFields();
     },
@@ -599,6 +624,10 @@ export default {
     },
   },
   async mounted() {
+    this._timeZoneListener = (event) => {
+      this.timeZoneKey = event.detail || localStorage.getItem("timeZone") || "UTC+8";
+    };
+    window.addEventListener("timezone-change", this._timeZoneListener);
     await getAllCurrencyType().then(res => {
       if (res.status === 200) {
         if (res.data.code === 0) {
@@ -622,6 +651,11 @@ export default {
       }
     })
     this.search()
+  },
+  beforeUnmount() {
+    if (this._timeZoneListener) {
+      window.removeEventListener("timezone-change", this._timeZoneListener);
+    }
   }
 }
 </script>

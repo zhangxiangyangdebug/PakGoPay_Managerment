@@ -255,8 +255,8 @@ export default {
       this.filterbox.isNeedCardData = true
       this.activeTabPane = '0'
       this.search(0)
-      this.tab1TotalCount = this.collectionChannelInfo.length
-      this.tab2TotalCount = this.payingChannelInfo.length
+      //this.tab1TotalCount = this.collectionChannelInfo.length
+      //this.tab2TotalCount = this.payingChannelInfo.length
     }
   }
 </script>

@@ -117,14 +117,14 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
      -->
     <form>
       <div style="display: flex;flex-direction: row;float: right">
-        <el-button @click="exportStatements()" class="filterButton">
+<!--        <el-button @click="exportStatements()" class="filterButton">
           <template #icon>
             <div style="width: 100%">
               <SvgIcon class="filterButtonSvg" name="export"/>
             </div>
           </template>
           <div style="color: black;margin-left: 8px">导出</div>
-        </el-button>
+        </el-button>-->
         <el-button @click="addWithdrawlAccount()" class="filterButton">
           <template #icon>
             <div style="width: 100%">

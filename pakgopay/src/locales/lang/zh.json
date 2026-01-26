@@ -11,7 +11,7 @@
     "route.withdrawlHistory": "提现记录",
     "route.agentManagement": "代理管理",
     "route.agentInfoManagement": "代理信息",
-    "route.agentPathConfig": "代理通道管理",
+    "route.agentStatement": "代理流水",
     "route.agentWithdrawlHistory": "代理账号",
     "route.pathManagement": "支付通道管理",
     "route.channelManagement": "渠道管理",

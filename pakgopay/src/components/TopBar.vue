@@ -61,6 +61,10 @@ export default {
   },
   created() {
     this.username = localStorage.getItem("userName");
+    const storedZone = localStorage.getItem("timeZone");
+    if (storedZone) {
+      this.selectedTimeZone = storedZone;
+    }
   },
   mounted() {
     this.username = localStorage.getItem("userName")
@@ -111,6 +115,10 @@ export default {
     },
     changeLanauage(lang) {
       this.$i18n.locale = lang;
+    },
+    handleTimeZoneChange(value) {
+      localStorage.setItem("timeZone", value);
+      window.dispatchEvent(new CustomEvent("timezone-change", { detail: value }));
     },
     changeCollapse() {
       this.collapse = !this.collapse;
@@ -262,6 +270,7 @@ export default {
         <el-select
             v-model="selectedTimeZone"
             size="small"
+            @change="handleTimeZoneChange"
             style="border: none;width: 90px"
         >
           <el-option
