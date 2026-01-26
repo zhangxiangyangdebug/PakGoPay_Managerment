@@ -55,6 +55,12 @@ export function logOut() {
                 localStorage.removeItem("userId")
                 localStorage.removeItem("currentPath")
                 localStorage.removeItem("refreshToken")
+                const coreNames = new Set(["default", "login", "pakGoPay"]);
+                router.getRoutes().forEach(route => {
+                    if (route.name && !coreNames.has(route.name)) {
+                        router.removeRoute(route.name);
+                    }
+                })
                 router.push("/web/login").then()
             } else {
                 this.$notify({
@@ -716,4 +722,14 @@ export function markReadMessage(messageId) {
     })
 }
 
-
+export function getWithdrawStatementeOrder(form) {
+    return service({
+        url: '/api/pakGoPay/server/merchant/queryMerchantStatement',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}

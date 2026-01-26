@@ -44,6 +44,7 @@
   "route.manualReconciliation": "Manual Reconciliation",
   "route.currencyTypeList": "Currency Type List",
   "language": "language",
+  "timezone": "timezone",
   "topbar.logout": "Logout",
   "exportMerchantReportName": "merchantReport",
   "exportReportTitle.merchantName": "merchantName",

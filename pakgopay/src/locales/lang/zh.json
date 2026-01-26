@@ -44,6 +44,7 @@
     "route.manualReconciliation": "手工调账",
     "route.currencyTypeList": "币种列表",
     "language": "语言",
+    "timezone": "时区",
     "topbar.logout":  "退出",
     "exportMerchantReportName": "商户报表",
     "exportChannelReportName": "渠道报表",

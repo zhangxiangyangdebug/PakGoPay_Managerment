@@ -13,13 +13,10 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           工具栏
         </span>
         </template>
-        <div class="main-toolbar" style="height: 150px;width: 97%;">
-          <el-form class="main-toolform" style="height: 100%;">
+        <div class="main-toolbar" style="height: 230px;width: 97%;">
+          <el-form class="main-toolform">
             <el-row>
-              <el-col :span="6"></el-col>
-              <el-col :span="6"></el-col>
-              <el-col :span="6"></el-col>
-              <el-col :span="6">
+              <el-col :offset="18" :span="6">
                 <div class="toolbar-action-row">
                   <el-button @click="search()" class="filterButton">
                     <SvgIcon class="filterButtonSvg" name="search"/>

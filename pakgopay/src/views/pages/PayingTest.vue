@@ -127,8 +127,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       </el-form>
     </div>
     <div style="background-color: white; display: flex;justify-content: space-between;align-items: center;width: 100%;border-top: solid 2px gray;height: 100px;">
-      <el-button type="danger" style="margin-left: 30%;width: 100px;height: auto" @click="reset"><SvgIcon name="reset" width="25px" height="22px"/>重置</el-button>
-      <el-button type="success" style="margin-right: 30%;width: 100px;height: auto"><SvgIcon name="success" width="30px" height="22px"/>提交</el-button>
+      <el-button style="margin-left: 30%;width: 100px;height: auto;color: dodgerblue" @click="reset">重置</el-button>
+      <el-button style="margin-right: 30%;width: 100px;height: auto;color: dodgerblue">提交</el-button>
     </div>
   </div>
 </template>
@@ -187,7 +187,7 @@ export default {
 </script>
 <style scoped>
 .form-label {
-  color: deepskyblue;
+  color: dodgerblue;
   font-size: larger;
   width: 400px;
 }

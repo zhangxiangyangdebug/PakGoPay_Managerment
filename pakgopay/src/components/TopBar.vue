@@ -34,6 +34,7 @@ export default {
       userId: "",
       notifications: [],
       selectedLang: 'zh-cn',
+      selectedTimeZone: 'UTC+8',
       languageOptions: [
         {
           value: 'en',
@@ -45,6 +46,16 @@ export default {
           label: '中文',
           flag: 'chinese'
         }
+      ],
+      timeZoneOptions: [
+        { value: 'UTC-12', label: 'UTC-12' },
+        { value: 'UTC-8', label: 'UTC-8' },
+        { value: 'UTC+0', label: 'UTC+0' },
+        { value: 'UTC+1', label: 'UTC+1' },
+        { value: 'UTC+5:30', label: 'UTC+5:30' },
+        { value: 'UTC+8', label: 'UTC+8' },
+        { value: 'UTC+9', label: 'UTC+9' },
+        { value: 'UTC+10', label: 'UTC+10' }
       ]
     }
   },
@@ -243,6 +254,22 @@ export default {
           >
             <SvgIcon :name="item.flag"/>{{ item.label }}
           </el-option>
+        </el-select>
+        <div style="display: flex; flex-direction: column; margin-left: 12px;">
+          <SvgIcon name="clock" style="width: 22px;height: 22px;width: 50px;margin: 0" />
+          <div style="font-size: small;margin:0">{{$t('timezone')}}</div>
+        </div>
+        <el-select
+            v-model="selectedTimeZone"
+            size="small"
+            style="border: none;width: 90px"
+        >
+          <el-option
+              v-for="item in timeZoneOptions"
+              :key="item.value"
+              :value="item.value"
+              :label="item.label"
+          />
         </el-select>
       </div>
       <div style="display: flex;justify-content: center;align-items: center;">

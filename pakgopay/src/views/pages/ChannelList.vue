@@ -109,7 +109,12 @@ import {getTimeFromTimestamp} from "@/api/common.js";
             align="center"
         >
           <div>
-            <el-card v-for="item in row.collectionSupportPayment" class="merchantInfos-table">
+            <el-card
+              v-for="(item, index) in row.collectionSupportPayment"
+              :key="item.paymentNo"
+              class="merchantInfos-table channel-card"
+              :class="index % 2 === 0 ? 'channel-card-collect' : 'channel-card-collect-alt'"
+            >
               <div>通道编号:{{item.paymentNo}}</div>
               <div>通道名称:{{item.paymentName}}</div>
             </el-card>
@@ -122,7 +127,12 @@ import {getTimeFromTimestamp} from "@/api/common.js";
             align="center"
         >
           <div>
-            <el-card v-for="item in row.paySupportPayment" class="merchantInfos-table">
+            <el-card
+              v-for="(item, index) in row.paySupportPayment"
+              :key="item.paymentNo"
+              class="merchantInfos-table channel-card"
+              :class="index % 2 === 0 ? 'channel-card-pay' : 'channel-card-pay-alt'"
+            >
               <div>通道编号:{{item.paymentNo}}</div>
               <div>通道名称:{{item.paymentName}}</div>
             </el-card>
@@ -682,4 +692,24 @@ export default {
 </script>
 <style scoped>
 @import "@/assets/base.css";
+
+.channel-card {
+  margin-bottom: 8px;
+}
+
+.channel-card-collect {
+  background-color: #e8f2ff;
+}
+
+.channel-card-collect-alt {
+  background-color: #f0f6ff;
+}
+
+.channel-card-pay {
+  background-color: #e9f6ee;
+}
+
+.channel-card-pay-alt {
+  background-color: #f1faf4;
+}
 </style>

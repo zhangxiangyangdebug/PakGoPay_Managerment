@@ -324,7 +324,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 </template>
 
 <script>
-import { getAllCurrencyType } from "@/api/interface/backendInterface.js";
+import {getAllCurrencyType, getWithdrawStatementeOrder} from "@/api/interface/backendInterface.js";
 
 export default {
   name: "WithdrawlOrder",
@@ -430,11 +430,20 @@ export default {
       }
     });
     this.applyCurrencyToStatics();
-    this.withdrawlOrderTableInfo = this.withdrawlOrderFormInfo;
-    this.totalCount = this.withdrawlOrderTableInfo.length;
+    this.filterbox.orderType = 2
+    getWithdrawStatementeOrder(this.filterbox).then(res => {
+      if (res.status === 200 && res.data.code === 0) {
+        let allData = JSON.parse(res.data.data)
+        this.withdrawlOrderTableInfo = allData.accountStatementsDtoList
+        this.totalCount = allData.totalNumber
+        this.pageSize = allData.pageSize
+        this.currentPage = allData.pageNo
+      }
+    })
+   /* this.totalCount = this.withdrawlOrderTableInfo.length;
     if (this.totalCount===0) {
       return;
-    }
+    }*/
     this.handleChange(this.currentPage);
     this.tableKey++
   }
