@@ -197,7 +197,7 @@ import {getFormateDate} from "@/api/common.js";
             label="商户状态"
             v-slot="{row}"
             align="center"
-            width="100px"
+            width="200px"
         >
           <div>
             <el-switch
@@ -290,7 +290,7 @@ import {getFormateDate} from "@/api/common.js";
             width="200px"
         >
           <div>
-            {{row.createTime? getFormateDate(row.createTime) : '-'}}
+            {{row.createTime ? formatTimeByZone(row.createTime) : '-'}}
           </div>
         </el-table-column>
         <el-table-column
@@ -923,6 +923,7 @@ export default {
       tableKey: 0,
       activeTool: "1",
       currency: '',
+      timeZoneKey: localStorage.getItem("timeZone") || "UTC+8",
       currencyIcon: '',
       currencyIcons: {},
       currencyOptions: [],
@@ -1198,6 +1199,22 @@ export default {
       this.pageSize = size
       this.handleCurrentChange()
     },
+    formatTimeByZone(ts) {
+      const match = /UTC([+-])(\d{1,2})(?::(\d{2}))?/.exec(this.timeZoneKey);
+      const baseMillis = ts * 1000;
+      if (!match) {
+        return getFormateDate(ts);
+      }
+      const sign = match[1] === "-" ? -1 : 1;
+      const hours = Number(match[2]);
+      const minutes = Number(match[3] || "0");
+      const offsetMinutes = sign * (hours * 60 + minutes);
+      const zoned = new Date(baseMillis + offsetMinutes * 60000);
+      const year = zoned.getFullYear();
+      const month = String(zoned.getMonth() + 1).padStart(2, '0');
+      const day = String(zoned.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    },
     reset(form) {
       this.filterbox.merchantAccount = '';
       this.filterbox.isInUse = true;
@@ -1369,6 +1386,10 @@ export default {
     }
   },
   async mounted() {
+    this._timeZoneListener = (event) => {
+      this.timeZoneKey = event.detail || localStorage.getItem("timeZone") || "UTC+8";
+    };
+    window.addEventListener("timezone-change", this._timeZoneListener);
 
     await getAllCurrencyType().then(res => {
       if (res.status === 200) {
@@ -1419,6 +1440,11 @@ export default {
       }
     })
 
+  },
+  beforeUnmount() {
+    if (this._timeZoneListener) {
+      window.removeEventListener("timezone-change", this._timeZoneListener);
+    }
   }
 }
 </script>

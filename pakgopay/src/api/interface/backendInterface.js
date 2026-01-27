@@ -1,5 +1,6 @@
 import service from '../axios.js'
 import router from "@/router/index.js";
+import formData from "axios/unsafe/env/classes/FormData.js";
 
 
 export async function LoginBack(loginFormData) {
@@ -199,13 +200,15 @@ export async function roleList(roleName) {
     })
 }
 
-export async function loginUserList() {
+export async function loginUserList(formData) {
     return service({
         url: '/api/pakGoPay/server/SystemConfig/loginUserList',
-        method: 'GET',
+        method: 'POST',
         headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
             'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        },
+        data: formData,
     })
 }
 

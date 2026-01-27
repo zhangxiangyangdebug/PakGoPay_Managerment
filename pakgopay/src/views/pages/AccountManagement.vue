@@ -36,6 +36,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       :data="allUserInfo"
       style="width: 97%;height: 70vh;"
       :key="tablekey"
+      class="user-table"
       border
     >
       <el-table-column
@@ -262,6 +263,7 @@ import {
   roleList,
   manageLoginUserStatus, deleteLoginUser, loginUserByLoginName
 } from "@/api/interface/backendInterface.js";
+import {loadingBody} from "@/api/common.js";
 
 export default {
 
@@ -316,16 +318,16 @@ export default {
       dialogVisible: false,
       dialogTitle: '',
       createUserInfo: {},
-      roleInfoOptions: [
-        /*{
+     /* roleInfoOptions: [
+        /!*{
           id: '001',
           roleName: '超级管理员'
         },
         {
           id: '002',
           roleName: '客服'
-        }*/
-      ],
+        }*!/
+      ],*/
       passwordmatch: true,
       rules: {
         loginName: [
@@ -347,38 +349,13 @@ export default {
 
     }
   },
-  created() {
-    this.loadData()
-  },
   methods: {
     createUser() {
       this.dialogVisible = true;
       this.dialogTitle = '创建用户'
     },
     search() {
-      if(!this.filterbox.loginName) {
-        this.loadData()
-        return
-      }
-      loginUserByLoginName(this.filterbox.loginName).then(response => {
-           if(response.status === 200 && response.data.code === 0) {
-             this.allUserInfo = [];
-             this.allUserInfo.push(JSON.parse(response.data.data))
-             try {
-               this.allUserInfo.forEach((item) => {
-                 item.roleId = this.roleInfoOptions.forEach(roleInfo => {
-                   if (item.roleId !== undefined && roleInfo.roleId === item.roleId) {
-                     item.roleName = roleInfo.roleName
-                   }
-                 })
-               })
-             } catch (e) {
-               console.log(e)
-             }
-             this.totalCount = this.allUserInfo.length
-             this.tablekey++
-           }
-        })
+      this.loadData()
     },
     editUser(row) {
       this.createUserInfo = row;
@@ -406,10 +383,14 @@ export default {
       this.stopUserInfo.status = 1
     },
     handleCurrentChange(currentPage) {
-
+        this.filterbox.pageSize = this.pageSize
+        this.filterbox.pageNo = currentPage
+        this.loadData()
     },
     handleSizeChange(pageSize) {
-
+        this.filterbox.pageNo = 1
+        this.filterbox.pageSize = pageSize
+        this.loadData()
     },
     cancelDialog() {
       this.dialogVisible = false;
@@ -541,7 +522,8 @@ export default {
       }
     },
     async loadData() {
-      await loginUserList().then(response => {
+      const loadingInstance = loadingBody(this, 'user-table')
+      await loginUserList(this.filterbox).then(response => {
         if (response.status === 401) {
           refreshAccessToken(localStorage.getItem("refreshToken"));
         } else if (response.status !== 200 && response.status !== 401) {
@@ -553,32 +535,20 @@ export default {
           })
         } else if (response.status === 200) {
           if (response.data.code === 0 && response.data.data.length > 0) {
-            this.allUserInfoFromDababase = JSON.parse(response.data.data)
+            let allData = JSON.parse(response.data.data)
+            this.allUserInfo = Object.assign([], allData.loginUsers)
+            this.totalCount = allData.totalNumber
+            this.currentPage = allData.pageNo
+            this.pageSize = allData.pageSize
           }
         }
+        loadingInstance.close()
       })
-      this.allUserInfo = [];
-      this.allUserInfo = this.allUserInfoFromDababase
-      try {
-        this.allUserInfo.forEach((item) => {
-          item.roleId = this.roleInfoOptions.forEach(roleInfo => {
-            if (item.roleId !== undefined && roleInfo.roleId === item.roleId) {
-              item.roleName = roleInfo.roleName
-              item.roleId = roleInfo.roleId
-            }
-          })
-        })
-      } catch (e) {
-        console.log(e)
-      }
-      this.totalCount = this.allUserInfo.length
-      this.tablekey++
-      this.loading = false
     }
   },
   async mounted() {
 
-    await roleList(null).then(response => {
+    /*await roleList(null).then(response => {
       if (response.status === 401) {
         refreshAccessToken(localStorage.getItem("refreshToken"));
       } else if (response.status !== 200 && response.status !== 401) {
@@ -593,7 +563,7 @@ export default {
           this.roleInfoOptions = JSON.parse(response.data.data)
         }
       }
-    })
+    })*/
 
     this.loadData()
 

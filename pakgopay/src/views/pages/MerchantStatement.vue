@@ -292,6 +292,7 @@ export default {
     getMerchantInfo({pageSize: 1000}).then(response => {
       if (response.status === 200 && response.data.code === 0) {
          this.merchantAccountOptions = JSON.parse(response.data.data).merchantInfoDtoList;
+         this.search()
       }
     })
   }

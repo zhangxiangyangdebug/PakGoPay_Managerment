@@ -364,7 +364,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
               style="width: 200px"
               v-model="withdrawOrderInfo.merchantAgentId"
               @change="handleMerchantChange"
-              disabled
+              :disabled="filterAvaiable"
           >
           </el-select>
         </el-form-item>
@@ -736,11 +736,16 @@ export default {
       this.confirmDialogTitle = ''
     },
     handleMerchantChange(value) {
-      let opt = {};
-      opt = this.merchantAccountOptions.find((item) => {
-        return item.merchantAgentId === value;
+      let opt = [];
+      this.merchantAccountOptions.find((item) => {
+        //return item.merchantAgentId === value;
+        if (item.merchantAgentId === value) {
+          opt.push(item);
+        }
       });
-      this.withdrawOrderInfo.merchantAgentName = opt.name;
+      this.withdrawOrderInfo.merchantAgentName = opt[0].name;
+      //this.withdrawOrderInfo.walletAddr = opt.walletAddr;
+      this.merchantAccountOptions = Object.assign([], opt)
     },
     handleRechargeMerchantChange(value) {
       let opt = {};
@@ -942,10 +947,15 @@ export default {
     },
     createWithdrawOrder() {
       // set withdraw merchant
-      const merchantInfo = this.merchantAccountOptions[0]
-      this.withdrawOrderInfo.merchantAgentId = merchantInfo.merchantAgentId
+      if(this.roleName === 'merchant') {
+        const merchantInfo = this.merchantAccountOptions[0]
+        this.withdrawOrderInfo.merchantAgentId = merchantInfo.merchantAgentId
+        this.handleMerchantChange(this.withdrawOrderInfo.merchantAgentId)
+      }
+
+
       //this.withdrawOrderInfo.availableAmount = merchantInfo.availableAmount
-      this.handleMerchantChange(this.withdrawOrderInfo.merchantAgentId)
+
 
       this.dialogWithdrawVisible = true
       this.dialogWithdrawTitle = '提现'
@@ -1102,7 +1112,7 @@ export default {
     // get all merchant info
     this.roleName = localStorage.getItem("roleName")
     this.filterbox.name = this.roleName=== 'merchant'? localStorage.getItem('userName') : null
-    this.filterAvaiable = this.roleName === 'merchant'
+    this.filterAvaiable = this.roleName === 'merchant'? true : false
         getAllCurrencyType().then(res => {
       if (res.status === 200) {
         if (res.data.code === 0) {
