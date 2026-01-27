@@ -317,16 +317,31 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
           <el-input v-model="withdrawAccountInfo.walletAddr" style="width: 200px"></el-input>
         </el-form-item>
       </div>
-      <div class="el-form-line">
-        <el-form-item label="谷歌验证码:" label-width="150px" prop="googleCode">
-          <el-input type="number" v-model="withdrawAccountInfo.googleCode" style="width: 200px"
-                    @mousewheel.native.prevent/>
-        </el-form-item>
-      </div>
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="cancelDialog('createMerchantAccountForm')">取 消</el-button>
       <el-button type="primary" @click="submitMerchantAccount('createMerchantAccountForm')">确 定</el-button>
+    </div>
+  </el-dialog>
+
+  <el-dialog
+      :title="merchantGoogleTitle"
+      v-model="merchantGoogleVisible"
+      class="dialog"
+      center
+      width="40%"
+      height="30%"
+  >
+    <el-form ref="merchantGoogleForm" :model="merchantGoogleInfo" :rules="merchantGoogleRule" class="form">
+      <div class="el-form-line">
+        <el-form-item label="谷歌验证码:" label-width="150px" prop="googleCode">
+          <el-input v-model="merchantGoogleInfo.googleCode" style="width: 200px"/>
+        </el-form-item>
+      </div>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="cancelMerchantGoogle">取 消</el-button>
+      <el-button type="primary" @click="submitMerchantGoogle">确 定</el-button>
     </div>
   </el-dialog>
 
@@ -342,20 +357,30 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
     <el-form :model="withdrawOrderInfo" label-width="100%" class="form" ref="withdrawOrderInfoForm"
              :rules="withdrawOrderRule">
       <div class="el-form-line">
-        <el-form-item label="商户名称:" label-width="150px" prop="merchantUserId">
+        <el-form-item label="商户名称:" label-width="150px" prop="merchantAgentId">
           <el-select
               :options="merchantAccountOptions"
               :props="merchantAccountProps"
               style="width: 200px"
               v-model="withdrawOrderInfo.merchantAgentId"
               @change="handleMerchantChange"
+              disabled
           >
           </el-select>
         </el-form-item>
       </div>
       <div class="el-form-line">
+        <el-form-item label="币种:" label-width="150px" prop="availableAmount">
+          <el-select v-model="withdrawOrderInfo.currency" style="width: 200px"
+             :options="currencyOptions"
+             :props="currencyProps"
+             @change="handleWithdrawCurrencyChange"
+          />
+        </el-form-item>
+      </div>
+      <div class="el-form-line">
         <el-form-item label="可用余额:" label-width="150px" prop="availableAmount">
-          <el-input v-model="withdrawOrderInfo.amount" style="width: 200px"></el-input>
+          <el-input disabled v-model="withdrawOrderInfo.availableAmount" style="width: 200px"></el-input>
         </el-form-item>
       </div>
       <div class="el-form-line">
@@ -370,8 +395,8 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-form-item>
       </div>
       <div class="el-form-line">
-        <el-form-item label="提现金额:" label-width="150px" prop="withdrawAmount">
-          <el-input type="number" v-model="withdrawOrderInfo.withdrawAmount" style="width: 200px"/>
+        <el-form-item label="提现金额:" label-width="150px" prop="amount">
+          <el-input type="number" v-model="withdrawOrderInfo.amount" style="width: 200px"/>
         </el-form-item>
       </div>
 <!--      <div class="el-form-line">
@@ -397,8 +422,8 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <div class="el-form-line">
         <el-form-item label="充值商户:" label-width="150px" prop="merchantAgentId">
           <el-select
-              :options="merchantAccountOptions"
-              :props="merchantAccountProps"
+              :options="merchantInfo"
+              :props="merchantInfoProps"
               v-model="rechargeOrderInfo.merchantAgentId"
               style="width: 200px"
               @change="handleRechargeMerchantChange"
@@ -540,10 +565,20 @@ import {
 const filterDateRange = ref('')
 export default {
   data() {
+    const amountValidate = (rule, value, callback) => {
+      if (!value || value === 0) {
+        callback(new Error("amount is required"));
+      } else if (value > this.withdrawOrderInfo.availableAmount) {
+        callback(new Error("amount is more than your available amount"));
+      } else {
+        callback();
+      }
+    }
     return {
       filterAvaiable: false,
       roleName: '',
       merchantInfo: [],
+      amountInfo: {},
       confirmDialogVisible: false,
       confirmDialogTitle: "",
       confirmData: {},
@@ -590,7 +625,7 @@ export default {
         }
       ], /** 客服登陆 后端返回所有商户信息包括 商户名 商户账号 可用余额 。商户进入该页面，后端返回该商户单条信息 */
       withdrawAccountInfo: {
-        merchantAccount: '',
+        /*merchantAccount: '',
         merchantName: '',
         balance: '',
         withdrawlAccount: [],
@@ -604,7 +639,7 @@ export default {
             label: '收款账号2'
           }
         ],
-        googleCode: '',
+        googleCode: '',*/
       },
       filterbox: {
         merchantAccount: "",
@@ -615,6 +650,17 @@ export default {
           required: true, trigger: 'blur', message: 'googleCode is required'
         }
       },
+      merchantGoogleVisible: false,
+      merchantGoogleTitle: '谷歌验证',
+      merchantGoogleInfo: {
+        googleCode: ''
+      },
+      merchantGoogleRule: {
+        googleCode: {
+          required: true, trigger: 'blur', message: 'googleCode is required'
+        }
+      },
+      pendingMerchantAction: '',
       merchantAccountRule: {
         merchantAgentId: {
           required: true, trigger: 'blur'
@@ -627,21 +673,21 @@ export default {
         },
         walletAddr: {
           required: true, trigger: 'blur'
-        },
-        googleCode: {
-          required: true, trigger: 'blur'
         }
       },
       withdrawOrderRule: {
-        merchantUserId: {
+        merchantAgentId: {
           required: true, trigger: 'blur',
         },
         walletAddr: {
           required: true, trigger: 'blur'
         },
-        withdrawAmount: {
-          required: true, trigger: 'blur'
+        amount: {
+          required: true, trigger: 'blur', validator: amountValidate
         },
+        availableAmount: {
+          required: true, trigger: 'blur'
+        }
        /* googleCode: {
           required: true, trigger: 'blur'
         }*/
@@ -694,14 +740,14 @@ export default {
       opt = this.merchantAccountOptions.find((item) => {
         return item.merchantAgentId === value;
       });
-      this.withdrawOrderInfo.mercahntAgentName = opt.name;
+      this.withdrawOrderInfo.merchantAgentName = opt.name;
     },
     handleRechargeMerchantChange(value) {
       let opt = {};
-      opt = this.merchantAccountOptions.find((item) => {
-        return item.merchantAgentId === value;
+      opt = this.merchantInfo.find((item) => {
+        return item.userId === value;
       });
-      this.rechargeOrderInfo.merchantAgentName = opt.name;
+      this.rechargeOrderInfo.merchantAgentName = opt.accountName;
     },
     exportStatements() {
       this.filterbox.columns = getMerchantAccountTitle(this)
@@ -830,88 +876,77 @@ export default {
       this.dialogTitle = ''
       this.$refs[form].resetFields()
     },
+    cancelMerchantGoogle() {
+      this.merchantGoogleVisible = false;
+      this.merchantGoogleInfo.googleCode = '';
+      this.pendingMerchantAction = '';
+    },
     submitMerchantAccount(form) {
 
       this.$refs[form].validate(validate => {
         if (validate) {
-          if (this.filterbox.submitType === 'create') {
-            createMerchantAccount(this.withdrawAccountInfo).then(res => {
-              if (res.status === 200 && res.data.code === 0) {
-                this.$refs[form].resetFields()
-                this.$notify({
-                  title: 'Success',
-                  type: 'success',
-                  message: 'Create New Merchant Account Successfully.',
-                  duration: 3000,
-                  position: 'bottom-right'
-                })
-                this.dialogTitle = ''
-                this.dialogFormVisible = false
-                this.$refs[form].resetFields()
-                this.search()
-              } else if (res.status === 200 && res.data.code !== 0) {
-                this.$notify({
-                  title: 'Failed',
-                  type: 'error',
-                  message: res.data.message,
-                  duration: 3000,
-                  position: 'bottom-right'
-                })
-              } else {
-                this.$notify({
-                  title: 'Error',
-                  type: 'error',
-                  message: 'somethind went wrong, try it again',
-                  duration: 3000,
-                  position: 'bottom-right'
-                })
-              }
-            })
-          } else if (this.filterbox.submitType === 'edit') {
-            modifyMerchantAccount(this.withdrawAccountInfo).then(res => {
-              if (res.status === 200 && res.data.code === 0) {
-                this.$notify({
-                  title: 'Success',
-                  type: 'success',
-                  message: 'Modify Merchant Account Successfully.',
-                  duration: 3000,
-                  position: 'bottom-right'
-                })
-                this.search()
-                this.dialogTitle = ''
-                this.dialogFormVisible = false
-                this.$refs[form].resetFields()
-                this.search()
-              } else if (res.status === 200 && res.data.code !== 0) {
-                this.$notify({
-                  title: 'Failed',
-                  type: 'error',
-                  message: res.data.message,
-                  duration: 3000,
-                  position: 'bottom-right'
-                })
-              } else {
-                this.$notify({
-                  title: 'Error',
-                  type: 'error',
-                  message: 'somethind went wrong, try it again',
-                  duration: 3000,
-                  position: 'bottom-right'
-                })
-              }
-            })
-          }
+          this.pendingMerchantAction = this.filterbox.submitType;
+          this.merchantGoogleVisible = true;
         } else {
 
         }
       })
       this.submitType = ''
     },
+    submitMerchantGoogle() {
+      this.$refs.merchantGoogleForm.validate(validate => {
+        if (!validate) {
+          return;
+        }
+        this.withdrawAccountInfo.googleCode = this.merchantGoogleInfo.googleCode;
+        const request = this.pendingMerchantAction === 'edit'
+          ? modifyMerchantAccount(this.withdrawAccountInfo)
+          : createMerchantAccount(this.withdrawAccountInfo);
+        request.then(res => {
+          if (res.status === 200 && res.data.code === 0) {
+            this.$notify({
+              title: 'Success',
+              type: 'success',
+              message: this.pendingMerchantAction === 'edit'
+                ? 'Modify Merchant Account Successfully.'
+                : 'Create New Merchant Account Successfully.',
+              duration: 3000,
+              position: 'bottom-right'
+            })
+            this.dialogTitle = ''
+            this.dialogFormVisible = false
+            this.merchantGoogleVisible = false
+            this.merchantGoogleInfo.googleCode = ''
+            this.pendingMerchantAction = ''
+            this.$refs.createMerchantAccountForm.resetFields()
+            this.search()
+          } else if (res.status === 200 && res.data.code !== 0) {
+            this.$notify({
+              title: 'Failed',
+              type: 'error',
+              message: res.data.message,
+              duration: 3000,
+              position: 'bottom-right'
+            })
+          } else {
+            this.$notify({
+              title: 'Error',
+              type: 'error',
+              message: 'somethind went wrong, try it again',
+              duration: 3000,
+              position: 'bottom-right'
+            })
+          }
+        })
+      })
+    },
     createWithdrawOrder() {
       // set withdraw merchant
       const merchantInfo = this.merchantAccountOptions[0]
-      this.withdrawOrderInfo.merchantUserId = merchantInfo.merchantAgentId
+      this.withdrawOrderInfo.merchantAgentId = merchantInfo.merchantAgentId
       //this.withdrawOrderInfo.availableAmount = merchantInfo.availableAmount
+      this.handleMerchantChange(this.withdrawOrderInfo.merchantAgentId)
+
       this.dialogWithdrawVisible = true
       this.dialogWithdrawTitle = '提现'
       this.withdrawOrderInfo.orderType = 2
@@ -939,6 +974,7 @@ export default {
           this.confirmData =  Object.assign({}, this.withdrawOrderInfo)
           this.confirmDialogTitle = '谷歌验证'
           this.confirmDialogVisible = true
+          this.$refs[form].resetFields()
         }
       })
     },
@@ -958,6 +994,8 @@ export default {
                 duration: 3000,
                 position: 'bottom-right'
               })
+              this.search()
+              this.getNewstMerchantInfo()
             } else if (res.status === 200 && res.data.code !== 0) {
               this.$notify({
                 title: 'Failed',
@@ -1041,6 +1079,22 @@ export default {
           this.confirmDialogVisible = true
         }
       })
+    },
+    handleWithdrawCurrencyChange(val) {
+      let opt = {}
+      opt = this.amountInfo[val]
+      opt ? this.withdrawOrderInfo.availableAmount = opt.available : this.withdrawOrderInfo.availableAmount = 0
+    },
+    getNewstMerchantInfo() {
+      getMerchantInfo({merchantUserName: this.filterbox.name, isNeedCardData: true}).then(res => {
+        if (res.status === 200) {
+          if (res.data.code === 0) {
+            let allData = JSON.parse(res.data.data)
+            this.merchantInfo = allData.merchantInfoDtoList
+            this.amountInfo = allData.cardInfo
+          }
+        }
+      })
     }
   },
   mounted() {
@@ -1067,14 +1121,7 @@ export default {
         }
       }
       this.search()
-    })
-
-    getMerchantInfo({}).then(res => {
-      if (res.status === 200) {
-        if (res.data.code === 0) {
-          this.merchantInfo = JSON.parse(res.data.data).merchantInfoDtoList
-        }
-      }
+      this.getNewstMerchantInfo()
     })
 
   }
