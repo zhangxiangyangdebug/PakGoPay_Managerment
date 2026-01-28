@@ -737,6 +737,18 @@ export function getWithdrawStatementeOrder(form) {
     })
 }
 
+export function modifyWithdrawStatementeOrder(form) {
+    return service({
+        url: '/api/pakGoPay/server/merchant/editAccountStatement',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
 export function getCollectionOrder(form) {
     return service({
         url: '/api/pakGoPay/server/v1/queryCollectionOrders',

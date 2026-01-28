@@ -1,6 +1,7 @@
 <script setup>
 
 import SvgIcon from "@/components/SvgIcon/index.vue";
+import {getTimeFromTimestamp} from "@/api/common.js";
 </script>
 
 <template>
@@ -189,7 +190,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               v-slot="{row}"
               align="center"
           >
-            <div>{{row.orderId}}</div>
+            <div>{{row.id}}</div>
           </el-table-column>
           <el-table-column
               prop="amount"
@@ -205,7 +206,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               v-slot="{row}"
               align="center"
           >
-            <div>{{row.merchantAgentName}}</div>
+            <div>{{filterbox.userType === 1 ? merchantMaps[row.userId] : agentMaps[row.userId]}}</div>
           </el-table-column>
           <el-table-column
               prop="orderStatus"
@@ -213,7 +214,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               v-slot="{row}"
               align="center"
           >
-            <div>{{ formatOrderStatus(row.orderStatus) }}</div>
+            <div>{{ formatOrderStatus(row.status) }}</div>
           </el-table-column>
           <el-table-column
               prop="walletAddr"
@@ -229,7 +230,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               v-slot="{row}"
               align="center"
           >
-            <div>{{row.createTime}}</div>
+            <div>{{getTimeFromTimestamp(row.createTime)}}</div>
           </el-table-column>
           <el-table-column
               prop="applyer"
@@ -237,7 +238,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               v-slot="{row}"
               align="center"
           >
-            <div>{{row.applyer}}</div>
+            <div>{{row.createBy}}</div>
           </el-table-column>
           <el-table-column
               prop="applyerIp"
@@ -256,8 +257,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <SvgIcon name="more" width="30" height="30"/>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item :disabled="row.orderStatus !== 0" @click="rejectWithdrawOrder(row)">驳回</el-dropdown-item>
-                  <el-dropdown-item :disabled="row.orderStatus !== 0" @click="approveWithdrawOrder(row)">通过</el-dropdown-item>
+                  <el-dropdown-item :disabled="row.status !== 0" @click="rejectWithdrawOrder(row)">驳回</el-dropdown-item>
+                  <el-dropdown-item :disabled="row.status !== 0" @click="approveWithdrawOrder(row)">通过</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -278,6 +279,35 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       </div>
     </div>
   </div>
+
+  <el-dialog
+      v-model="approvalDialogVisible"
+      :title="approvalDialogTitle"
+      width="420px"
+  >
+    <el-form
+        ref="approvalFormRef"
+        :model="approvalForm"
+        :rules="approvalRules"
+        label-width="100px"
+    >
+      <el-form-item label="谷歌验证码" prop="googleCode">
+        <el-input v-model="approvalForm.googleCode" type="number" />
+      </el-form-item>
+      <el-form-item label="审批意见" prop="remark">
+        <el-input
+            v-model="approvalForm.remark"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入审批意见"
+        />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="approvalDialogVisible = false">取消</el-button>
+      <el-button type="primary" @click="confirmApproval">确定</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script>
@@ -285,7 +315,7 @@ import {
   getAgentInfo,
   getAllCurrencyType,
   getMerchantInfo,
-  getWithdrawStatementeOrder
+  getWithdrawStatementeOrder, modifyWithdrawStatementeOrder
 } from "@/api/interface/backendInterface.js";
 
 export default {
@@ -295,7 +325,7 @@ export default {
       totalCount: 0,
       currentPage: 1,
       pageSize: 10,
-      pageSizes: [10, 20, 30, 40],
+      pageSizes: [1, 10, 20, 30, 40],
       tableKey: 0,
       activeTool: "1",
       filterbox: {
@@ -324,10 +354,26 @@ export default {
         value: 'userId',
         label: 'accountName',
       },
+      merchantMaps: {},
       agentOptions: [],
       agentProps: {
         value: "userId",
         label: "agentName"
+      },
+      agentMaps: {},
+      approvalDialogVisible: false,
+      approvalDialogTitle: '',
+      approvalForm: {
+        googleCode: '',
+        remark: '',
+        isAgree: true,
+        id: null,
+        type: ''
+      },
+      approvalRules: {
+        googleCode: [
+          { required: true, message: '请输入谷歌验证码', trigger: 'blur' }
+        ]
       },
       staticsData: {
         orderTotalCount: 10000,
@@ -349,6 +395,7 @@ export default {
   },
   methods: {
     search() {
+      this.filterbox.orderType = 2
       getWithdrawStatementeOrder(this.filterbox).then(res => {
         if (res.status === 200 && res.data.code === 0) {
           let allData = JSON.parse(res.data.data)
@@ -404,14 +451,85 @@ export default {
       };
       return statusMap[status] || status;
     },
-    approveWithdrawOrder() {},
-    rejectWithdrawOrder() {},
-    applyCurrencyToStatics() {
-      const icon = this.currencyIcon || '';
-      this.staticsData.merchantCommission = icon + this.staticsRawData.merchantCommission;
-      this.staticsData.merchantEffectiveCommission = icon + this.staticsRawData.merchantEffectiveCommission;
-      this.staticsData.merchantFreezeAmount = icon + this.staticsRawData.merchantFreezeAmount;
-      this.staticsData.merchantAvaiableAmount = icon + this.staticsRawData.merchantAvaiableAmount;
+    approveWithdrawOrder(row) {
+      this.openApprovalDialog(true, row)
+    },
+    openApprovalDialog(isAgree, row) {
+      this.approvalDialogTitle = isAgree ? '通过审批' : '驳回审批';
+      this.approvalForm = {
+        googleCode: '',
+        remark: '',
+        isAgree,
+        id: row.id,
+        type: isAgree ? 'approve' : 'reject'
+      };
+      this.approvalDialogVisible = true;
+      this.$nextTick(() => {
+        if (this.$refs.approvalFormRef) {
+          this.$refs.approvalFormRef.clearValidate();
+        }
+      });
+    },
+    confirmApproval() {
+      this.$refs.approvalFormRef.validate((valid) => {
+        if (!valid) {
+          return;
+        }
+        const info = {
+          isAgree: this.approvalForm.isAgree,
+          id: this.approvalForm.id,
+          type: this.approvalForm.type,
+          googleCode: this.approvalForm.googleCode,
+          remark: this.approvalForm.remark
+        };
+        this.submit(info);
+      });
+    },
+    resetApprovalForm() {
+      this.approvalDialogVisible = false;
+      this.approvalForm = {
+        googleCode: '',
+        remark: '',
+        isAgree: true,
+        id: null,
+        type: ''
+      };
+      this.$nextTick(() => {
+        if (this.$refs.approvalFormRef) {
+          this.$refs.approvalFormRef.clearValidate();
+        }
+      });
+    },
+    submit(info) {
+      modifyWithdrawStatementeOrder(info).then(res => {
+        if (res.status === 200 && res.data.code === 0) {
+          this.$notify({
+            title: 'Success',
+            type: 'success',
+            duration: 3000,
+            message: 'you have '+info.type+' withdraw order!'
+          })
+          this.search()
+          this.resetApprovalForm()
+        } else {
+          this.$notify({
+            title: 'Error',
+            type: 'error',
+            duration: 3000,
+            message: info.type + 'withdraw order failed!'
+          })
+        }
+
+      })
+    },
+    rejectWithdrawOrder(row) {
+      this.openApprovalDialog(false, row)
+    },
+    applyCurrencyToStatics(row) {
+      let info = {}
+      info.status = 1
+      info.id = row.id
+      this.submit(info)
     },
     handleCurrencyChange(tab) {
       if (tab && tab.paneName !== undefined) {
@@ -422,20 +540,17 @@ export default {
       this.applyCurrencyToStatics();
     },
     handleChange(currentPage) {
-      this.collectingOrderTableInfo = []
-      let startNum = (currentPage - 1) * this.pageSize;
-      let endNum = (startNum + this.pageSize) <= this.totalCount ? (this.pageSize + startNum) : this.totalCount
-      for (let i = startNum; i < endNum; i++) {
-        this.collectingOrderTableInfo.push(this.collectingOrderFormInfo[i])
-      }
+      this.currentPage = currentPage;
+      this.filterbox.pageNo = currentPage;
+      this.filterbox.pageSize = this.pageSize
+      this.search();
     },
     handleSizeChange(currentPageSize) {
-      this.collectingOrderTableInfo = []
-      let startNum = (this.currentPage - 1) * currentPageSize;
-      let endNum = (startNum + currentPageSize) <= this.totalCount ? (currentPageSize + startNum) : this.totalCount
-      for (let i = startNum; i < endNum; i++) {
-        this.collectingOrderTableInfo.push(this.collectingOrderFormInfo[i])
-      }
+      this.pageSize = currentPageSize;
+      this.filterbox.pageSize = currentPageSize;
+      this.filterbox.pageNo = 1
+      this.currentPage = 1
+      this.search();
     },
   },
   async mounted() {
@@ -457,12 +572,18 @@ export default {
     await getMerchantInfo({pageSize: 1000}).then(res => {
       if (res.status === 200 && res.data.code === 0) {
         this.merchantOptions = JSON.parse(res.data.data).merchantInfoDtoList
+        this.merchantOptions.forEach(merchant => {
+          this.merchantMaps[merchant.userId] = merchant.accountName
+        })
       }
     })
 
     getAgentInfo({pageSize: 1000}).then(res => {
       if (res.status === 200 && res.data.code === 0) {
         this.agentOptions = JSON.parse(res.data.data).agentInfoDtoList
+        this.agentOptions.forEach(agent => {
+          this.agentMaps[agent.userId] = agent.agentName
+        })
       }
     })
 
