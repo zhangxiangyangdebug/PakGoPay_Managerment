@@ -1,6 +1,7 @@
 <script setup>
 
 import SvgIcon from "@/components/SvgIcon/index.vue";
+import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api/common.js";
 </script>
 
 <template>
@@ -13,110 +14,119 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           工具栏
         </span>
         </template>
-        <div class="main-toolbar" style="height: 150px;width: 97%;">
-          <el-form class="main-toolform" style="height: 100%;">
+        <div class="main-toolbar" style="height: 230px;width: 97%;">
+          <el-form class="main-toolform" style="height: 100%;" ref="filterboxForm" :model="filterbox">
             <el-row>
-              <el-col :span="6"></el-col>
-              <el-col :span="6"></el-col>
-              <el-col :span="6"></el-col>
-              <el-col :span="6">
+              <el-col :offset="18" :span="6">
                 <div class="toolbar-action-row">
                   <el-button @click="search()" class="filterButton">
                     <SvgIcon class="filterButtonSvg" name="search"/>
                     <div>查询</div>
                   </el-button>
-                  <el-button @click="reset()" class="filterButton">
+                  <el-button @click="reset('filterboxForm')" class="filterButton">
                     <SvgIcon class="filterButtonSvg" name="reset"/>
                     <div>重置</div>
                   </el-button>
                 </div>
               </el-col>
             </el-row>
-            <!--          <el-row style="margin-right: 1%">
-                        <el-col :span="24">
-                          <div class="main-toolform-item">
-                            &lt;!&ndash;        <div class="main-toolform-line" style="justify-content: left; margin-left: 4%;cursor: pointer;background-color: lightskyblue;width: 5%;height: 30px;">
-                                      <el-button @click="changeToolBar">关闭搜索</el-button>
-                                    </div>&ndash;&gt;
-                            <div class="main-toolform-line" style="justify-content: right;margin-right: 4%;">
-                              <div v-on:click="search()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-                                <SvgIcon height="30px" width="30px" name="search"/>
-                                <div style="width: 50px;color: white">查询</div>
-                              </div>
-                              <div v-on:click="reset()" style="background-color: red;width:60px;display: flex; flex-direction: row;justify-content: center;color: lightskyblue;cursor: pointer;align-items: center;">
-                                <SvgIcon height="30px" width="30px" name="reset"/>
-                                <div style="width: 50px;color: white">重置</div>
-                              </div>
-                              <div v-on:click="exportPathChannelInfos()" style="background-color: deepskyblue;width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
-                                <SvgIcon height="30px" width="30px" name="export"/>
-                                <div style="width: 50px;color: white">导出</div>
-                              </div>
-                              <div v-on:click="createPathChannel()" style="background-color: limegreen;width:60px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
-                                <SvgIcon height="30px" width="30px" name="add"/>
-                                <div style="width: 50px;color: white">新增</div>
-                              </div>
-                            </div>
-                          </div>
-                        </el-col>
-                      </el-row>-->
             <el-row>
               <el-col :span="6">
-                <el-form-item label="订单状态：" label-width="150px" >
-                  <el-input v-model="filterbox.orderStatus" style="width: 200px"/>
+                <el-form-item label="订单状态：" label-width="150px" prop="orderStatus">
+                  <el-select
+                      :options="getOrderStatusOptions()"
+                      v-model="filterbox.orderStatus"
+                      style="width: 200px"
+                      clearable
+                  />
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="订单编号：" label-width="150px" >
-                  <el-input v-model="filterbox.orderId" style="width: 200px"/>
+                <el-form-item label="商户订单号：" label-width="150px" prop="merchantOrderNo">
+                  <el-input v-model="filterbox.merchantOrderNo" style="width: 200px"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="订单渠道：" label-width="150px" >
-                  <el-input v-model="filterbox.orderChannel" style="width: 200px"/>
+                <el-form-item label="订单渠道：" label-width="150px" prop="channelId">
+                  <el-select
+                      :options="channelOptions"
+                      :props="channelProps"
+                      v-model="filterbox.channelId"
+                      style="width: 200px;"
+                      clearable
+                      filterable
+                      placeholder="请选择渠道"
+                  />
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="商户编号：" label-width="150px" >
-                  <el-input v-model="filterbox.merchantAccount" style="width: 200px"/>
+                <el-form-item label="商户：" label-width="150px" prop="merchantUserId">
+                  <el-select
+                      :options="merchantOptions"
+                      :props="merchantInfoProps"
+                      v-model="filterbox.merchantUserId"
+                      placeholder="请选择商户"
+                      style="width: 200px"
+                      clearable
+                      :disabled="filterAvaiable"
+                  />
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="6">
-                <el-form-item label="商户名称：" label-width="150px" >
-                  <el-input v-model="filterbox.merchantName" style="width: 200px"/>
+                <el-form-item label="币种：" label-width="150px" prop="currency">
+                  <el-select
+                      :options="currencyOptions"
+                      :props="currencyProps"
+                      v-model="filterbox.currency"
+                      clearable
+                      style="width:200px;"
+                  />
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="订单类型：" label-width="150px" >
-                  <el-input v-model="filterbox.orderType" style="width: 200px"/>
+                <el-form-item label="订单类型：" label-width="150px" prop="orderType">
+                  <el-select
+                      v-model="filterbox.orderType"
+                      style="width: 200px"
+                      clearable
+                  >
+                    <el-option :value="1" label="系统订单"></el-option>
+                    <el-option :value="2" label="手工订单"></el-option>
+                  </el-select>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="创建时间：" label-width="150px" >
-                  <el-input v-model="filterbox.createTime"style="width: 200px"/>
+                <el-form-item label="平台订单号：" label-width="150px" prop="transactionNo">
+                  <el-input v-model="filterbox.transactionNo" style="width: 200px"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="商户代理：" label-width="150px" >
+                <el-form-item label="商户代理：" label-width="150px" prop="merchantAgent">
                   <el-input v-model="filterbox.merchantAgent" style="width: 200px"/>
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row>
+
               <el-col :span="6">
-                <el-form-item label="币种：" label-width="150px" >
-                  <el-input v-model="filterbox.currencyType" style="width: 200px"/>
+                <el-form-item label="订单金额：" label-width="150px">
+                  <el-input type="number" v-model="filterbox.amount" style="width: 200px"/>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
-                <el-form-item label="订单金额：" label-width="150px" >
-                  <el-input v-model="filterbox.orderAmount" style="width: 200px"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="平台订单号：" label-width="150px" >
-                  <el-input v-model="filterbox.platformOrderId" style="width: 200px"/>
+              <el-col :span="9">
+                <el-form-item label="创建时间：" label-width="150px">
+                  <el-date-picker
+                      v-model="filterbox.filterDateRange"
+                      type="datetimerange"
+                      range-separator="至"
+                      start-placeholder="开始日期"
+                      end-placeholder="结束日期"
+                      format="YYYY/MM/DD HH:mm:ss"
+                      value-format="x"
+                      @change="handleDateRangeChange"
+                  />
                 </el-form-item>
               </el-col>
             </el-row>
@@ -129,7 +139,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       <div class="currency-tabs">
         <span class="currency-tabs-label">统计币种:</span>
         <el-tabs
-            v-model="filterbox.currencyType"
+            v-model="staticsData.currencyType"
             type="card"
             class="currency-tabs-control"
             @tab-click="handleCurrencyChange"
@@ -205,7 +215,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-card style="width: 28%;height: 100%;margin-top: 1%;margin-right: 4%;">
           <div style="display: flex;justify-content: space-between">
             <SvgIcon name="accountBalance" width="100px" height="100px"/>
-            <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%;justify-content: space-between;">
+            <div
+                style="display: flex; flex-direction: column;width: 80%;margin-left: 2%;justify-content: space-between;">
               <span class="statics-title">可用金额:</span>
               <textarea v-model="staticsData.merchantAvaiableAmount" disabled class="cash-text-area"></textarea>
             </div>
@@ -224,10 +235,12 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-button>
         </div>
         <el-table
-            border :data="collectingOrderTableInfo"
+            border
+            :data="payingOrderTableInfo"
             class="merchantInfos-table"
-            style="height: auto;"
+            style="width: 100%;"
             :key="tableKey"
+            max-height="520"
         >
           <el-table-column
               prop="orderId"
@@ -235,7 +248,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               v-slot="{row}"
               align="center"
           >
-            <div>{{row.orderId}}</div>
+            <div>{{ row.transactionNo }}</div>
           </el-table-column>
           <el-table-column
               prop="merchantOrderId"
@@ -243,7 +256,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               v-slot="{row}"
               align="center"
           >
-            <div>{{row.merchantOrderId}}</div>
+            <div>{{ row.merchantOrderNo }}</div>
           </el-table-column>
           <el-table-column
               prop="merchantAccount"
@@ -251,7 +264,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               v-slot="{row}"
               align="center"
           >
-            <div>{{row.merchantAccount}}</div>
+            <div>{{ row.merchantUserId }}</div>
           </el-table-column>
           <el-table-column
               prop="merchantName"
@@ -259,7 +272,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               v-slot="{row}"
               align="center"
           >
-            <div>{{row.merchantName}}</div>
+            <div>{{ merchantMaps[row.merchantUserId] }}</div>
           </el-table-column>
           <el-table-column
               prop="currencyType"
@@ -267,7 +280,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               v-slot="{row}"
               align="center"
           >
-            <div>{{row.currencyType}}</div>
+            <div>{{ row.currencyType }}</div>
           </el-table-column>
           <el-table-column
               prop="orderStatus"
@@ -275,7 +288,15 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               v-slot="{row}"
               align="center"
           >
-            <div>{{row.orderStatus}}</div>
+            <div>{{ getOrderStatus(row.orderStatus) }}</div>
+          </el-table-column>
+          <el-table-column
+              prop="orderStatus"
+              label="订单类型"
+              v-slot="{row}"
+              align="center"
+          >
+            <div>{{ row.orderType === 1 ? '系统订单':'手动订单' }}</div>
           </el-table-column>
           <el-table-column
               prop="orderAmount"
@@ -283,7 +304,15 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               v-slot="{row}"
               align="center"
           >
-            <div>{{row.orderAmount}}</div>
+            <div>{{ row.amount }}</div>
+          </el-table-column>
+          <el-table-column
+              prop="channelId"
+              label="订单渠道"
+              v-slot="{row}"
+              align="center"
+          >
+            <div>{{ channelMaps[row.channelId] }}</div>
           </el-table-column>
           <el-table-column
               prop="callBackStatus"
@@ -291,7 +320,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               v-slot="{row}"
               align="center"
           >
-            <div>{{row.callBackStatus}}</div>
+            <div>{{ row.callBackStatus }}</div>
           </el-table-column>
           <el-table-column
               prop="createTime"
@@ -299,7 +328,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               v-slot="{row}"
               align="center"
           >
-            <div>{{row.createTime}}</div>
+            <div>{{ getTimeFromTimestamp(row.requestTime) }}</div>
           </el-table-column>
           <el-table-column
               prop="orderId"
@@ -307,7 +336,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               v-slot="{row}"
               align="center"
           >
-            <div>{{row.requestIP}}</div>
+            <div>{{ row.requestIP }}</div>
           </el-table-column>
           <el-table-column
               width="100"
@@ -317,7 +346,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               fixed="right"
           >
             <el-dropdown trigger="click">
-              <SvgIcon name="more" width="30" height="30" />
+              <SvgIcon name="more" width="30" height="30"/>
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item v-if="row.orderStatus === 1" @click="startUser(row)">审核</el-dropdown-item>
@@ -345,7 +374,12 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
   </div>
 </template>
 <script>
-import { getAllCurrencyType } from "@/api/interface/backendInterface.js";
+import {
+  getAllCurrencyType,
+  getChannelInfo,
+  getCollectionOrder,
+  getMerchantInfo, getPayingOrder
+} from "@/api/interface/backendInterface.js";
 
 export default {
   data() {
@@ -377,6 +411,22 @@ export default {
       currencyIcon: '',
       currencyIcons: {},
       currencyOptions: [],
+      currencyProps: {
+        value: 'currencyType',
+        label: 'name'
+      },
+      channelOptions: [],
+      channelProps: {
+        value: 'channelId',
+        label: 'channelName',
+      },
+      channelMaps: {},
+      merchantOptions: [],
+      merchantMaps: {},
+      merchantInfoProps: {
+        value: 'userId',
+        label: 'accountName',
+      },
       staticsData: {
         orderTotalCount: 10000,
         ordereSuccessRate: '99.9%',
@@ -391,156 +441,86 @@ export default {
         merchantFreezeAmount: 1000,
         merchantAvaiableAmount: 99000,
       },
-      collectingOrderTableInfo: [],
-      collectingOrderFormInfo: [
-        {
-          orderId: 'DF001',
-          merchantOrderId: 'SN002',
-          merchantAccount: 'lee01',
-          merchantName: '商户一',
-          currencyType: '马币',
-          orderStatus: 1,
-          orderAmount: '1000',
-          callBackStatus: '1',
-          createTime: '2025-12-12',
-          requestIP: '127.0.0.1',
-        },
-        {
-          orderId: 'DF002',
-          merchantOrderId: 'SN002',
-          merchantAccount: 'lee01',
-          merchantName: '商户一',
-          currencyType: '马币',
-          orderStatus: 1,
-          orderAmount: '10000',
-          callBackStatus: '1',
-          createTime: '2025-12-12',
-          requestIP: '127.0.0.1',
-        },
-        {
-          orderId: 'DF002',
-          merchantOrderId: 'SN002',
-          merchantAccount: 'lee01',
-          merchantName: '商户一',
-          currencyType: '马币',
-          orderStatus: 1,
-          orderAmount: '10000',
-          callBackStatus: '1',
-          createTime: '2025-12-12',
-          requestIP: '127.0.0.1',
-        },
-        {
-          orderId: 'DF002',
-          merchantOrderId: 'SN002',
-          merchantAccount: 'lee01',
-          merchantName: '商户一',
-          currencyType: '马币',
-          orderStatus: 1,
-          orderAmount: '10000',
-          callBackStatus: '1',
-          createTime: '2025-12-12',
-          requestIP: '127.0.0.1',
-        },
-        {
-          orderId: 'DF002',
-          merchantOrderId: 'SN002',
-          merchantAccount: 'lee01',
-          merchantName: '商户一',
-          currencyType: '马币',
-          orderStatus: 1,
-          orderAmount: '10000',
-          callBackStatus: '1',
-          createTime: '2025-12-12',
-          requestIP: '127.0.0.1',
-        },
-        {
-          orderId: 'DF002',
-          merchantOrderId: 'SN002',
-          merchantAccount: 'lee01',
-          merchantName: '商户一',
-          currencyType: '马币',
-          orderStatus: 1,
-          orderAmount: '10000',
-          callBackStatus: '1',
-          createTime: '2025-12-12',
-          requestIP: '127.0.0.1',
-        },
-        {
-          orderId: 'DF002',
-          merchantOrderId: 'SN002',
-          merchantAccount: 'lee01',
-          merchantName: '商户一',
-          currencyType: '马币',
-          orderStatus: 1,
-          orderAmount: '10000',
-          callBackStatus: '1',
-          createTime: '2025-12-12',
-          requestIP: '127.0.0.1',
-        },
-        {
-          orderId: 'DF002',
-          merchantOrderId: 'SN002',
-          merchantAccount: 'lee01',
-          merchantName: '商户一',
-          currencyType: '马币',
-          orderStatus: 1,
-          orderAmount: '10000',
-          callBackStatus: '1',
-          createTime: '2025-12-12',
-          requestIP: '127.0.0.1',
-        },
-        {
-          orderId: 'DF002',
-          merchantOrderId: 'SN002',
-          merchantAccount: 'lee01',
-          merchantName: '商户一',
-          currencyType: '马币',
-          orderStatus: 1,
-          orderAmount: '10000',
-          callBackStatus: '1',
-          createTime: '2025-12-12',
-          requestIP: '127.0.0.1',
-        },
-        {
-          orderId: 'DF002',
-          merchantOrderId: 'SN002',
-          merchantAccount: 'lee01',
-          merchantName: '商户一',
-          currencyType: '马币',
-          orderStatus: 1,
-          orderAmount: '10000',
-          callBackStatus: '1',
-          createTime: '2025-12-12',
-          requestIP: '127.0.0.1',
-        },
-        {
-          orderId: 'DF002',
-          merchantOrderId: 'SN002',
-          merchantAccount: 'lee01',
-          merchantName: '商户一',
-          currencyType: '马币',
-          orderStatus: 1,
-          orderAmount: '10000',
-          callBackStatus: '1',
-          createTime: '2025-12-12',
-          requestIP: '127.0.0.1',
-        },
-        {
-          orderId: 'DF002',
-          merchantOrderId: 'SN002',
-          merchantAccount: 'lee01',
-          merchantName: '商户一',
-          currencyType: '马币',
-          orderStatus: 1,
-          orderAmount: '10000',
-          callBackStatus: '1',
-          createTime: '2025-12-12',
-          requestIP: '127.0.0.1',
-        }
-      ],
+      payingOrderTableInfo: [],
     }
   },
   methods: {
+    reset(form) {
+      this.$refs[form].resetFields();
+      this.filterbox.filterDateRangeUtc = []
+      this.filterbox.startTime = null
+      this.filterbox.endTime = null
+    },
+    search() {
+      const range = (this.filterbox.filterDateRangeUtc && this.filterbox.filterDateRangeUtc.length === 2)
+          ? this.filterbox.filterDateRangeUtc
+          : this.filterbox.filterDateRange;
+      if (range && range.length === 2) {
+        this.filterbox.startTime = Number(range[0]) / 1000;
+        this.filterbox.endTime = Number(range[1]) / 1000;
+      }
+      getPayingOrder(this.filterbox).then(res => {
+        if (res.status === 200 && res.data.code === 0) {
+          let allData = JSON.parse(res.data.data)
+          this.payingOrderTableInfo = allData.payOrderDtoList
+          this.totalCount = allData.totalNumber
+          this.pageSize = allData.pageSize
+        } else if (res.status === 200 && res.data.code !== 0) {
+          this.$notify({
+            title: 'Failed',
+            message: res.data.message,
+            duration: 3000,
+            position: 'bottom-right',
+            type: 'error',
+          })
+        } else {
+          this.$notify({
+            title: 'Failed',
+            message: 'something went wrong, try again!',
+            duration: 3000,
+            position: 'bottom-right',
+            type: 'error',
+          })
+        }
+      })
+    },
+    parseOffsetMinutes(tz) {
+      const match = String(tz || '').match(/UTC\s*([+-])\s*(\d{1,2})(?::?(\d{2}))?/i);
+      if (!match) {
+        return null;
+      }
+      const sign = match[1] === '-' ? -1 : 1;
+      const hours = parseInt(match[2], 10);
+      const minutes = match[3] ? parseInt(match[3], 10) : 0;
+      return sign * (hours * 60 + minutes);
+    },
+    toUtcRange(displayRange, tz) {
+      const offset = this.parseOffsetMinutes(tz);
+      if (offset === null) {
+        return displayRange;
+      }
+      return displayRange.map((ms) => {
+        const localOffset = new Date(Number(ms)).getTimezoneOffset();
+        return Number(ms) - localOffset * 60000 - offset * 60000;
+      });
+    },
+    toDisplayRange(utcRange, tz) {
+      const offset = this.parseOffsetMinutes(tz);
+      if (offset === null) {
+        return utcRange;
+      }
+      return utcRange.map((ms) => {
+        const localOffset = new Date(Number(ms)).getTimezoneOffset();
+        return Number(ms) + offset * 60000 + localOffset * 60000;
+      });
+    },
+    handleDateRangeChange(val) {
+      if (!val || val.length !== 2) {
+        this.filterbox.filterDateRangeUtc = [];
+        return;
+      }
+      this.filterbox.filterDateRangeUtc = this.toUtcRange(val, this.timeZoneKey);
+    },
     applyCurrencyToStatics() {
       const icon = this.currencyIcon || '';
       this.staticsData.merchantCommission = icon + this.staticsRawData.merchantCommission;
@@ -549,37 +529,49 @@ export default {
       this.staticsData.merchantAvaiableAmount = icon + this.staticsRawData.merchantAvaiableAmount;
     },
     handleCurrencyChange(tab) {
-      if (tab && tab.paneName !== undefined) {
-        this.filterbox.currencyType = tab.paneName;
-      }
-      this.currency = this.filterbox.currencyType;
-      this.currencyIcon = this.currencyIcons[this.currency] || '';
-      this.applyCurrencyToStatics();
+      /*if (tab && tab.paneName !== undefined) {
+        //this.filterbox.currencyType = tab.paneName;
+      }*/
+      //this.currency = this.filterbox.currencyType;
+      //this.currencyIcon = this.currencyIcons[this.currency] || '';
+      //this.applyCurrencyToStatics();
     },
     handleChange(currentPage) {
-      this.collectingOrderTableInfo = []
-      let startNum = (currentPage - 1) * this.pageSize;
-      let endNum = (startNum + this.pageSize) <= this.totalCount ? (this.pageSize + startNum) : this.totalCount
-      for (let i = startNum; i < endNum; i++) {
-        this.collectingOrderTableInfo.push(this.collectingOrderFormInfo[i])
-      }
+      this.currentPage = currentPage;
+      this.filterbox.pageNo = currentPage
+      this.filterbox.pageSize = this.pageSize
+      this.search()
     },
     handleSizeChange(currentPageSize) {
-      this.collectingOrderTableInfo = []
-      let startNum = (this.currentPage - 1) * currentPageSize;
-      let endNum = (startNum + currentPageSize) <= this.totalCount ? (currentPageSize + startNum) : this.totalCount
-      for (let i = startNum; i < endNum; i++) {
-        this.collectingOrderTableInfo.push(this.collectingOrderFormInfo[i])
-      }
+      this.pageSize = currentPageSize;
+      this.filterbox.pageSize = currentPageSize;
+      this.filterbox.pageNo = 1
+      this.currentPage = 1
+      this.search()
     },
   },
   async mounted() {
+    this._timeZoneListener = (event) => {
+      const nextZone = event.detail || localStorage.getItem("timeZone") || "UTC+8";
+      const prevZone = this.timeZoneKey;
+      let utcRange = this.filterbox.filterDateRangeUtc;
+      if ((!utcRange || utcRange.length !== 2) && this.filterbox.filterDateRange?.length === 2) {
+        utcRange = this.toUtcRange(this.filterbox.filterDateRange, prevZone);
+      }
+      this.timeZoneKey = nextZone;
+      if (utcRange && utcRange.length === 2) {
+        this.filterbox.filterDateRangeUtc = utcRange;
+        this.filterbox.filterDateRange = this.toDisplayRange(utcRange, nextZone);
+      }
+      this.tableKey++;
+    };
+    window.addEventListener("timezone-change", this._timeZoneListener);
     await getAllCurrencyType().then(res => {
       if (res.status === 200 && res.data.code === 0) {
         this.currencyOptions = JSON.parse(res.data.data);
         if (this.currencyOptions.length > 0) {
-          this.currency = this.currencyOptions[0].currencyType;
-          this.filterbox.currencyType = this.currencyOptions[0].currencyType;
+          //this.currency = this.currencyOptions[0].currencyType;
+          //this.filterbox.currencyType = this.currencyOptions[0].currencyType;
           this.currencyIcons = {};
           this.currencyOptions.forEach(currency => {
             this.currencyIcons[currency.currencyType] = currency.icon;
@@ -588,11 +580,43 @@ export default {
         }
       }
     });
-    this.applyCurrencyToStatics();
-    this.collectingOrderTableInfo = this.collectingOrderFormInfo;
+
+    let roleName = localStorage.getItem('roleName');
+    if (roleName && roleName !== 'admin') {
+      this.filterbox.merchantUserId = localStorage.getItem('userName');
+      this.filterAvaiable = true
+    }
+
+    await getMerchantInfo(this.filterbox).then(res => {
+      if (res.status === 200 && res.data.code === 0) {
+        this.merchantOptions = JSON.parse(res.data.data).merchantInfoDtoList
+        this.merchantOptions.forEach(merchantInfo => {
+          this.merchantMaps[merchantInfo.userId] = merchantInfo.accountName
+        })
+      }
+    })
+    await getChannelInfo({pageSize: 1000}).then(res => {
+      if (res.status === 200 && res.data.code === 0) {
+        let allData = JSON.parse(res.data.data);
+        this.channelOptions = allData.channelDtoList
+        this.channelOptions.forEach(channel => {
+
+          this.channelMaps[channel.channelId] = channel.channelName
+        })
+      }
+    })
+    this.search()
+    //this.applyCurrencyToStatics();
+    /*this.collectingOrderTableInfo = this.collectingOrderFormInfo;
     this.totalCount = this.collectingOrderTableInfo.length;
     this.handleChange(this.currentPage);
-    this.tableKey++
+    this.tableKey++*/
+  },
+
+  beforeUnmount() {
+    if (this._timeZoneListener) {
+      window.removeEventListener("timezone-change", this._timeZoneListener);
+    }
   }
 }
 </script>

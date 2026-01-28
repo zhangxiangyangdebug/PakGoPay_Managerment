@@ -433,7 +433,7 @@ export default {
     </el-card>
   </div>
   <div class="reportInfo">
-    <el-tabs type="border-card" @tab-click="handleTabClick" v-model="activeTabPane">
+    <el-tabs type="border-card" class="report-tabs" @tab-click="handleTabClick" v-model="activeTabPane">
       <el-tab-pane label="代收报表" style="width: 100%">
         <form id="reportInfo" class="reportInfoForm" style="height: auto">
           <el-table
@@ -755,6 +755,24 @@ export default {
   width: 100%;
   align-items: center;
   justify-content: center;
+}
+
+:deep(.report-tabs.el-tabs--border-card) {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+:deep(.report-tabs.el-tabs--border-card > .el-tabs__header) {
+  border-radius: 12px 12px 0 0;
+}
+
+:deep(.report-tabs.el-tabs--border-card > .el-tabs__header .el-tabs__item) {
+  border-radius: 10px 10px 0 0;
+}
+
+:deep(.report-tabs .el-table) {
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .el-select .el-input_icon {

@@ -373,6 +373,7 @@ export default {
       createChannelInfo: {},
       editChannelInfo: {},
       tableKey: 0,
+      timeZoneKey: localStorage.getItem("timeZone") || "UTC+8",
       dialogFormVisible: false,
       channelDialogTitle: '',
       stopDialogVisible: false,
@@ -657,6 +658,12 @@ export default {
     }
   },
   async mounted() {
+    this._timeZoneListener = (event) => {
+      this.timeZoneKey = event.detail || localStorage.getItem("timeZone") || "UTC+8";
+      this.tableKey++;
+    };
+    window.addEventListener("timezone-change", this._timeZoneListener);
+
     this.applyChannelNameFromRoute()
 
     await getAllCurrencyType().then(res => {
@@ -687,6 +694,11 @@ export default {
     })
 
     this.search()
+  },
+  beforeUnmount() {
+    if (this._timeZoneListener) {
+      window.removeEventListener("timezone-change", this._timeZoneListener);
+    }
   }
 }
 </script>

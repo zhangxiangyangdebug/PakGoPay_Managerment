@@ -736,3 +736,27 @@ export function getWithdrawStatementeOrder(form) {
         data: form
     })
 }
+
+export function getCollectionOrder(form) {
+    return service({
+        url: '/api/pakGoPay/server/v1/queryCollectionOrders',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
+export function getPayingOrder(form) {
+    return service({
+        url: '/api/pakGoPay/server/v1/queryPayOutOrders',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}

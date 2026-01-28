@@ -224,17 +224,75 @@ export function getTimeFromTimestamp(timestamp) {
     if (!timestamp) {
         return '-';
     }
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    let time = ''
     try {
-        time = dayjs.unix(timestamp*1000).tz(timeZone).format('YYYY-MM-DD HH:mm:ss')
+        const ms = normalizeTimestampToMs(timestamp);
+        if (!ms) {
+            return '-';
+        }
+        const offsetMinutes = getTimeZoneOffsetMinutes();
+        const date = offsetMinutes === null ? new Date(ms) : new Date(ms + offsetMinutes * 60 * 1000);
+        return formatDateTime(date, offsetMinutes !== null);
     } catch (e) {
         return '-';
     }
 }
+
 export function getDateFromTimestamp(timestamp) {
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    return dayjs.unix(timestamp*1000).tz(timeZone).format('YYYY-MM-DD');
+    try {
+        const ms = normalizeTimestampToMs(timestamp);
+        if (!ms) {
+            return '-';
+        }
+        const offsetMinutes = getTimeZoneOffsetMinutes();
+        const date = offsetMinutes === null ? new Date(ms) : new Date(ms + offsetMinutes * 60 * 1000);
+        return formatDate(date, offsetMinutes !== null);
+    } catch (e) {
+        return '-';
+    }
+}
+
+function normalizeTimestampToMs(timestamp) {
+    const num = Number(timestamp);
+    if (!Number.isFinite(num)) {
+        return null;
+    }
+    return num > 1e12 ? num : num * 1000;
+}
+
+function getTimeZoneOffsetMinutes() {
+    const timeZoneStr = localStorage.getItem('timeZone');
+    if (!timeZoneStr) {
+        return null;
+    }
+    const match = String(timeZoneStr).match(/UTC\s*([+-])\s*(\d{1,2})(?::?(\d{2}))?/i);
+    if (!match) {
+        return null;
+    }
+    const sign = match[1] === '-' ? -1 : 1;
+    const hours = parseInt(match[2], 10);
+    const minutes = match[3] ? parseInt(match[3], 10) : 0;
+    return sign * (hours * 60 + minutes);
+}
+
+function formatDateTime(date, useUTC) {
+    const year = useUTC ? date.getUTCFullYear() : date.getFullYear();
+    const month = pad2((useUTC ? date.getUTCMonth() : date.getMonth()) + 1);
+    const day = pad2(useUTC ? date.getUTCDate() : date.getDate());
+    const hour = pad2(useUTC ? date.getUTCHours() : date.getHours());
+    const minute = pad2(useUTC ? date.getUTCMinutes() : date.getMinutes());
+    const second = pad2(useUTC ? date.getUTCSeconds() : date.getSeconds());
+    return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+}
+
+function formatDate(date, useUTC) {
+    const year = useUTC ? date.getUTCFullYear() : date.getFullYear();
+    const month = pad2((useUTC ? date.getUTCMonth() : date.getMonth()) + 1);
+    const day = pad2(useUTC ? date.getUTCDate() : date.getDate());
+    return `${year}-${month}-${day}`;
+}
+
+function pad2(num) {
+    return String(num).padStart(2, '0');
 }
 
 function isValidIPv4(ip) {
@@ -324,4 +382,68 @@ export async function exportExcel(res, fileName, that) {
     }
     this.filterbox.orderType = '0'
 
+}
+
+export function getOrderStatus(orderStatus) {
+    if (!orderStatus) {
+        return '-'
+    } else if (orderStatus === '0') {
+        return '待处理'
+    } else if (orderStatus === '1') {
+        return '处理中'
+    } else if (orderStatus === '2') {
+        return '成功'
+    } else if (orderStatus === '3') {
+        return '失败'
+    } else if (orderStatus === '4') {
+        return '超时'
+    } else if (orderStatus === '5') {
+        return '已取消'
+    } else {
+        return '-'
+    }
+}
+
+export function getOrderStatusOptions() {
+    const options = [
+        {
+            value: '0',
+            label: '待处理'
+        },
+        {
+            value: '1',
+            label: '处理中'
+        },
+        {
+            value: '2',
+            label: '成功'
+        },
+        {
+            value: '3',
+            label: '失败'
+        },
+        {
+            value: '4',
+            label: '超时'
+        },
+        {
+            value: '5',
+            label: '已取消'
+        }
+    ]
+    return options
+}
+
+export function getCallBackStatus(callBackStatus) {
+    if (!callBackStatus) {
+        return '-'
+    } else if (callBackStatus === '1') {
+        return '已回调'
+    } else if (callBackStatus === '2') {
+        return '回调失败'
+    } else if (callBackStatus === '3') {
+        return '待回调'
+    } else {
+        return '-'
+    }
 }

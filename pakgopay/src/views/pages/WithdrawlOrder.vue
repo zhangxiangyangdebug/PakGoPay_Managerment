@@ -14,7 +14,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           工具栏
         </span>
         </template>
-        <div class="main-toolbar" style="height: 230px;width: 97%;">
+        <div class="main-toolbar" style="height: 150px;width: 97%;">
           <el-form class="main-toolform" style="height: 100%;">
             <el-row>
               <el-col :offset="18" :span="6">
@@ -32,71 +32,32 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             </el-row>
             <el-row>
               <el-col :span="6">
-                <el-form-item label="订单状态：" label-width="150px" >
-                  <el-input v-model="filterbox.orderStatus" style="width: 200px"/>
+                <el-form-item label="订单编号：" label-width="150px" prop="id">
+                  <el-input v-model="filterbox.id" style="width: 200px"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="订单编号：" label-width="150px" >
-                  <el-input v-model="filterbox.orderId" style="width: 200px"/>
+                <el-radio-group v-model="filterbox.userType">
+                  <el-radio label="商户" :value="1"></el-radio>
+                  <el-radio label="代理" :value="2"></el-radio>
+                </el-radio-group>
+                <el-form-item label="商户：" label-width="150px" prop="userId">
+                  <el-input v-model="filterbox.userId" style="width: 200px"/>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
-                <el-form-item label="订单渠道：" label-width="150px" >
-                  <el-input v-model="filterbox.orderChannel" style="width: 200px"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="商户编号：" label-width="150px" >
-                  <el-input v-model="filterbox.merchantAccount" style="width: 200px"/>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="6">
-                <el-form-item label="商户名称：" label-width="150px" >
-                  <el-input v-model="filterbox.merchantName" style="width: 200px"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="订单类型：" label-width="150px" >
-<!--                  <el-input v-model="filterbox.orderType" style="width: 200px"/>-->
-                  <el-select v-model="filterbox.orderType" disabled style="width: 200px">
-                    <el-option label="提现订单" :value="2"></el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="创建时间：" label-width="150px" >
-                  <el-input v-model="filterbox.createTime"style="width: 200px"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="商户代理：" label-width="150px" >
-                  <el-input v-model="filterbox.merchantAgent" style="width: 200px"/>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="6">
-                <el-form-item label="币种：" label-width="150px" >
-<!--                  <el-input v-model="filterbox.currencyType" style="width: 200px"/>-->
-                  <el-select
-                    :options="currencyOptions"
-                    :props="currencyProps"
-                    v-model="filterbox.currencyType"
-                    style="width: 200px"
+              <el-col :span="11">
+                <el-form-item label="创建时间：" label-width="150px" prop="filterDateRange">
+                  <!--                  <el-input v-model="filterbox.requestTime"style="width: 200px"/>-->
+                  <el-date-picker
+                      v-model="filterbox.filterDateRange"
+                      type="datetimerange"
+                      range-separator="至"
+                      start-placeholder="开始日期"
+                      end-placeholder="结束日期"
+                      format="YYYY/MM/DD HH:mm:ss"
+                      value-format="x"
+                      @change="handleDateRangeChange"
                   />
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="订单金额：" label-width="150px" >
-                  <el-input v-model="filterbox.orderAmount" style="width: 200px"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item label="平台订单号：" label-width="150px" >
-                  <el-input v-model="filterbox.platformOrderId" style="width: 200px"/>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -109,7 +70,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       <div class="currency-tabs">
         <span class="currency-tabs-label">统计币种:</span>
         <el-tabs
-            v-model="filterbox.currencyType"
+            v-model="staticsData.currencyType"
             type="card"
             class="currency-tabs-control"
             @tab-click="handleCurrencyChange"
@@ -355,6 +316,43 @@ export default {
     }
   },
   methods: {
+    handleDateRangeChange(val) {
+      if (!val || val.length !== 2) {
+        this.filterbox.filterDateRangeUtc = [];
+        return;
+      }
+      this.filterbox.filterDateRangeUtc = this.toUtcRange(val, this.timeZoneKey);
+    },
+    parseOffsetMinutes(tz) {
+      const match = String(tz || '').match(/UTC\s*([+-])\s*(\d{1,2})(?::?(\d{2}))?/i);
+      if (!match) {
+        return null;
+      }
+      const sign = match[1] === '-' ? -1 : 1;
+      const hours = parseInt(match[2], 10);
+      const minutes = match[3] ? parseInt(match[3], 10) : 0;
+      return sign * (hours * 60 + minutes);
+    },
+    toUtcRange(displayRange, tz) {
+      const offset = this.parseOffsetMinutes(tz);
+      if (offset === null) {
+        return displayRange;
+      }
+      return displayRange.map((ms) => {
+        const localOffset = new Date(Number(ms)).getTimezoneOffset();
+        return Number(ms) - localOffset * 60000 - offset * 60000;
+      });
+    },
+    toDisplayRange(utcRange, tz) {
+      const offset = this.parseOffsetMinutes(tz);
+      if (offset === null) {
+        return utcRange;
+      }
+      return utcRange.map((ms) => {
+        const localOffset = new Date(Number(ms)).getTimezoneOffset();
+        return Number(ms) + offset * 60000 + localOffset * 60000;
+      });
+    },
     formatOrderStatus(status) {
       const statusMap = {
         0: "待处理",
@@ -403,7 +401,7 @@ export default {
         this.currencyOptions = JSON.parse(res.data.data);
         if (this.currencyOptions.length > 0) {
           this.currency = this.currencyOptions[0].currencyType;
-          this.filterbox.currencyType = this.currencyOptions[0].currencyType;
+          //this.filterbox.currencyType = this.currencyOptions[0].currencyType;
           this.currencyIcons = {};
           this.currencyOptions.forEach(currency => {
             this.currencyIcons[currency.currencyType] = currency.icon;

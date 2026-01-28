@@ -182,7 +182,7 @@ import {getAsyncRoutes} from "@/router/asyncRouter.js";
 }
 .content {
   position: fixed;
-  top: 10%;
+  top: 5%;
   margin-left: 13.5%;
   width: 88%;
   height: 90%;
@@ -191,7 +191,7 @@ import {getAsyncRoutes} from "@/router/asyncRouter.js";
 
 .content-collapse {
   position: fixed;
-  top: 10%;
+  top: 5%;
   margin-left: 0;
   width: 100%;
   height: 75%;

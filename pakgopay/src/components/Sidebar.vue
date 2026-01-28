@@ -4,7 +4,7 @@
       <!-- 侧边栏内容 -->
       <ul @click.stop="" class="firstMenu">
         <li v-for="item in menuItems" :key="item.menuId" @click="showItems(item)">
-          <div style="display: flex; justify-content: space-between;align-items: center">
+          <div class="first-menu-item" style="display: flex; justify-content: space-between;align-items: center">
             <div style=" display: flex;width: 90%;justify-content: space-between;align-items: center;">
               <SvgIcon :name="resolveMenuIcon(item)" style="height: 22px;width:30px;align-items: center;"/>
               <span v-if="!collapse" style="font-size: 15px;align-items: center;text-align: left;width: 75%;">{{ item.meta ? $t(JSON.parse(item.meta).title) : item.menuName}}</span>
@@ -191,13 +191,40 @@ collapse-title {
   width: 100%;
   cursor: pointer;
 }
+.first-menu-item {
+  transition: transform 0.15s ease, background-color 0.15s ease;
+  border-radius: 10px;
+  padding: 4px 6px;
+}
+
+.first-menu-item:hover {
+  transform: scale(1.06);
+  transform-origin: left center;
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.menuRouter {
+  transition: transform 0.15s ease, background-color 0.15s ease;
+  border-radius: 10px;
+}
+
+.menuRouter:hover {
+  transform: scale(1.06);
+  transform-origin: left center;
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.menuRouter:hover {
+  color: #ffffff;
+}
 
 .menuRouter {
   text-decoration: none;
   color: #f2f2f2;
   margin: 0;
   height: 100%;
-  padding: 1px;
+  padding: 4px 6px;
   width: 100%;
   display: block;
   align-items: center;
@@ -205,9 +232,16 @@ collapse-title {
 }
 
 .selectedClass {
-  background-color: #001529;
+  background-color: transparent;
+  transform: scale(1.06);
+  transform-origin: left center;
   color: #f2f2f2;
   margin: 0;
+  border-radius: 10px;
+}
+
+.selectedClass .menuRouter {
+  background-color: #001529;
 }
 
 .firstMenu {
@@ -230,11 +264,18 @@ collapse-title {
   justify-content: center;
   align-content: center;
   justify-items: center;
+  border-radius: 10px;
 }
 
 .unselectedClass {
   /*background-color: #203030;*/
   background: linear-gradient(to right, #5e6c7f, #627185); /* 渐变高亮 */
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.unselectedClass .menuRouter {
+  border-radius: 10px;
 }
 
 .sidebar.collapsed {

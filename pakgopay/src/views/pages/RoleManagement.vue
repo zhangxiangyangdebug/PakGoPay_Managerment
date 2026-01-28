@@ -1,7 +1,7 @@
 <script setup>
 
 import SvgIcon from "@/components/SvgIcon/index.vue";
-import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
+import {getFormateDate, getFormateTimeByTimeBystamp, getTimeFromTimestamp} from "@/api/common.js";
 </script>
 
 <template>
@@ -33,6 +33,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
    <div class="main-views-form">
      <el-form>
        <el-table
+           :key="tableKey"
            border :data="roleInfoTableData"
            class="merchantInfos-table"
            style="width: 97%"
@@ -75,7 +76,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
              align="center"
          >
            <div>
-             {{getFormateDate(row.createTime)}}
+             {{getTimeFromTimestamp(row.createTime)}}
            </div>
          </el-table-column>
          <el-table-column
@@ -290,6 +291,8 @@ export default {
       dialogTitle3: '',
       roleInfoFormData: [],
       roleInfoTableData: [],
+      tableKey: 0,
+      timeZoneKey: localStorage.getItem("timeZone") || "UTC+8",
       addRoleInfoData:[],
       roleInfo:{
         roleId: '',
@@ -587,13 +590,22 @@ export default {
     }
   },
   mounted() {
-
+    this._timeZoneListener = (event) => {
+      this.timeZoneKey = event.detail || localStorage.getItem("timeZone") || "UTC+8";
+      this.tableKey++;
+    };
+    window.addEventListener("timezone-change", this._timeZoneListener);
   },
   created() {
     this.getRoleInfo();
     menu().then(res => {
       this.menuData = JSON.parse(res.data.data)
     })
+  },
+  beforeUnmount() {
+    if (this._timeZoneListener) {
+      window.removeEventListener("timezone-change", this._timeZoneListener);
+    }
   }
 }
 </script>
