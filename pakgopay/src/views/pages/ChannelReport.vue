@@ -239,7 +239,7 @@ export default {
     await getChannelInfo({pageSize:1000}).then(response => {
       if (response.status === 200 && response.data.code === 0) {
         this.channelOptions = JSON.parse(response.data.data).channelDtoList
-        this.filterbox.channelId = this.channelOptions[0].channelId
+        //this.filterbox.channelId = this.channelOptions[0].channelId
         //this.filterbox.channelId = this.channelOptions[0].channelId
       }
     }).catch(error => {
