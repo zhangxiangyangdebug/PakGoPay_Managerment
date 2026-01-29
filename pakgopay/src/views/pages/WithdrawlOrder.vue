@@ -39,7 +39,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
               </el-col>
               <el-col :span="6">
                 <el-form-item label-width="150px" label="用户类型:" prop="userType">
-                  <el-radio-group v-model="filterbox.userType" style="display: flex; flex-direction: row;">
+                  <el-radio-group :disabled="filterAvaiable" v-model="filterbox.userType" style="display: flex; flex-direction: row;">
                     <el-radio label="商户" :value="1"></el-radio>
                     <el-radio label="代理" :value="2"></el-radio>
                   </el-radio-group>
@@ -51,6 +51,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
                     :options="merchantOptions"
                     :props="merchantInfoProps"
                     v-model="filterbox.userId"
+                    :disabled="filterAvaiable"
                   />
                 </el-form-item>
               </el-col>
@@ -60,6 +61,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
                       :options="agentOptions"
                       :props="agentProps"
                       v-model="filterbox.userId"
+                      :disabled="filterAvaiable"
                   />
                 </el-form-item>
               </el-col>
@@ -214,7 +216,10 @@ import {getTimeFromTimestamp} from "@/api/common.js";
               v-slot="{row}"
               align="center"
           >
-            <div>{{ formatOrderStatus(row.status) }}</div>
+            <div class="status-cell">
+              <span :class="['status-dot', getOrderStatusClass(row.status)]"></span>
+              <span>{{ formatOrderStatus(row.status) }}</span>
+            </div>
           </el-table-column>
           <el-table-column
               prop="walletAddr"
@@ -360,6 +365,7 @@ export default {
         value: "userId",
         label: "agentName"
       },
+      filterAvaiable: false,
       agentMaps: {},
       approvalDialogVisible: false,
       approvalDialogTitle: '',
@@ -394,6 +400,14 @@ export default {
     }
   },
   methods: {
+    getOrderStatusClass(status) {
+      const map = {
+        0: 'status-pending',
+        1: 'status-success',
+        2: 'status-fail'
+      };
+      return map[status] || 'status-other';
+    },
     reset(form) {
       this.$refs[form].resetFields();
       this.filterbox.userType = 1
@@ -568,7 +582,19 @@ export default {
     },
   },
   async mounted() {
-
+    let roleName = localStorage.getItem('roleName');
+    let userName = localStorage.getItem('userName');
+    if (roleName &&  roleName === 'agent') {
+      this.filterbox.userType = 2
+      this.filterAvaiable = true
+      this.filterbox.userId = userName
+    } else if (roleName &&  roleName === 'merchant') {
+      this.filterbox.userType = 1
+      this.filterAvaiable = true
+      this.filterbox.userId = userName
+    } else if (roleName &&  roleName === 'admin') {
+      this.filterbox.userType = 1
+    }
     this._timeZoneListener = (event) => {
       const nextZone = event.detail || localStorage.getItem("timeZone") || "UTC+8";
       const prevZone = this.timeZoneKey;
@@ -598,7 +624,6 @@ export default {
         }
       }
     });
-    this.filterbox.userType = 1
     await getMerchantInfo({pageSize: 1000}).then(res => {
       if (res.status === 200 && res.data.code === 0) {
         this.merchantOptions = JSON.parse(res.data.data).merchantInfoDtoList
@@ -636,6 +661,34 @@ export default {
 </script>
 <style scoped>
 @import "@/assets/base.css";
+.status-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-pending {
+  background-color: #f5a623;
+}
+
+.status-success {
+  background-color: #16a34a;
+}
+
+.status-fail {
+  background-color: #ff4d4f;
+}
+
+.status-other {
+  background-color: #9ca3af;
+}
 </style>
 <style>
 

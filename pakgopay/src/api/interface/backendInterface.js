@@ -690,7 +690,7 @@ export function modifyAgentAccountInfo(form) {
 
 export function createStatementeOrderApply(form) {
     return service({
-        url: '/api/pakGoPay/server/merchant/addMerchantStatement',
+        url: '/api/pakGoPay/server/merchant/createAccountStatement',
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -727,7 +727,7 @@ export function markReadMessage(messageId) {
 
 export function getWithdrawStatementeOrder(form) {
     return service({
-        url: '/api/pakGoPay/server/merchant/queryMerchantStatement',
+        url: '/api/pakGoPay/server/merchant/queryAccountStatement',
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,

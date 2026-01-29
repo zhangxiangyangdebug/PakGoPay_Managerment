@@ -287,7 +287,10 @@ import {
               v-slot="{row}"
               align="center"
           >
-            <div>{{getOrderStatus(row.orderStatus)}}</div>
+            <div class="status-cell">
+              <span :class="['status-dot', getOrderStatusClass(row.orderStatus)]"></span>
+              <span>{{getOrderStatus(row.orderStatus)}}</span>
+            </div>
           </el-table-column>
           <el-table-column
               prop="orderStatus"
@@ -583,6 +586,17 @@ export default {
     }
   },
   methods: {
+    getOrderStatusClass(status) {
+      const map = {
+        '0': 'status-pending',
+        '1': 'status-processing',
+        '2': 'status-success',
+        '3': 'status-fail',
+        '4': 'status-timeout',
+        '5': 'status-cancel'
+      };
+      return map[String(status)] || 'status-other';
+    },
     handleDateRangeChange(val) {
       if (!val || val.length !== 2) {
         this.filterbox.filterDateRangeUtc = [];
@@ -759,6 +773,46 @@ export default {
 </script>
 <style scoped>
 @import "@/assets/base.css";
+.status-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-pending {
+  background-color: #f5a623;
+}
+
+.status-success {
+  background-color: #16a34a;
+}
+
+.status-processing {
+  background-color: #3b82f6;
+}
+
+.status-fail {
+  background-color: #ff4d4f;
+}
+
+.status-timeout {
+  background-color: #9ca3af;
+}
+
+.status-cancel {
+  background-color: #6b7280;
+}
+
+.status-other {
+  background-color: #9ca3af;
+}
 </style>
 <style>
 

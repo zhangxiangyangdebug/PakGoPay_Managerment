@@ -121,7 +121,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       :title="dialogTitle"
       v-model="dialogVisible"
       class="dialog"
-      center="true"
       width="70%"
       style="height: 600px;align-content: center"
       >
@@ -221,7 +220,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         :title="dialogTitle2"
         v-model="dialogVisible2"
         class="dialog"
-        center="true"
         width="40%"
         style="height: 250px;align-content: center"
     >
@@ -318,16 +316,16 @@ export default {
       dialogVisible: false,
       dialogTitle: '',
       createUserInfo: {},
-     /* roleInfoOptions: [
-        /!*{
+      roleInfoOptions: [
+        /*{
           id: '001',
           roleName: '超级管理员'
         },
         {
           id: '002',
           roleName: '客服'
-        }*!/
-      ],*/
+        }*/
+      ],
       passwordmatch: true,
       rules: {
         loginName: [
@@ -548,7 +546,7 @@ export default {
   },
   async mounted() {
 
-    /*await roleList(null).then(response => {
+    await roleList(null).then(response => {
       if (response.status === 401) {
         refreshAccessToken(localStorage.getItem("refreshToken"));
       } else if (response.status !== 200 && response.status !== 401) {
@@ -563,7 +561,7 @@ export default {
           this.roleInfoOptions = JSON.parse(response.data.data)
         }
       }
-    })*/
+    })
 
     this.loadData()
 
