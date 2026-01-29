@@ -426,7 +426,7 @@ export default {
                 align="center"
                 v-slot="{row}"
             >
-              <div>{{ this.currencyIcon + row.orderBalance }}</div>
+              <div>{{ this.currencyIcon + row.orderProfit }}</div>
             </el-table-column>
             <el-table-column
                 prop="recordDate"
@@ -508,7 +508,7 @@ export default {
                 align="center"
                 v-slot="{row}"
             >
-              <div>{{ this.currencyIcon + row.orderBalance }}</div>
+              <div>{{ this.currencyIcon + row.orderProfit }}</div>
             </el-table-column>
             <el-table-column
                 prop="time"
