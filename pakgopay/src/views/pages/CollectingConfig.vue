@@ -14,7 +14,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <div class="el-form-line">
           <el-form-item >
             <template #label>
-              <span style="width: 250px;font-size: 16px;color: deepskyblue">代收订单失效时长(min):</span>
+              <span style="width: 250px;font-size: 16px;color: dodgerblue">代收订单失效时长(min):</span>
             </template>
             <el-input :min="1" :step="1" class="center-input" type="number" v-model="orderLoseEfficacy" style="width: 200px">
             </el-input>
@@ -23,7 +23,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <div class="el-form-line" style="width: auto">
           <el-form-item >
             <template #label>
-              <span style="width: 250px;font-size: 16px;color: deepskyblue">代收回调失败重试配置(times):</span>
+              <span style="width: 250px;font-size: 16px;color: dodgerblue">代收回调失败重试配置(times):</span>
             </template>
             <el-input :min="1" :step="1" type="number" v-model="callbackRetry" style="width: 200px;">
             </el-input>
@@ -32,7 +32,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <div class="el-form-line">
           <el-form-item  class="large-label">
             <template #label>
-              <span style="width: 200px;font-size: 16px;color: deepskyblue">代收通道匹配模式:</span>
+              <span style="width: 250px;font-size: 16px;color: dodgerblue">代收通道匹配模式:</span>
             </template>
             <el-radio-group v-model="collectingPathChannelMatchMode">
               <el-radio :label="3">优先级</el-radio>
@@ -54,8 +54,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       </el-form>
     </div>
     <div style="background-color: white; display: flex;justify-content: space-between;align-items: center;width: 96%;border-top: solid 2px gray;height: 30%;">
-      <el-button type="danger" style="margin-left: 30%;width: 100px;height: auto" @click="reset"><SvgIcon name="reset" width="25px" height="22px"/>重置</el-button>
-      <el-button type="success" style="margin-right: 30%;width: 100px;height: auto"><SvgIcon name="success" width="30px" height="22px"/>提交</el-button>
+      <el-button style="margin-left: 30%;width: 100px;height: auto;color: dodgerblue" @click="reset">重置</el-button>
+      <el-button style="margin-right: 30%;width: 100px;height: auto;color: dodgerblue">提交</el-button>
     </div>
   </div>
 </template>

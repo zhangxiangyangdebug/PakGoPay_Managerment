@@ -14,7 +14,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <div class="el-form-line">
           <el-form-item >
             <template #label>
-              <span style="width: 250px;font-size: 16px;color: deepskyblue">代付订单手动回调:</span>
+              <span style="width: 250px;font-size: 16px;color: dodgerblue">代付订单手动回调:</span>
             </template>
             <el-radio-group v-model="payingOrderManualCallback" style="width: 250px;">
               <el-radio :label="1">开启</el-radio>
@@ -25,7 +25,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <div class="el-form-line">
           <el-form-item >
             <template #label>
-              <span style="width: 250px;font-size: 16px;color: deepskyblue">提现申请确认:</span>
+              <span style="width: 250px;font-size: 16px;color: dodgerblue">提现申请确认:</span>
             </template>
             <el-radio-group v-model="withDrawlOrdereManualConfirm" style="width: 250px;">
               <el-radio :label="1">开启</el-radio>
@@ -36,7 +36,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <div class="el-form-line">
           <el-form-item >
             <template #label>
-              <span style="width: 250px;font-size: 16px;color: deepskyblue">商户余额通知:</span>
+              <span style="width: 250px;font-size: 16px;color: dodgerblue">商户余额通知:</span>
             </template>
             <el-radio-group v-model="merchantBalanceNotice" style="width: 250px;">
               <el-radio :label="1">开启</el-radio>
@@ -47,7 +47,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <div class="el-form-line">
           <el-form-item >
             <template #label>
-              <span style="width: 250px;font-size: 16px;color: deepskyblue">失败订单数通知:</span>
+              <span style="width: 250px;font-size: 16px;color: dodgerblue">失败订单数通知:</span>
             </template>
             <el-radio-group v-model="failureOrderNumNotice" style="width: 250px;">
               <el-radio :label="1">开启</el-radio>
@@ -58,8 +58,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       </el-form>
     </div>
     <div style="background-color: white; display: flex;justify-content: space-between;align-items: center;width: 96%;border-top: solid 2px gray;height: 30%;">
-      <el-button type="danger" style="margin-left: 30%;width: 100px;height: auto" @click="reset"><SvgIcon name="reset" width="25px" height="22px"/>重置</el-button>
-      <el-button type="success" style="margin-right: 30%;width: 100px;height: auto" @click="submit"><SvgIcon name="success" width="30px" height="22px"/>提交</el-button>
+      <el-button style="margin-left: 30%;width: 100px;height: auto;color: dodgerblue" @click="reset">重置</el-button>
+      <el-button style="margin-right: 30%;width: 100px;height: auto;color: dodgerblue" @click="submit">提交</el-button>
     </div>
   </div>
 </template>

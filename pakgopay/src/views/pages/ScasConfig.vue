@@ -14,14 +14,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <div class="el-form-line">
           <el-form-item >
             <template #label>
-              <div style="width: 250px;font-size: 16px;color: deepskyblue;">单笔订单请求次数(/min):</div>
+              <div style="width: 250px;font-size: 16px;color: dodgerblue;">单笔订单请求次数(/min):</div>
             </template>
             <el-input :min="1" :step="1" class="center-input" type="number" v-model="merchantEachOrderTimes" style="width: 400px">
             </el-input>
           </el-form-item>
           <el-form-item  style="height: 300px;margin-top: 50px;">
             <template #label>
-                <div style="width: 250px;font-size: 16px;color: deepskyblue;">固定IP QPS:</div>
+                <div style="width: 250px;font-size: 16px;color: dodgerblue;">固定IP QPS:</div>
             </template>
             <el-input type="textarea" :autosize="{minRows: 1, maxRows:100}" v-model="qpsForIP" placeholder="格式：IP:QPS 多个用'，'隔开" style="min-height: 300px !important; max-height: 400px;width: 400px;"></el-input>
           </el-form-item>
@@ -29,8 +29,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       </el-form>
     </div>
     <div style="background-color: white; display: flex;justify-content: space-between;align-items: center;width: 96%;border-top: solid 2px gray;height: 10%;">
-      <el-button type="danger" style="margin-left: 30%;width: 100px;height: auto" @click="reset"><SvgIcon name="reset" width="25px" height="22px"/>重置</el-button>
-      <el-button type="success" style="margin-right: 30%;width: 100px;height: auto" @click="submit"><SvgIcon name="success" width="30px" height="22px"/>提交</el-button>
+      <el-button style="margin-left: 30%;width: 100px;height: auto;color: dodgerblue" @click="reset">重置</el-button>
+      <el-button style="margin-right: 30%;width: 100px;height: auto;color: dodgerblue" @click="submit">提交</el-button>
     </div>
   </div>
 </template>
