@@ -103,7 +103,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </el-dropdown>
       </el-table-column>
     </el-table>
-    <el-pagination
+    <el-pagination class="pageTool"
         background
         layout="sizes, prev, pager, next, jumper, total"
         :total="totalCount"
@@ -112,7 +112,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         :page-sizes="pageSizes"
         @current-change="handleCurrentChange"
         @size-change="handleSizeChange"
-        style="float:right; margin-right: 5%;"
+       
     >
     </el-pagination>
   </div>

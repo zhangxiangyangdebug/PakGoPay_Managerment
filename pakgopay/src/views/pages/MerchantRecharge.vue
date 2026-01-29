@@ -100,14 +100,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <div>{{row.operator}}</div>
         </el-table-column>
       </el-table>
-      <el-pagination
+      <el-pagination class="pageTool"
           background
           layout="sizes, prev, pager, next, jumper, total"
           :total="totalCount"
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
           :page-sizes="pageSizes"
-          style="position: relative;bottom: 0;float: right;margin-right: 3%"
+         
           @current-change="handleChange"
           @size-change="handleSizeChange"
       >

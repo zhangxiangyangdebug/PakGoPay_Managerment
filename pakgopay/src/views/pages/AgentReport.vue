@@ -169,7 +169,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <div>{{ row.commission }}</div>
             </el-table-column>
           </el-table>
-          <el-pagination
+          <el-pagination class="pageTool"
               background
               layout="sizes, prev, pager, next, jumper, total"
               :total="tab1TotalCount"
@@ -178,7 +178,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               :page-sizes="pageSizes"
               @current-change="handleTab1CurrentChange"
               @size-change="handleTab1SizeChange"
-              style="float:right; margin-right: 5%;"
+             
           >
           </el-pagination>
         </el-form>
@@ -250,7 +250,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             </el-table-column>
 
           </el-table>
-          <el-pagination
+          <el-pagination class="pageTool"
               background
               layout="sizes, prev, pager, next, jumper, total"
               :total="tab2TotalCount"
@@ -259,7 +259,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               :page-sizes="pageSizes"
               @current-change="handleTab2CurrentChange"
               @size-change="handleTab2SizeChange"
-              style="float:right; margin-right: 5%;"
+             
           >
           </el-pagination>
         </el-form>

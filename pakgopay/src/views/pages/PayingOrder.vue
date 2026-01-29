@@ -367,14 +367,14 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
             </el-dropdown>
           </el-table-column>
         </el-table>
-        <el-pagination
+        <el-pagination class="pageTool"
             background
             layout="sizes, prev, pager, next, jumper, total"
             :total="totalCount"
             v-model:current-page="currentPage"
             v-model:page-size="pageSize"
             :page-sizes="pageSizes"
-            style="float:right; margin-right: 5%;"
+           
             @current-change="handleChange"
             @size-change="handleSizeChange"
         >

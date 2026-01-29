@@ -174,7 +174,7 @@ import {getFormateDate} from "@/api/common.js";
             <div>{{getFormateDate(row.recordDate)}}</div>
           </el-table-column>
         </el-table>
-        <el-pagination
+        <el-pagination class="pageTool"
             background
             layout="sizes, prev, pager, next, jumper, total"
             :total="tab1TotalCount"
@@ -183,7 +183,7 @@ import {getFormateDate} from "@/api/common.js";
             :page-sizes="pageSizes"
             @current-change="handleTab1CurrentChange"
             @size-change="handleTab1PageSizeChange"
-            style="float:right; margin-right: 5%;"
+           
         >
         </el-pagination>
       </el-tab-pane>
@@ -259,7 +259,7 @@ import {getFormateDate} from "@/api/common.js";
             <div>{{getFormateDate(row.recordDate)}}</div>
           </el-table-column>
         </el-table>
-        <el-pagination
+        <el-pagination class="pageTool"
             background
             layout="sizes, prev, pager, next, jumper, total"
             :total="tab2TotalCount"
@@ -268,7 +268,7 @@ import {getFormateDate} from "@/api/common.js";
             :page-sizes="pageSizes"
             @current-change="handleTab2CurrentChange"
             @size-change="handleTab2PageSizeChange"
-            style="float:right; margin-right: 5%;"
+           
         >
         </el-pagination>
       </el-tab-pane>

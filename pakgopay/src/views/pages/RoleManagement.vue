@@ -109,14 +109,14 @@ import {getFormateDate, getFormateTimeByTimeBystamp, getTimeFromTimestamp} from 
        </el-table>
      </el-form>
      <div style="display:flex;float: right;margin-right: 5%;height: 5%;margin-top: 2%;">
-       <el-pagination
+       <el-pagination class="pageTool"
            background
            layout="sizes, prev, pager, next, jumper, total"
            :total="totalCount"
            v-model:current-page="currentPage"
            v-model:page-size="pageSize"
            :page-sizes="pageSizes"
-           style="float:right; margin-right: 5%;padding-bottom: 5px;height: 100%"
+          
            @current-change="handleChange"
            @size-change="handleSizeChange"
        >

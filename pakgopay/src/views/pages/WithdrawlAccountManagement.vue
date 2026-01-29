@@ -254,7 +254,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
           </div>
         </el-table-column>
       </el-table>
-      <el-pagination
+      <el-pagination class="pageTool"
           background
           layout="sizes, prev, pager, next, jumper, total"
           :total="totalCount"
@@ -263,7 +263,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
           :page-sizes="pageSizes"
           @current-change="handleCurrentChange"
           @size-change="handleSizeChange"
-          style="float:right; margin-right: 5%;"
+         
       >
       </el-pagination>
     </form>

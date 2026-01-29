@@ -270,14 +270,14 @@ import {getTimeFromTimestamp} from "@/api/common.js";
             </el-dropdown>
           </el-table-column>
         </el-table>
-        <el-pagination
+        <el-pagination class="pageTool"
             background
             layout="sizes, prev, pager, next, jumper, total"
             :total="totalCount"
             v-model:current-page="currentPage"
             v-model:page-size="pageSize"
             :page-sizes="pageSizes"
-            style="float:right; margin-right: 5%;margin-top:20px"
+           
             @current-change="handleChange"
             @size-change="handleSizeChange"
         >

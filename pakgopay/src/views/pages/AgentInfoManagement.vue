@@ -271,14 +271,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 
         </el-table-column>
       </el-table>
-      <el-pagination
+      <el-pagination class="pageTool"
           background
           layout="sizes, prev, pager, next, jumper, total"
           :total="totalCount"
           v-model:current-page="currentPage"
           v-model:page-size="pageSize"
           :page-sizes="pageSizes"
-          style="float:right; margin-right: 5%;"
+         
           @current-change="handleCurrentPageChange"
           @size-change="handleSizeChange"
       >
@@ -613,14 +613,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
     </el-dialog>
   </div>
   <div style="display:flex;float: right;margin-right: 5%;height: 5%">
-    <el-pagination
+    <el-pagination class="pageTool"
         background
         layout="sizes, prev, pager, next, jumper, total"
         :total="totalCount"
         v-model:current-page="currentPage"
         v-model:page-size="pageSize"
         :page-sizes="pageSizes"
-        style="float:right; margin-right: 5%;padding-bottom: 5px;height: 100%"
+       
         @current-change="handleChange"
         @size-change="handleSizeChange"
     >
