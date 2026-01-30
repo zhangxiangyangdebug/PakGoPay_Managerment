@@ -96,7 +96,9 @@ export default {
     handleTab1SizeChange(pageSize) {
       this.tab1PageSize = pageSize
       this.tab1CurrentPage = 1
-      this.handleTab1CurrentChange(1)
+      this.filterbox.pageSize = pageSize
+      this.filterbox.pageNo = 1
+      this.search(0)
     },
     handleTab1CurrentChange(currentPage) {
       this.filterbox.isNeedCardData = false
@@ -113,7 +115,11 @@ export default {
     handleTab2SizeChange(pageSize) {
       this.tab2PageSize = pageSize
       this.tab2CurrentPage = 1
-      this.handleTab2CurrentChange(1)
+      this.filterbox.pageSize = pageSize
+      this.filterbox.pageNo = 1
+      this.tab2CurrentPage = 1
+      this.tab2PageSize = pageSize
+      this.search(1)
     },
     handleTab2CurrentChange(currentPage) {
       this.filterbox.isNeedCardData = false

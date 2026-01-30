@@ -613,7 +613,7 @@ export default {
     window.addEventListener("timezone-change", this._timeZoneListener);
     await getAllCurrencyType().then(res => {
       if (res.status === 200 && res.data.code === 0) {
-        this.currencyOptions = JSON.parse(res.data.data);
+        this.currencyOptions = JSON.parse(res.data.data).currencyTypeDTOList;
         if (this.currencyOptions.length > 0) {
           this.currency = this.currencyOptions[0].currencyType;
           //this.filterbox.currencyType = this.currencyOptions[0].currencyType;

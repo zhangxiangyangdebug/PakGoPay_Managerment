@@ -409,6 +409,7 @@ export default {
       }
     };
     return {
+      orderType: 0,
       activeTool: "1",
       timeRange: [],
       currency: '',
@@ -550,8 +551,10 @@ export default {
       if (tab.paneName === '0') {
         this.tab2CurrentPage = 1;
         this.tab2PageSize = 10;
+        this.orderType = 0;
         this.search(0, tab.paneName)
       } else if (tab.paneName === '1') {
+        this.orderType = 1;
         this.tab1CurrentPage = 1;
         this.tab1PageSize = 10;
         this.search(1, tab.paneName)
@@ -585,13 +588,14 @@ export default {
       }
       if (!orderType) {
         this.filterbox.orderType = 0;
+        this.orderType = 0
       } else {
         this.filterbox.orderType = orderType
       }
 
       getCurrencyReport(this.filterbox).then(response => {
         if (response.status === 200 && response.data.code === 0) {
-          let resData = JSON.parse(response.data.data).currencyTypeDTOList
+          let resData = JSON.parse(response.data.data)
           const cardInfo = resData.cardInfo[this.filterbox.currency]
           if (orderType === 0) {
             this.collectionCurrencyInfo = resData.currencyReportDtoList
@@ -678,12 +682,17 @@ export default {
     handleTab1PageSizeChange(pageSize) {
       this.tab1PageSize = pageSize
       this.tab1CurrentPage = 1
-      this.handleTab1CurrentChange(1)
+      this.filterbox.pageNo =  1
+      this.filterbox.pageSize = pageSize
+      this.search(this.orderType)
+      //this.handleTab1CurrentChange(1)
     },
     handleTab2PageSizeChange(pageSize) {
       this.tab2PageSize = pageSize
       this.tab2CurrentPage = 1
-      this.handleTab2CurrentChange(1)
+      this.filterbox.pageNo =  1
+      this.filterbox.pageSize = pageSize
+      this.search(this.orderType)
     }
   },
   async mounted() {

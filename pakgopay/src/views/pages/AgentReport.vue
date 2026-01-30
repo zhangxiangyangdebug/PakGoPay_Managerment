@@ -444,7 +444,10 @@ export default {
     handleTab1SizeChange(pageSize) {
       this.tab1PageSize = pageSize
       this.tab1CurrentPage = 1
-      this.handleTab1CurrentChange(1)
+      //this.handleTab1CurrentChange(1)
+      this.filterbox.pageSize = pageSize
+      this.filterbox.pageNo = 1
+      this.search(0)
     },
     handleTab2CurrentChange(currentPage) {
       this.filterbox.isNeedCardData = false
@@ -458,10 +461,13 @@ export default {
       this.filterbox.pageSize = this.tab2PageSize
       this.search(1)
     },
-    handleTab2SizeChange(currentPage) {
+    handleTab2SizeChange(pageSize) {
       this.tab2PageSize = pageSize
       this.tab2CurrentPage = 1
-      this.handleTab2CurrentChange(1)
+      this.filterbox.pageSize = pageSize
+      this.filterbox.pageNo = 1
+      this.search(1)
+
     },
     handleTabClick(tab) {
       this.filterbox.pageNo = 1;
@@ -481,7 +487,7 @@ export default {
     await getAllCurrencyType().then(res => {
       if (res.status === 200) {
         if (res.data.code === 0) {
-          this.currencyOptions = JSON.parse(res.data.data)
+          this.currencyOptions = JSON.parse(res.data.data).currencyTypeDTOList
           console.log('options----' + this.currencyOptions[0].currencyType)
           this.currency = this.currencyOptions[0].currencyType
           this.filterbox.currency = this.currencyOptions[0].currencyType
