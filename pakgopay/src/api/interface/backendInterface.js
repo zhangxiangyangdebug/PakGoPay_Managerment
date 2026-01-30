@@ -788,3 +788,39 @@ export function getPayingOrder(form) {
         data: form
     })
 }
+
+export function getOpsDailyReport(form) {
+    return service({
+        url: '/api/pakGoPay/server/queryOpsDailyReport',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
+export function getOpsMonthlyReport(form) {
+    return service({
+        url: '/api/pakGoPay/server/queryOpsMonthlyReport',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
+export function getOpsYearlyReport(form) {
+    return service({
+        url: '/api/pakGoPay/server/queryOpsYearlyReport',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}

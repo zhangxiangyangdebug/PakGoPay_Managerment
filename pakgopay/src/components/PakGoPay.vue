@@ -39,8 +39,26 @@
           :value-format="dateFormat"
           class="dimension-picker"
           placeholder="选择日期"
+          @change="handleDateChange"
         />
       </div>
+    </div>
+
+    <div class="currency-tabs" v-if="currencyOptions.length">
+      <span class="currency-tabs-label">统计币种:</span>
+      <el-tabs
+        v-model="currency"
+        type="card"
+        class="currency-tabs-control"
+        @tab-click="handleCurrencyChange"
+      >
+        <el-tab-pane
+          v-for="item in currencyOptions"
+          :key="item.currencyType"
+          :label="item.name || item.currencyType"
+          :name="item.currencyType"
+        />
+      </el-tabs>
     </div>
 
     <div class="welcome-grid">
@@ -263,6 +281,8 @@
 </template>
 
 <script>
+import { getAllCurrencyType, getOpsDailyReport, getOpsMonthlyReport, getOpsYearlyReport } from "@/api/interface/backendInterface.js";
+
 export default {
   name: "PakGoPay",
   components: {
@@ -276,23 +296,20 @@ export default {
       dimension: "day",
       selectedDate: todayLabel,
       trendMetric: "orders",
+      isLoading: false,
+      currency: "",
+      currencyOptions: [],
+      currencyIcons: {},
+      currencyIcon: "",
       tooltip: {
         visible: false,
         x: 0,
         y: 0,
         text: ""
       },
-      baseStats: {
-        collection: {
-          totalOrders: 12560,
-          successRate: 0.958,
-          commissionPerOrder: 3.06
-        },
-        paying: {
-          totalOrders: 6840,
-          successRate: 0.952,
-          commissionPerOrder: 3.08
-        }
+      opsReport: {
+        collection: {},
+        paying: {}
       }
     };
   },
@@ -322,16 +339,16 @@ export default {
       return "YYYY-MM-DD";
     },
     collectionStatsView() {
-      return this.buildStats(this.baseStats.collection, "collection", this.selectedDate);
+      return this.buildStats("collection", this.selectedDate);
     },
     payingStatsView() {
-      return this.buildStats(this.baseStats.paying, "paying", this.selectedDate);
+      return this.buildStats("paying", this.selectedDate);
     },
     collectionStatsPrev() {
-      return this.buildStats(this.baseStats.collection, "collection", this.getPreviousDateKey());
+      return this.buildStats("collection", this.getPreviousDateKey());
     },
     payingStatsPrev() {
-      return this.buildStats(this.baseStats.paying, "paying", this.getPreviousDateKey());
+      return this.buildStats("paying", this.getPreviousDateKey());
     },
     collectionCompare() {
       return this.compareStats(this.collectionStatsView, this.collectionStatsPrev);
@@ -351,13 +368,13 @@ export default {
     },
     collectionTrendValues() {
       return this.trendKeys.map((key) => {
-        const stats = this.buildStats(this.baseStats.collection, "collection", key);
+        const stats = this.buildStats("collection", key);
         return this.trendMetric === "commission" ? stats.agentCommissionValue : stats.totalOrdersValue;
       });
     },
     payingTrendValues() {
       return this.trendKeys.map((key) => {
-        const stats = this.buildStats(this.baseStats.paying, "paying", key);
+        const stats = this.buildStats("paying", key);
         return this.trendMetric === "commission" ? stats.agentCommissionValue : stats.totalOrdersValue;
       });
     },
@@ -407,15 +424,222 @@ export default {
       return Array.from({ length: steps + 1 }, (_, index) => padding + step * index);
     },
     yAxisUnit() {
-      return this.trendMetric === "commission" ? "单位：¥" : "单位：笔";
+      return this.trendMetric === "commission"
+        ? `单位：${this.currencyIcon || ""}`
+        : "单位：笔";
     }
   },
-  mounted() {
+  async mounted() {
+    await this.initCurrency();
+    this.fetchOpsReport();
+
   },
   methods: {
     setDimension(value) {
       this.dimension = value;
       this.selectedDate = this.getDefaultDateForDimension();
+      this.fetchOpsReport();
+    },
+    handleDateChange() {
+      this.fetchOpsReport();
+    },
+    handleCurrencyChange(tab) {
+      const nextCurrency = tab?.paneName || this.currency;
+      if (nextCurrency && nextCurrency !== this.currency) {
+        this.currency = nextCurrency;
+      }
+      this.currencyIcon = this.currencyIcons[this.currency] || "";
+      this.fetchOpsReport();
+    },
+    fetchOpsReport() {
+      const payload = this.buildOpsRequest();
+      if (!payload.currency) {
+        this.$notify({
+          title: 'Failed',
+          type: 'error',
+          duration: 3000,
+          message: '获取币种失败，无法请求运营数据'
+        });
+        return;
+      }
+      this.isLoading = true;
+      const req = this.dimension === "year"
+        ? getOpsYearlyReport(payload)
+        : this.dimension === "month"
+          ? getOpsMonthlyReport(payload)
+          : getOpsDailyReport(payload);
+      req.then((res) => {
+        if (res.status === 200 && res.data.code === 0) {
+          const data = this.parseOpsPayload(res.data.data);
+          const collectionList = data.collectionList || data.collection || data.collecting || data.ds || [];
+          const payoutList = data.payoutList || data.paying || data.df || [];
+          this.applyOpsData(collectionList, payoutList);
+        } else if (res?.data?.code !== 0) {
+          this.$notify({
+            title: 'Failed',
+            type: 'error',
+            duration: 3000,
+            message: res.data.message || '获取运营数据失败'
+          })
+        }
+      }).finally(() => {
+        this.isLoading = false;
+      });
+    },
+    async initCurrency() {
+      if (this.currency) {
+        return;
+      }
+      try {
+        const res = await getAllCurrencyType();
+        if (res.status === 200 && res.data.code === 0) {
+          const data = this.parseOpsPayload(res.data.data);
+          const list = data.currencyTypeDTOList || [];
+          this.currencyOptions = list;
+          if (list.length > 0) {
+            this.currency = list[0].currencyType || "";
+            this.currencyIcons = {};
+            list.forEach((item) => {
+              if (item?.currencyType) {
+                this.currencyIcons[item.currencyType] = item.icon || "";
+              }
+            });
+            this.currencyIcon = this.currencyIcons[this.currency] || "";
+          }
+        }
+      } catch (error) {
+        this.currency = "";
+      }
+    },
+    buildOpsRequest() {
+      const { scopeType, scopeId } = this.getScopeInfo();
+      return {
+        recordDate: this.selectedDate,
+        currency: this.currency,
+        scopeType,
+        scopeId
+      };
+    },
+    getScopeInfo() {
+      const roleName = localStorage.getItem("roleName");
+      const userId = localStorage.getItem("userId");
+      if (roleName === "merchant") {
+        return { scopeType: 1, scopeId: userId || "0" };
+      }
+      if (roleName === "agent") {
+        return { scopeType: 2, scopeId: userId || "0" };
+      }
+      return { scopeType: 0, scopeId: "0" };
+    },
+    applyOpsData(collectionList, payoutList) {
+      console.log(JSON.stringify(collectionList));
+      this.opsReport = {
+        collection: this.buildReportMap(collectionList),
+        paying: this.buildReportMap(payoutList)
+      };
+    },
+    parseOpsPayload(payload) {
+      if (!payload) {
+        return {};
+      }
+      if (typeof payload === "string") {
+        try {
+          return JSON.parse(payload);
+        } catch (error) {
+          return {};
+        }
+      }
+      return payload;
+    },
+    buildReportMap(list) {
+      const map = {};
+      if (!Array.isArray(list)) {
+        return map;
+      }
+      list.forEach((item) => {
+        const key = this.getReportKeyFromItem(item);
+        if (!key) {
+          return;
+        }
+        const totalOrders = Number(item?.orderQuantity ?? 0);
+        const successOrders = Number(item?.successQuantity ?? 0);
+        const failedOrders = Number(item?.failQuantity ?? 0);
+        const commission = Number(item?.agentCommission ?? 0);
+        if (!map[key]) {
+          map[key] = {
+            totalOrders: 0,
+            successOrders: 0,
+            failedOrders: 0,
+            agentCommission: 0,
+            successRate: undefined
+          };
+        }
+        map[key].totalOrders += totalOrders;
+        map[key].successOrders += successOrders;
+        map[key].failedOrders += failedOrders;
+        map[key].agentCommission += commission;
+        if (map[key].successRate === undefined && item?.successRate !== undefined && item?.successRate !== null) {
+          map[key].successRate = item.successRate;
+        }
+      });
+      return map;
+    },
+    getReportKeyFromItem(item) {
+      if (!item) {
+        return "";
+      }
+      if (this.dimension === "month" && item.reportMonth) {
+        return String(item.reportMonth).slice(0, 7);
+      }
+      if (this.dimension === "year" && item.reportYear) {
+        return String(item.reportYear).slice(0, 4);
+      }
+      return this.getReportKey(item.reportDate);
+    },
+    getReportKey(reportDate) {
+      if (!reportDate) {
+        return "";
+      }
+      let dateString = "";
+      if (typeof reportDate === "number" || (/^\d+$/.test(String(reportDate)))) {
+        let ms = Number(reportDate);
+        if (!Number.isNaN(ms) && ms > 0) {
+          if (String(reportDate).length === 10) {
+            ms *= 1000;
+          }
+          const useUtc = this.dimension !== "day";
+          dateString = this.formatDateFromMs(ms, useUtc);
+        }
+      } else {
+        dateString = String(reportDate).split("T")[0];
+      }
+      if (!dateString) {
+        return "";
+      }
+      if (this.dimension === "year") {
+        return dateString.slice(0, 4);
+      }
+      if (this.dimension === "month") {
+        return dateString.slice(0, 7);
+      }
+      return dateString;
+    },
+    formatDateFromMs(ms, useUtc) {
+      const date = new Date(ms);
+      const year = useUtc ? date.getUTCFullYear() : date.getFullYear();
+      const month = String((useUtc ? date.getUTCMonth() : date.getMonth()) + 1).padStart(2, "0");
+      const day = String(useUtc ? date.getUTCDate() : date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    },
+    normalizeRate(rate) {
+      if (rate === undefined || rate === null || rate === '') {
+        return 0;
+      }
+      const num = Number(rate);
+      if (Number.isNaN(num)) {
+        return 0;
+      }
+      return num > 1 ? num / 100 : num;
     },
     getDimensionLabel() {
       if (this.dimension === "year") {
@@ -425,7 +649,7 @@ export default {
         return "月";
       }
       return "日";
-    },
+  },
     getFormattedDate() {
       return this.selectedDate || "";
     },
@@ -443,7 +667,7 @@ export default {
     },
     formatTrendValue(value) {
       if (this.trendMetric === "commission") {
-        return `¥ ${value.toFixed(2)}`;
+        return `${this.currencyIcon || ""} ${value.toFixed(2)}`;
       }
       return Math.round(value).toLocaleString();
     },
@@ -463,14 +687,22 @@ export default {
     hideTooltip() {
       this.tooltip.visible = false;
     },
-    buildStats(base, key, dateKey) {
-      const scale = this.getScaleFactor();
-      const variance = this.getDateVariance(key, dateKey);
-      const totalOrders = Math.max(0, Math.round(base.totalOrders * scale * variance));
-      const successOrders = Math.max(0, Math.round(totalOrders * base.successRate));
-      const failedOrders = Math.max(0, totalOrders - successOrders);
-      const commission = totalOrders * base.commissionPerOrder;
-      const successRateValue = totalOrders === 0 ? 0 : (successOrders / totalOrders) * 100;
+    buildStats(type, dateKey) {
+      const record = (this.opsReport?.[type] || {})[dateKey] || {};
+      let totalOrders = Number(record.totalOrders ?? record.orderQuantity ?? 0);
+      const successOrders = Number(record.successOrders ?? record.successQuantity ?? 0);
+      let failedOrders = Number(record.failedOrders ?? record.failQuantity ?? 0);
+      const commission = Number(record.agentCommission ?? record.commission ?? 0);
+      if (!totalOrders && (successOrders || failedOrders)) {
+        totalOrders = successOrders + failedOrders;
+      }
+      if (!failedOrders && totalOrders && successOrders) {
+        failedOrders = Math.max(0, totalOrders - successOrders);
+      }
+      const successRateFallback = this.normalizeRate(record.successRate) * 100;
+      const successRateValue = totalOrders === 0
+        ? successRateFallback
+        : (successOrders / totalOrders) * 100;
       const successRate = `${successRateValue.toFixed(1)}%`;
       return {
         totalOrdersValue: totalOrders,
@@ -482,26 +714,8 @@ export default {
         successOrders: successOrders.toLocaleString(),
         failedOrders: failedOrders.toLocaleString(),
         successRate,
-        agentCommission: `¥ ${commission.toFixed(2)}`
+        agentCommission: `${this.currencyIcon || ""} ${commission.toFixed(2)}`
       };
-    },
-    getScaleFactor() {
-      if (this.dimension === "year") {
-        return 365;
-      }
-      if (this.dimension === "month") {
-        return 30;
-      }
-      return 1;
-    },
-    getDateVariance(key, dateKey) {
-      const seedSource = `${dateKey || ""}-${this.dimension}-${key}`;
-      let hash = 0;
-      for (let i = 0; i < seedSource.length; i += 1) {
-        hash = (hash * 31 + seedSource.charCodeAt(i)) % 997;
-      }
-      const variance = 0.9 + (hash % 21) / 100;
-      return variance;
     },
     compareStats(current, previous) {
       return {
@@ -520,7 +734,7 @@ export default {
       if (type === "rate") {
         textValue = `${absValue.toFixed(1)}pp`;
       } else if (type === "money") {
-        textValue = `¥ ${absValue.toFixed(2)}`;
+        textValue = `${this.currencyIcon || ""} ${absValue.toFixed(2)}`;
       } else {
         textValue = `${Math.round(absValue).toLocaleString()}`;
       }
