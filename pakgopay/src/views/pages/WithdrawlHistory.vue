@@ -341,8 +341,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       <div class="el-form-line">
         <el-form-item label="代理名称:" label-width="150px" prop="merchantAgentId">
           <el-select
-              :options="agentAccountOptions"
-              :props="agentAccountProps"
+              :options="agentOptions"
+              :props="agentProps"
               style="width: 200px"
               v-model="withdrawOrderInfo.merchantAgentId"
               @change="handleAgentChange"
@@ -370,7 +370,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-select
               v-model="withdrawOrderInfo.walletAddr"
               style="width: 200px"
-              :options="agentAccountOptions"
+              :options="selectedAgentOptions"
               :props="agentWalletProps"
               filterable
           />
@@ -442,6 +442,8 @@ export default {
       }
     }
     return {
+      selectedAgentOptions: [],
+      selectedAgentBalance: {},
       amountInfo: {},
       filterAvaiable: false,
       timeZoneKey: localStorage.getItem("timeZone") || "UTC+8",
@@ -566,7 +568,13 @@ export default {
       });
       this.withdrawOrderInfo.merchantAgentName = opt[0].name;
       //this.withdrawOrderInfo.walletAddr = opt.walletAddr;
-      this.agentAccountOptions = Object.assign([], opt)
+      //this.agentAccountOptions = Object.assign([], opt)
+      this.selectedAgentBalance = this.amountInfo[value]
+      this.agentAccountOptions.forEach(item => {
+        if (item.merchantAgentId === value) {
+          this.selectedAgentOptions.push(item);
+        }
+      })
     },
     search() {
       this.filterbox.isNeedCardData = true
@@ -760,8 +768,7 @@ export default {
     },
     handleWithdrawCurrencyChange(val) {
       let opt = {}
-      this.amountInfo ? opt = this.amountInfo[val] : opt = null
-
+      this.selectedAgentBalance ?  opt = this.selectedAgentBalance[val] : opt = null
       opt ? this.withdrawOrderInfo.availableAmount = opt.available : this.withdrawOrderInfo.availableAmount = 0
     },
     cancelWithdraw(form) {
@@ -865,7 +872,10 @@ export default {
         if (res.status === 200 && res.data.code === 0) {
           let allData = JSON.parse(res.data.data)
           this.agentOptions = allData.agentInfoDtoList
-          this.amountInfo = allData.cardInfo
+          console.log(JSON.stringify(this.agentOptions))
+          this.agentOptions.forEach(item => {
+            this.amountInfo[item.userId] = item.balanceInfo
+          })
         }
       })
     }

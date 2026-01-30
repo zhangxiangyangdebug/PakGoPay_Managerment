@@ -369,8 +369,8 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <div class="el-form-line">
         <el-form-item label="商户名称:" label-width="150px" prop="merchantAgentId">
           <el-select
-              :options="merchantAccountOptions"
-              :props="merchantAccountProps"
+              :options="merchantInfo"
+              :props="merchantInfoProps"
               style="width: 200px"
               v-model="withdrawOrderInfo.merchantAgentId"
               @change="handleMerchantChange"
@@ -398,7 +398,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
           <el-select
               v-model="withdrawOrderInfo.walletAddr"
               style="width: 200px"
-              :options="merchantAccountOptions"
+              :options="selectedMerchantOptions"
               :props="merchantWalletProps"
               filterable
           />
@@ -596,6 +596,8 @@ export default {
       }
     }
     return {
+      selectedMerchantOptions: [],
+      selectedMerchantBalance: {},
       filterAvaiable: false,
       roleName: '',
       merchantInfo: [],
@@ -771,6 +773,12 @@ export default {
       this.withdrawOrderInfo.merchantAgentName = opt[0].name;
       //this.withdrawOrderInfo.walletAddr = opt.walletAddr;
       this.merchantAccountOptions = Object.assign([], opt)
+      this.selectedMerchantBalance = this.amountInfo[value]
+      this.merchantAccountOptions.forEach(item => {
+        if (item.merchantAgentId === value) {
+          this.selectedMerchantOptions.push(item);
+        }
+      })
     },
     handleAjustMentMerchantChange(value) {
       let opt = [];
@@ -1140,7 +1148,8 @@ export default {
     },
     handleWithdrawCurrencyChange(val) {
       let opt = {}
-      opt = this.amountInfo[val]
+      //opt = this.amountInfo[val]
+      opt = this.selectedMerchantBalance[val]
       opt ? this.withdrawOrderInfo.availableAmount = opt.available : this.withdrawOrderInfo.availableAmount = 0
     },
     handleAjustmentCurrencyChange(val) {
@@ -1155,6 +1164,9 @@ export default {
             let allData = JSON.parse(res.data.data)
             this.merchantInfo = allData.merchantInfoDtoList
             this.amountInfo = allData.cardInfo
+            this.merchantInfo.forEach(item => {
+              this.amountInfo[item.userId]= item.balanceInfo
+            })
           }
         }
       })
