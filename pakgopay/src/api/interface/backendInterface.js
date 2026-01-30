@@ -326,7 +326,9 @@ export function getAllCurrencyType() {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json;charset=UTF-8',
         },
-        data: {},
+        data: {
+            allData: true,
+        },
     })
 }
 
