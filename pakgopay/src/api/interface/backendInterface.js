@@ -56,6 +56,7 @@ export function logOut() {
                 localStorage.removeItem("userId")
                 localStorage.removeItem("currentPath")
                 localStorage.removeItem("refreshToken")
+                localStorage.removeItem("ops_common_message_shown")
                 const coreNames = new Set(["default", "login", "pakGoPay"]);
                 router.getRoutes().forEach(route => {
                     if (route.name && !coreNames.has(route.name)) {
@@ -280,6 +281,19 @@ export function resetGoogleKey(user_id, googleCode, loginName) {
             userId: user_id,
             googleCode: googleCode,
             loginName: loginName
+        }
+    })
+}
+
+export function getCommonMessage() {
+    return service({
+        url: '/api/pakGoPay/server/SystemConfig/unCommonMessage',
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        params: {
+            userName: localStorage.getItem('userName'),
         }
     })
 }

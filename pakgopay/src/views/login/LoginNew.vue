@@ -70,9 +70,9 @@
         />
         <div class="login-actions">
           <button class="btn-primary" type="button" @click="login(loginForm)">Login</button>
-          <button class="btn-secondary" type="button" @click="getQrCodes(loginForm.userName, loginForm.password)">
+<!--          <button class="btn-secondary" type="button" @click="getQrCodes(loginForm.userName, loginForm.password)">
             获取谷歌令牌二维码
-          </button>
+          </button>-->
         </div>
       </div>
     </div>
@@ -83,7 +83,7 @@
 <script>
 import Modal from "@/components/Modal.vue";
 import { ElMessage } from "element-plus";
-import { getQrCode, LoginBack, menu } from "@/api/interface/backendInterface.js";
+import {getCommonMessage, getQrCode, LoginBack, menu} from "@/api/interface/backendInterface.js";
 import { getAsyncRoutes } from "@/router/asyncRouter.js";
 import router from "@/router/index.js";
 
@@ -106,8 +106,8 @@ export default {
   },
   methods: {
     async login(loginForm) {
-      if (!loginForm.userName || !loginForm.password || !loginForm.code) {
-        ElMessage.error("please enter account, password and code");
+      if (!loginForm.userName || !loginForm.password) {
+        ElMessage.error("please enter account, password");
         return;
       }
       await LoginBack(loginForm).then((response) => {
@@ -128,8 +128,22 @@ export default {
                 localStorage.setItem("menu", JSON.stringify(this.menuItems));
                 getAsyncRoutes(this.menuItems).forEach((route) => {
                   router.addRoute(route);
-                  router.push("/web/pakGoPay");
+                  router.push("/web/pakGoPay")
+
+                      /*.then((res) => {
+                        getCommonMessage().then(message => {
+                          if (message.status === 200 && message.data.code == 0) {
+                            if (message.data.data != 'success') {
+                              ElMessage.error(
+                                  message.data.message,
+                              )
+                            }
+                          }
+                        })
+                      })*/
                 });
+                // get commonMessage
+
               }
             });
           } catch (e) {

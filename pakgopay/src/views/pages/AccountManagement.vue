@@ -521,7 +521,7 @@ export default {
         if (!valid) {
           return;
         }
-        resetGoogleKey(this.resetGoogleForm.userId, this.resetGoogleForm.googleCode).then(response => {
+        resetGoogleKey(this.resetGoogleForm.userId, this.resetGoogleForm.googleCode, this.resetGoogleForm.loginName).then(response => {
           if (response.status === 200 && response.data.code === 0) {
             const data = this.parseResetGooglePayload(response.data.data);
             const qrCode = this.normalizeQrCode(data.qrCode);

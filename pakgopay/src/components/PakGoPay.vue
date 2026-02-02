@@ -281,7 +281,13 @@
 </template>
 
 <script>
-import { getAllCurrencyType, getOpsDailyReport, getOpsMonthlyReport, getOpsYearlyReport } from "@/api/interface/backendInterface.js";
+import {
+  getAllCurrencyType,
+  getCommonMessage,
+  getOpsDailyReport,
+  getOpsMonthlyReport,
+  getOpsYearlyReport
+} from "@/api/interface/backendInterface.js";
 
 export default {
   name: "PakGoPay",
@@ -432,6 +438,38 @@ export default {
   async mounted() {
     await this.initCurrency();
     this.fetchOpsReport();
+    const messageShownKey = 'ops_common_message_shown';
+    if (localStorage.getItem(messageShownKey) === '1') {
+      return;
+    }
+    getCommonMessage().then(res => {
+      if (res.status === 200 && res.data.code === 0) {
+        if (res.data.data !== 'success') {
+          const remainTimes = 3 - Number(res.data.data || 0);
+          const alertContent = `
+            <div class="ops-alert-body">
+              <div class="ops-alert-title">Google 验证未绑定</div>
+              <div class="ops-alert-text">
+                您还可以免验证登录 <strong>${remainTimes}</strong> 次，
+                建议尽快绑定 Google 验证。
+              </div>
+              <div class="ops-alert-hint">路径：个人中心 → 安全设置 → 绑定 Google</div>
+            </div>
+          `;
+          this.$alert(alertContent, '提醒', {
+            confirmButtonText: '确定',
+            center: false,
+            type: 'warning',
+            dangerouslyUseHTMLString: true,
+            customClass: 'ops-alert-dialog'
+          }).then(() => {
+            localStorage.setItem(messageShownKey, '1');
+          }).catch(() => {
+            localStorage.setItem(messageShownKey, '1');
+          })
+        }
+      }
+    })
 
   },
   methods: {
@@ -1137,6 +1175,46 @@ export default {
   font-family: "IBM Plex Sans", "Helvetica Neue", sans-serif;
   pointer-events: none;
   white-space: nowrap;
+}
+
+.ops-alert-dialog .el-message-box__header {
+  text-align: left;
+  padding-bottom: 8px;
+}
+
+.ops-alert-dialog .el-message-box__title {
+  justify-content: flex-start;
+}
+
+.ops-alert-dialog .el-message-box__content {
+  padding-top: 6px;
+}
+
+.ops-alert-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  line-height: 1.6;
+  color: #3a3a38;
+}
+
+.ops-alert-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1b1a17;
+}
+
+.ops-alert-text strong {
+  color: #c2410c;
+  font-weight: 700;
+}
+
+.ops-alert-hint {
+  font-size: 12px;
+  color: #6b6a65;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(15, 76, 92, 0.08);
 }
 
 .point-collect {
