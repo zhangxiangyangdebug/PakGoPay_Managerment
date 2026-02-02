@@ -1199,7 +1199,7 @@ export default {
           const allList = all.merchantInfoDtoList
           this.merchantInfoFormData = null;
           this.merchantInfoFormData = Object.assign([], allList)
-          if(!this.isAdmin) {
+          if(!this.isAdmin && allList.length > 0) {
             this.filterbox.merchantName = allList[0].merchantName
             this.filterbox.merchantUserName = allList[0].accountName
             this.agentOptions = allList[0].agentInfos

@@ -277,12 +277,42 @@
         </div>
       </section>
     </div>
+
+    <el-dialog
+      v-model="googleBindVisible"
+      title="绑定 Google 验证"
+      width="420px"
+    >
+      <div class="google-bind-dialog">
+        <img
+          v-if="googleBindQrCode"
+          :src="googleBindQrCode"
+          alt="Google QR Code"
+          class="google-bind-qr"
+        />
+        <div v-else class="google-bind-empty">暂无二维码</div>
+        <div v-if="googleBindSecretKey" class="google-bind-secret">
+          密钥：{{ googleBindSecretKey }}
+        </div>
+        <el-button
+          v-if="googleBindSecretKey"
+          size="small"
+          @click="copyGoogleBindSecretKey"
+        >
+          复制密钥
+        </el-button>
+      </div>
+      <template #footer>
+        <el-button type="primary" @click="googleBindVisible = false">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import {
   getAllCurrencyType,
+  bindGoogleKey,
   getCommonMessage,
   getOpsDailyReport,
   getOpsMonthlyReport,
@@ -303,6 +333,9 @@ export default {
       selectedDate: todayLabel,
       trendMetric: "orders",
       isLoading: false,
+      googleBindVisible: false,
+      googleBindQrCode: "",
+      googleBindSecretKey: "",
       currency: "",
       currencyOptions: [],
       currencyIcons: {},
@@ -453,17 +486,19 @@ export default {
                 您还可以免验证登录 <strong>${remainTimes}</strong> 次，
                 建议尽快绑定 Google 验证。
               </div>
-              <div class="ops-alert-hint">路径：个人中心 → 安全设置 → 绑定 Google</div>
             </div>
           `;
-          this.$alert(alertContent, '提醒', {
-            confirmButtonText: '确定',
+          this.$confirm(alertContent, '提醒', {
+            confirmButtonText: '现在绑定',
+            cancelButtonText: '知道了',
+            showCancelButton: true,
             center: false,
             type: 'warning',
             dangerouslyUseHTMLString: true,
             customClass: 'ops-alert-dialog'
           }).then(() => {
             localStorage.setItem(messageShownKey, '1');
+            this.handleBindGoogleKey();
           }).catch(() => {
             localStorage.setItem(messageShownKey, '1');
           })
@@ -523,6 +558,110 @@ export default {
       }).finally(() => {
         this.isLoading = false;
       });
+    },
+    async handleBindGoogleKey() {
+      const userId = localStorage.getItem("userId");
+      const loginName = localStorage.getItem("userName") || localStorage.getItem("loginName");
+      if (!userId || !loginName) {
+        this.$notify({
+          title: 'Failed',
+          type: 'error',
+          duration: 3000,
+          message: '缺少用户信息，无法绑定 Google 验证'
+        });
+        return;
+      }
+      try {
+        const res = await bindGoogleKey(userId, loginName);
+        if (res.status === 200 && res.data.code === 0) {
+          const data = this.parseOpsPayload(res.data.data);
+          const qrCode = this.normalizeQrCode(data?.qrCode || "");
+          const secretKey = data?.secretKey || "";
+          if (!qrCode && !secretKey) {
+            this.$notify({
+              title: 'Failed',
+              type: 'error',
+              duration: 3000,
+              message: res.data.message || '获取绑定二维码失败'
+            });
+            return;
+          }
+          this.googleBindQrCode = qrCode;
+          this.googleBindSecretKey = secretKey;
+          this.googleBindVisible = true;
+        } else {
+          this.$notify({
+            title: 'Failed',
+            type: 'error',
+            duration: 3000,
+            message: res.data.message || '绑定 Google 验证失败'
+          });
+        }
+      } catch (error) {
+        this.$notify({
+          title: 'Failed',
+          type: 'error',
+          duration: 3000,
+          message: '绑定 Google 验证失败'
+        });
+      }
+    },
+    copyGoogleBindSecretKey() {
+      if (!this.googleBindSecretKey) {
+        return;
+      }
+      const text = String(this.googleBindSecretKey);
+      if (navigator?.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          this.$notify({
+            title: 'Success',
+            type: 'success',
+            duration: 2000,
+            message: '已复制密钥'
+          });
+        }).catch(() => {
+          this.fallbackCopySecretKey(text);
+        });
+        return;
+      }
+      this.fallbackCopySecretKey(text);
+    },
+    fallbackCopySecretKey(text) {
+      const input = document.createElement('input');
+      input.value = text;
+      document.body.appendChild(input);
+      input.select();
+      try {
+        document.execCommand('copy');
+        this.$notify({
+          title: 'Success',
+          type: 'success',
+          duration: 2000,
+          message: '已复制密钥'
+        });
+      } catch (error) {
+        this.$notify({
+          title: 'Failed',
+          type: 'error',
+          duration: 2000,
+          message: '复制失败，请手动复制'
+        });
+      } finally {
+        document.body.removeChild(input);
+      }
+    },
+    normalizeQrCode(qrCode) {
+      if (!qrCode) {
+        return "";
+      }
+      const trimmed = String(qrCode).trim();
+      if (trimmed.startsWith("data:image")) {
+        return trimmed;
+      }
+      if (trimmed.startsWith("http")) {
+        return trimmed;
+      }
+      return `data:image/png;base64,${trimmed}`;
     },
     async initCurrency() {
       if (this.currency) {
@@ -1215,6 +1354,33 @@ export default {
   padding: 6px 10px;
   border-radius: 8px;
   background: rgba(15, 76, 92, 0.08);
+}
+
+.google-bind-dialog {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.google-bind-qr {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 76, 92, 0.2);
+  background: #ffffff;
+}
+
+.google-bind-empty {
+  font-size: 12px;
+  color: #6b6a65;
+}
+
+.google-bind-secret {
+  font-weight: 600;
+  color: #1b1a17;
 }
 
 .point-collect {

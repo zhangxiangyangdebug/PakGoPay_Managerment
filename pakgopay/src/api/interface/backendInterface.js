@@ -285,6 +285,20 @@ export function resetGoogleKey(user_id, googleCode, loginName) {
     })
 }
 
+export function bindGoogleKey(user_id, loginName) {
+    return service({
+        url: '/api/pakGoPay/server/SystemConfig/bindGoogleKey',
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        params: {
+            userId: user_id,
+            loginName: loginName
+        }
+    })
+}
+
 export function getCommonMessage() {
     return service({
         url: '/api/pakGoPay/server/SystemConfig/unCommonMessage',
