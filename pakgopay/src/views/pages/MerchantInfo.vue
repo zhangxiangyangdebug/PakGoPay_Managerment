@@ -360,8 +360,9 @@ import {getFormateDate} from "@/api/common.js";
       height="900px"
       style="max-width: 70%; overflow-x: auto"
       @open="handleOpen('merchantAddInfo')"
+      @close="cancelAddDialog('merchantAddInfo')"
   >
-    <el-form ref="merchantAddInfo" style="height: 500px" :model="merchantAddInfo" label-width="100%" class="form" :rules="merchantInfoAddRule" >
+    <el-form ref="merchantAddInfo" :key="merchantAddFormKey" style="height: 500px" :model="merchantAddInfo" label-width="100%" class="form" :rules="merchantInfoAddRule" >
       <el-row>
         <el-col :span="6">
           <el-form-item label="商户名称:" label-width="150px"  prop="merchantName">
@@ -1079,6 +1080,7 @@ export default {
       },
       dialogAddTitle: "",
       dialogAddFormVisible: false,
+      merchantAddFormKey: 0,
       editVerifyVisible: false,
       editVerifyCode: '',
       verifyAction: '',
@@ -1255,13 +1257,10 @@ export default {
     },
     addMerchant() {
       this.merchantInfo = [],
+      this.resetMerchantAddInfo();
+      this.merchantAddFormKey += 1;
       this.dialogAddFormVisible = true;
       this.dialogAddTitle='新增商户';
-      this.merchantAddInfo.payingChannelModel = '随机';
-      this.merchantAddInfo.supportPaying = 1;
-      this.merchantAddInfo.supportCollection = 1;
-      this.merchantAddInfo.collectionChargingModel = 1;
-      this.merchantAddInfo.payingChargingModel = 1;
       this.dialogFlag = 'create'
     },
     handleAgentChange(val) {
@@ -1283,10 +1282,49 @@ export default {
     cancelAddDialog(form) {
       this.dialogAddFormVisible = false;
       this.dialogAddTitle = '',
-      this.merchantInfo = {}
+      this.resetMerchantAddInfo();
+      this.merchantAddFormKey += 1;
       this.selectedAgent = []
       this.dialogFlag = ''
-      this.$refs[form].resetFields();
+      if (this.$refs[form]) {
+        this.$refs[form].resetFields();
+        this.$refs[form].clearValidate();
+      }
+    },
+    resetMerchantAddInfo() {
+      this.merchantAddInfo = {
+        merchantName: '',
+        accountName: '',
+        accountPwd: '',
+        accountConfirmPwd: '',
+        contactName: '',
+        contactEmail: '',
+        contactPhone: '',
+        loginIps: '',
+        withdrawalIps: '',
+        status: 1,
+        useAgent: 0,
+        channelIds: [],
+        parentId: '',
+        supportPaying: 1,
+        supportCollection: 1,
+        payMinFee: '',
+        payMaxFee: '',
+        payWhiteIps: '',
+        payingChannelModel: '随机',
+        payingChargingModel: 1,
+        payFixedFee: 0,
+        payRate: 0,
+        collectionMinFee: '',
+        collectionMaxFee: '',
+        colWhiteIps: '',
+        isFloat: 0,
+        floatRange: '',
+        collectionChannelModel: '随机',
+        collectionChargingModel: 1,
+        collectionFixedFee: 0,
+        collectionRate: 0
+      };
     },
     cancelDeleteDialog() {
       this.dialogDeleteTitle = ''

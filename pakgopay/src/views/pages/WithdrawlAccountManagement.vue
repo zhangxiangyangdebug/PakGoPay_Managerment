@@ -66,6 +66,12 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
           <el-row style="display: flex;justify-content: space-around;">
             <el-form-item label="商户账号" label-width="150px" prop="name">
               <el-input style="width: 200px" v-model="filterbox.name" placeholder="商户账号" :disabled="filterAvaiable"/>
+<!--              <el-select
+                :option="merchantAccountOptions"
+                :props="merchantAccountProps"
+                v-model="filterbox.name"
+                filterable
+                clearable/>-->
             </el-form-item>
             <el-form-item label="收款账号" label-width="150px" prop="walletAddr">
 <!--              <el-input style="width: 200px" v-model="filterbox.walletAddr" placeholder="收款账号"/>-->

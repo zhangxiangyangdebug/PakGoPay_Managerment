@@ -98,6 +98,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <el-dropdown-item v-if="row.status === 0" @click="startUser(row)">启用</el-dropdown-item>
               <el-dropdown-item @click="editUser(row)">编辑</el-dropdown-item>
               <el-dropdown-item @click="deleteUser(row)">删除</el-dropdown-item>
+              <el-dropdown-item @click="resetGoogleSecretKey(row)">重置谷歌密钥</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -250,6 +251,92 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-button type="primary" @click="submit2('createUserInfo')">确 定</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog
+        title="重置谷歌密钥"
+        v-model="resetGoogleVisible"
+        class="dialog"
+        center
+        width="40%"
+        style="height: 320px;align-content: center"
+    >
+      <el-form
+        ref="resetGoogleForm"
+        style="margin-top: 20px;width: 100%"
+        :model="resetGoogleForm"
+        :rules="resetGoogleRules"
+      >
+        <el-row style="width: 100%;" class="dialog-row">
+          <el-col :span="24">
+            <div class="el-form-line" style="display: flex;justify-content: center;align-items: center;">
+              <el-form-item label="用户名:" label-width="150px">
+                <el-input
+                  readonly
+                  disabled
+                  autocomplete="new-password"
+                  type="text"
+                  v-model.trim="resetGoogleForm.loginName"
+                  style="width: 200px;font-weight: bold;"
+                ></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+        </el-row>
+        <el-row style="width: 100%;" class="dialog-row">
+          <el-col :span="24">
+            <div class="el-form-line" style="display: flex;justify-content: center;align-items: center;">
+              <el-form-item label="谷歌验证码:" label-width="150px" prop="googleCode">
+                <el-input autocomplete="new-password" type="number" v-model.trim="resetGoogleForm.googleCode" style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+        </el-row>
+        <el-row v-if="resetGoogleResult.qrCode || resetGoogleResult.secretKey" style="width: 100%;" class="dialog-row">
+          <el-col :span="24">
+            <div class="el-form-line" style="display: flex;justify-content: center;align-items: center; flex-direction: column; gap: 8px;">
+              <img
+                v-if="resetGoogleResult.qrCode"
+                :src="resetGoogleResult.qrCode"
+                alt="qr-code"
+                style="width: 160px;height: 160px;object-fit: contain;"
+              />
+              <div v-if="resetGoogleResult.secretKey" style="font-weight: bold;">
+                密钥：{{ resetGoogleResult.secretKey }}
+              </div>
+            </div>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancelResetGoogleDialog">取 消</el-button>
+        <el-button type="primary" @click="submitResetGoogleKey">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog
+        title="谷歌二维码"
+        v-model="googleQrVisible"
+        class="dialog"
+        center
+        width="30%"
+        style="align-content: center"
+    >
+      <div style="display: flex;flex-direction: column;align-items: center;gap: 12px;">
+        <img
+          v-if="googleQrCodeUrl"
+          :src="googleQrCodeUrl"
+          alt="qr-code"
+          style="width: 180px;height: 180px;object-fit: contain;"
+        />
+        <div v-if="googleSecretKey" style="font-weight: bold;">
+          密钥：{{ googleSecretKey }}
+        </div>
+        <el-button v-if="googleSecretKey" size="small" @click="copyGoogleSecretKey">复制密钥</el-button>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="googleQrVisible = false">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -259,7 +346,7 @@ import {
   loginUserList,
   refreshAccessToken,
   roleList,
-  manageLoginUserStatus, deleteLoginUser, loginUserByLoginName
+  manageLoginUserStatus, deleteLoginUser, loginUserByLoginName, resetGoogleKey
 } from "@/api/interface/backendInterface.js";
 import {loadingBody} from "@/api/common.js";
 
@@ -316,6 +403,15 @@ export default {
       dialogVisible: false,
       dialogTitle: '',
       createUserInfo: {},
+      resetGoogleVisible: false,
+      resetGoogleForm: {},
+      resetGoogleResult: {
+        qrCode: '',
+        secretKey: ''
+      },
+      googleQrVisible: false,
+      googleQrCodeUrl: '',
+      googleSecretKey: '',
       roleInfoOptions: [
         /*{
           id: '001',
@@ -344,6 +440,11 @@ export default {
           { required: true, message: '请输入谷歌验证码', trigger: 'blur' }
         ]
       },
+      resetGoogleRules: {
+        googleCode: [
+          { required: true, message: '请输入谷歌验证码', trigger: 'blur' }
+        ]
+      }
 
     }
   },
@@ -402,6 +503,119 @@ export default {
       this.stopUserInfo = {}
       this.googleCode = ''
       this.loadData()
+    },
+    cancelResetGoogleDialog() {
+      this.resetGoogleVisible = false
+      this.resetGoogleForm = {}
+      this.resetGoogleResult = {
+        qrCode: '',
+        secretKey: ''
+      }
+      this.googleQrVisible = false
+      this.googleQrCodeUrl = ''
+      this.googleSecretKey = ''
+      this.$refs.resetGoogleForm?.resetFields();
+    },
+    submitResetGoogleKey() {
+      this.$refs.resetGoogleForm.validate(valid => {
+        if (!valid) {
+          return;
+        }
+        resetGoogleKey(this.resetGoogleForm.userId, this.resetGoogleForm.googleCode).then(response => {
+          if (response.status === 200 && response.data.code === 0) {
+            const data = this.parseResetGooglePayload(response.data.data);
+            const qrCode = this.normalizeQrCode(data.qrCode);
+            this.resetGoogleResult = { qrCode, secretKey: data.secretKey || '' };
+            this.resetGoogleVisible = false;
+            this.googleQrCodeUrl = qrCode;
+            this.googleSecretKey = data.secretKey || '';
+            this.googleQrVisible = true;
+            this.$notify({
+              title: 'Success',
+              message: response.data.message || 'reset google key success',
+              type: 'success',
+              position: 'bottom-right',
+            })
+          } else {
+            this.$notify({
+              title: 'Error',
+              message: response.data.message || 'reset google key failed',
+              type: 'error',
+              position: 'bottom-right',
+            })
+          }
+        })
+      })
+    },
+    copyGoogleSecretKey() {
+      if (!this.googleSecretKey) {
+        return;
+      }
+      const text = String(this.googleSecretKey);
+      if (navigator?.clipboard?.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          this.$notify({
+            title: 'Success',
+            message: '已复制密钥',
+            type: 'success',
+            position: 'bottom-right',
+          })
+        }).catch(() => {
+          this.fallbackCopySecretKey(text);
+        });
+        return;
+      }
+      this.fallbackCopySecretKey(text);
+    },
+    fallbackCopySecretKey(text) {
+      const input = document.createElement('input');
+      input.value = text;
+      document.body.appendChild(input);
+      input.select();
+      try {
+        document.execCommand('copy');
+        this.$notify({
+          title: 'Success',
+          message: '已复制密钥',
+          type: 'success',
+          position: 'bottom-right',
+        })
+      } catch (error) {
+        this.$notify({
+          title: 'Error',
+          message: '复制失败，请手动复制',
+          type: 'error',
+          position: 'bottom-right',
+        })
+      } finally {
+        document.body.removeChild(input);
+      }
+    },
+    parseResetGooglePayload(payload) {
+      if (!payload) {
+        return {};
+      }
+      if (typeof payload === "string") {
+        try {
+          return JSON.parse(payload);
+        } catch (error) {
+          return {};
+        }
+      }
+      return payload;
+    },
+    normalizeQrCode(qrCode) {
+      if (!qrCode) {
+        return '';
+      }
+      const trimmed = String(qrCode).trim();
+      if (trimmed.startsWith('data:image')) {
+        return trimmed;
+      }
+      if (trimmed.startsWith('http')) {
+        return trimmed;
+      }
+      return `data:image/png;base64,${trimmed}`;
     },
     submit2(formName) {
       if (this.stopUserInfo.googleCode ==='defined' || this.stopUserInfo.googleCode === '' || this.stopUserInfo.googleCode === null) {
@@ -542,6 +756,18 @@ export default {
         }
         loadingInstance.close()
       })
+    },
+    resetGoogleSecretKey(row) {
+      this.resetGoogleForm = {
+        userId: row.userId,
+        loginName: row.loginName,
+        googleCode: ''
+      };
+      this.resetGoogleResult = {
+        qrCode: '',
+        secretKey: ''
+      };
+      this.resetGoogleVisible = true;
     }
   },
   async mounted() {

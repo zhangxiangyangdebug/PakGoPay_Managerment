@@ -269,6 +269,21 @@ export function deleteLoginUser(user_id, googleCode) {
     })
 }
 
+export function resetGoogleKey(user_id, googleCode, loginName) {
+    return service({
+        url: '/api/pakGoPay/server/SystemConfig/resetGoogleKey',
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        params: {
+            userId: user_id,
+            googleCode: googleCode,
+            loginName: loginName
+        }
+    })
+}
+
 export function addRole(roleInfo) {
     return service({
         url: '/api/pakGoPay/server/SystemConfig/addRole',
