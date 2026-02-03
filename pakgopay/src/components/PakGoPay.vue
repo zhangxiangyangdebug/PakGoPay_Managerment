@@ -690,12 +690,47 @@ export default {
     },
     buildOpsRequest() {
       const { scopeType, scopeId } = this.getScopeInfo();
+      const recordDate = this.dimension === "day"
+        ? this.toEpochSeconds(this.selectedDate)
+        : this.dimension === "month"
+          ? this.toMonthStartEpochSeconds(this.selectedDate)
+          : this.toYearStartEpochSeconds(this.selectedDate);
       return {
-        recordDate: this.selectedDate,
+        recordDate,
         currency: this.currency,
         scopeType,
         scopeId
       };
+    },
+    toEpochSeconds(dateStr) {
+      if (!dateStr) {
+        return "";
+      }
+      const date = new Date(`${dateStr}T00:00:00`);
+      if (Number.isNaN(date.getTime())) {
+        return "";
+      }
+      return Math.floor(date.getTime() / 1000);
+    },
+    toMonthStartEpochSeconds(monthStr) {
+      if (!monthStr) {
+        return "";
+      }
+      const date = new Date(`${monthStr}-01T00:00:00`);
+      if (Number.isNaN(date.getTime())) {
+        return "";
+      }
+      return Math.floor(date.getTime() / 1000);
+    },
+    toYearStartEpochSeconds(yearStr) {
+      if (!yearStr) {
+        return "";
+      }
+      const date = new Date(`${yearStr}-01-01T00:00:00`);
+      if (Number.isNaN(date.getTime())) {
+        return "";
+      }
+      return Math.floor(date.getTime() / 1000);
     },
     getScopeInfo() {
       const roleName = localStorage.getItem("roleName");
