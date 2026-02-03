@@ -66,8 +66,8 @@ export function logOut() {
                 router.push("/web/login").then()
             } else {
                 this.$notify({
-                    title:'错误',
-                    message: 'logout failed',
+                    title: this.$t('common.error'),
+                    message: this.$t('common.requestFailed'),
                     type: 'error',
                     position: 'top-right',
                 })

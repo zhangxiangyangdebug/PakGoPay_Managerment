@@ -5,7 +5,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 
 <template>
   <div class="main-title">
-    登陆日志
+    {{ $t('log.login.title') }}
   </div>
 
   <div class="main-views-container">
@@ -14,28 +14,28 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-col :span="8" style="display: flex;justify-content: center;">
           <el-form-item style="width: 300px;">
             <template #label>
-              <span>开始时间:</span>
+              <span>{{ $t('common.startTime') }}</span>
             </template>
-            <el-input v-model="filterbox.startTime" type="date" placeholder="输入开始时间"/>
+            <el-input v-model="filterbox.startTime" type="date" :placeholder="$t('common.placeholder.startTime')"/>
           </el-form-item>
         </el-col>
         <el-col :span="8" style="display: flex;justify-content: center;">
           <el-form-item style="width: 300px;">
             <template #label>
-              <span>结束时间:</span>
+              <span>{{ $t('common.endTime') }}</span>
             </template>
-            <el-input v-model="filterbox.endTime" type="date" placeholder="输入截止时间"/>
+            <el-input v-model="filterbox.endTime" type="date" :placeholder="$t('common.placeholder.endTime')"/>
           </el-form-item>
         </el-col>
         <el-col :span="8" style="display: flex;justify-content: center;">
           <el-form-item style="display: flex;justify-content: center;color: deepskyblue">
             <template #label>
-              <span>用户名称:</span>
+              <span>{{ $t('log.login.filter.userName') }}</span>
             </template>
-            <el-input placeholder="输入用户名称">
+            <el-input :placeholder="$t('common.placeholder.userName')">
               <template #append>
                 <el-button @click="createUser">
-                  <SvgIcon name="search"/>搜索
+                  <SvgIcon name="search"/>{{ $t('common.search') }}
                 </el-button>
               </template>
             </el-input>
@@ -53,21 +53,21 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           :key="tablekey"
       >
         <el-table-column
-            label="登陆账号"
+            :label="$t('log.login.column.account')"
             v-slot="{row}"
             align="center"
         >
           <div>{{row.userAccount}}</div>
         </el-table-column>
         <el-table-column
-            label="账号名称"
+            :label="$t('log.login.column.name')"
             v-slot="{row}"
             align="center"
         >
           <div>{{row.userName}}</div>
         </el-table-column>
         <el-table-column
-            label="登陆时间"
+            :label="$t('log.login.column.time')"
             v-slot="{row}"
             align="center"
         >
@@ -106,15 +106,12 @@ export default {
       operationTypeOptions: [
         {
           operate: 'add',
-          operateName: '新增',
         },
         {
           operate: 'edit',
-          operateName: '修改'
         },
         {
           operate: 'delete',
-          operateName: '删除'
         }
       ],
       filterbox: {
@@ -130,13 +127,13 @@ export default {
     loadAllOperators() {
       return [
         {
-          "value": "张三", 'id': '001'
+          "value": "User A", 'id': '001'
         },
         {
-          "value": '赵四', 'id': '002'
+          "value": 'User B', 'id': '002'
         },
         {
-          'value': '王二麻子', 'id': '003'
+          'value': 'User C', 'id': '003'
         }
       ]
     },

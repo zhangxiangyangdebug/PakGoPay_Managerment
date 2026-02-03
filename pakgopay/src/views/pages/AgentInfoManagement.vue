@@ -4,12 +4,12 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 </script>
 
 <template>
-  <div class="main-title">代理信息管理</div>
+  <div class="main-title">{{ $t('agentInfo.title') }}</div>
   <el-collapse v-model="activeTool">
     <el-collapse-item name="1">
       <template #title>
         <span class="toolbarName">
-          工具栏
+          {{ $t('common.toolbar') }}
         </span>
       </template>
       <div class="main-toolbar" style="height: 100px;">
@@ -17,38 +17,38 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-row style="width: 100%;">
             <el-col :span="8">
               <div>
-                <el-form-item label="代理名称:" label-width="150px" prop="agentName">
+                <el-form-item :label="$t('agentInfo.filter.agentName')" label-width="150px" prop="agentName">
                   <el-input v-model="filterbox.agentName" style="width: 200px;" />
                 </el-form-item>
               </div>
             </el-col>
             <el-col :span="8">
               <div>
-                <el-form-item label="代理账号:" label-width="150px" prop="accountName">
+                <el-form-item :label="$t('agentInfo.filter.accountName')" label-width="150px" prop="accountName">
                   <el-input v-model="filterbox.accountName" style="width: 200px;"/>
                 </el-form-item>
               </div>
             </el-col>
             <el-col :span="8">
               <div>
-                <el-form-item label="状态:" label-width="150px" prop="status">
+                <el-form-item :label="$t('agentInfo.filter.status')" label-width="150px" prop="status">
                   <el-select
                     style="width: 200px;"
-                    placeholder="代理状态"
+                    :placeholder="$t('agentInfo.placeholder.status')"
                     v-model="filterbox.status"
                   >
-                    <el-option label="停用" :value="0">停用</el-option>
-                    <el-option label="启用" :value="1">启用</el-option>
+                    <el-option :label="$t('common.disable')" :value="0">{{ $t('common.disable') }}</el-option>
+                    <el-option :label="$t('common.enable')" :value="1">{{ $t('common.enable') }}</el-option>
                   </el-select>
                   <div style="display: flex; flex-direction: row;">
                     <el-button @click="reset('filterboxForm')" class="filterButton">
                       <SvgIcon class="filterButtonSvg" name="reset"/>
-                      <div>重置</div>
+                      <div>{{ $t('common.reset') }}</div>
                     </el-button>&nbsp;
                     <el-button @click="search()"
                                class="filterButton">
                       <SvgIcon class="filterButtonSvg" name="search"/>
-                      <div>查询</div>
+                      <div>{{ $t('common.query') }}</div>
                     </el-button>&nbsp;
                   </div>
                 </el-form-item>
@@ -80,7 +80,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       <div style="display: flex;flex-direction: row;justify-content: right;margin-left: 0">
         <el-button @click="addFistLevelAgent" class="filterButton">
           <SvgIcon class="filterButtonSvg" name="add"/>
-          <div>新增一级代理</div>
+          <div>{{ $t('agentInfo.action.addFirstLevel') }}</div>
         </el-button>
 <!--        <el-button @click="exportAgent" style="margin:0">
           <SvgIcon height="20px" width="20px" name="export"/>
@@ -95,7 +95,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       >
         <el-table-column
             prop="firstLevelAgent"
-            label="代理信息"
+            :label="$t('agentInfo.column.agentInfo')"
             v-slot="{row}"
             align="center"
             width="300px"
@@ -104,11 +104,11 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         >
           <div style="height: auto;display: flex; justify-content: center;width: 100%;">
             <el-card class="box-card" style="width: 100%">
-              <div class="agent-card-row agent-card-account">账号：{{ row.accountName }}</div>
-              <div class="agent-card-row agent-card-name">名称：{{ row.agentName }}</div>
+              <div class="agent-card-row agent-card-account">{{ $t('agentInfo.card.account') }}{{ row.accountName }}</div>
+              <div class="agent-card-row agent-card-name">{{ $t('agentInfo.card.name') }}{{ row.agentName }}</div>
               <div v-if="row.channelDtoList" class="agent-card-row agent-card-channel">
                 <div style="display: flex;align-items: center">
-                  <div style="height:100%;width:150px;align-items: center;justify-items: center;text-align: center;">支付渠道：</div>
+                  <div style="height:100%;width:150px;align-items: center;justify-items: center;text-align: center;">{{ $t('agentInfo.card.channel') }}</div>
                   <div style="width: 150px;border-left: solid 1px black">
                     <div style="flex: 2;width: 130px;" v-for="item in row.channelDtoList">
                       {{item.channelName}}
@@ -121,7 +121,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </el-table-column>
         <el-table-column
             prop="secondLevelAgent"
-            label="上级代理"
+            :label="$t('agentInfo.column.parentAgent')"
             v-slot="{row}"
             align="center"
             width="300px"
@@ -129,11 +129,11 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         >
           <div style="height: auto;display: flex; justify-content: center;width: 100%;">
             <el-card v-if="row.parentUserName" class="box-card" style="width: 100%">
-              <div class="agent-card-row agent-card-account">账号：{{ row.parentUserName }}</div>
-              <div class="agent-card-row agent-card-name">名称：{{ row.parentAgentName }}</div>
+              <div class="agent-card-row agent-card-account">{{ $t('agentInfo.card.account') }}{{ row.parentUserName }}</div>
+              <div class="agent-card-row agent-card-name">{{ $t('agentInfo.card.name') }}{{ row.parentAgentName }}</div>
               <div class="agent-card-row agent-card-channel">
                 <div style="display: flex;align-items: center">
-                  <div style="height:100%;width:150px;align-items: center;justify-items: center;text-align: center;">支付渠道：</div>
+                  <div style="height:100%;width:150px;align-items: center;justify-items: center;text-align: center;">{{ $t('agentInfo.card.channel') }}</div>
                   <div style="width: 150px;border-left: solid 1px black">
                     <div style="flex: 2;width: 130px;" v-for="item in row.parentChannelDtoList">
                       {{item.channelName}}
@@ -146,7 +146,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </el-table-column>
         <el-table-column
             prop="agentLevel"
-            label="层级"
+            :label="$t('agentInfo.column.level')"
             v-slot="{row}"
             align="center"
             width="100px"
@@ -157,7 +157,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </el-table-column>
         <el-table-column
             prop="agentStatus"
-            label="状态"
+            :label="$t('agentInfo.column.status')"
             v-slot="{row}"
             align="center"
         >
@@ -166,8 +166,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                 v-model="row.status"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                active-text="启用"
-                inactive-text="停用"
+                :active-text="$t('common.enable')"
+                :inactive-text="$t('common.disable')"
                 :inactive-value="0"
                 :active-value="1"
                 disabled
@@ -176,16 +176,16 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </el-table-column>
         <el-table-column
             prop="agentLevel"
-            label="费率"
+            :label="$t('agentInfo.column.rate')"
             v-slot="{row}"
             align="center"
             width="200px"
         >
           <div>
-            代收费率:{{row.collectionRate ? row.collectionRate : 0 }}% + {{row.collectionFixedFee? row.collectionFixedFee : 0}}
+            {{ $t('agentInfo.rate.collection') }}{{row.collectionRate ? row.collectionRate : 0 }}% + {{row.collectionFixedFee? row.collectionFixedFee : 0}}
           </div>
           <div>
-            代付费率:{{row.payRate? row.payRate : 0}}% + {{row.payFixedFee? row.payFixedFee : 0}}
+            {{ $t('agentInfo.rate.payout') }}{{row.payRate? row.payRate : 0}}% + {{row.payFixedFee? row.payFixedFee : 0}}
           </div>
         </el-table-column>
 <!--        <el-table-column
@@ -196,7 +196,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <div>{{ row.loginIP }}</div>
         </el-table-column>-->
         <el-table-column
-            label="登陆IP白名单"
+            :label="$t('agentInfo.column.loginWhitelist')"
             v-slot="{row}"
             align="center"
             width="150px"
@@ -204,7 +204,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <div>{{ row.loginIps }}</div>
         </el-table-column>
         <el-table-column
-            label="提现IP白名单"
+            :label="$t('agentInfo.column.withdrawWhitelist')"
             v-slot="{row}"
             align="center"
             width="150px"
@@ -212,7 +212,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <div>{{ row.withdrawIps }}</div>
         </el-table-column>
         <el-table-column
-            label="代理账户信息"
+            :label="$t('agentInfo.column.accountInfo')"
             v-slot="{row}"
             align="center"
             width="300px"
@@ -221,26 +221,26 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             <!-- 返回的是json对象 包含总金额、可用金额、冻结金额 -->
             <div class="account-info-card" v-for="(value, key, index) in row.balanceInfo" :key="key">
               <div class="account-info-row account-info-key">{{key}}:</div>
-              <div class="account-info-row account-total">账户总金额: <div class="account-info-value">{{value.total ? value.total: '-'}}</div></div>
-              <div class="account-info-row account-usable">账户可用金额: <div class="account-info-value">{{value.available? value.available: '-'}}</div></div>
-              <div class="account-info-row account-frozen">冻结金额: <div class="account-info-value">{{value.frozen? value.frozen : '-'}}</div></div>
+              <div class="account-info-row account-total">{{ $t('agentInfo.account.total') }} <div class="account-info-value">{{value.total ? value.total: '-'}}</div></div>
+              <div class="account-info-row account-usable">{{ $t('agentInfo.account.available') }} <div class="account-info-value">{{value.available? value.available: '-'}}</div></div>
+              <div class="account-info-row account-frozen">{{ $t('agentInfo.account.frozen') }} <div class="account-info-value">{{value.frozen? value.frozen : '-'}}</div></div>
             </div>
           </div>
         </el-table-column>
         <el-table-column
-          label="联系人信息"
+          :label="$t('agentInfo.column.contactInfo')"
           v-slot="{row}"
           align="center"
           width="300px"
         >
             <div class="agent-card-row agent-card-account">
-              联系人: {{row.contactName? row.contactName : '-'}}
+              {{ $t('agentInfo.contact.name') }} {{row.contactName? row.contactName : '-'}}
             </div>
           <div class="agent-card-row agent-card-name">
-            手机号: {{row.contactPhone ? row.contactPhone: '-'}}
+            {{ $t('agentInfo.contact.phone') }} {{row.contactPhone ? row.contactPhone: '-'}}
           </div>
           <div class="agent-card-row agent-card-channel">
-            邮箱: {{row.contactEmail ? row.contactEmail: '-'}}
+            {{ $t('agentInfo.contact.email') }} {{row.contactEmail ? row.contactEmail: '-'}}
           </div>
         </el-table-column>
 <!--        <el-table-column
@@ -258,7 +258,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <div>{{ row.createTime }}</div>
         </el-table-column>-->
         <el-table-column
-            label="操作"
+            :label="$t('common.operation')"
             align="center"
             v-slot="{row}"
             width="100px"
@@ -269,9 +269,9 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             <SvgIcon name="more" width="30" height="30"/>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item @click="editAgentInfo(row)">编辑</el-dropdown-item>
+                <el-dropdown-item @click="editAgentInfo(row)">{{ $t('common.edit') }}</el-dropdown-item>
 <!--                <el-dropdown-item @click="deleteAgentInfo(row)">删除</el-dropdown-item>-->
-                <el-dropdown-item v-if="row.level !== 3" @click="addNextLevelAgent(row)">增加下一级代理
+                <el-dropdown-item v-if="row.level !== 3" @click="addNextLevelAgent(row)">{{ $t('agentInfo.action.addNextLevel') }}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -308,14 +308,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="代理名称:" label-width="150px" prop="agentName">
+              <el-form-item :label="$t('agentInfo.form.agentName')" label-width="150px" prop="agentName">
                 <el-input type="text" v-model="agentInfo.agentName" style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="代理账号:" label-width="150px" prop="accountName">
+              <el-form-item :label="$t('agentInfo.form.accountName')" label-width="150px" prop="accountName">
                 <el-input autocomplete="new-password" type="text" v-model="agentInfo.accountName"
                           style="width: 200px"></el-input>
               </el-form-item>
@@ -323,7 +323,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="代理层级:" label-width="150px" prop="level">
+              <el-form-item :label="$t('agentInfo.form.level')" label-width="150px" prop="level">
                 <el-input autocomplete="new-password" type="text" v-model="agentInfo.level"
                           disabled
                           style="width: 200px"></el-input>
@@ -334,21 +334,21 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="联系人:" label-width="150px" prop="contactName">
+              <el-form-item :label="$t('agentInfo.form.contactName')" label-width="150px" prop="contactName">
                 <el-input v-model.number="agentInfo.contactName" style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="手机号:" label-width="150px" prop="contactPhone">
+              <el-form-item :label="$t('agentInfo.form.contactPhone')" label-width="150px" prop="contactPhone">
                 <el-input v-model.number="agentInfo.contactPhone" style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="邮箱:" label-width="150px" prop="contactEmail">
+              <el-form-item :label="$t('agentInfo.form.contactEmail')" label-width="150px" prop="contactEmail">
                 <el-input v-model="agentInfo.contactEmail" style="width: 200px"></el-input>
               </el-form-item>
             </div>
@@ -357,21 +357,21 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="代收固定费率:" label-width="150px" prop="collectionFixedFee">
+              <el-form-item :label="$t('agentInfo.form.collectionFixedFee')" label-width="150px" prop="collectionFixedFee">
                 <el-input type="number" v-model.number="agentInfo.collectionFixedFee" style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="代收百分比费率:" label-width="150px" prop="collectionRate">
+              <el-form-item :label="$t('agentInfo.form.collectionRate')" label-width="150px" prop="collectionRate">
                 <el-input type="number" v-model.number="agentInfo.collectionRate" style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="代付固定费率:" label-width="150px" prop="payFixedFee">
+              <el-form-item :label="$t('agentInfo.form.payFixedFee')" label-width="150px" prop="payFixedFee">
                 <el-input type="number" v-model.number="agentInfo.payFixedFee" style="width: 200px"></el-input>
               </el-form-item>
             </div>
@@ -380,17 +380,17 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="代付百分比费率:" label-width="150px" prop="payRate">
+              <el-form-item :label="$t('agentInfo.form.payRate')" label-width="150px" prop="payRate">
                 <el-input type="number" v-model.number="agentInfo.payRate" style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="渠道配置:" label-width="150px" prop="channelIdList">
+              <el-form-item :label="$t('agentInfo.form.channelConfig')" label-width="150px" prop="channelIdList">
                 <el-select
                     v-model="agentInfo.channelIdList"
-                    style="width: 200px" placeholder="请选择渠道"
+                    style="width: 200px" :placeholder="$t('agentInfo.placeholder.channelConfig')"
                     :options="createType === 'firstLevel' ? channelOptions : agentInfo.parentChannelDtoList"
                     :props="channelProps"
                     multiple
@@ -401,13 +401,13 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="代理状态:" label-width="150px" style="width: 350px;" prop="status">
+              <el-form-item :label="$t('agentInfo.form.status')" label-width="150px" style="width: 350px;" prop="status">
                 <el-switch
                     v-model="agentInfo.status"
                     active-color="#13ce66"
                     inactive-color="#ff4949"
-                    active-text="启用"
-                    inactive-text="停用"
+                    :active-text="$t('common.enable')"
+                    :inactive-text="$t('common.disable')"
                     :active-value="1"
                     :inactive-value="0"
                 >
@@ -419,7 +419,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-row>
             <el-col :span="8">
               <div class="el-form-line">
-                <el-form-item label="登陆ip白名单:" label-width="150px" prop="loginIps">
+                <el-form-item :label="$t('agentInfo.form.loginWhitelist')" label-width="150px" prop="loginIps">
                   <el-input autocomplete="new-password" v-model="agentInfo.loginIps"
                             style="width: 200px"></el-input>
                 </el-form-item>
@@ -427,7 +427,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             </el-col>
             <el-col :span="8">
               <div class="el-form-line">
-                <el-form-item label="提现ip白名单:" label-width="150px" prop="withdrawalIps">
+                <el-form-item :label="$t('agentInfo.form.withdrawWhitelist')" label-width="150px" prop="withdrawalIps">
                   <el-input autocomplete="new-password" v-model="agentInfo.withdrawalIps"
                             style="width: 200px"></el-input>
                 </el-form-item>
@@ -435,7 +435,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             </el-col>
             <el-col :span="8">
               <div class="el-form-line">
-                <el-form-item label="代收单笔最大费用:" label-width="150px" prop="collectionMaxFee">
+                <el-form-item :label="$t('agentInfo.form.collectionMaxFee')" label-width="150px" prop="collectionMaxFee">
                   <el-input autocomplete="new-password" v-model="agentInfo.collectionMaxFee"
                             style="width: 200px"></el-input>
                 </el-form-item>
@@ -445,7 +445,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-row>
             <el-col :span="8">
               <div class="el-form-line">
-                <el-form-item label="代收单笔最小费用:" label-width="150px" prop="collectionMaxFee">
+                <el-form-item :label="$t('agentInfo.form.collectionMinFee')" label-width="150px" prop="collectionMaxFee">
                   <el-input autocomplete="new-password" v-model="agentInfo.collectionMinFee"
                             style="width: 200px"></el-input>
                 </el-form-item>
@@ -453,7 +453,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             </el-col>
             <el-col :span="8">
               <div class="el-form-line">
-                <el-form-item label="代付单笔最大费用:" label-width="150px" prop="payMaxFee">
+                <el-form-item :label="$t('agentInfo.form.payMaxFee')" label-width="150px" prop="payMaxFee">
                   <el-input autocomplete="new-password" v-model="agentInfo.payMaxFee"
                             style="width: 200px"></el-input>
                 </el-form-item>
@@ -461,7 +461,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             </el-col>
             <el-col :span="8">
               <div class="el-form-line">
-                <el-form-item label="代付单笔最小费用:" label-width="150px" prop="payMinFee">
+                <el-form-item :label="$t('agentInfo.form.payMinFee')" label-width="150px" prop="payMinFee">
                   <el-input autocomplete="new-password" v-model="agentInfo.payMinFee"
                             style="width: 200px"></el-input>
                 </el-form-item>
@@ -471,7 +471,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-row>
           <el-col :span="8" v-if="modifyType !== 'edit'">
             <div class="el-form-line">
-              <el-form-item label="代理账号密码:" label-width="150px" prop="accountPwd">
+              <el-form-item :label="$t('agentInfo.form.accountPwd')" label-width="150px" prop="accountPwd">
                 <el-input autocomplete="new-password" type="password" v-model="agentInfo.accountPwd"
                           style="width: 200px"></el-input>
               </el-form-item>
@@ -479,14 +479,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-col>
           <el-col :span="8" v-if="modifyType !== 'edit'">
             <div class="el-form-line">
-              <el-form-item label="确认密码:" label-width="150px" prop="accountConfirmPwd">
+              <el-form-item :label="$t('agentInfo.form.confirmPwd')" label-width="150px" prop="accountConfirmPwd">
                 <el-input type="password" v-model="agentInfo.accountConfirmPwd" style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="谷歌验证码:" label-width="150px" prop="googleCode">
+              <el-form-item :label="$t('common.googleCode')" label-width="150px" prop="googleCode">
                 <el-input type="number" v-model="agentInfo.googleCode" style="width: 200px"></el-input>
               </el-form-item>
             </div>
@@ -494,8 +494,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="cancelDialog('createAgentForm')">取 消</el-button>
-        <el-button type="primary" @click="submit('createAgentForm')">确 定</el-button>
+        <el-button @click="cancelDialog('createAgentForm')">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="submit('createAgentForm')">{{ $t('common.confirm') }}</el-button>
       </div>
     </el-dialog>
 
@@ -512,7 +512,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="上级代理名称:" label-width="150px" >
+              <el-form-item :label="$t('agentInfo.parent.agentName')" label-width="150px" >
                 <el-input disabled type="text" v-model="nextLevelAgentInfo.parentAgentName"
                           style="width: 200px"></el-input>
               </el-form-item>
@@ -520,7 +520,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="上级代理账号:" label-width="150px" >
+              <el-form-item :label="$t('agentInfo.parent.accountName')" label-width="150px" >
                 <el-input disabled type="text" v-model="nextLevelAgentInfo.parentAgentAccount"
                           style="width: 200px"></el-input>
               </el-form-item>
@@ -528,7 +528,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="代理名称:" label-width="150px" >
+              <el-form-item :label="$t('agentInfo.form.agentName')" label-width="150px" >
                 <el-input type="text" v-model="nextLevelAgentInfo.agentName" style="width: 200px"></el-input>
               </el-form-item>
             </div>
@@ -537,7 +537,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="代理账号:" label-width="150px" >
+              <el-form-item :label="$t('agentInfo.form.accountName')" label-width="150px" >
                 <el-input autocomplete="new-password" type="text" v-model="nextLevelAgentInfo.agentAccount"
                           style="width: 200px"></el-input>
               </el-form-item>
@@ -545,7 +545,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="代理账号密码:" label-width="150px" >
+              <el-form-item :label="$t('agentInfo.form.accountPwd')" label-width="150px" >
                 <el-input autocomplete="new-password" type="password" v-model="nextLevelAgentInfo.agentPassword"
                           style="width: 200px"></el-input>
               </el-form-item>
@@ -553,7 +553,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="确认密码:" label-width="150px" >
+              <el-form-item :label="$t('agentInfo.form.confirmPwd')" label-width="150px" >
                 <el-input type="password" v-model="nextLevelAgentInfo.agentConfirmPassword"
                           style="width: 200px"></el-input>
               </el-form-item>
@@ -563,13 +563,13 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="代理状态:" label-width="150px"  style="width: 350px;">
+              <el-form-item :label="$t('agentInfo.form.status')" label-width="150px"  style="width: 350px;">
                 <el-switch
                     v-model="nextLevelAgentInfo.agentStatus"
                     active-color="#13ce66"
                     inactive-color="#ff4949"
-                    active-text="启用"
-                    inactive-text="停用"
+                    :active-text="$t('common.enable')"
+                    :inactive-text="$t('common.disable')"
                 >
                 </el-switch>
               </el-form-item>
@@ -577,15 +577,15 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="渠道费率:" label-width="150px" >
+              <el-form-item :label="$t('agentInfo.form.channelRate')" label-width="150px" >
                 <el-input type="number" v-model="nextLevelAgentInfo.channelRate" style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="渠道配置:" label-width="150px" >
-                <el-select v-model="nextLevelAgentInfo.channelConfig" style="width: 200px" placeholder="请选择渠道">
+              <el-form-item :label="$t('agentInfo.form.channelConfig')" label-width="150px" >
+                <el-select v-model="nextLevelAgentInfo.channelConfig" style="width: 200px" :placeholder="$t('agentInfo.placeholder.channelConfig')">
                   <el-option
                       v-for="item in nextLevelAgentInfo.channelOptions"
                       :key="item.value"
@@ -600,14 +600,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="代理费率:" label-width="150px" >
+              <el-form-item :label="$t('agentInfo.form.agentRate')" label-width="150px" >
                 <el-input type="number" v-model="nextLevelAgentInfo.agentRate" style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="谷歌验证码:" label-width="150px" >
+              <el-form-item :label="$t('common.googleCode')" label-width="150px" >
                 <el-input type="number" v-model="nextLevelAgentInfo.googleCode" style="width: 200px"></el-input>
               </el-form-item>
             </div>
@@ -615,8 +615,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer" style="margin-bottom:10px;display: flex;padding:0;">
-        <el-button @click="calcelParentDialog">取 消</el-button>
-        <el-button type="primary">确 定</el-button>
+        <el-button @click="calcelParentDialog">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary">{{ $t('common.confirm') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -653,7 +653,7 @@ export default {
   data() {
     const validatePass = (rule, value, callback) => {
       if (value === '' || value === undefined) {
-        callback(new Error('请输入密码'))
+        callback(new Error(this.$t('agentInfo.validation.passwordRequired')))
       } else {
         if (this.agentInfo.accountConfirmPwd !== '' && this.agentInfo.accountConfirmPwd !== 'undefined') {
           this.$refs.createAgentForm.validateField('accountConfirmPwd');
@@ -664,9 +664,9 @@ export default {
 
     const validatePass2 = (rule, value, callback) => {
       if (value === '' || value === undefined) {
-        callback(new Error('请再次输入密码'))
+        callback(new Error(this.$t('agentInfo.validation.passwordAgainRequired')))
       } else if (value !== this.agentInfo.accountPwd) {
-        callback(new Error("两次输入都密码不一致"))
+        callback(new Error(this.$t('agentInfo.validation.passwordMismatch')))
       } else {
         callback()
       }
@@ -674,7 +674,7 @@ export default {
 
     const validCollectionFee = (rule, value, callback) => {
       if ( !value && !this.agentInfo.collectionRate) {
-        callback(new Error('fixedFee or rate need at least one '))
+        callback(new Error(this.$t('agentInfo.validation.feeRequired')))
       } else {
         callback()
       }
@@ -682,7 +682,7 @@ export default {
 
     const validCollectionRate = (rule, value, callback) => {
       if ( !value && !this.agentInfo.collectionFixedFee) {
-        callback(new Error('fixedFee or rate need at least one '))
+        callback(new Error(this.$t('agentInfo.validation.feeRequired')))
       } else {
         callback()
       }
@@ -690,7 +690,7 @@ export default {
 
     const validPayFee = (rule, value, callback) => {
       if ( !value && !this.agentInfo.payRate) {
-        callback(new Error('fixedFee or rate need at least one '))
+        callback(new Error(this.$t('agentInfo.validation.feeRequired')))
       } else {
         callback()
       }
@@ -698,7 +698,7 @@ export default {
 
     const validPayRate = (rule, value, callback) => {
       if ( !value && !this.agentInfo.payFixedFee) {
-        callback(new Error('fixedFee or rate need at least one '))
+        callback(new Error(this.$t('agentInfo.validation.feeRequired')))
       } else {
         callback()
       }
@@ -732,16 +732,7 @@ export default {
         loginIPWhiteList: '',
         channelRate: '',
         channelConfig: '',
-        parentChannelDtoList: [
-          {
-            channelId: '001',
-            channelName: '上级代理'
-          },
-          {
-            channelId: '002',
-            channelName: '上级代理2'
-          }
-        ],
+        parentChannelDtoList: [],
         channelOptions: [
           /*{
             value: '1',
@@ -947,7 +938,7 @@ export default {
       }
       exportAgentInfo(this.filterbox).then(async res => {
         //const fileName = this.$t('exportPaymentReportName') + getFormateTime()
-        const fileName = '代理信息表' + getFormateTime()
+        const fileName = this.$t('agentInfo.exportFileName') + getFormateTime()
         await exportExcel(res, fileName, this)
       })
     },
@@ -961,7 +952,7 @@ export default {
         } else if (res.status === 200 && res.data.code !== 0) {
           console.log(2)
           this.$notify({
-            title: 'Error',
+            title: this.$t('common.error'),
             type: 'error',
             duration: 5000,
             message: res.data.message,
@@ -969,18 +960,18 @@ export default {
           })
         } else {
           this.$notify({
-            title: 'Error',
+            title: this.$t('common.error'),
             type: 'error',
             duration: 5000,
             position: 'bottom-right',
-            message: 'some error occurred, please try again'
+            message: this.$t('common.requestFailed')
           })
         }
         loadingInstance.close()
       }).catch((err) => {
         loadingInstance.close()
         this.$notify({
-          title: 'Error',
+          title: this.$t('common.error'),
           type: 'error',
           duration: 5000,
           position: 'bottom-right',
@@ -1004,15 +995,15 @@ export default {
                  this.dialogFormVisible = false
                  this.dialogTitle = ''
                  this.$notify({
-                   title: 'Success',
+                   title: this.$t('common.success'),
                    type: 'success',
                    duration: 5000,
                    position: 'bottom-right',
-                   message: 'modify agent successfully'
+                   message: this.$t('agentInfo.message.modifySuccess')
                  })
                } else if (res.status === 200 && res.data.code !== 0) {
                  this.$notify({
-                   title: 'Error',
+                   title: this.$t('common.error'),
                    type: 'error',
                    duration: 5000,
                    position: 'bottom-right',
@@ -1020,11 +1011,11 @@ export default {
                  })
                } else {
                  this.$notify({
-                   title: 'Error',
+                   title: this.$t('common.error'),
                    type: 'error',
                    duration: 5000,
                    position: 'bottom-right',
-                   message: 'some error occurred, please try again'
+                   message: this.$t('common.requestFailed')
                  })
                }
              })
@@ -1035,15 +1026,15 @@ export default {
                  this.dialogFormVisible = false
                  this.dialogTitle = ''
                  this.$notify({
-                   title: 'Success',
+                   title: this.$t('common.success'),
                    type: 'success',
                    duration: 5000,
                    position: 'bottom-right',
-                   message: 'create agent successfully'
+                   message: this.$t('agentInfo.message.createSuccess')
                  })
                } else if (res.status === 200 && res.data.code !== 0) {
                  this.$notify({
-                   title: 'Error',
+                   title: this.$t('common.error'),
                    type: 'error',
                    duration: 5000,
                    position: 'bottom-right',
@@ -1051,11 +1042,11 @@ export default {
                  })
                } else {
                  this.$notify({
-                   title: 'Error',
+                   title: this.$t('common.error'),
                    type: 'error',
                    duration: 5000,
                    position: 'bottom-right',
-                   message: 'some error occurred, please try again'
+                   message: this.$t('common.requestFailed')
                  })
                }
                this.modifyType = ''
@@ -1068,7 +1059,7 @@ export default {
     addFistLevelAgent() {
       this.modifyType = ''
       this.dialogFormVisible = true;
-      this.dialogTitle = '新增一级代理'
+      this.dialogTitle = this.$t('agentInfo.dialog.addFirstLevel')
       this.agentInfo.level = 1
       this.createType = 'firstLevel'
     },
@@ -1098,7 +1089,7 @@ export default {
     },
     editAgentInfo(val) {
       this.agentInfo = val
-      this.dialogTitle = 'edit agentInfo'
+      this.dialogTitle = this.$t('agentInfo.dialog.edit')
       this.dialogFormVisible = true;
       this.modifyType = 'edit'
     },
@@ -1114,20 +1105,20 @@ export default {
       this.agentInfo.topAgentId = val.topAgentId
       this.agentInfo.parentChannelDtoList = val.channelDtoList
       this.agentInfo.level = val.level + 1
-      this.dialogTitle = '新增下级代理'
+      this.dialogTitle = this.$t('agentInfo.dialog.addNextLevel')
       this.dialogFormVisible = true;
     },
     deleteAgentInfo() {
-      this.$confirm('are you sure deleting this data?', '提示', {
-        confirmButtonText: 'yes',
-        cancelButtonText: 'No',
+      this.$confirm(this.$t('agentInfo.confirm.deleteMessage'), this.$t('common.prompt'), {
+        confirmButtonText: this.$t('common.yes'),
+        cancelButtonText: this.$t('common.no'),
         type: 'warning',
       }).then(() => {
         //直行删除
       }).catch(() => {
         this.$message({
           type: 'info',
-          message: 'canceled deleting this data'
+          message: this.$t('agentInfo.confirm.deleteCanceled')
         })
       })
 

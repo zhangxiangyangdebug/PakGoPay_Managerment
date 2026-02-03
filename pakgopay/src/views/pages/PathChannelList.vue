@@ -5,13 +5,13 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
 </script>
 
 <template>
-  <div class="main-title">通道列表</div>
+  <div class="main-title">{{ $t('pathChannelList.title') }}</div>
 
   <el-collapse v-model="activeTool">
     <el-collapse-item name="1">
       <template #title>
         <span class="toolbarName">
-          工具栏
+          {{ $t('common.toolbar') }}
         </span>
       </template>
       <div class="main-toolbar" style="height: auto;">
@@ -21,15 +21,15 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
               <div style="display: flex;flex-direction: row;justify-content: right;">
                 <el-button @click="search()" class="filterButton">
                   <SvgIcon class="filterButtonSvg" name="search"/>
-                  <div>查询</div>
+                  <div>{{ $t('common.query') }}</div>
                 </el-button>
                 <el-button @click="reset('filterboxForm')" class="filterButton">
                   <SvgIcon class="filterButtonSvg" name="reset"/>
-                  <div>重置</div>
+                  <div>{{ $t('common.reset') }}</div>
                 </el-button>
                 <el-button @click="exportPathChannelInfos" class="filterButton">
                   <SvgIcon class="filterButtonSvg" name="export"/>
-                  <div>导出</div>
+                  <div>{{ $t('common.export') }}</div>
                 </el-button>
               </div>
             </el-col>
@@ -37,14 +37,14 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
           <el-row style="width: 100%;margin-top:10px">
             <div style="display: flex;flex-direction: row;width: 100%">
               <el-col :span="5">
-                <el-form-item label="通道名称:" label-width="150px" prop="paymentName">
+                <el-form-item :label="$t('pathChannelList.filter.channelName')" label-width="150px" prop="paymentName">
                   <el-input v-model="filterbox.paymentName" type="text"
-                         placeholder="通道名称" style="width: 200px;height: 100%"/>
+                         :placeholder="$t('pathChannelList.placeholder.channelName')" style="width: 200px;height: 100%"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="支付类型:" label-width="150px" prop="supportType">
-                  <el-select v-model="filterbox.supportType"  placeholder="支付方式"
+                <el-form-item :label="$t('pathChannelList.filter.supportType')" label-width="150px" prop="supportType">
+                  <el-select v-model="filterbox.supportType"  :placeholder="$t('pathChannelList.placeholder.supportType')"
                              :options="supportTypeOptions"
                              style="width: 200px;height: 100%"
                              clearable
@@ -52,24 +52,24 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="通道类型:" label-width="150px" prop="paymentType">
-                  <el-select v-model="filterbox.paymentType" placeholder="通道类型"
+                <el-form-item :label="$t('pathChannelList.filter.paymentType')" label-width="150px" prop="paymentType">
+                  <el-select v-model="filterbox.paymentType" :placeholder="$t('pathChannelList.placeholder.paymentType')"
                              :options="paymentTypeOptions" style="width: 200px;height: 100%"
                              clearable
                   />
                 </el-form-item>
               </el-col>
               <el-col :span="4">
-                <el-form-item label="通道状态:" label-width="150px" prop="status">
+                <el-form-item :label="$t('pathChannelList.filter.status')" label-width="150px" prop="status">
                   <el-select v-model="filterbox.status"
                      :options="paymentStatusOptions"
-                      placeholder="select paymentStatus"
+                      :placeholder="$t('pathChannelList.placeholder.status')"
                       clearable
                   />
                 </el-form-item>
               </el-col>
               <el-col :span="3">
-                <el-form-item label="币种:" label-width="100px" prop="currency">
+                <el-form-item :label="$t('common.currency')" label-width="100px" prop="currency">
                   <el-select
                       style="width: 200px;align-items: center;text-align: center;"
                       :options="currencyOptions"
@@ -93,7 +93,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <div style="width: 100%">
         <el-button @click="createPathChannel" style="float: right">
           <svgIcon height="25px" width="25px" name="add"/>
-          <div>新增</div>
+          <div>{{ $t('common.operate.add') }}</div>
         </el-button>
       </div>
 
@@ -105,7 +105,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       >
         <el-table-column
             prop="paymentNo"
-            label="通道编号"
+            :label="$t('pathChannelList.column.channelNo')"
             v-slot="{row}"
             align="center"
             fixed="left"
@@ -117,7 +117,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="paymentName"
-            label="通道名称"
+            :label="$t('pathChannelList.column.channelName')"
             v-slot="{row}"
             align="center"
             fixed="left"
@@ -129,7 +129,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="status"
-            label="通道状态"
+            :label="$t('pathChannelList.column.status')"
             v-slot="{row}"
             align="center"
             width="150px"
@@ -139,8 +139,8 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
                 v-model="row.status"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                active-text="启用"
-                inactive-text="停用"
+                :active-text="$t('common.enable')"
+                :inactive-text="$t('common.disable')"
                 :active-value="1"
                 :inactive-value="0"
                 disabled
@@ -149,29 +149,29 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="isThird"
-            label="是否三方"
+            :label="$t('pathChannelList.column.isThird')"
             v-slot="{row}"
             align="center"
             width="200px"
         >
           <div>
-            {{ row.isThird === '0' ? '系统支付' : '三方支付' }}
+            {{ isThirdLabel(row.isThird) }}
           </div>
         </el-table-column>
         <el-table-column
             prop="supportType"
-            label="支付类型"
+            :label="$t('pathChannelList.column.supportType')"
             v-slot="{row}"
             align="center"
             width="100px"
         >
           <div>
-            {{ (row.supportType === 0) ? '代收' : (row.supportType === 1) ? '代付' : (row.supportType === 2) ? '代收/代付' : '-' }}
+            {{ supportTypeLabel(row.supportType) }}
           </div>
         </el-table-column>
         <el-table-column
             prop="enableTimePeriod"
-            label="通道可用时间段"
+            :label="$t('pathChannelList.column.enableTimePeriod')"
             v-slot="{row}"
             align="center"
             width="200px;"
@@ -181,21 +181,21 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
 <!--            {{
               !row.enableTimePeriod ? 'all' : getFormateTimeByTimeBystamp(row.enableTimePeriod ? row.enableTimePeriod.toLocaleString().split(',')[0] : '') + '-' + getFormateTimeByTimeBystamp(row.enableTimePeriod ? row.enableTimePeriod.toLocaleString().split(',')[1] : '')
             }}-->
-            {{!row.enableTimePeriod ? '*' : row.enableTimePeriod}}
+            {{!row.enableTimePeriod ? $t('pathChannelList.label.allTime') : row.enableTimePeriod}}
           </div>
         </el-table-column>
         <el-table-column
             prop="paymentType"
-            label="通道类型"
+            :label="$t('pathChannelList.column.paymentType')"
             v-slot="{row}"
             align="center"
             width="150px"
         >
-          {{ row.paymentType === '1' ? 'app支付' : row.paymentType === '2' ? '银行卡支付' : 'invalid' }}
+          {{ paymentTypeLabel(row.paymentType) }}
         </el-table-column>
         <el-table-column
             prop="isCheckoutCounter"
-            label="是否支持收银台"
+            :label="$t('pathChannelList.column.checkoutCounter')"
             v-slot="{row}"
             align="center"
             width="200px"
@@ -204,15 +204,15 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
               :model-value="row.isCheckoutCounter"
               active-color="#13ce66"
               inactive-color="#ff4949"
-              active-text="支持"
-              inactive-text="不支持"
+              :active-text="$t('common.enable')"
+              :inactive-text="$t('common.disable')"
               :active-value="1"
               :inactive-value="0"
           />
         </el-table-column>
         <el-table-column
             prop="collectionDailyLimit"
-            label="通道代收日限额"
+            :label="$t('pathChannelList.column.collectionDailyLimit')"
             v-slot="{row}"
             align="center"
             width="200px;"
@@ -223,7 +223,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="collectionMonthlyLimit"
-            label="通道代收月限额"
+            :label="$t('pathChannelList.column.collectionMonthlyLimit')"
             v-slot="{row}"
             align="center"
             width="200px;"
@@ -234,7 +234,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="payDailyLimit"
-            label="通道代付日限额"
+            :label="$t('pathChannelList.column.payDailyLimit')"
             v-slot="{row}"
             align="center"
             width="200px;"
@@ -245,7 +245,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="payMonthlyLimit"
-            label="通道代付月限额"
+            :label="$t('pathChannelList.column.payMonthlyLimit')"
             v-slot="{row}"
             align="center"
             width="200px;"
@@ -256,7 +256,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="paymentRequestPayUrl"
-            label="代付api地址"
+            :label="$t('pathChannelList.column.paymentRequestPayUrl')"
             v-slot="{row}"
             align="center"
             width="200px;"
@@ -267,7 +267,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="paymentRequestCollectionUrl"
-            label="代收api地址"
+            :label="$t('pathChannelList.column.paymentRequestCollectionUrl')"
             v-slot="{row}"
             align="center"
             width="200px;"
@@ -278,7 +278,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="paymentCollectionRate"
-            label="代收费率"
+            :label="$t('pathChannelList.column.paymentCollectionRate')"
             v-slot="{row}"
             align="center"
             width="200px;"
@@ -289,7 +289,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="paymentPayRate"
-            label="代付费率"
+            :label="$t('pathChannelList.column.paymentPayRate')"
             v-slot="{row}"
             align="center"
             width="200px;"
@@ -300,7 +300,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="paymentCheckPayUrl"
-            label="代付订单校验地址"
+            :label="$t('pathChannelList.column.paymentCheckPayUrl')"
             v-slot="{row}"
             align="center"
             width="200px;"
@@ -311,7 +311,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="paymentCheckCollectionUrl"
-            label="代收订单校验地址"
+            :label="$t('pathChannelList.column.paymentCheckCollectionUrl')"
             v-slot="{row}"
             align="center"
             width="200px;"
@@ -322,7 +322,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="collectionCallbackAddr"
-            label="代收回调地址"
+            :label="$t('pathChannelList.column.collectionCallbackAddr')"
             v-slot="{row}"
             align="center"
             width="200px;"
@@ -333,7 +333,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="payCallbackAddr"
-            label="代付回调地址"
+            :label="$t('pathChannelList.column.payCallbackAddr')"
             v-slot="{row}"
             align="center"
             width="200px;"
@@ -344,7 +344,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="checkoutCounterUrl"
-            label="收银台地址"
+            :label="$t('pathChannelList.column.checkoutCounterUrl')"
             v-slot="{row}"
             align="center"
             width="200px;"
@@ -355,7 +355,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="pathEachLimit"
-            label="币种"
+            :label="$t('common.currency')"
             v-slot="{row}"
             align="center"
             width="200px;"
@@ -453,7 +453,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
                 </el-table-column>-->
         <el-table-column
             prop="operate"
-            label="操作"
+            :label="$t('common.operation')"
             align="center"
             fixed="right"
             v-slot="{row}"
@@ -462,8 +462,8 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             <SvgIcon name="more" width="30" height="30"/>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item @click="editPathChannelInfo(row)">编辑</el-dropdown-item>
-                <el-dropdown-item @click="PathChannelDetailInfo(row)">详情</el-dropdown-item>
+                <el-dropdown-item @click="editPathChannelInfo(row)">{{ $t('common.edit') }}</el-dropdown-item>
+                <el-dropdown-item @click="PathChannelDetailInfo(row)">{{ $t('common.detail') }}</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -500,7 +500,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <el-row style="width: 100%">
         <el-col :span="6">
           <el-form-item
-              label="通道编号:"
+              :label="$t('pathChannelList.form.channelNo')"
               label-width="150px"
           >
             {{paymentDetailInfo.paymentNo}}
@@ -508,7 +508,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="通道名称:"
+              :label="$t('pathChannelList.form.channelName')"
               label-width="150px"
           >
             {{paymentDetailInfo.paymentName}}
@@ -516,15 +516,15 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="通道状态:"
+              :label="$t('pathChannelList.form.status')"
               label-width="150px"
           >
             <el-switch
                 :model-value="paymentDetailInfo.status"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                active-text="启用"
-                inactive-text="停用"
+                :active-text="$t('common.enable')"
+                :inactive-text="$t('common.disable')"
                 :active-value = "1"
                 :inactive-value="0"
             />
@@ -532,43 +532,43 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="是否三方:"
+              :label="$t('pathChannelList.form.isThird')"
               label-width="150px"
           >
-            {{paymentDetailInfo.isThird === '0' ? '系统支付' : '三方支付'}}
+            {{ isThirdLabel(paymentDetailInfo.isThird) }}
           </el-form-item>
         </el-col>
       </el-row>
       <el-row style="width: 100%">
         <el-col :span="6">
           <el-form-item
-              label="支付类型:"
+              :label="$t('pathChannelList.form.supportType')"
               label-width="150px"
           >
-            {{ (paymentDetailInfo.supportType === 0) ? '代收' : (paymentDetailInfo.supportType === 1) ? '代付' : '代收/代付' }}
+            {{ supportTypeLabel(paymentDetailInfo.supportType) }}
           </el-form-item>
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="通道可用时间段:"
+              :label="$t('pathChannelList.form.enableTimePeriod')"
               label-width="150px"
           >
             {{
-              !paymentDetailInfo.enableTimePeriod ? 'all' : getFormateTimeByTimeBystamp(paymentDetailInfo.enableTimePeriod ? paymentDetailInfo.enableTimePeriod.split(',')[0] : '') + '-' + getFormateTimeByTimeBystamp(paymentDetailInfo.enableTimePeriod ? paymentDetailInfo.enableTimePeriod.split(',')[1] : '')
+              !paymentDetailInfo.enableTimePeriod ? $t('pathChannelList.label.allTime') : getFormateTimeByTimeBystamp(paymentDetailInfo.enableTimePeriod ? paymentDetailInfo.enableTimePeriod.split(',')[0] : '') + '-' + getFormateTimeByTimeBystamp(paymentDetailInfo.enableTimePeriod ? paymentDetailInfo.enableTimePeriod.split(',')[1] : '')
             }}
           </el-form-item>
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="通道类型:"
+              :label="$t('pathChannelList.form.paymentType')"
               label-width="150px"
           >
-            {{paymentDetailInfo.paymentType === '1' ? 'app支付':'银行卡支付'}}
+            {{ paymentTypeLabel(paymentDetailInfo.paymentType) }}
           </el-form-item>
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="是否支持收银台:"
+              :label="$t('pathChannelList.form.checkoutCounter')"
               prop="isCheckoutCounter"
               label-width="150px"
           >
@@ -576,8 +576,8 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
                 :model-value="paymentDetailInfo.isCheckoutCounter"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                active-text="启用"
-                inactive-text="停用"
+                :active-text="$t('common.enable')"
+                :inactive-text="$t('common.disable')"
                 :active-value = "1"
                 :inactive-value="0"
             />
@@ -587,7 +587,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <el-row style="width: 100%">
         <el-col :span="6">
           <el-form-item
-              label="通道单笔限额:"
+              :label="$t('pathChannelList.form.singleLimit')"
               label-width="150px"
           >
             [{{paymentDetailInfo.paymentMinAmount}},{{paymentDetailInfo.paymentMaxAmount}}]
@@ -595,7 +595,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="通道代收日限额:"
+              :label="$t('pathChannelList.form.collectionDailyLimit')"
               label-width="150px"
           >
             {{paymentDetailInfo.collectionDailyLimit}}
@@ -603,7 +603,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="通道代收月限额:"
+              :label="$t('pathChannelList.form.collectionMonthlyLimit')"
               label-width="150px"
           >
             {{paymentDetailInfo.collectionMonthlyLimit}}
@@ -611,7 +611,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="通道代付日限额:"
+              :label="$t('pathChannelList.form.payDailyLimit')"
               label-width="150px"
           >
             {{paymentDetailInfo.payDailyLimit}}
@@ -621,7 +621,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <el-row style="width: 100%">
         <el-col :span="6">
           <el-form-item
-              label="通道代付月限额:"
+              :label="$t('pathChannelList.form.payMonthlyLimit')"
               label-width="150px"
           >
             {{paymentDetailInfo.payMonthlyLimit}}
@@ -629,7 +629,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="代付API地址:"
+              :label="$t('pathChannelList.form.paymentRequestPayUrl')"
               label-width="150px"
           >
             {{paymentDetailInfo.paymentRequestCollectionUrl}}
@@ -637,7 +637,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="代收API地址:"
+              :label="$t('pathChannelList.form.paymentRequestCollectionUrl')"
               label-width="150px"
           >
             {{paymentDetailInfo.paymentRequestCollectionUrl}}
@@ -645,7 +645,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="代收费率:"
+              :label="$t('pathChannelList.form.paymentCollectionRate')"
               label-width="150px"
           >
             {{paymentDetailInfo.paymentCollectionRate}}
@@ -655,7 +655,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <el-row style="width: 100%">
         <el-col :span="6">
           <el-form-item
-              label="代付费率:"
+              :label="$t('pathChannelList.form.paymentPayRate')"
               label-width="150px"
           >
             {{paymentDetailInfo.paymentPayRate}}
@@ -663,7 +663,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="代付订单校验地址:"
+              :label="$t('pathChannelList.form.paymentCheckPayUrl')"
               label-width="150px"
           >
             {{paymentDetailInfo.paymentCheckPayUrl}}
@@ -671,7 +671,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="代收订单校验地址:"
+              :label="$t('pathChannelList.form.paymentCheckCollectionUrl')"
               label-width="150px"
           >
             {{paymentDetailInfo.paymentCheckCollectionUrl}}
@@ -679,7 +679,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="代收回调地址:"
+              :label="$t('pathChannelList.form.collectionCallbackAddr')"
               label-width="150px"
           >
             {{paymentDetailInfo.collectionCallbackAddr}}
@@ -689,7 +689,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <el-row style="width: 100%">
         <el-col :span="6">
           <el-form-item
-              label="代付回调地址:"
+              :label="$t('pathChannelList.form.payCallbackAddr')"
               label-width="150px"
           >
             {{paymentDetailInfo.payCallbackAddr}}
@@ -697,7 +697,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="代收接口参数:"
+              :label="$t('pathChannelList.form.collectionInterfaceParam')"
               label-width="150px"
           >
             {{paymentDetailInfo.collectionInterfaceParam}}
@@ -705,7 +705,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="代付接口参数:"
+              :label="$t('pathChannelList.form.payInterfaceParam')"
               label-width="150px"
           >
             {{paymentDetailInfo.payInterfaceParam}}
@@ -713,7 +713,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="银行名称:"
+              :label="$t('pathChannelList.form.bankName')"
               label-width="150px"
           >
             {{paymentDetailInfo.bankName}}
@@ -723,7 +723,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <el-row style="width: 100%">
         <el-col :span="6">
           <el-form-item
-              label="银行账号:"
+              :label="$t('pathChannelList.form.bankAccount')"
               label-width="150px"
           >
             {{paymentDetailInfo.bankAccount}}
@@ -731,7 +731,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="银行用户名:"
+              :label="$t('pathChannelList.form.bankUserName')"
               label-width="150px"
           >
             {{paymentDetailInfo.bankUserName}}
@@ -739,7 +739,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="币种:"
+              :label="$t('common.currency')"
               label-width="150px"
           >
             {{paymentDetailInfo.currency}}
@@ -760,7 +760,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <el-row style="width: 100%">
         <el-col :span="6">
           <el-form-item
-              label="通道编号:"
+              :label="$t('pathChannelList.form.channelNo')"
               label-width="150px"
               prop="paymentNo"
           >
@@ -769,7 +769,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="通道名称:"
+              :label="$t('pathChannelList.form.channelName')"
               label-width="150px"
               prop="paymentName"
           >
@@ -778,7 +778,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="通道状态:"
+              :label="$t('pathChannelList.form.status')"
               label-width="150px"
               prop="status"
           >
@@ -786,20 +786,20 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
                 v-model="createPathChannelInfo.status"
 
             >
-              <el-radio :label="0">停用</el-radio>
-              <el-radio :label="1">启用</el-radio>
+              <el-radio :label="0">{{ $t('common.disable') }}</el-radio>
+              <el-radio :label="1">{{ $t('common.enable') }}</el-radio>
             </el-radio-group>
           </el-form-item>
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="是否三方:"
+              :label="$t('pathChannelList.form.isThird')"
               label-width="150px"
               prop="isThird"
           >
             <el-radio-group v-model="createPathChannelInfo.isThird">
-              <el-radio value="0">系统支付</el-radio>
-              <el-radio value="1">三方支付</el-radio>
+              <el-radio value="0">{{ $t('pathChannelList.label.systemPay') }}</el-radio>
+              <el-radio value="1">{{ $t('pathChannelList.label.thirdPay') }}</el-radio>
             </el-radio-group>
           </el-form-item>
         </el-col>
@@ -807,7 +807,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <el-row style="width: 100%">
         <el-col :span="6">
           <el-form-item
-              label="支付类型:"
+              :label="$t('pathChannelList.form.supportType')"
               label-width="150px"
               prop="supportType"
           >
@@ -820,7 +820,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="通道可用时间段:"
+              :label="$t('pathChannelList.form.enableTimePeriod')"
               label-width="150px"
               prop="enableTimePeriod"
           >
@@ -837,7 +837,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="通道类型:"
+              :label="$t('pathChannelList.form.paymentType')"
               label-width="150px"
               prop="paymentType"
           >
@@ -851,15 +851,15 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="是否支持收银台:"
+              :label="$t('pathChannelList.form.checkoutCounter')"
               prop="isCheckoutCounter"
               label-width="150px"
           >
             <el-radio-group
                 v-model="createPathChannelInfo.isCheckoutCounter"
             >
-              <el-radio :value="0">否</el-radio>
-              <el-radio :value="1">是</el-radio>
+              <el-radio :value="0">{{ $t('common.no') }}</el-radio>
+              <el-radio :value="1">{{ $t('common.yes') }}</el-radio>
             </el-radio-group>
           </el-form-item>
         </el-col>
@@ -867,7 +867,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <el-row style="width: 100%">
         <el-col :span="6">
           <el-form-item
-              label="通道单笔最低限额:"
+              :label="$t('pathChannelList.form.paymentMinAmount')"
               label-width="150px"
               prop="paymentMinAmount"
           >
@@ -876,7 +876,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="通道单笔最高限额:"
+              :label="$t('pathChannelList.form.paymentMaxAmount')"
               label-width="150px"
               prop="paymentMaxAmount"
           >
@@ -885,7 +885,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="币种:"
+              :label="$t('common.currency')"
               label-width="150px"
               prop="currency"
           >
@@ -901,7 +901,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <el-row style="width: 100%" v-if="createPathChannelInfo.supportType === 0 || createPathChannelInfo.supportType === 2">
         <el-col :span="6">
           <el-form-item
-              label="通道代收日限额:"
+              :label="$t('pathChannelList.form.collectionDailyLimit')"
               label-width="150px"
               prop="collectionDailyLimit"
           >
@@ -910,7 +910,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="通道代收月限额:"
+              :label="$t('pathChannelList.form.collectionMonthlyLimit')"
               label-width="150px"
               prop="collectionMonthlyLimit"
           >
@@ -919,7 +919,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="代收API地址:"
+              :label="$t('pathChannelList.form.paymentRequestCollectionUrl')"
               label-width="150px"
               prop="paymentRequestCollectionUrl"
           >
@@ -928,7 +928,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="代收费率:"
+              :label="$t('pathChannelList.form.paymentCollectionRate')"
               label-width="150px"
               prop="paymentCollectionRate"
           >
@@ -939,7 +939,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <el-row style="width: 100%" v-if="createPathChannelInfo.supportType === 0 || createPathChannelInfo.supportType === 2">
         <el-col :span="6">
           <el-form-item
-              label="代收订单校验地址:"
+              :label="$t('pathChannelList.form.paymentCheckCollectionUrl')"
               label-width="150px"
               prop="paymentCheckCollectionUrl"
           >
@@ -948,7 +948,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="代收回调地址:"
+              :label="$t('pathChannelList.form.collectionCallbackAddr')"
               label-width="150px"
               prop="collectionCallbackAddr"
           >
@@ -957,7 +957,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="代收接口参数:"
+              :label="$t('pathChannelList.form.collectionInterfaceParam')"
               label-width="150px"
               prop="collectionInterfaceParam"
           >
@@ -968,7 +968,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <el-row style="width: 100%" v-if="createPathChannelInfo.supportType === 1 || createPathChannelInfo.supportType === 2">
         <el-col :span="6">
           <el-form-item
-              label="通道代付日限额:"
+              :label="$t('pathChannelList.form.payDailyLimit')"
               label-width="150px"
               prop="payDailyLimit"
           >
@@ -977,7 +977,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="通道代付月限额:"
+              :label="$t('pathChannelList.form.payMonthlyLimit')"
               label-width="150px"
               prop="payMonthlyLimit"
           >
@@ -986,7 +986,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="代付API地址:"
+              :label="$t('pathChannelList.form.paymentRequestPayUrl')"
               label-width="150px"
               prop="paymentRequestCollectionUrl"
           >
@@ -995,7 +995,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="代付费率:"
+              :label="$t('pathChannelList.form.paymentPayRate')"
               label-width="150px"
               prop="paymentPayRate"
           >
@@ -1006,7 +1006,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <el-row style="width: 100%" v-if="createPathChannelInfo.supportType === 1 || createPathChannelInfo.supportType === 2">
         <el-col :span="6">
           <el-form-item
-              label="代付订单校验地址:"
+              :label="$t('pathChannelList.form.paymentCheckPayUrl')"
               label-width="150px"
               prop="paymentCheckPayUrl"
           >
@@ -1015,7 +1015,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="代付回调地址:"
+              :label="$t('pathChannelList.form.payCallbackAddr')"
               label-width="150px"
               prop="payCallbackAddr"
           >
@@ -1024,7 +1024,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="代付接口参数:"
+              :label="$t('pathChannelList.form.payInterfaceParam')"
               label-width="150px"
               prop="payInterfaceParam"
           >
@@ -1035,7 +1035,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <el-row style="width: 100%" v-if="createPathChannelInfo.paymentType === '2'">
         <el-col :span="6">
           <el-form-item
-              label="银行名称:"
+              :label="$t('pathChannelList.form.bankName')"
               label-width="150px"
               prop="bankName"
           >
@@ -1044,7 +1044,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="银行账号:"
+              :label="$t('pathChannelList.form.bankAccount')"
               label-width="150px"
               prop="bankAccount"
           >
@@ -1053,7 +1053,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
         <el-col :span="6">
           <el-form-item
-              label="银行用户名:"
+              :label="$t('pathChannelList.form.bankUserName')"
               label-width="150px"
               prop="bankUserName"
           >
@@ -1064,7 +1064,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <el-row style="width: 100%">
         <el-col :span="6">
           <el-form-item
-              label="谷歌验证码:"
+              :label="$t('common.googleCode')"
               label-width="150px"
               prop="googleCode"
           >
@@ -1074,8 +1074,8 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       </el-row>
     </el-form>
     <div slot="footer" class="dialog-footer" style="float: right;">
-      <el-button @click="cancelDialog">取 消</el-button>
-      <el-button type="primary" @click="submitCreatePaymentInfo(submitType)">确 定</el-button>
+      <el-button @click="cancelDialog">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="submitCreatePaymentInfo(submitType)">{{ $t('common.confirm') }}</el-button>
     </div>
   </el-dialog>
 </template>
@@ -1095,7 +1095,7 @@ export default {
       if (this.createPathChannelInfo.supportType === '1' || this.createPathChannelInfo.supportType === '3') {
          // if support type is 1 or 3 then should verify some data about collection
         if (value == '' || value === undefined) {
-          callback(new Error('please check must form data!'))
+          callback(new Error(this.$t('pathChannelList.validation.required')))
         }
         callback();
       } else {
@@ -1107,7 +1107,7 @@ export default {
       if (this.createPathChannelInfo.supportType === '2' || this.createPathChannelInfo.supportType === '3') {
         // if support type is 1 or 3 then should verify some data about collection
         if (value == '' || value === undefined) {
-          callback(new Error('please check must form data!'))
+          callback(new Error(this.$t('pathChannelList.validation.required')))
         }
         callback()
       } else {
@@ -1118,7 +1118,7 @@ export default {
     const validBank = (rule, value, callback) => {
       if (this.createPathChannelInfo.paymentType === '2') {
         if (value == '' || value === undefined) {
-          callback(new Error('please check must form data!'))
+          callback(new Error(this.$t('pathChannelList.validation.required')))
         }
         callback();
       } else {
@@ -1130,97 +1130,97 @@ export default {
       activeTool: '1',
       createPaymentInfoRules : {
         paymentNo: {
-          required: true, messages: 'you need to input paymentNo', trigger: 'blur'
+          required: true, messages: this.$t('pathChannelList.validation.paymentNo'), trigger: 'blur'
         },
         paymentName: {
-          required: true, messages: 'you need to input paymentName', trigger: 'blur'
+          required: true, messages: this.$t('pathChannelList.validation.paymentName'), trigger: 'blur'
         },
         status: {
-          required: true, type: 'number', messages: 'you need to input status', trigger: 'blur'
+          required: true, type: 'number', messages: this.$t('pathChannelList.validation.status'), trigger: 'blur'
         },
         isThird: {
-          required: true, messages: 'you need to input whther is third', trigger: 'blur'
+          required: true, messages: this.$t('pathChannelList.validation.isThird'), trigger: 'blur'
         },
         supportType: {
-          required: true, type: 'number', messages: 'you need to input support type', trigger: 'blur'
+          required: true, type: 'number', messages: this.$t('pathChannelList.validation.supportType'), trigger: 'blur'
         },
         /*enableTimePeriod: {
           required: true, messages: 'you need to input enableTimePeriod', trigger: 'blur'
         },*/
         paymentType: {
-          required: true, messages: 'you need to input paymentType', trigger: 'blur'
+          required: true, messages: this.$t('pathChannelList.validation.paymentType'), trigger: 'blur'
         },
         isCheckoutCounter: {
-          required: true, type: 'number', messages: 'you need to input where need checkout counter', trigger: 'blur'
+          required: true, type: 'number', messages: this.$t('pathChannelList.validation.checkoutCounter'), trigger: 'blur'
         },
         paymentMinAmount: {
-          required: true, type: 'number', messages: 'you need to input payment min acount', trigger: 'blur'
+          required: true, type: 'number', messages: this.$t('pathChannelList.validation.paymentMinAmount'), trigger: 'blur'
         },
         paymentMaxAmount: {
-          required: true, type: 'number', messages: 'you need to input payment max acount', trigger: 'blur'
+          required: true, type: 'number', messages: this.$t('pathChannelList.validation.paymentMaxAmount'), trigger: 'blur'
         },
         collectionDailyLimit: {
-          required: true,validator: validateCollection, messages: 'you need to input collection daily limit', trigger: 'blur'
+          required: true,validator: validateCollection, messages: this.$t('pathChannelList.validation.collectionDailyLimit'), trigger: 'blur'
         },
         collectionMonthlyLimit: {
-          required: true,validator: validateCollection, messages: 'you need to input collection monthly limit', trigger: 'blur'
+          required: true,validator: validateCollection, messages: this.$t('pathChannelList.validation.collectionMonthlyLimit'), trigger: 'blur'
         },
         payDailyLimit: {
-          required: true,validator: validatePay, messages: 'you need to input collection daily limit', trigger: 'blur'
+          required: true,validator: validatePay, messages: this.$t('pathChannelList.validation.payDailyLimit'), trigger: 'blur'
         },
         payMonthlyLimit: {
-          required: true,validator: validatePay, messages: 'you need to input collection monthly limit', trigger: 'blur'
+          required: true,validator: validatePay, messages: this.$t('pathChannelList.validation.payMonthlyLimit'), trigger: 'blur'
         },
         paymentRequestCollectionUrl: {
-          required: true,validator: validateCollection, messages: 'you need to input collection requestCollectionUrl', trigger: 'blur'
+          required: true,validator: validateCollection, messages: this.$t('pathChannelList.validation.paymentRequestCollectionUrl'), trigger: 'blur'
         },
         paymentRequestPayUrl: {
-          required: true,validator: validatePay, messages: 'you need to input collection rrequestPayUrl', trigger: 'blur'
+          required: true,validator: validatePay, messages: this.$t('pathChannelList.validation.paymentRequestPayUrl'), trigger: 'blur'
         },
         paymentCollectionRate: {
-          required: true,validator: validateCollection, messages: 'you need to input collection rate', trigger: 'blur'
+          required: true,validator: validateCollection, messages: this.$t('pathChannelList.validation.paymentCollectionRate'), trigger: 'blur'
         },
         paymentPayRate: {
-          required: true,validator: validatePay, messages: 'you need to input pay rate', trigger: 'blur'
+          required: true,validator: validatePay, messages: this.$t('pathChannelList.validation.paymentPayRate'), trigger: 'blur'
         },
         paymentCheckPayUrl: {
-          required: true,validator: validatePay, messages: 'you need to input checkPayUrl', trigger: 'blur'
+          required: true,validator: validatePay, messages: this.$t('pathChannelList.validation.paymentCheckPayUrl'), trigger: 'blur'
         },
         paymentCheckCollectionUrl: {
-          required: true,validator: validateCollection, messages: 'you need to input checkCollectionUrl', trigger: 'blur'
+          required: true,validator: validateCollection, messages: this.$t('pathChannelList.validation.paymentCheckCollectionUrl'), trigger: 'blur'
         },
         collectionCallbackAddr: {
-          required: true,validator: validateCollection, messages: 'you need to input collectionCallbackAddr', trigger: 'blur'
+          required: true,validator: validateCollection, messages: this.$t('pathChannelList.validation.collectionCallbackAddr'), trigger: 'blur'
         },
         payCallbackAddr: {
-          required: true,validator: validatePay, messages: 'you need to input collectionCallbackAddr',trigger: 'blur'
+          required: true,validator: validatePay, messages: this.$t('pathChannelList.validation.payCallbackAddr'),trigger: 'blur'
         },
         collectionInterfaceParam: {
-          required: true,validator: validateCollection, messages: 'you need to input collectionInterfaceParam',trigger: 'blur'
+          required: true,validator: validateCollection, messages: this.$t('pathChannelList.validation.collectionInterfaceParam'),trigger: 'blur'
         },
         payInterfaceParam: {
-          required: true,validator: validatePay, messages: 'you need to input collectionInterfaceParam',trigger: 'blur'
+          required: true,validator: validatePay, messages: this.$t('pathChannelList.validation.payInterfaceParam'),trigger: 'blur'
         },
         bankName: {
-          required: true,validator: validBank, messages: 'you need to input bankName',trigger: 'blur'
+          required: true,validator: validBank, messages: this.$t('pathChannelList.validation.bankName'),trigger: 'blur'
         },
         bankAccount: {
-          required: true,validator: validBank, messages: 'you need to input bankAccount',trigger: 'blur'
+          required: true,validator: validBank, messages: this.$t('pathChannelList.validation.bankAccount'),trigger: 'blur'
         },
         bankUserName: {
-          required: true,validator: validBank, messages: 'you need to input bankUserName',trigger: 'blur'
+          required: true,validator: validBank, messages: this.$t('pathChannelList.validation.bankUserName'),trigger: 'blur'
         },
         currency: {
-          required: true, messages: 'you need to input currency',trigger: 'blur'
+          required: true, messages: this.$t('pathChannelList.validation.currency'),trigger: 'blur'
         },
         googleCode: {
-          required: true, messages: 'you need to input googleCode',trigger: 'blur'
+          required: true, messages: this.$t('common.googleCodeRequired'),trigger: 'blur'
         }
       },
       submitType: "",
       currencyMaps: {},
       paymentDetailInfo:{},
-      paymentDetailDialogTitle: '详情',
+      paymentDetailDialogTitle: '',
       paymentDetailVisible: false,
       showURL: false,
       totalCount: 0,
@@ -1231,50 +1231,10 @@ export default {
       toolbarIsVisible: true,
       pathChannelDialogTitle: "",
       dialogFormVisible: false,
-      paymentStatusOptions: [
-        {
-          value: 0,
-          label: '停用'
-        },
-        {
-          value: 1,
-          label: '启用'
-        }
-      ],
-      pathChannelCurrencyTypeOptions: [
-        {
-          value: 1,
-          label: '脚盆鸡币'
-        },
-        {
-          value: 2,
-          label: '大不列颠币'
-        }
-      ],
-      supportTypeOptions: [
-        {
-          value: 0,
-          label: '代收'
-        },
-        {
-          value: 1,
-          label: '代付'
-        },
-        {
-          value: 2,
-          label: '代收/代付'
-        }
-      ],
-      paymentTypeOptions: [
-        {
-          value: '1',
-          label: 'app支付'
-        },
-        {
-          value: '2',
-          label: '银行卡支付'
-        }
-      ],
+      paymentStatusOptions: [],
+      pathChannelCurrencyTypeOptions: [],
+      supportTypeOptions: [],
+      paymentTypeOptions: [],
       currency: '',
       currencyIcon: '',
       currencyIcons: [],
@@ -1298,6 +1258,42 @@ export default {
     }
   },
   methods: {
+    refreshOptions() {
+      this.paymentStatusOptions = [
+        { value: 0, label: this.$t('common.disable') },
+        { value: 1, label: this.$t('common.enable') }
+      ]
+      this.pathChannelCurrencyTypeOptions = [
+        { value: 1, label: this.$t('pathChannelList.label.currencyOption1') },
+        { value: 2, label: this.$t('pathChannelList.label.currencyOption2') }
+      ]
+      this.supportTypeOptions = [
+        { value: 0, label: this.$t('pathChannelList.label.collection') },
+        { value: 1, label: this.$t('pathChannelList.label.payout') },
+        { value: 2, label: this.$t('pathChannelList.label.collectionPayout') }
+      ]
+      this.paymentTypeOptions = [
+        { value: '1', label: this.$t('pathChannelList.label.appPay') },
+        { value: '2', label: this.$t('pathChannelList.label.bankCardPay') }
+      ]
+      if (!this.paymentDetailDialogTitle) {
+        this.paymentDetailDialogTitle = this.$t('pathChannelList.dialog.detail')
+      }
+    },
+    supportTypeLabel(value) {
+      if (value === 0 || value === '0') return this.$t('pathChannelList.label.collection')
+      if (value === 1 || value === '1') return this.$t('pathChannelList.label.payout')
+      if (value === 2 || value === '2') return this.$t('pathChannelList.label.collectionPayout')
+      return '-'
+    },
+    paymentTypeLabel(value) {
+      if (value === '1' || value === 1) return this.$t('pathChannelList.label.appPay')
+      if (value === '2' || value === 2) return this.$t('pathChannelList.label.bankCardPay')
+      return this.$t('common.invalid')
+    },
+    isThirdLabel(value) {
+      return value === '0' || value === 0 ? this.$t('pathChannelList.label.systemPay') : this.$t('pathChannelList.label.thirdPay')
+    },
     exportPathChannelInfos() {
      /* exportPayment(this.filterbox).then(async res => {
         const fileName = this.$t('exportPaymentListName') + getFormateTime()
@@ -1386,7 +1382,7 @@ export default {
           this.tableKey++
         } else {
           this.$notify({
-            title:'Error',
+            title: this.$t('common.error'),
             message:res.data.message,
             duration:3000,
             type: 'error'
@@ -1403,12 +1399,13 @@ export default {
       console.log('editInfo----'+JSON.stringify(row))
       this.createPathChannelInfo = row
       this.dialogFormVisible = true
-      this.pathChannelDialogTitle = '修改'
+      this.pathChannelDialogTitle = this.$t('pathChannelList.dialog.edit')
       this.submitType='edit'
     },
     PathChannelDetailInfo(row) {
       console.log(JSON.stringify(row));
       this.paymentDetailVisible = true;
+      this.paymentDetailDialogTitle = this.$t('pathChannelList.dialog.detail');
       //this.paymentDetailInfo.push(row)
       this.paymentDetailInfo = {}
       this.paymentDetailInfo = row;
@@ -1436,7 +1433,7 @@ export default {
     },
     createPathChannel() {
       this.dialogFormVisible = true
-      this.pathChannelDialogTitle = '创建通道'
+      this.pathChannelDialogTitle = this.$t('pathChannelList.dialog.create')
       // set default status
       this.createPathChannelInfo.status = 1
       // set default supportType
@@ -1459,15 +1456,15 @@ export default {
             createPaymentInfo(this.createPathChannelInfo).then(res => {
               if (res.status === 200 && res.data.code === 0) {
                 this.$notify({
-                  title:'Success',
-                  message:'create payment info successfully',
+                  title: this.$t('common.success'),
+                  message: this.$t('pathChannelList.message.createSuccess'),
                   duration:3000,
                   type: 'success',
                   position: 'bottom-right'
                 })
               } else if (res.status === 200 && res.data.code !== 0) {
                 this.$notify({
-                  title:'Error',
+                  title: this.$t('common.error'),
                   message:res.data.message,
                   duration:3000,
                   type: 'error',
@@ -1475,8 +1472,8 @@ export default {
                 })
               } else {
                 this.$notify({
-                  title:'Error',
-                  message:'some error occurred.',
+                  title: this.$t('common.error'),
+                  message: this.$t('common.requestFailed'),
                   duration:3000,
                   type: 'error',
                   position: 'bottom-right'
@@ -1496,15 +1493,15 @@ export default {
             editPaymentInfo(this.createPathChannelInfo).then(res => {
                 if (res.status === 200 && res.data.code === 0) {
                    this.$notify({
-                     title:'Success',
-                     message:'create payment info successfully',
+                     title: this.$t('common.success'),
+                     message: this.$t('pathChannelList.message.editSuccess'),
                      duration:3000,
                      type: 'success',
                      position: 'bottom-right'
                    })
                 } else if (res.status === 200 && res.data.code !== 0) {
                   this.$notify({
-                    title:'Error',
+                    title: this.$t('common.error'),
                     message:res.data.message,
                     duration:3000,
                     type: 'error',
@@ -1512,8 +1509,8 @@ export default {
                   })
                 } else {
                   this.$notify({
-                    title:'Error',
-                    message:'some error occurred.',
+                    title: this.$t('common.error'),
+                    message: this.$t('common.requestFailed'),
                     duration:3000,
                     type: 'error',
                     position: 'bottom-right'
@@ -1530,6 +1527,7 @@ export default {
     }
   },
   async mounted() {
+    this.refreshOptions();
     await getAllCurrencyType().then(res => {
       if (res.status === 200) {
         if (res.data.code === 0) {
@@ -1548,6 +1546,12 @@ export default {
       }
     })
     this.search()
+  }
+  ,
+  watch: {
+    '$i18n.locale'() {
+      this.refreshOptions();
+    }
   }
 }
 </script>

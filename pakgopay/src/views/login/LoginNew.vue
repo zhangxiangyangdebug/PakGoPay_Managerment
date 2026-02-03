@@ -1,27 +1,32 @@
 <template>
   <div class="login-page">
     <div class="login-card">
-      <div class="login-title">PakGoPay Login</div>
-      <div class="login-subtitle">Please sign in to continue</div>
+      <div class="login-title">{{ $t('login.title') }}</div>
+      <div class="login-subtitle">{{ $t('login.subtitle') }}</div>
       <div class="login-form">
-        <label class="login-label">Account</label>
+        <label class="login-label">{{ $t('login.label.account') }}</label>
         <input
           v-model="loginForm.userName"
           class="login-input"
           type="text"
-          placeholder="Username"
+          :placeholder="$t('login.placeholder.username')"
           autocomplete="username"
         />
-        <label class="login-label">Password</label>
+        <label class="login-label">{{ $t('login.label.password') }}</label>
         <div class="password-field">
           <input
             v-model="loginForm.password"
             class="login-input"
             :type="showPassword ? 'text' : 'password'"
-            placeholder="Password"
+            :placeholder="$t('login.placeholder.password')"
             autocomplete="current-password"
           />
-          <button class="toggle-password" type="button" @click="showPassword = !showPassword" aria-label="Toggle password visibility">
+          <button
+            class="toggle-password"
+            type="button"
+            @click="showPassword = !showPassword"
+            :aria-label="$t('login.action.togglePassword')"
+          >
             <svg v-if="!showPassword" viewBox="0 0 24 24" aria-hidden="true">
               <path
                 d="M12 5c-5 0-9 4-10 7 1 3 5 7 10 7s9-4 10-7c-1-3-5-7-10-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"
@@ -60,16 +65,18 @@
             </svg>
           </button>
         </div>
-        <label class="login-label">Verification Code</label>
+        <label class="login-label">{{ $t('login.label.googleCode') }}</label>
         <input
           v-model="loginForm.code"
           class="login-input"
           type="text"
-          placeholder="Google code"
+          :placeholder="$t('login.placeholder.googleCode')"
           autocomplete="one-time-code"
         />
         <div class="login-actions">
-          <button class="btn-primary" type="button" @click="login(loginForm)">Login</button>
+          <button class="btn-primary" type="button" @click="login(loginForm)">
+            {{ $t('login.action.login') }}
+          </button>
 <!--          <button class="btn-secondary" type="button" @click="getQrCodes(loginForm.userName, loginForm.password)">
             获取谷歌令牌二维码
           </button>-->
@@ -107,7 +114,7 @@ export default {
   methods: {
     async login(loginForm) {
       if (!loginForm.userName || !loginForm.password) {
-        ElMessage.error("please enter account, password");
+        ElMessage.error(this.$t('login.error.missingAccountPassword'));
         return;
       }
       await LoginBack(loginForm).then((response) => {
@@ -156,7 +163,7 @@ export default {
     },
     getQrCodes(username, password) {
       if (!username || !password) {
-        ElMessage.error("please enter username and password before");
+        ElMessage.error(this.$t('login.error.missingUsernamePassword'));
         return;
       }
       getQrCode(username, password).then((res) => {

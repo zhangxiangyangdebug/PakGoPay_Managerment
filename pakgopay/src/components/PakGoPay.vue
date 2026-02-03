@@ -1,9 +1,9 @@
 <template>
-  <div class="welcome-page">
+  <div class="welcome-page" :key="localeKey">
     <div class="welcome-hero">
       <div class="hero-text">
-        <p class="hero-eyebrow">运营总览</p>
-        <p class="hero-subtitle">多维度追踪代收与代付核心指标，快速判断健康度与收益。</p>
+        <p class="hero-eyebrow">{{ $t('home.title') }}</p>
+        <p class="hero-subtitle">{{ $t('home.subtitle') }}</p>
       </div>
       <div class="hero-controls">
         <div class="dimension-toggle">
@@ -13,7 +13,7 @@
             type="button"
             @click="setDimension('year')"
           >
-            年
+            {{ $t('common.year') }}
           </button>
           <button
             class="dimension-btn"
@@ -21,7 +21,7 @@
             type="button"
             @click="setDimension('month')"
           >
-            月
+            {{ $t('common.month') }}
           </button>
           <button
             class="dimension-btn"
@@ -29,7 +29,7 @@
             type="button"
             @click="setDimension('day')"
           >
-            日
+            {{ $t('common.day') }}
           </button>
         </div>
         <el-date-picker
@@ -38,14 +38,14 @@
           :format="dateFormat"
           :value-format="dateFormat"
           class="dimension-picker"
-          placeholder="选择日期"
+          :placeholder="$t('home.datePlaceholder')"
           @change="handleDateChange"
         />
       </div>
     </div>
 
     <div class="currency-tabs" v-if="currencyOptions.length">
-      <span class="currency-tabs-label">统计币种:</span>
+      <span class="currency-tabs-label">{{ $t('home.currencyLabel') }}</span>
       <el-tabs
         v-model="currency"
         type="card"
@@ -65,14 +65,14 @@
       <section class="stats-card card-collect">
         <header class="card-header">
           <div>
-            <h2>代收</h2>
+            <h2>{{ $t('home.collectionTitle') }}</h2>
             <p>{{ dateLabel }}</p>
           </div>
-          <span class="card-tag">Collection</span>
+          <span class="card-tag">{{ $t('home.cardTagCollection') }}</span>
         </header>
         <div class="stats-grid">
           <div class="stat-item">
-            <span>代收订单总数</span>
+            <span>{{ $t('home.collectionOrdersTotal') }}</span>
             <strong>{{ collectionStatsView.totalOrders }}</strong>
             <span
               class="stat-change"
@@ -82,7 +82,7 @@
             </span>
           </div>
           <div class="stat-item">
-            <span>代收订单成功数量</span>
+            <span>{{ $t('home.collectionOrdersSuccess') }}</span>
             <strong>{{ collectionStatsView.successOrders }}</strong>
             <span
               class="stat-change"
@@ -92,7 +92,7 @@
             </span>
           </div>
           <div class="stat-item">
-            <span>代收订单失败数</span>
+            <span>{{ $t('home.collectionOrdersFailed') }}</span>
             <strong>{{ collectionStatsView.failedOrders }}</strong>
             <span
               class="stat-change"
@@ -102,7 +102,7 @@
             </span>
           </div>
           <div class="stat-item">
-            <span>代收订单成功率</span>
+            <span>{{ $t('home.collectionSuccessRate') }}</span>
             <strong>{{ collectionStatsView.successRate }}</strong>
             <span
               class="stat-change"
@@ -112,7 +112,7 @@
             </span>
           </div>
           <div class="stat-item">
-            <span>代收订单代理佣金</span>
+            <span>{{ $t('home.collectionAgentCommission') }}</span>
             <strong>{{ collectionStatsView.agentCommission }}</strong>
             <span
               class="stat-change"
@@ -127,14 +127,14 @@
       <section class="stats-card card-paying">
         <header class="card-header">
           <div>
-            <h2>代付</h2>
+            <h2>{{ $t('home.payoutTitle') }}</h2>
             <p>{{ dateLabel }}</p>
           </div>
-          <span class="card-tag">Payout</span>
+          <span class="card-tag">{{ $t('home.cardTagPayout') }}</span>
         </header>
         <div class="stats-grid">
           <div class="stat-item">
-            <span>代付订单总数</span>
+            <span>{{ $t('home.payoutOrdersTotal') }}</span>
             <strong>{{ payingStatsView.totalOrders }}</strong>
             <span
               class="stat-change"
@@ -144,7 +144,7 @@
             </span>
           </div>
           <div class="stat-item">
-            <span>代付订单成功数量</span>
+            <span>{{ $t('home.payoutOrdersSuccess') }}</span>
             <strong>{{ payingStatsView.successOrders }}</strong>
             <span
               class="stat-change"
@@ -154,7 +154,7 @@
             </span>
           </div>
           <div class="stat-item">
-            <span>代付订单失败数</span>
+            <span>{{ $t('home.payoutOrdersFailed') }}</span>
             <strong>{{ payingStatsView.failedOrders }}</strong>
             <span
               class="stat-change"
@@ -164,7 +164,7 @@
             </span>
           </div>
           <div class="stat-item">
-            <span>代付订单成功率</span>
+            <span>{{ $t('home.payoutSuccessRate') }}</span>
             <strong>{{ payingStatsView.successRate }}</strong>
             <span
               class="stat-change"
@@ -174,7 +174,7 @@
             </span>
           </div>
           <div class="stat-item">
-            <span>代付订单代理佣金</span>
+            <span>{{ $t('home.payoutAgentCommission') }}</span>
             <strong>{{ payingStatsView.agentCommission }}</strong>
             <span
               class="stat-change"
@@ -189,8 +189,8 @@
       <section class="stats-card chart-card">
         <header class="card-header">
           <div>
-            <h2>趋势</h2>
-            <p>最近5{{ dimensionLabel }}订单总数与佣金变化</p>
+            <h2>{{ $t('home.trendTitle') }}</h2>
+            <p>{{ $t('home.trendSubtitle', { dimension: dimensionLabel }) }}</p>
           </div>
           <div class="chart-tabs">
             <button
@@ -199,7 +199,7 @@
               type="button"
               @click="trendMetric = 'orders'"
             >
-              订单总数
+              {{ $t('home.trendOrdersTotal') }}
             </button>
             <button
               class="chart-tab"
@@ -207,13 +207,13 @@
               type="button"
               @click="trendMetric = 'commission'"
             >
-              代理佣金
+              {{ $t('home.trendAgentCommission') }}
             </button>
           </div>
         </header>
     <div class="chart-legend">
-      <span class="legend-item legend-collect">代收</span>
-      <span class="legend-item legend-paying">代付</span>
+      <span class="legend-item legend-collect">{{ $t('home.legendCollection') }}</span>
+      <span class="legend-item legend-paying">{{ $t('home.legendPayout') }}</span>
     </div>
         <div class="chart-wrapper" ref="chartWrapper">
           <svg
@@ -235,8 +235,8 @@
                 :cx="trendLabelPositions[index]"
                 :cy="collectionPointPositions[index]"
                 r="10"
-                @mousemove="showTooltip('代收', trendLabels[index], value, $event)"
-                @mouseenter="showTooltip('代收', trendLabels[index], value, $event)"
+                @mousemove="showTooltip($t('home.legendCollection'), trendLabels[index], value, $event)"
+                @mouseenter="showTooltip($t('home.legendCollection'), trendLabels[index], value, $event)"
               />
               <circle
                 class="trend-point point-collect"
@@ -251,8 +251,8 @@
                 :cx="trendLabelPositions[index]"
                 :cy="payingPointPositions[index]"
                 r="10"
-                @mousemove="showTooltip('代付', trendLabels[index], value, $event)"
-                @mouseenter="showTooltip('代付', trendLabels[index], value, $event)"
+                @mousemove="showTooltip($t('home.legendPayout'), trendLabels[index], value, $event)"
+                @mouseenter="showTooltip($t('home.legendPayout'), trendLabels[index], value, $event)"
               />
               <circle
                 class="trend-point point-paying"
@@ -280,30 +280,30 @@
 
     <el-dialog
       v-model="googleBindVisible"
-      title="绑定 Google 验证"
+      :title="$t('home.bindGoogleTitle')"
       width="420px"
     >
       <div class="google-bind-dialog">
         <img
           v-if="googleBindQrCode"
           :src="googleBindQrCode"
-          alt="Google QR Code"
+          :alt="$t('home.qrAlt')"
           class="google-bind-qr"
         />
-        <div v-else class="google-bind-empty">暂无二维码</div>
+        <div v-else class="google-bind-empty">{{ $t('home.noQrCode') }}</div>
         <div v-if="googleBindSecretKey" class="google-bind-secret">
-          密钥：{{ googleBindSecretKey }}
+          {{ $t('home.secretKeyLabel') }}{{ googleBindSecretKey }}
         </div>
         <el-button
           v-if="googleBindSecretKey"
           size="small"
           @click="copyGoogleBindSecretKey"
         >
-          复制密钥
+          {{ $t('home.copySecret') }}
         </el-button>
       </div>
       <template #footer>
-        <el-button type="primary" @click="googleBindVisible = false">确定</el-button>
+        <el-button type="primary" @click="googleBindVisible = false">{{ $t('common.ok') }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -353,8 +353,14 @@ export default {
     };
   },
   computed: {
+    localeKey() {
+      return this.$i18n.locale;
+    },
     dateLabel() {
-      return `日期（${this.getDimensionLabel()}）：${this.getFormattedDate()}`;
+      return this.$t('home.dateLabel', {
+        dimension: this.getDimensionLabel(),
+        date: this.getFormattedDate()
+      });
     },
     dimensionLabel() {
       return this.getDimensionLabel();
@@ -464,8 +470,8 @@ export default {
     },
     yAxisUnit() {
       return this.trendMetric === "commission"
-        ? `单位：${this.currencyIcon || ""}`
-        : "单位：笔";
+        ? this.$t('home.unitCurrency', { currency: this.currencyIcon || "" })
+        : this.$t('home.unitCount');
     }
   },
   async mounted() {
@@ -481,16 +487,15 @@ export default {
           const remainTimes = 3 - Number(res.data.data || 0);
           const alertContent = `
             <div class="ops-alert-body">
-              <div class="ops-alert-title">Google 验证未绑定</div>
+              <div class="ops-alert-title">${this.$t('home.googleUnboundTitle')}</div>
               <div class="ops-alert-text">
-                您还可以免验证登录 <strong>${remainTimes}</strong> 次，
-                建议尽快绑定 Google 验证。
+                ${this.$t('home.googleUnboundText', { times: `<strong>${remainTimes}</strong>` })}
               </div>
             </div>
           `;
-          this.$confirm(alertContent, '提醒', {
-            confirmButtonText: '现在绑定',
-            cancelButtonText: '知道了',
+          this.$confirm(alertContent, this.$t('home.reminderTitle'), {
+            confirmButtonText: this.$t('home.bindNow'),
+            cancelButtonText: this.$t('home.bindLater'),
             showCancelButton: true,
             center: false,
             type: 'warning',
@@ -528,10 +533,10 @@ export default {
       const payload = this.buildOpsRequest();
       if (!payload.currency) {
         this.$notify({
-          title: 'Failed',
+          title: this.$t('common.failed'),
           type: 'error',
           duration: 3000,
-          message: '获取币种失败，无法请求运营数据'
+          message: this.$t('home.currencyFetchFailed')
         });
         return;
       }
@@ -549,10 +554,10 @@ export default {
           this.applyOpsData(collectionList, payoutList);
         } else if (res?.data?.code !== 0) {
           this.$notify({
-            title: 'Failed',
+            title: this.$t('common.failed'),
             type: 'error',
             duration: 3000,
-            message: res.data.message || '获取运营数据失败'
+            message: res.data.message || this.$t('home.opsFetchFailed')
           })
         }
       }).finally(() => {
@@ -564,10 +569,10 @@ export default {
       const loginName = localStorage.getItem("userName") || localStorage.getItem("loginName");
       if (!userId || !loginName) {
         this.$notify({
-          title: 'Failed',
+          title: this.$t('common.failed'),
           type: 'error',
           duration: 3000,
-          message: '缺少用户信息，无法绑定 Google 验证'
+          message: this.$t('home.missingUserInfo')
         });
         return;
       }
@@ -579,10 +584,10 @@ export default {
           const secretKey = data?.secretKey || "";
           if (!qrCode && !secretKey) {
             this.$notify({
-              title: 'Failed',
+              title: this.$t('common.failed'),
               type: 'error',
               duration: 3000,
-              message: res.data.message || '获取绑定二维码失败'
+              message: res.data.message || this.$t('home.bindQrFailed')
             });
             return;
           }
@@ -591,18 +596,18 @@ export default {
           this.googleBindVisible = true;
         } else {
           this.$notify({
-            title: 'Failed',
+            title: this.$t('common.failed'),
             type: 'error',
             duration: 3000,
-            message: res.data.message || '绑定 Google 验证失败'
+            message: res.data.message || this.$t('home.bindGoogleFailed')
           });
         }
       } catch (error) {
         this.$notify({
-          title: 'Failed',
+          title: this.$t('common.failed'),
           type: 'error',
           duration: 3000,
-          message: '绑定 Google 验证失败'
+          message: this.$t('home.bindGoogleFailed')
         });
       }
     },
@@ -614,10 +619,10 @@ export default {
       if (navigator?.clipboard?.writeText) {
         navigator.clipboard.writeText(text).then(() => {
           this.$notify({
-            title: 'Success',
+            title: this.$t('common.success'),
             type: 'success',
             duration: 2000,
-            message: '已复制密钥'
+            message: this.$t('home.copySecretSuccess')
           });
         }).catch(() => {
           this.fallbackCopySecretKey(text);
@@ -634,17 +639,17 @@ export default {
       try {
         document.execCommand('copy');
         this.$notify({
-          title: 'Success',
+          title: this.$t('common.success'),
           type: 'success',
           duration: 2000,
-          message: '已复制密钥'
+          message: this.$t('home.copySecretSuccess')
         });
       } catch (error) {
         this.$notify({
-          title: 'Failed',
+          title: this.$t('common.failed'),
           type: 'error',
           duration: 2000,
-          message: '复制失败，请手动复制'
+          message: this.$t('home.copySecretFailed')
         });
       } finally {
         document.body.removeChild(input);
@@ -855,13 +860,13 @@ export default {
     },
     getDimensionLabel() {
       if (this.dimension === "year") {
-        return "年";
+        return this.$t('common.year');
       }
       if (this.dimension === "month") {
-        return "月";
+        return this.$t('common.month');
       }
-      return "日";
-  },
+      return this.$t('common.day');
+    },
     getFormattedDate() {
       return this.selectedDate || "";
     },

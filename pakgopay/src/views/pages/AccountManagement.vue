@@ -5,25 +5,25 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 
 <template>
   <div class="main-title">
-    登陆用户管理
+    {{ $t('accountManagement.title') }}
   </div>
 
   <div class="toolbar" style="width: 94%;margin-left: 2%;margin-top: 10px;">
     <el-row style="display: flex;justify-content: space-between;">
       <el-form-item style="display: flex;justify-content: center;color: deepskyblue">
         <template #label>
-          <span>用户名称:</span>
+          <span>{{ $t('accountManagement.filter.userName') }}</span>
         </template>
-        <el-input v-model="filterbox.loginName" placeholder="输入用户名称">
+        <el-input v-model="filterbox.loginName" :placeholder="$t('accountManagement.placeholder.userName')">
           <template #append>
             <el-button @click="search">
-              <SvgIcon name="search"/>搜索
+              <SvgIcon name="search"/>{{ $t('common.search') }}
             </el-button>
           </template>
         </el-input>
       </el-form-item>
       <el-form-item>
-        <el-button @click="createUser"><SvgIcon name="add"/>新增</el-button>
+        <el-button @click="createUser"><SvgIcon name="add"/>{{ $t('common.operate.add') }}</el-button>
       </el-form-item>
     </el-row>
   </div>
@@ -32,7 +32,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
     <el-table
 
       ref="loginUserTable"
-      element-loading-text="Loading"
+      :element-loading-text="$t('common.loading')"
       :data="allUserInfo"
       style="width: 97%;height: 70vh;"
       :key="tablekey"
@@ -40,7 +40,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       border
     >
       <el-table-column
-        label="用户ID"
+        :label="$t('accountManagement.column.userId')"
         v-slot="{row}"
         align="center"
       >
@@ -49,7 +49,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </div>
       </el-table-column>
       <el-table-column
-          label="用户名称"
+          :label="$t('accountManagement.column.userName')"
           v-slot="{row}"
           align="center"
       >
@@ -58,7 +58,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </div>
       </el-table-column>
       <el-table-column
-          label="用户角色"
+          :label="$t('accountManagement.column.userRole')"
           v-slot="{row}"
           align="center"
       >
@@ -67,7 +67,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </div>
       </el-table-column>
       <el-table-column
-          label="用户状态"
+          :label="$t('accountManagement.column.status')"
           v-slot="{row}"
           align="center"
       >
@@ -76,8 +76,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               :model-value="row.status"
               active-color="#13ce66"
               inactive-color="#ff4949"
-              active-text="启用"
-              inactive-text="停用"
+              :active-text="$t('common.enable')"
+              :inactive-text="$t('common.disable')"
               :active-value = "1"
               :inactive-value="0"
           />
@@ -85,7 +85,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       </el-table-column>
       <el-table-column
           width="100"
-          label="操作"
+          :label="$t('common.operation')"
           align="center"
           v-slot="{row}"
           fixed="right"
@@ -94,11 +94,11 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <SvgIcon name="more" width="30" height="30" />
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item v-if="row.status === 1" @click="stopUser(row)">停用</el-dropdown-item>
-              <el-dropdown-item v-if="row.status === 0" @click="startUser(row)">启用</el-dropdown-item>
-              <el-dropdown-item @click="editUser(row)">编辑</el-dropdown-item>
-              <el-dropdown-item @click="deleteUser(row)">删除</el-dropdown-item>
-              <el-dropdown-item @click="resetGoogleSecretKey(row)">重置谷歌密钥</el-dropdown-item>
+              <el-dropdown-item v-if="row.status === 1" @click="stopUser(row)">{{ $t('accountManagement.action.disable') }}</el-dropdown-item>
+              <el-dropdown-item v-if="row.status === 0" @click="startUser(row)">{{ $t('accountManagement.action.enable') }}</el-dropdown-item>
+              <el-dropdown-item @click="editUser(row)">{{ $t('common.edit') }}</el-dropdown-item>
+              <el-dropdown-item @click="deleteUser(row)">{{ $t('common.operate.delete') }}</el-dropdown-item>
+              <el-dropdown-item @click="resetGoogleSecretKey(row)">{{ $t('accountManagement.action.resetGoogleKey') }}</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -129,7 +129,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="用户名称:" label-width="150px"  prop="loginName">
+              <el-form-item :label="$t('accountManagement.form.userName')" label-width="150px"  prop="loginName">
                 <el-input auto-complete="new-password" type="text" v-model.trim="createUserInfo.loginName" style="width: 200px"></el-input>
               </el-form-item>
             </div>
@@ -138,7 +138,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="登陆密码:" label-width="150px"  prop="password">
+              <el-form-item :label="$t('accountManagement.form.password')" label-width="150px"  prop="password">
                 <el-input autocomplete="new-password" type="password" v-model.trim="createUserInfo.password" style="width: 200px"></el-input>
               </el-form-item>
             </div>
@@ -147,7 +147,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="确认密码:" label-width="150px"  prop="confirmPassword">
+              <el-form-item :label="$t('accountManagement.form.confirmPassword')" label-width="150px"  prop="confirmPassword">
                 <el-input type="password" v-model.trim="createUserInfo.confirmPassword" style="width: 200px"></el-input>
               </el-form-item>
             </div>
@@ -156,10 +156,10 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="用户角色:" label-width="150px"  prop="roleId">
+              <el-form-item :label="$t('accountManagement.form.role')" label-width="150px"  prop="roleId">
                 <el-select
                   v-model.trim="createUserInfo.roleId"
-                  placeholder="请选择用户角色"
+                  :placeholder="$t('accountManagement.placeholder.role')"
                   filterable
                   style="width: 200px"
                 >
@@ -177,13 +177,13 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="是否启用:" label-width="150px" >
+              <el-form-item :label="$t('accountManagement.form.status')" label-width="150px" >
                 <el-switch
                     v-model="createUserInfo.status"
                     active-color="#13ce66"
                     inactive-color="#ff4949"
-                    active-text="开启"
-                    inactive-text="关闭"
+                    :active-text="$t('common.enable')"
+                    :inactive-text="$t('common.disable')"
                     :active-value="1"
                     :inactive-value="0"
                 >
@@ -195,7 +195,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item label="谷歌验证码:" label-width="150px"  prop="googleCode">
+              <el-form-item :label="$t('common.googleCode')" label-width="150px"  prop="googleCode">
                 <el-input autocomplete="new-password" type="number" v-model.trim="createUserInfo.googleCode" style="width: 200px"></el-input>
               </el-form-item>
             </div>
@@ -205,16 +205,16 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-col :span="8">
             <div class="el-form-line">
               <el-form-item style="display: flex;justify-content: space-between;border: solid 1px red;">
-                <el-button @click="cancelDialog">取 消</el-button>
-                <el-button type="primary" @click="submit('createUserInfo')">确 定</el-button>
+                <el-button @click="cancelDialog">{{ $t('common.cancel') }}</el-button>
+                <el-button type="primary" @click="submit('createUserInfo')">{{ $t('common.confirm') }}</el-button>
               </el-form-item>
             </div>
           </el-col>
         </el-row>-->
       </el-form>
       <div slot="footer" class="dialog-footer">
-          <el-button @click="cancelDialog">取 消</el-button>
-          <el-button type="primary" @click="submit('createUserInfo')">确 定</el-button>
+          <el-button @click="cancelDialog">{{ $t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="submit('createUserInfo')">{{ $t('common.confirm') }}</el-button>
       </div>
     </el-dialog>
     <el-dialog
@@ -230,7 +230,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%;" class="dialog-row">
           <el-col :span="24">
             <div class="el-form-line" style="display: flex;justify-content: center;align-items: center;">
-              <el-form-item label="停用用户名:" label-width="150px"  prop="googleCode">
+              <el-form-item :label="$t('accountManagement.form.disableUserName')" label-width="150px"  prop="googleCode">
                 <el-input readonly autocomplete="new-password" type="text" v-model.trim="stopUserInfo.loginName" style="width: 200px;font-weight: bold;"></el-input>
               </el-form-item>
             </div>
@@ -239,7 +239,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%;" class="dialog-row">
           <el-col :span="24">
             <div class="el-form-line" style="display: flex;justify-content: center;align-items: center;">
-              <el-form-item label="谷歌验证码:" label-width="150px"  prop="googleCode">
+              <el-form-item :label="$t('common.googleCode')" label-width="150px"  prop="googleCode">
                 <el-input autocomplete="new-password" type="number" v-model.trim="stopUserInfo.googleCode" style="width: 200px"></el-input>
               </el-form-item>
             </div>
@@ -247,13 +247,13 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="cancelDialog2">取 消</el-button>
-        <el-button type="primary" @click="submit2('createUserInfo')">确 定</el-button>
+        <el-button @click="cancelDialog2">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="submit2('createUserInfo')">{{ $t('common.confirm') }}</el-button>
       </div>
     </el-dialog>
 
     <el-dialog
-        title="重置谷歌密钥"
+        :title="$t('accountManagement.dialog.resetGoogleKey')"
         v-model="resetGoogleVisible"
         class="dialog"
         center
@@ -269,7 +269,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%;" class="dialog-row">
           <el-col :span="24">
             <div class="el-form-line" style="display: flex;justify-content: center;align-items: center;">
-              <el-form-item label="用户名:" label-width="150px">
+              <el-form-item :label="$t('accountManagement.form.userName')" label-width="150px">
                 <el-input
                   readonly
                   disabled
@@ -285,7 +285,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%;" class="dialog-row">
           <el-col :span="24">
             <div class="el-form-line" style="display: flex;justify-content: center;align-items: center;">
-              <el-form-item label="谷歌验证码:" label-width="150px" prop="googleCode">
+              <el-form-item :label="$t('common.googleCode')" label-width="150px" prop="googleCode">
                 <el-input autocomplete="new-password" type="number" v-model.trim="resetGoogleForm.googleCode" style="width: 200px"></el-input>
               </el-form-item>
             </div>
@@ -301,20 +301,20 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                 style="width: 160px;height: 160px;object-fit: contain;"
               />
               <div v-if="resetGoogleResult.secretKey" style="font-weight: bold;">
-                密钥：{{ resetGoogleResult.secretKey }}
+                {{ $t('accountManagement.label.secretKey') }}{{ resetGoogleResult.secretKey }}
               </div>
             </div>
           </el-col>
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="cancelResetGoogleDialog">取 消</el-button>
-        <el-button type="primary" @click="submitResetGoogleKey">确 定</el-button>
+        <el-button @click="cancelResetGoogleDialog">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="submitResetGoogleKey">{{ $t('common.confirm') }}</el-button>
       </div>
     </el-dialog>
 
     <el-dialog
-        title="谷歌二维码"
+        :title="$t('accountManagement.dialog.googleQrTitle')"
         v-model="googleQrVisible"
         class="dialog"
         center
@@ -329,12 +329,12 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           style="width: 180px;height: 180px;object-fit: contain;"
         />
         <div v-if="googleSecretKey" style="font-weight: bold;">
-          密钥：{{ googleSecretKey }}
+          {{ $t('accountManagement.label.secretKey') }}{{ googleSecretKey }}
         </div>
-        <el-button v-if="googleSecretKey" size="small" @click="copyGoogleSecretKey">复制密钥</el-button>
+        <el-button v-if="googleSecretKey" size="small" @click="copyGoogleSecretKey">{{ $t('accountManagement.action.copySecretKey') }}</el-button>
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="googleQrVisible = false">确 定</el-button>
+        <el-button type="primary" @click="googleQrVisible = false">{{ $t('common.confirm') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -355,7 +355,7 @@ export default {
   data() {
     const validatePass = (rule, value, callback) => {
       if (value === '' || value === undefined) {
-        callback(new Error('请输入密码'))
+        callback(new Error(this.$t('accountManagement.validation.passwordRequired')))
       } else {
         if (this.createUserInfo.confirmPassword !== '' && this.createUserInfo.confirmPassword !== 'undefined') {
           this.$refs.createUserInfo.validateField('confirmPassword');
@@ -366,9 +366,9 @@ export default {
 
     const validatePass2 = (rule, value, callback) => {
       if (value === '' || value === undefined) {
-        callback(new Error('请再次输入密码'))
+        callback(new Error(this.$t('accountManagement.validation.confirmPasswordRequired')))
       } else if (value !== this.createUserInfo.password) {
-        callback(new Error("两次输入都密码不一致"))
+        callback(new Error(this.$t('accountManagement.validation.passwordMismatch')))
       } else {
         callback()
       }
@@ -425,7 +425,7 @@ export default {
       passwordmatch: true,
       rules: {
         loginName: [
-          { required: true, message: '请输入用户名', trigger: 'blur' }
+          { required: true, message: this.$t('accountManagement.validation.userNameRequired'), trigger: 'blur' }
         ],
         password: [
           { validator: validatePass, trigger: 'blur' }
@@ -434,15 +434,15 @@ export default {
           { validator: validatePass2, trigger: 'blur' }
         ],
         roleId: [
-          { required: true, message: '请选择角色', trigger: 'blur' }
+          { required: true, message: this.$t('accountManagement.validation.roleRequired'), trigger: 'blur' }
         ],
         googleCode: [
-          { required: true, message: '请输入谷歌验证码', trigger: 'blur' }
+          { required: true, message: this.$t('common.googleCodeRequired'), trigger: 'blur' }
         ]
       },
       resetGoogleRules: {
         googleCode: [
-          { required: true, message: '请输入谷歌验证码', trigger: 'blur' }
+          { required: true, message: this.$t('common.googleCodeRequired'), trigger: 'blur' }
         ]
       }
 
@@ -451,7 +451,7 @@ export default {
   methods: {
     createUser() {
       this.dialogVisible = true;
-      this.dialogTitle = '创建用户'
+      this.dialogTitle = this.$t('accountManagement.dialog.createTitle')
     },
     search() {
       this.loadData()
@@ -461,23 +461,23 @@ export default {
       const filterInfo = this.roleInfoOptions.filter(roleInfo => (roleInfo.roleName === row.roleName))
       this.createUserInfo.roleId = filterInfo ? filterInfo[0].roleId : ''
       this.dialogVisible = true;
-      this.dialogTitle = '编辑'
+      this.dialogTitle = this.$t('accountManagement.dialog.editTitle')
     },
     deleteUser(row) {
       this.dialogVisible2 = true;
-      this.dialogTitle2 = '删除用户'
+      this.dialogTitle2 = this.$t('accountManagement.dialog.deleteTitle')
       this.stopUserInfo = row
       this.stopUserInfo.type = 'delete'
     },
     stopUser(row) {
       this.dialogVisible2 = true;
-      this.dialogTitle2 = '停用用户'
+      this.dialogTitle2 = this.$t('accountManagement.dialog.disableTitle')
       this.stopUserInfo = row
       this.stopUserInfo.status = 0
     },
     startUser(row) {
       this.dialogVisible2 = true;
-      this.dialogTitle2 = '启用用户'
+      this.dialogTitle2 = this.$t('accountManagement.dialog.enableTitle')
       this.stopUserInfo = row
       this.stopUserInfo.status = 1
     },
@@ -531,15 +531,15 @@ export default {
             this.googleSecretKey = data.secretKey || '';
             this.googleQrVisible = true;
             this.$notify({
-              title: 'Success',
-              message: response.data.message || 'reset google key success',
+              title: this.$t('common.success'),
+              message: response.data.message || this.$t('accountManagement.message.resetGoogleSuccess'),
               type: 'success',
               position: 'bottom-right',
             })
           } else {
             this.$notify({
-              title: 'Error',
-              message: response.data.message || 'reset google key failed',
+              title: this.$t('common.error'),
+              message: response.data.message || this.$t('accountManagement.message.resetGoogleFailed'),
               type: 'error',
               position: 'bottom-right',
             })
@@ -555,8 +555,8 @@ export default {
       if (navigator?.clipboard?.writeText) {
         navigator.clipboard.writeText(text).then(() => {
           this.$notify({
-            title: 'Success',
-            message: '已复制密钥',
+            title: this.$t('common.success'),
+            message: this.$t('accountManagement.message.copySecretSuccess'),
             type: 'success',
             position: 'bottom-right',
           })
@@ -575,15 +575,15 @@ export default {
       try {
         document.execCommand('copy');
         this.$notify({
-          title: 'Success',
-          message: '已复制密钥',
+          title: this.$t('common.success'),
+          message: this.$t('accountManagement.message.copySecretSuccess'),
           type: 'success',
           position: 'bottom-right',
         })
       } catch (error) {
         this.$notify({
-          title: 'Error',
-          message: '复制失败，请手动复制',
+          title: this.$t('common.error'),
+          message: this.$t('accountManagement.message.copySecretFailed'),
           type: 'error',
           position: 'bottom-right',
         })
@@ -620,16 +620,16 @@ export default {
     submit2(formName) {
       if (this.stopUserInfo.googleCode ==='defined' || this.stopUserInfo.googleCode === '' || this.stopUserInfo.googleCode === null) {
         this.$notify({
-          title:'错误',
-          message: 'you need to input google code first!',
+          title: this.$t('common.error'),
+          message: this.$t('accountManagement.message.googleCodeRequired'),
           type: 'error',
           position: 'bottom-right',
         })
       }
       if (this.stopUserInfo.type === 'delete') {
-        this.$confirm('are you sure deleting this user:'+this.stopUserInfo.loginName+'?', '提示', {
-          confirmButtonText: 'yes',
-          cancelButtonText: 'No',
+        this.$confirm(this.$t('accountManagement.message.deleteConfirm', {name: this.stopUserInfo.loginName}), this.$t('common.prompt'), {
+          confirmButtonText: this.$t('common.yes'),
+          cancelButtonText: this.$t('common.no'),
           type: 'warning',
         }).then(() => {
           deleteLoginUser(this.stopUserInfo.userId, this.stopUserInfo.googleCode).then(response => {
@@ -638,21 +638,21 @@ export default {
                 this.dialogTitle2 = ""
                 this.loadData()
                 this.$notify({
-                  title:'Success',
+                  title: this.$t('common.success'),
                   message: response.data.message,
                   type: 'success',
                   position: 'bottom-right',
                 })
               } else if (response.status === 401) {
                 this.$notify({
-                  title:'Notice',
-                  message: "Token is expired! refresh page again",
+                  title: this.$t('common.prompt'),
+                  message: this.$t('accountManagement.message.sessionExpired'),
                   type: 'info',
                   position: 'bottom-right',
                 })
               } else {
                 this.$notify({
-                  title:'Error',
+                  title: this.$t('common.error'),
                   message: response.data.message,
                   type: 'error',
                   position: 'bottom-right',
@@ -667,8 +667,10 @@ export default {
             this.dialogTitle2 = ""
             this.loadData()
             this.$notify({
-              title:'Success',
-              message: 'start user success',
+              title: this.$t('common.success'),
+              message: this.stopUserInfo.status === 1
+                ? this.$t('accountManagement.message.enableSuccess')
+                : this.$t('accountManagement.message.disableSuccess'),
               type: 'success',
               position: 'bottom-right',
             })
@@ -685,8 +687,8 @@ export default {
           addNewLoginUser(this.createUserInfo).then(response => {
             if (response.status !== 200) {
               this.$notify({
-                title: 'Failed',
-                message: 'create new user failed.',
+                title: this.$t('common.failed'),
+                message: this.$t('accountManagement.message.createFailed'),
                 type: 'error',
                 position: 'bottom-right'
               });
@@ -696,15 +698,15 @@ export default {
               this.dialogTitle = ""
               this.loadData()
               this.$notify({
-                title: 'Success',
-                message: 'create new user successfully.',
+                title: this.$t('common.success'),
+                message: this.$t('accountManagement.message.createSuccess'),
                 type: 'success',
                 position: 'bottom-right'
               });
             }
             if (response.data.code === 1) {
               this.$notify({
-                title: 'Failed',
+                title: this.$t('common.failed'),
                 message: response.data.message,
                 type: 'error',
                 position: 'bottom-right'
@@ -713,8 +715,8 @@ export default {
           })
         } else {
           this.$notify({
-            title: '错误',
-            message: 'please check your typed info',
+            title: this.$t('common.error'),
+            message: this.$t('accountManagement.message.checkForm'),
             type: 'error',
             position: 'bottom-right'
           });
@@ -740,8 +742,8 @@ export default {
           refreshAccessToken(localStorage.getItem("refreshToken"));
         } else if (response.status !== 200 && response.status !== 401) {
           this.$notify({
-            title: '错误',
-            message: 'get role info failed',
+            title: this.$t('common.error'),
+            message: this.$t('accountManagement.message.getRoleFailed'),
             type: 'error',
             position: 'top-right',
           })
@@ -777,8 +779,8 @@ export default {
         refreshAccessToken(localStorage.getItem("refreshToken"));
       } else if (response.status !== 200 && response.status !== 401) {
         this.$notify({
-          title: '错误',
-          message: 'get role info failed',
+          title: this.$t('common.error'),
+          message: this.$t('accountManagement.message.getRoleFailed'),
           type: 'error',
           position: 'top-right',
         })

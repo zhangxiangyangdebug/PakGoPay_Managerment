@@ -5,7 +5,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 
 <template>
   <div class="main-title">
-    操作日志
+    {{ $t('log.operation.title') }}
   </div>
 
   <div class="main-views-container">
@@ -14,7 +14,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row>
           <el-col :span="24" style="display: flex;justify-content: right;justify-items: center;">
             <el-form-item style="display: flex;justify-items: center;height: 100%;margin-right: 4%">
-              <el-button><SvgIcon name="search"/>查询</el-button>
+              <el-button><SvgIcon name="search"/>{{ $t('common.query') }}</el-button>
             </el-form-item>
           </el-col>
         </el-row>
@@ -22,11 +22,11 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-col :span="6">
             <el-form-item style="width: 300px;">
               <template #label>
-                <span>操作员:</span>
+                <span>{{ $t('log.operation.operator') }}</span>
               </template>
               <el-autocomplete
                   v-model="filterbox.operatorName"
-                  placeholder="输入用户名称"
+                  :placeholder="$t('common.placeholder.userName')"
                   :fetch-suggestions="getOperators"
                   @select="handleSelect"
               />
@@ -35,7 +35,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-col :span="6" style="display: flex;justify-content: center;">
             <el-form-item style="width: 300px;">
               <template #label>
-                <span>选择操作类型:</span>
+                <span>{{ $t('log.operation.typeSelect') }}</span>
               </template>
               <el-select
                   v-model="filterbox.operateType"
@@ -44,7 +44,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                     v-for="item in operationTypeOptions"
                     :key="item.operate"
                     :value="item.operate"
-                    :label="item.operateName"
+                    :label="$t(`common.operate.${item.operate}`)"
                 />
               </el-select>
             </el-form-item>
@@ -52,17 +52,17 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-col :span="6" style="display: flex;justify-content: center;">
             <el-form-item style="width: 300px;">
               <template #label>
-                <span>开始时间:</span>
+                <span>{{ $t('common.startTime') }}</span>
               </template>
-              <el-input v-model="filterbox.startTime" type="date" placeholder="输入开始时间"/>
+              <el-input v-model="filterbox.startTime" type="date" :placeholder="$t('common.placeholder.startTime')"/>
             </el-form-item>
           </el-col>
           <el-col :span="6" style="display: flex;justify-content: center;">
             <el-form-item style="width: 300px;">
               <template #label>
-                <span>结束时间:</span>
+                <span>{{ $t('common.endTime') }}</span>
               </template>
-              <el-input v-model="filterbox.endTime" type="date" placeholder="输入截止时间"/>
+              <el-input v-model="filterbox.endTime" type="date" :placeholder="$t('common.placeholder.endTime')"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -78,28 +78,28 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           :key="tablekey"
       >
         <el-table-column
-            label="操作人"
+            :label="$t('log.operation.column.operator')"
             v-slot="{row}"
             align="center"
         >
           <div>{{row.operator}}</div>
         </el-table-column>
         <el-table-column
-            label="操作类型"
+            :label="$t('log.operation.column.type')"
             v-slot="{row}"
             align="center"
         >
           <div>{{row.operateType}}</div>
         </el-table-column>
         <el-table-column
-            label="操作内容"
+            :label="$t('log.operation.column.content')"
             v-slot="{row}"
             align="center"
         >
           <div>{{row.operateInfo}}</div>
         </el-table-column>
         <el-table-column
-            label="操作时间"
+            :label="$t('log.operation.column.time')"
             v-slot="{row}"
             align="center"
         >
@@ -138,15 +138,12 @@ export default {
       operationTypeOptions: [
         {
           operate: 'add',
-          operateName: '新增',
         },
         {
           operate: 'edit',
-          operateName: '修改'
         },
         {
           operate: 'delete',
-          operateName: '删除'
         }
       ],
       filterbox: {
@@ -162,13 +159,13 @@ export default {
     loadAllOperators() {
       return [
         {
-          "value": "张三", 'id': '001'
+          "value": "User A", 'id': '001'
         },
         {
-          "value": '赵四', 'id': '002'
+          "value": 'User B', 'id': '002'
         },
         {
-          'value': '王二麻子', 'id': '003'
+          'value': 'User C', 'id': '003'
         }
       ]
     },

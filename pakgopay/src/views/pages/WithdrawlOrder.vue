@@ -6,13 +6,13 @@ import {getTimeFromTimestamp} from "@/api/common.js";
 
 <template>
   <div style="width: 100%;height: 110%; overflow-y: scroll;">
-    <div class="main-title">提现订单</div>
+    <div class="main-title">{{ $t('withdrawlOrder.title') }}</div>
     <!-- 工具栏 -->
     <el-collapse v-model="activeTool">
       <el-collapse-item name="1">
         <template #title>
         <span class="toolbarName">
-          工具栏
+          {{ $t('common.toolbar') }}
         </span>
         </template>
         <div class="main-toolbar" style="height: 150px;width: 97%;">
@@ -22,31 +22,31 @@ import {getTimeFromTimestamp} from "@/api/common.js";
                 <div class="toolbar-action-row">
                   <el-button @click="search()" class="filterButton">
                     <SvgIcon class="filterButtonSvg" name="search"/>
-                    <div>查询</div>
+                    <div>{{ $t('common.query') }}</div>
                   </el-button>
                   <el-button @click="reset('filterboxForm')" class="filterButton">
                     <SvgIcon class="filterButtonSvg" name="reset"/>
-                    <div>重置</div>
+                    <div>{{ $t('common.reset') }}</div>
                   </el-button>
                 </div>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="6">
-                <el-form-item label="订单编号：" label-width="150px" prop="id">
+                <el-form-item :label="$t('withdrawlOrder.filter.orderId')" label-width="150px" prop="id">
                   <el-input v-model="filterbox.id" style="width: 200px"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label-width="150px" label="用户类型:" prop="userType">
+                <el-form-item label-width="150px" :label="$t('withdrawlOrder.filter.userType')" prop="userType">
                   <el-radio-group :disabled="filterAvaiable" v-model="filterbox.userType" style="display: flex; flex-direction: row;">
-                    <el-radio label="商户" :value="1"></el-radio>
-                    <el-radio label="代理" :value="2"></el-radio>
+                    <el-radio :label="$t('withdrawlOrder.userType.merchant')" :value="1"></el-radio>
+                    <el-radio :label="$t('withdrawlOrder.userType.agent')" :value="2"></el-radio>
                   </el-radio-group>
                 </el-form-item>
               </el-col>
               <el-col v-if="filterbox.userType === 1" :span="6">
-                <el-form-item label="商户：" label-width="150px" prop="userId">
+                <el-form-item :label="$t('withdrawlOrder.filter.merchant')" label-width="150px" prop="userId">
                   <el-select
                     :options="merchantOptions"
                     :props="merchantInfoProps"
@@ -57,7 +57,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
                 </el-form-item>
               </el-col>
               <el-col v-if="filterbox.userType === 2" :span="6">
-                <el-form-item label="代理：" label-width="150px" prop="userId">
+                <el-form-item :label="$t('withdrawlOrder.filter.agent')" label-width="150px" prop="userId">
                   <el-select
                       :options="agentOptions"
                       :props="agentProps"
@@ -67,14 +67,14 @@ import {getTimeFromTimestamp} from "@/api/common.js";
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="创建时间：" label-width="150px" prop="filterDateRange">
+                <el-form-item :label="$t('withdrawlOrder.filter.createTime')" label-width="150px" prop="filterDateRange">
                   <!--                  <el-input v-model="filterbox.requestTime"style="width: 200px"/>-->
                   <el-date-picker
                       v-model="filterbox.filterDateRange"
                       type="datetimerange"
-                      range-separator="至"
-                      start-placeholder="开始日期"
-                      end-placeholder="结束日期"
+                      :range-separator="$t('common.rangeSeparator')"
+                      :start-placeholder="$t('common.startDate')"
+                      :end-placeholder="$t('common.endDate')"
                       format="YYYY/MM/DD HH:mm:ss"
                       value-format="x"
                       @change="handleDateRangeChange"
@@ -89,7 +89,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
 
     <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0">
       <div class="currency-tabs">
-        <span class="currency-tabs-label">统计币种:</span>
+        <span class="currency-tabs-label">{{ $t('orderCommon.currencyStats') }}</span>
         <el-tabs
             v-model="staticsData.currencyType"
             type="card"
@@ -113,7 +113,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           <div style="display: flex;">
             <SvgIcon name="orderNum" width="100px" height="100px"/>
             <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">订单总数:</span>
+              <span class="statics-title">{{ $t('orderCommon.stats.totalOrders') }}</span>
               <textarea v-model="staticsData.orderTotalCount" disabled class="cash-text-area"></textarea>
             </div>
           </div>
@@ -122,7 +122,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           <div style="display: flex;">
             <SvgIcon name="merchantCommission" width="100px" height="100px"/>
             <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">商户手续费:</span>
+              <span class="statics-title">{{ $t('orderCommon.stats.merchantFee') }}</span>
               <textarea v-model="staticsData.merchantCommission" disabled class="cash-text-area"></textarea>
             </div>
           </div>
@@ -131,7 +131,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           <div style="display: flex;">
             <SvgIcon name="freezeAmount" width="100px" height="100px"/>
             <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">冻结金额:</span>
+              <span class="statics-title">{{ $t('orderCommon.stats.frozenAmount') }}</span>
               <textarea v-model="staticsData.merchantFreezeAmount" disabled class="cash-text-area"></textarea>
             </div>
           </div>
@@ -142,7 +142,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           <div style="display: flex;">
             <SvgIcon name="orderSuccessRate" width="100px" height="100px"/>
             <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">订单成功率:</span>
+              <span class="statics-title">{{ $t('orderCommon.stats.successRate') }}</span>
               <textarea v-model="staticsData.ordereSuccessRate" disabled class="cash-text-area"></textarea>
             </div>
           </div>
@@ -151,7 +151,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           <div style="display: flex;">
             <SvgIcon name="effectiveCommission" width="100px" height="100px"/>
             <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">商户有效手续费:</span>
+              <span class="statics-title">{{ $t('orderCommon.stats.effectiveFee') }}</span>
               <textarea v-model="staticsData.merchantEffectiveCommission" disabled class="cash-text-area"></textarea>
             </div>
           </div>
@@ -160,7 +160,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           <div style="display: flex;justify-content: space-between">
             <SvgIcon name="accountBalance" width="100px" height="100px"/>
             <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%;justify-content: space-between;">
-              <span class="statics-title">可用金额:</span>
+              <span class="statics-title">{{ $t('orderCommon.stats.availableAmount') }}</span>
               <textarea v-model="staticsData.merchantAvaiableAmount" disabled class="cash-text-area"></textarea>
             </div>
           </div>
@@ -174,7 +174,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         <div style="display: flex; float: right">
           <el-button @click="createPathChannel()" class="filterButton">
             <SvgIcon class="filterButtonSvg" name="createOrder"/>
-            <div>创建订单</div>
+            <div>{{ $t('orderCommon.action.createOrder') }}</div>
           </el-button>
 <!--          <el-button @click="createPathChannel()" class="filterButton">
             <SvgIcon class="filterButtonSvg" name="callBack"/>
@@ -189,7 +189,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         >
           <el-table-column
               prop="orderId"
-              label="订单号"
+              :label="$t('withdrawlOrder.column.orderId')"
               v-slot="{row}"
               align="center"
           >
@@ -197,7 +197,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           </el-table-column>
           <el-table-column
               prop="amount"
-              label="提现金额"
+              :label="$t('withdrawlOrder.column.amount')"
               v-slot="{row}"
               align="center"
           >
@@ -205,7 +205,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           </el-table-column>
           <el-table-column
               prop="merchantAgentName"
-              label="商户/代理名称"
+              :label="$t('withdrawlOrder.column.userName')"
               v-slot="{row}"
               align="center"
           >
@@ -213,7 +213,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           </el-table-column>
           <el-table-column
               prop="orderStatus"
-              label="订单状态"
+              :label="$t('withdrawlOrder.column.status')"
               v-slot="{row}"
               align="center"
           >
@@ -224,7 +224,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           </el-table-column>
           <el-table-column
               prop="walletAddr"
-              label="提现账号"
+              :label="$t('withdrawlOrder.column.walletAddr')"
               v-slot="{row}"
               align="center"
           >
@@ -232,7 +232,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           </el-table-column>
           <el-table-column
               prop="createTime"
-              label="创建时间"
+              :label="$t('withdrawlOrder.column.createTime')"
               v-slot="{row}"
               align="center"
           >
@@ -240,7 +240,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           </el-table-column>
           <el-table-column
               prop="applyer"
-              label="申请人"
+              :label="$t('withdrawlOrder.column.applyer')"
               v-slot="{row}"
               align="center"
           >
@@ -248,7 +248,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           </el-table-column>
           <el-table-column
               prop="applyerIp"
-              label="申请人IP"
+              :label="$t('withdrawlOrder.column.applyerIp')"
               v-slot="{row}"
               align="center"
           >
@@ -256,15 +256,15 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           </el-table-column>
           <el-table-column
               v-slot="{row}"
-              label="操作"
+              :label="$t('common.operation')"
               align="center"
           >
             <el-dropdown trigger="click">
               <SvgIcon name="more" width="30" height="30"/>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item :disabled="row.status !== 0" @click="rejectWithdrawOrder(row)">驳回</el-dropdown-item>
-                  <el-dropdown-item :disabled="row.status !== 0" @click="approveWithdrawOrder(row)">通过</el-dropdown-item>
+                  <el-dropdown-item :disabled="row.status !== 0" @click="rejectWithdrawOrder(row)">{{ $t('withdrawlOrder.action.reject') }}</el-dropdown-item>
+                  <el-dropdown-item :disabled="row.status !== 0" @click="approveWithdrawOrder(row)">{{ $t('withdrawlOrder.action.approve') }}</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -297,21 +297,21 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         :rules="approvalRules"
         label-width="100px"
     >
-      <el-form-item label="谷歌验证码" prop="googleCode">
+      <el-form-item :label="$t('common.googleCode')" prop="googleCode">
         <el-input v-model="approvalForm.googleCode" type="number" />
       </el-form-item>
-      <el-form-item label="审批意见" prop="remark">
+      <el-form-item :label="$t('withdrawlOrder.form.remark')" prop="remark">
         <el-input
             v-model="approvalForm.remark"
             type="textarea"
             :rows="3"
-            placeholder="请输入审批意见"
+            :placeholder="$t('withdrawlOrder.placeholder.remark')"
         />
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="approvalDialogVisible = false">取消</el-button>
-      <el-button type="primary" @click="confirmApproval">确定</el-button>
+      <el-button @click="approvalDialogVisible = false">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="confirmApproval">{{ $t('common.confirm') }}</el-button>
     </template>
   </el-dialog>
 </template>
@@ -379,7 +379,7 @@ export default {
       },
       approvalRules: {
         googleCode: [
-          { required: true, message: '请输入谷歌验证码', trigger: 'blur' }
+          { required: true, message: this.$t('common.googleCodeRequired'), trigger: 'blur' }
         ]
       },
       staticsData: {
@@ -474,9 +474,9 @@ export default {
     },
     formatOrderStatus(status) {
       const statusMap = {
-        0: "待处理",
-        1: "已通过",
-        2: "已驳回"
+        0: this.$t('withdrawlOrder.status.pending'),
+        1: this.$t('withdrawlOrder.status.approved'),
+        2: this.$t('withdrawlOrder.status.rejected')
       };
       return statusMap[status] || status;
     },
@@ -484,7 +484,7 @@ export default {
       this.openApprovalDialog(true, row)
     },
     openApprovalDialog(isAgree, row) {
-      this.approvalDialogTitle = isAgree ? '通过审批' : '驳回审批';
+      this.approvalDialogTitle = isAgree ? this.$t('withdrawlOrder.dialog.approveTitle') : this.$t('withdrawlOrder.dialog.rejectTitle');
       this.approvalForm = {
         googleCode: '',
         remark: '',
@@ -533,19 +533,19 @@ export default {
       modifyWithdrawStatementeOrder(info).then(res => {
         if (res.status === 200 && res.data.code === 0) {
           this.$notify({
-            title: 'Success',
+            title: this.$t('common.success'),
             type: 'success',
             duration: 3000,
-            message: 'you have '+info.type+' withdraw order!'
+            message: this.$t('withdrawlOrder.message.approveSuccess', { action: info.type })
           })
           this.search()
           this.resetApprovalForm()
         } else {
           this.$notify({
-            title: 'Error',
+            title: this.$t('common.error'),
             type: 'error',
             duration: 3000,
-            message: info.type + 'withdraw order failed!'
+            message: this.$t('withdrawlOrder.message.approveFailed', { action: info.type })
           })
         }
 

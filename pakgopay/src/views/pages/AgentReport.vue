@@ -3,48 +3,48 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 </script>
 
 <template>
-  <div class="main-title">代理报表</div>
+  <div class="main-title">{{ $t('agentReport.title') }}</div>
   <el-collapse v-model="activeTool">
     <el-collapse-item name="1">
       <template #title>
         <span class="toolbarName">
-          工具栏
+          {{ $t('common.toolbar') }}
         </span>
       </template>
       <div class="main-toolbar">
         <el-form class="main-toolform" ref="filterForm" :model="filterbox">
           <el-row style="display: flex;justify-content: center;align-items: center;">
             <el-col :span="8">
-              <el-form-item label="代理:" label-width="150px" prop="agentId">
+              <el-form-item :label="$t('agentReport.filter.agent')" label-width="150px" prop="agentId">
                 <el-select
                     :options="agentOptions"
                     :props="agentProps"
-                    placeholder="请选择代理"
+                    :placeholder="$t('agentReport.placeholder.agent')"
                     v-model="filterbox.agentId"
                     style="width: 250px"
                 />
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="时间范围:" label-width="150px" prop="filterDateRange">
+              <el-form-item :label="$t('agentReport.filter.timeRange')" label-width="150px" prop="filterDateRange">
                 <div style="display: flex; flex-direction: row;">
                   <el-date-picker
                       v-model="filterbox.filterDateRange"
                       type="daterange"
-                      range-separator="至"
-                      start-placeholder="开始日期"
-                      end-placeholder="结束日期"
+                      :range-separator="$t('common.rangeSeparator')"
+                      :start-placeholder="$t('common.startDate')"
+                      :end-placeholder="$t('common.endDate')"
                       format="YYYY/MM/DD"
                       value-format="x"
                   >
                   </el-date-picker>
                   <el-button @click="reset('filterForm')" class="filterButton">
                     <SvgIcon class="filterButtonSvg" name="reset"/>
-                    <div>重置</div>
+                    <div>{{ $t('common.reset') }}</div>
                   </el-button>
                   <el-button @click="search()" class="filterButton">
                     <SvgIcon class="filterButtonSvg" name="search"/>
-                    <div>查询</div>
+                    <div>{{ $t('common.query') }}</div>
                   </el-button>
                 </div>
 
@@ -57,7 +57,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
   </el-collapse>
   <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0">
     <div style="display: flex;flex-direction: column;gap: 6px;margin-left: 2%;width: 96%;">
-      <span style="color: black;font-size: small;">统计币种:</span>
+      <span style="color: black;font-size: small;">{{ $t('common.currency') }}:</span>
       <el-tabs
           v-model="filterbox.currency"
           type="card"
@@ -78,7 +78,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       <div class="statistics-form-item">
         <SvgIcon name="tixian" width="100px" height="100px"/>
         <div style="display: flex; flex-direction: column;width: 80%;justify-items: right">
-          <span style="text-align: left;font-size: x-large">代收总金额:</span>
+          <span style="text-align: left;font-size: x-large">{{ $t('agentReport.collectionTotal') }}</span>
           <textarea v-model="statisticsInfo.collectionAgentAmount" disabled class="cash-text-area"></textarea>
         </div>
       </div>
@@ -88,7 +88,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       <div class="statistics-form-item">
         <SvgIcon name="paying" width="90px" height="90px"/>
         <div style="display: flex; flex-direction: column;width: 80%;">
-          <span style="text-align: left;font-size: x-large">代付总金额:</span>
+          <span style="text-align: left;font-size: x-large">{{ $t('agentReport.payoutTotal') }}</span>
           <textarea v-model="statisticsInfo.payingAgentAmount" disabled class="cash-text-area"></textarea>
         </div>
       </div>
@@ -100,10 +100,10 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
   <div class="reportInfo">
     <el-button @click="exportAgentInfo" style="margin:0;float: right">
       <SvgIcon height="20px" width="20px" name="export"/>
-      <div style="color: black">导出</div>
+      <div style="color: black">{{ $t('common.export') }}</div>
     </el-button>
     <el-tabs type="border-card" @tab-click="handleTabClick" v-model="activeTabPane">
-      <el-tab-pane label="代收报表">
+      <el-tab-pane :label="$t('agentReport.tab.collection')">
         <el-form style="width: 100%;">
           <el-table
               border
@@ -113,7 +113,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               height="auto"
           >
             <el-table-column
-                label="代理名称"
+                :label="$t('agentReport.column.agentName')"
                 v-slot="{row}"
                 align="center"
                 prop="agentName"
@@ -121,7 +121,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <div>{{ row.agentName }}</div>
             </el-table-column>
             <el-table-column
-                label="时间"
+                :label="$t('agentReport.column.time')"
                 v-slot="{row}"
                 align="center"
                 prop="recordDate"
@@ -129,7 +129,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <div>{{ row.recordDate }}</div>
             </el-table-column>
             <el-table-column
-                label="代收订单总数"
+                :label="$t('agentReport.column.collectionTotalOrders')"
                 v-slot="{row}"
                 align="center"
                 prop="orderQuantity"
@@ -137,7 +137,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <div>{{ row.orderQuantity }}</div>
             </el-table-column>
             <el-table-column
-                label="代收订单成功数"
+                :label="$t('agentReport.column.collectionSuccessOrders')"
                 v-slot="{row}"
                 align="center"
                 prop="successQuantity"
@@ -145,7 +145,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <div>{{ row.successQuantity }}</div>
             </el-table-column>
             <el-table-column
-                label="代收订单失败数"
+                :label="$t('agentReport.column.collectionFailedOrders')"
                 v-slot="{row}"
                 align="center"
                 prop="failureQuantity"
@@ -153,7 +153,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <div>{{ row.orderQuantity-row.successQuantity }}</div>
             </el-table-column>
             <el-table-column
-                label="成功率"
+                :label="$t('agentReport.column.successRate')"
                 v-slot="{row}"
                 align="center"
                 prop="successRate"
@@ -161,7 +161,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <div>{{ row.orderQuantity === 0 ? 0 : ((row.successQuantity/row.orderQuantity)*100).toFixed(2) }}%</div>
             </el-table-column>
             <el-table-column
-                label="代收订单佣金"
+                :label="$t('agentReport.column.collectionCommission')"
                 v-slot="{row}"
                 align="center"
                 prop="commission"
@@ -183,7 +183,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-pagination>
         </el-form>
       </el-tab-pane>
-      <el-tab-pane label="代付报表">
+      <el-tab-pane :label="$t('agentReport.tab.payout')">
         <el-form style="width: 100%;">
           <el-table
               border
@@ -193,7 +193,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               height="auto"
           >
             <el-table-column
-                label="代理名称"
+                :label="$t('agentReport.column.agentName')"
                 v-slot="{row}"
                 align="center"
                 prop="agentName"
@@ -201,7 +201,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <div>{{ row.agentName }}</div>
             </el-table-column>
             <el-table-column
-                label="时间"
+                :label="$t('agentReport.column.time')"
                 v-slot="{row}"
                 align="center"
                 prop="recordTime"
@@ -209,7 +209,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <div>{{ row.recordDate }}</div>
             </el-table-column>
             <el-table-column
-                label="代付订单总数"
+                :label="$t('agentReport.column.payoutTotalOrders')"
                 v-slot="{row}"
                 align="center"
                 prop="orderQuantity"
@@ -217,7 +217,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <div>{{ row.orderQuantity }}</div>
             </el-table-column>
             <el-table-column
-                label="代付成功订单数"
+                :label="$t('agentReport.column.payoutSuccessOrders')"
                 v-slot="{row}"
                 align="center"
                 prop="successQuantity"
@@ -225,7 +225,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <div>{{ row.successQuantity }}</div>
             </el-table-column>
             <el-table-column
-                label="代订失败订单数"
+                :label="$t('agentReport.column.payoutFailedOrders')"
                 v-slot="{row}"
                 align="center"
                 prop="failureQuantity"
@@ -233,7 +233,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <div>{{ row.orderQuantity-row.successQuantity }}</div>
             </el-table-column>
             <el-table-column
-                label="代付成功率"
+                :label="$t('agentReport.column.payoutSuccessRate')"
                 v-slot="{row}"
                 align="center"
                 prop="successRate"
@@ -241,7 +241,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <div>{{ row.orderQuantity === 0 ? 0 : ((row.successQuantity/row.orderQuantity)*100).toFixed(2) }}%</div>
             </el-table-column>
             <el-table-column
-                label="代付订单佣金"
+                :label="$t('agentReport.column.payoutCommission')"
                 v-slot="{row}"
                 align="center"
                 prop="commission"
@@ -400,7 +400,7 @@ export default {
           }
         } else if (response.data.code !== 0) {
           this.$notify({
-            title: 'Error',
+            title: this.$t('common.error'),
             message: response.data.message,
             duration: 3000,
             type: 'error',
@@ -408,8 +408,8 @@ export default {
           })
         } else {
           this.$notify({
-            title: 'Error',
-            message: 'Some error occurred.',
+            title: this.$t('common.error'),
+            message: this.$t('common.requestFailed'),
             duration: 3000,
             type: 'error',
             position: 'bottom-right'
@@ -420,7 +420,7 @@ export default {
         console.log(error)
         loadingInstance.close()
         this.$notify({
-          title: 'Error',
+          title: this.$t('common.error'),
           message: error.message,
           duration: 3000,
           type: 'error',
@@ -506,9 +506,9 @@ export default {
         this.agentOptions = allData.agentInfoDtoList
       } else {
         this.$notify({
-          title: 'Error',
+          title: this.$t('common.error'),
           type: 'error',
-          message: 'get agent info failed, please refresh',
+          message: this.$t('agentReport.error.getAgentFailed'),
           position: 'bottom-right',
           duration: 3000
         })

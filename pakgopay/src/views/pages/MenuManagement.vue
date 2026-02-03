@@ -5,7 +5,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 
 <template>
   <div class="main-title">
-    菜单管理
+    {{ $t('menuManagement.title') }}
   </div>
 
   <div class="toolbar">
@@ -13,7 +13,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
   </div>
   <div clas="main-view-container" style="width: 96%;margin-left: 2%;height: 700px;margin-top: 5%;">
     <el-row style="float: right;margin-right: 1%;">
-      <el-button style="color: lightskyblue" @click="createMenu"><SvgIcon name="add"/>新增菜单</el-button>
+      <el-button style="color: lightskyblue" @click="createMenu"><SvgIcon name="add"/>{{ $t('menuManagement.action.add') }}</el-button>
     </el-row>
     <el-table
     :data="menuData"
@@ -24,7 +24,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
     >
       <el-table-column
         prop="menuId"
-        label="菜单ID"
+        :label="$t('menuManagement.column.menuId')"
         sortable
         width="180"
         align="center"
@@ -33,7 +33,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       />
       <el-table-column
           prop="menuName"
-          label="菜单名称"
+          :label="$t('menuManagement.column.menuName')"
           width="180"
           align="center"
           :slot="{row}"
@@ -41,70 +41,70 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       />
       <el-table-column
           prop="nameEn"
-          label="菜单英文名称"
+          :label="$t('menuManagement.column.menuNameEn')"
           width="180"
           align="center"
           :slot="{row}"
       />
       <el-table-column
           prop="menuLevel"
-          label="菜单层级"
+          :label="$t('menuManagement.column.menuLevel')"
           width="100"
           align="center"
           :slot="{row}"
       />
       <el-table-column
           prop="parentId"
-          label="父级菜单ID"
+          :label="$t('menuManagement.column.parentId')"
           width="100"
           align="center"
           :slot="{row}"
       />
       <el-table-column
           prop="path"
-          label="菜单path"
+          :label="$t('menuManagement.column.path')"
           width="300"
           align="center"
           :slot="{row}"
       />
       <el-table-column
           prop="url"
-          label="菜单URL"
+          :label="$t('menuManagement.column.url')"
           width="180"
           align="center"
           :slot="{row}"
       />
       <el-table-column
           prop="icon"
-          label="菜单图标"
+          :label="$t('menuManagement.column.icon')"
           width="180"
           align="center"
           :slot="{row}"
       />
       <el-table-column
           prop="showItem"
-          label="是否展示下级菜单"
+          :label="$t('menuManagement.column.showChildren')"
           align="center"
           width="180"
           :slot="{row}"
       />
       <el-table-column
           prop="meta"
-          label="权限参数"
+          :label="$t('menuManagement.column.permission')"
           width="180"
           align="center"
           :slot="{row}"
       />
       <el-table-column
           prop="component"
-          label="菜单组件名称"
+          :label="$t('menuManagement.column.component')"
           width="300"
           align="center"
           :slot="{row}"
       />
       <el-table-column
         width="100"
-        label="操作"
+        :label="$t('common.operation')"
         align="center"
         :slot="{row}"
         fixed="right"
@@ -113,8 +113,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <SvgIcon name="more" width="30" height="30" />
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item @click="editMenu">编辑</el-dropdown-item>
-              <el-dropdown-item @click="deleteMenu">删除</el-dropdown-item>
+              <el-dropdown-item @click="editMenu">{{ $t('common.edit') }}</el-dropdown-item>
+              <el-dropdown-item @click="deleteMenu">{{ $t('common.operate.delete') }}</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -132,8 +132,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
     >
 
       <div slot="footer" class="dialog-footer">
-        <el-button @click="cancelDialog">取 消</el-button>
-        <el-button type="primary" @click="submit">确 定</el-button>
+        <el-button @click="cancelDialog">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="submit">{{ $t('common.confirm') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -172,7 +172,7 @@ export default {
     },
     createMenu() {
       this.dialogVisible = true;
-      this.dialogTitle = '新增菜单'
+      this.dialogTitle = this.$t('menuManagement.dialog.addTitle')
     },
     cancelDialog() {
       this.dialogVisible = false;

@@ -5,7 +5,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
 </script>
 
 <template>
-  <div class="main-title">商户账号</div>
+  <div class="main-title">{{ $t('withdrawlAccount.title') }}</div>
 <!--  <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0">
     <el-form-item style="margin-left: 2%;">
       <template #label>
@@ -58,14 +58,14 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
     <el-collapse-item name="1">
       <template #title>
          <span class="toolbarName">
-          工具栏
+          {{ $t('common.toolbar') }}
         </span>
       </template>
       <div class="main-toolbar">
         <el-form class="main-toolform" ref="filterboxForm" :model="filterbox">
           <el-row style="display: flex;justify-content: space-around;">
-            <el-form-item label="商户账号" label-width="150px" prop="name">
-              <el-input style="width: 200px" v-model="filterbox.name" placeholder="商户账号" :disabled="filterAvaiable"/>
+            <el-form-item :label="$t('withdrawlAccount.filter.account')" label-width="150px" prop="name">
+              <el-input style="width: 200px" v-model="filterbox.name" :placeholder="$t('withdrawlAccount.placeholder.account')" :disabled="filterAvaiable"/>
 <!--              <el-select
                 :option="merchantAccountOptions"
                 :props="merchantAccountProps"
@@ -73,7 +73,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
                 filterable
                 clearable/>-->
             </el-form-item>
-            <el-form-item label="收款账号" label-width="150px" prop="walletAddr">
+            <el-form-item :label="$t('withdrawlAccount.filter.walletName')" label-width="150px" prop="walletAddr">
 <!--              <el-input style="width: 200px" v-model="filterbox.walletAddr" placeholder="收款账号"/>-->
               <el-select
                 :options="merchantAccountOptions"
@@ -86,13 +86,13 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
 
               </el-select>
             </el-form-item>
-            <el-form-item label="录入时间" label-width="150px" prop="filterDateRange">
+            <el-form-item :label="$t('withdrawlAccount.filter.createTime')" label-width="150px" prop="filterDateRange">
               <el-date-picker
                   v-model="filterbox.filterDateRange"
                   type="daterange"
-                  range-separator="至"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
+                  :range-separator="$t('common.rangeSeparator')"
+                  :start-placeholder="$t('common.startDate')"
+                  :end-placeholder="$t('common.endDate')"
                   format="YYYY/MM/DD"
                   value-format="x"
               >
@@ -101,12 +101,12 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
                 <el-button @click="reset('filterboxForm')"
                      class="filterButton">
                   <SvgIcon class="filterButtonSvg" name="reset"/>
-                  <div>重置</div>
+                  <div>{{ $t('common.reset') }}</div>
                 </el-button>
                 <el-button @click="search()"
                      class="filterButton">
                   <SvgIcon class="filterButtonSvg" name="search"/>
-                  <div>查询</div>
+                  <div>{{ $t('common.query') }}</div>
                 </el-button>
               </div>
             </el-form-item>
@@ -137,7 +137,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
               <SvgIcon class="filterButtonSvg" name="add"/>
             </div>
           </template>
-          <div style="color: black;margin-left: 8px">新增</div>
+          <div style="color: black;margin-left: 8px">{{ $t('common.operate.add') }}</div>
         </el-button>
         <el-button @click="createWithdrawOrder" class="filterButton">
           <template #icon>
@@ -145,7 +145,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
               <SvgIcon class="filterButtonSvg" name="withdrawl"/>
             </div>
           </template>
-          <div style="color: black;margin-left: 8px">提现</div>
+          <div style="color: black;margin-left: 8px">{{ $t('withdrawlAccount.action.withdraw') }}</div>
         </el-button>
         <el-button @click="createRechargeOrder" class="filterButton">
           <template #icon>
@@ -153,7 +153,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
               <SvgIcon class="filterButtonSvg" name="recharge"/>
             </div>
           </template>
-          <div style="color: black;margin-left: 8px">充值</div>
+          <div style="color: black;margin-left: 8px">{{ $t('withdrawlAccount.action.recharge') }}</div>
         </el-button>
         <el-button v-if="roleName=== 'admin'" @click="createManualAccountAdjustment" class="filterButton">
           <template #icon>
@@ -161,7 +161,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
               <SvgIcon class="filterButtonSvg" name="manualaccountadjustment"/>
             </div>
           </template>
-          <div style="color: black;margin-left: 8px">手工调账</div>
+          <div style="color: black;margin-left: 8px">{{ $t('withdrawlAccount.action.manualAdjust') }}</div>
         </el-button>
       </div>
       <el-table
@@ -171,7 +171,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
       >
         <el-table-column
             prop="商户名称"
-            label="商户名称"
+            :label="$t('withdrawlAccount.column.merchantName')"
             v-slot="{row}"
             align="center"
             style="height: 100%;"
@@ -181,7 +181,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
           </div>
         </el-table-column>
         <el-table-column
-            label="商户账号"
+            :label="$t('withdrawlAccount.column.merchantAccount')"
             v-slot="{row}"
             align="center"
         >
@@ -191,7 +191,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="merchantWithdrawAccount"
-            label="商户钱包名"
+            :label="$t('withdrawlAccount.column.walletName')"
             v-slot="{row}"
             align="center"
         >
@@ -201,7 +201,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="merchantWithdrawAccount"
-            label="商户钱包地址"
+            :label="$t('withdrawlAccount.column.walletAddr')"
             v-slot="{row}"
             align="center"
         >
@@ -211,7 +211,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="createTime"
-            label="录入时间"
+            :label="$t('withdrawlAccount.column.createTime')"
             v-slot="{row}"
             align="center"
         >
@@ -221,7 +221,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="accountUseTime"
-            label="账号启用状态"
+            :label="$t('withdrawlAccount.column.status')"
             v-slot="{row}"
             align="center"
         >
@@ -230,8 +230,8 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
                 v-model="row.status"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                active-text="启用"
-                inactive-text="停用"
+                :active-text="$t('common.enable')"
+                :inactive-text="$t('common.disable')"
                 :inactive-value="0"
                 :active-value="1"
                 disabled>
@@ -240,7 +240,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="createBy"
-            label="创建人"
+            :label="$t('withdrawlAccount.column.creator')"
             v-slot="{row}"
             align="center"
         >
@@ -250,13 +250,13 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="operate"
-            label="操作"
+            :label="$t('common.operation')"
             v-slot="{row}"
             align="center"
             width="100px"
         >
           <div style="display: flex;align-items: center;justify-content: center;">
-            <el-button class="filterButton" @click.prevent="editMerchantInfo(row)">编辑</el-button>
+            <el-button class="filterButton" @click.prevent="editMerchantInfo(row)">{{ $t('common.edit') }}</el-button>
           </div>
         </el-table-column>
       </el-table>
@@ -291,11 +291,11 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
     <el-form :model="withdrawAccountInfo" label-width="100%" class="form" ref="createMerchantAccountForm"
              :rules="merchantAccountRule">
       <div class="el-form-line">
-        <el-form-item label="商户名称:" label-width="150px" prop="merchantAgentId">
+        <el-form-item :label="$t('withdrawlAccount.form.merchantName')" label-width="150px" prop="merchantAgentId">
           <!--              <el-input v-model="withdrawAccountInfo.merchantAccount" style="width: 200px"/>-->
           <el-select v-model="withdrawAccountInfo.merchantAgentId"
                      @change="handleChange"
-                     placeholder="请选择商户"
+                     :placeholder="$t('withdrawlAccount.placeholder.merchantSelect')"
                      style="width: 200px"
                      :options="merchantInfo"
                      :props="merchantInfoProps"
@@ -310,18 +310,18 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
               </el-form-item>
             </div>-->
       <div class="el-form-line">
-        <el-form-item label="收款账号:" label-width="150px" prop="walletName">
+        <el-form-item :label="$t('withdrawlAccount.form.walletName')" label-width="150px" prop="walletName">
           <el-input v-model="withdrawAccountInfo.walletName" style="width: 200px"></el-input>
         </el-form-item>
       </div>
       <div class="el-form-line">
-        <el-form-item label="是否状态:" label-width="150px" prop="status">
+        <el-form-item :label="$t('withdrawlAccount.form.status')" label-width="150px" prop="status">
           <el-switch
               v-model="withdrawAccountInfo.status"
               active-color="#13ce66"
               inactive-color="#ff4949"
-              active-text="启用"
-              inactive-text="停用"
+              :active-text="$t('common.enable')"
+              :inactive-text="$t('common.disable')"
               :active-value="1"
               :inactive-value="0"
               style="width: 200px"
@@ -329,14 +329,14 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-form-item>
       </div>
       <div class="el-form-line">
-        <el-form-item label="收款账号地址:" label-width="150px" prop="walletAddr">
+        <el-form-item :label="$t('withdrawlAccount.form.walletAddr')" label-width="150px" prop="walletAddr">
           <el-input v-model="withdrawAccountInfo.walletAddr" style="width: 200px"></el-input>
         </el-form-item>
       </div>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="cancelDialog('createMerchantAccountForm')">取 消</el-button>
-      <el-button type="primary" @click="submitMerchantAccount('createMerchantAccountForm')">确 定</el-button>
+      <el-button @click="cancelDialog('createMerchantAccountForm')">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="submitMerchantAccount('createMerchantAccountForm')">{{ $t('common.confirm') }}</el-button>
     </div>
   </el-dialog>
 
@@ -350,14 +350,14 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
   >
     <el-form ref="merchantGoogleForm" :model="merchantGoogleInfo" :rules="merchantGoogleRule" class="form">
       <div class="el-form-line">
-        <el-form-item label="谷歌验证码:" label-width="150px" prop="googleCode">
+        <el-form-item :label="$t('withdrawlAccount.form.googleCode')" label-width="150px" prop="googleCode">
           <el-input v-model="merchantGoogleInfo.googleCode" style="width: 200px"/>
         </el-form-item>
       </div>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="cancelMerchantGoogle">取 消</el-button>
-      <el-button type="primary" @click="submitMerchantGoogle">确 定</el-button>
+      <el-button @click="cancelMerchantGoogle">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="submitMerchantGoogle">{{ $t('common.confirm') }}</el-button>
     </div>
   </el-dialog>
 
@@ -373,7 +373,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
     <el-form :model="withdrawOrderInfo" label-width="100%" class="form" ref="withdrawOrderInfoForm"
              :rules="withdrawOrderRule">
       <div class="el-form-line">
-        <el-form-item label="商户名称:" label-width="150px" prop="merchantAgentId">
+        <el-form-item :label="$t('withdrawlAccount.form.merchantName')" label-width="150px" prop="merchantAgentId">
           <el-select
               :options="merchantInfo"
               :props="merchantInfoProps"
@@ -386,7 +386,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-form-item>
       </div>
       <div class="el-form-line">
-        <el-form-item label="币种:" label-width="150px" prop="availableAmount">
+        <el-form-item :label="$t('withdrawlAccount.form.currency')" label-width="150px" prop="availableAmount">
           <el-select v-model="withdrawOrderInfo.currency" style="width: 200px"
              :options="currencyOptions"
              :props="currencyProps"
@@ -395,12 +395,12 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-form-item>
       </div>
       <div class="el-form-line">
-        <el-form-item label="可用余额:" label-width="150px" prop="availableAmount">
+        <el-form-item :label="$t('withdrawlAccount.form.availableAmount')" label-width="150px" prop="availableAmount">
           <el-input disabled v-model="withdrawOrderInfo.availableAmount" style="width: 200px"></el-input>
         </el-form-item>
       </div>
       <div class="el-form-line">
-        <el-form-item label="钱包地址:" label-width="150px" prop="walletAddr">
+        <el-form-item :label="$t('withdrawlAccount.form.walletAddrSelect')" label-width="150px" prop="walletAddr">
           <el-select
               v-model="withdrawOrderInfo.walletAddr"
               style="width: 200px"
@@ -411,7 +411,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-form-item>
       </div>
       <div class="el-form-line">
-        <el-form-item label="提现金额:" label-width="150px" prop="amount">
+        <el-form-item :label="$t('withdrawlAccount.form.amount')" label-width="150px" prop="amount">
           <el-input type="number" v-model="withdrawOrderInfo.amount" style="width: 200px"/>
         </el-form-item>
       </div>
@@ -422,8 +422,8 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
       </div>-->
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="cancelWithdraw('withdrawOrderInfoForm')">取 消</el-button>
-      <el-button type="primary" @click="submitWithdraw('withdrawOrderInfoForm')">确 定</el-button>
+      <el-button @click="cancelWithdraw('withdrawOrderInfoForm')">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="submitWithdraw('withdrawOrderInfoForm')">{{ $t('common.confirm') }}</el-button>
     </div>
   </el-dialog>
   <el-dialog
@@ -436,7 +436,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
   >
     <el-form ref="rechargeOrderInfoForm" :model="rechargeOrderInfo" class="form" :rules="rechargeOrderRule">
       <div class="el-form-line">
-        <el-form-item label="充值商户:" label-width="150px" prop="merchantAgentId">
+        <el-form-item :label="$t('withdrawlAccount.form.rechargeMerchant')" label-width="150px" prop="merchantAgentId">
           <el-select
               :options="merchantInfo"
               :props="merchantInfoProps"
@@ -448,7 +448,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-form-item>
       </div>
       <div class="el-form-line">
-        <el-form-item label="充值币种:" label-width="150px" prop="currency">
+        <el-form-item :label="$t('withdrawlAccount.form.rechargeCurrency')" label-width="150px" prop="currency">
           <el-select
               :options="currencyOptions"
               :props="currencyProps"
@@ -459,7 +459,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-form-item>
       </div>
       <div class="el-form-line">
-        <el-form-item label="充值金额:" label-width="150px" prop="amount">
+        <el-form-item :label="$t('withdrawlAccount.form.rechargeAmount')" label-width="150px" prop="amount">
           <el-input type="number" v-model="rechargeOrderInfo.amount" style="width: 200px"/>
         </el-form-item>
       </div>
@@ -470,8 +470,8 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
       </div>-->
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="cancelRecharge('rechargeOrderInfoForm')">取 消</el-button>
-      <el-button type="primary" @click="submitRecharge('rechargeOrderInfoForm')">确 定</el-button>
+      <el-button @click="cancelRecharge('rechargeOrderInfoForm')">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="submitRecharge('rechargeOrderInfoForm')">{{ $t('common.confirm') }}</el-button>
     </div>
   </el-dialog>
   <el-dialog
@@ -490,7 +490,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
         style="margin-right: 5%;margin-top: 60px"
     >
       <div class="el-form-line">
-        <el-form-item label="商户:" label-width="150px" prop="merchantAgentId">
+        <el-form-item :label="$t('withdrawlAccount.form.merchant')" label-width="150px" prop="merchantAgentId">
           <el-select
               :options="cacheMerchantAccountOptions"
               :props="merchantAccountProps"
@@ -502,7 +502,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-form-item>
       </div>
       <div class="el-form-line">
-        <el-form-item label="币种:" label-width="150px" prop="currency">
+        <el-form-item :label="$t('withdrawlAccount.form.currency')" label-width="150px" prop="currency">
           <el-select v-model="manualAccountAdjustmentOrderInfo.currency" style="width: 200px"
                      :options="currencyOptions"
                      :props="currencyProps"
@@ -511,18 +511,18 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-form-item>
       </div>
       <div class="el-form-line">
-        <el-form-item label="账户金额:" label-width="150px" prop="total">
+        <el-form-item :label="$t('withdrawlAccount.form.totalAmount')" label-width="150px" prop="total">
           <el-input disabled v-model="manualAccountAdjustmentOrderInfo.total" style="width: 200px"/>
         </el-form-item>
       </div>
       <div class="el-form-line">
-        <el-form-item label="调账模式:" label-width="150px" prop="type">
+        <el-form-item :label="$t('withdrawlAccount.form.adjustMode')" label-width="150px" prop="type">
           <el-switch
               v-model="manualAccountAdjustmentOrderInfo.type"
               active-color="#13ce66"
               inactive-color="#ff4949"
-              active-text="增加"
-              inactive-text="减少"
+              :active-text="$t('withdrawlAccount.adjust.increase')"
+              :inactive-text="$t('withdrawlAccount.adjust.decrease')"
               :active-value="1"
               :inactive-value="0"
               :class="manualAccountAdjustmentOrderInfo.type === 1 ? 'adjust-switch-inc' : 'adjust-switch-dec'"
@@ -533,14 +533,14 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
 
       </div>
       <div class="el-form-line">
-        <el-form-item label="调账金额:" label-width="150px" prop="amount">
+        <el-form-item :label="$t('withdrawlAccount.form.adjustAmount')" label-width="150px" prop="amount">
           <el-input type="number" v-model="manualAccountAdjustmentOrderInfo.amount" style="width: 200px"/>
         </el-form-item>
       </div>
     </el-form>
     <div slot="footer" class="dialog-footer" style="margin-right: 3%">
-      <el-button @click="cancelManualAccountAdjustment('manualAccountAdjustmentOrderInfoForm')">取 消</el-button>
-      <el-button type="primary" @click="submitManualAccountAdjustment('manualAccountAdjustmentOrderInfoForm')">确 定
+      <el-button @click="cancelManualAccountAdjustment('manualAccountAdjustmentOrderInfoForm')">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="submitManualAccountAdjustment('manualAccountAdjustmentOrderInfoForm')">{{ $t('common.confirm') }}
       </el-button>
     </div>
   </el-dialog>
@@ -556,7 +556,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
       <el-row>
         <el-col :span="24" style="display: flex;justify-content: center;justify-items: center;align-items: center;">
           <div>
-            <el-form-item label="谷歌验证码:" label-width="150px" prop="googleCode">
+            <el-form-item :label="$t('withdrawlAccount.form.googleCode')" label-width="150px" prop="googleCode">
                 <el-input v-model="confirmData.googleCode" style="width: 200px"/>
             </el-form-item>
           </div>
@@ -564,8 +564,8 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
       </el-row>
     </el-form>
     <div slot="footer" class="dialog-footer" style="margin-right: 3%;height: 30px;">
-      <el-button @click="cancelConfirmDialog('confirmDataForm')">取 消</el-button>
-      <el-button type="primary" @click="submitConfirm('confirmDataForm')">确 定
+      <el-button @click="cancelConfirmDialog('confirmDataForm')">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="submitConfirm('confirmDataForm')">{{ $t('common.confirm') }}
       </el-button>
     </div>
   </el-dialog>
@@ -594,9 +594,9 @@ export default {
   data() {
     const amountValidate = (rule, value, callback) => {
       if (!value || value === 0) {
-        callback(new Error("amount is required"));
+        callback(new Error(this.$t('withdrawlAccount.validation.amountRequired')));
       } else if (value > this.withdrawOrderInfo.availableAmount) {
-        callback(new Error("amount is more than your available amount"));
+        callback(new Error(this.$t('withdrawlAccount.validation.amountExceed')));
       } else {
         callback();
       }
@@ -642,18 +642,7 @@ export default {
         label: 'walletAddr',
       },
       withdrawAccountFormData: [],
-      allMerchantInfo: [
-        {
-          merchantName: '123',
-          merchantAccount: '123123',
-          balance: '11',
-        },
-        {
-          merchantName: '狗几把',
-          merchantAccount: 'leealank4@gmail.com',
-          balance: '100000',
-        }
-      ], /** 客服登陆 后端返回所有商户信息包括 商户名 商户账号 可用余额 。商户进入该页面，后端返回该商户单条信息 */
+      allMerchantInfo: [], /** 客服登陆 后端返回所有商户信息包括 商户名 商户账号 可用余额 。商户进入该页面，后端返回该商户单条信息 */
       withdrawAccountInfo: {
         /*merchantAccount: '',
         merchantName: '',
@@ -677,46 +666,46 @@ export default {
       },
       confirmRule: {
         googleCode: {
-          required: true, trigger: 'blur', message: 'googleCode is required'
+          required: true, trigger: 'blur', message: this.$t('common.googleCodeRequired')
         }
       },
       merchantGoogleVisible: false,
-      merchantGoogleTitle: '谷歌验证',
+      merchantGoogleTitle: this.$t('withdrawlAccount.dialog.googleVerify'),
       merchantGoogleInfo: {
         googleCode: ''
       },
       merchantGoogleRule: {
         googleCode: {
-          required: true, trigger: 'blur', message: 'googleCode is required'
+          required: true, trigger: 'blur', message: this.$t('common.googleCodeRequired')
         }
       },
       pendingMerchantAction: '',
       merchantAccountRule: {
         merchantAgentId: {
-          required: true, trigger: 'blur'
+          required: true, trigger: 'blur', message: this.$t('withdrawlAccount.validation.merchantRequired')
         },
         userName: {
-          required: true, trigger: 'blur'
+          required: true, trigger: 'blur', message: this.$t('withdrawlAccount.validation.merchantAccountRequired')
         },
         walletName: {
-          required: true, trigger: 'blur'
+          required: true, trigger: 'blur', message: this.$t('withdrawlAccount.validation.walletNameRequired')
         },
         walletAddr: {
-          required: true, trigger: 'blur'
+          required: true, trigger: 'blur', message: this.$t('withdrawlAccount.validation.walletAddrRequired')
         }
       },
       withdrawOrderRule: {
         merchantAgentId: {
-          required: true, trigger: 'blur',
+          required: true, trigger: 'blur', message: this.$t('withdrawlAccount.validation.merchantRequired')
         },
         walletAddr: {
-          required: true, trigger: 'blur'
+          required: true, trigger: 'blur', message: this.$t('withdrawlAccount.validation.walletAddrSelectRequired')
         },
         amount: {
           required: true, trigger: 'blur', validator: amountValidate
         },
         availableAmount: {
-          required: true, trigger: 'blur'
+          required: true, trigger: 'blur', message: this.$t('withdrawlAccount.validation.availableAmountRequired')
         }
        /* googleCode: {
           required: true, trigger: 'blur'
@@ -730,13 +719,13 @@ export default {
       dialogRechargeTitle: '',
       rechargeOrderRule: {
         merchantAgentId: {
-          required: true, trigger: 'blur',
+          required: true, trigger: 'blur', message: this.$t('withdrawlAccount.validation.merchantRequired')
         },
         amount: {
-          required: true, trigger: 'blur', message: 'type recharge amount'
+          required: true, trigger: 'blur', message: this.$t('withdrawlAccount.validation.rechargeAmountRequired')
         },
         currency: {
-          required: true, trigger: 'blur', message: 'you need to select currency'
+          required: true, trigger: 'blur', message: this.$t('withdrawlAccount.validation.currencyRequired')
         }
       },
       dialogManualAccountAdjustmentVisible: false,
@@ -744,13 +733,13 @@ export default {
       manualAccountAdjustmentOrderInfo: {},
       dialogManualAccountAdjustmentRule: {
         merchantAgentId: {
-          required: true, trigger: 'blur', message: 'you need to select merchant'
+          required: true, trigger: 'blur', message: this.$t('withdrawlAccount.validation.merchantRequired')
         },
         amount: {
-          required: true, trigger: 'blur', message: 'type amount'
+          required: true, trigger: 'blur', message: this.$t('withdrawlAccount.validation.amountRequired')
         },
         currency: {
-          required: true, trigger: 'blur', message: 'you need to select currency'
+          required: true, trigger: 'blur', message: this.$t('withdrawlAccount.validation.currencyRequired')
         }
        /* googleCode: {
           required: true, trigger: 'blur', message: 'you need to select googleCode'
@@ -819,7 +808,7 @@ export default {
       }
       exportMerchantAccount(this.filterbox).then(async res => {
         //const fileName = this.$t('exportPaymentReportName') + getFormateTime()
-        const fileName = '商户账号信息表' + getFormateTime()
+        const fileName = this.$t('withdrawlAccount.exportName') + getFormateTime()
         await exportExcel(res, fileName, this)
       })
     },
@@ -864,7 +853,7 @@ export default {
           this.withdrawAccountFormData = allData
         } else if (res.status === 200 && res.data.code !== 0) {
           this.$notify({
-            title: 'Error',
+            title: this.$t('common.error'),
             type: 'error',
             message: res.data.message,
             duration: 3000,
@@ -872,9 +861,9 @@ export default {
           })
         } else {
           this.$notify({
-            title: 'Error',
+            title: this.$t('common.error'),
             type: 'error',
-            message: 'something wrong happened, try it again',
+            message: this.$t('common.requestFailed'),
             duration: 3000,
             position: "bottom-right"
           })
@@ -883,7 +872,7 @@ export default {
       }).catch(err => {
         loadingInstance !== null ? loadingInstance.close() : ''
         this.$notify({
-          title: 'Error',
+          title: this.$t('common.error'),
           type: 'error',
           message: err.message,
           duration: 3000,
@@ -898,14 +887,14 @@ export default {
     },
     addWithdrawlAccount() {
       this.dialogFormVisible = true;
-      this.dialogTitle = '新增收款账号'
+      this.dialogTitle = this.$t('withdrawlAccount.dialog.addTitle')
       this.selectAccountVisible = false;
       this.filterbox.submitType = 'create'
     },
     editMerchantInfo(row) {
       this.withdrawAccountInfo = row
       this.dialogFormVisible = true;
-      this.dialogTitle = '新增收款账号'
+      this.dialogTitle = this.$t('withdrawlAccount.dialog.editTitle')
       this.selectAccountVisible = true;
       this.filterbox.submitType = 'edit'
     },
@@ -967,11 +956,11 @@ export default {
         request.then(res => {
           if (res.status === 200 && res.data.code === 0) {
             this.$notify({
-              title: 'Success',
+              title: this.$t('common.success'),
               type: 'success',
               message: this.pendingMerchantAction === 'edit'
-                ? 'Modify Merchant Account Successfully.'
-                : 'Create New Merchant Account Successfully.',
+                ? this.$t('withdrawlAccount.message.updateSuccess')
+                : this.$t('withdrawlAccount.message.createSuccess'),
               duration: 3000,
               position: 'bottom-right'
             })
@@ -984,7 +973,7 @@ export default {
             this.search()
           } else if (res.status === 200 && res.data.code !== 0) {
             this.$notify({
-              title: 'Failed',
+              title: this.$t('common.failed'),
               type: 'error',
               message: res.data.message,
               duration: 3000,
@@ -992,9 +981,9 @@ export default {
             })
           } else {
             this.$notify({
-              title: 'Error',
+              title: this.$t('common.error'),
               type: 'error',
-              message: 'somethind went wrong, try it again',
+              message: this.$t('common.requestFailed'),
               duration: 3000,
               position: 'bottom-right'
             })
@@ -1015,17 +1004,17 @@ export default {
 
 
       this.dialogWithdrawVisible = true
-      this.dialogWithdrawTitle = '提现'
+      this.dialogWithdrawTitle = this.$t('withdrawlAccount.dialog.withdrawTitle')
       this.withdrawOrderInfo.orderType = 2
     },
     createRechargeOrder() {
       this.dialogRechargeVisible = true
-      this.dialogRechargeTitle = '商户充值'
+      this.dialogRechargeTitle = this.$t('withdrawlAccount.dialog.rechargeTitle')
       this.rechargeOrderInfo.orderType = 1
     },
     createManualAccountAdjustment() {
       this.dialogManualAccountAdjustmentVisible = true
-      this.dialogManualAccountAdjustmentTitle = '手工调账'
+      this.dialogManualAccountAdjustmentTitle = this.$t('withdrawlAccount.dialog.manualAdjustTitle')
       this.manualAccountAdjustmentOrderInfo.orderType = 3
       this.cacheMerchantAccountOptions = Object.assign({}, this.merchantAccountOptions)
     },
@@ -1041,14 +1030,19 @@ export default {
           this.dialogWithdrawVisible = false
           this.dialogWithdrawTitle = ''
           this.confirmData =  Object.assign({}, this.withdrawOrderInfo)
-          this.confirmDialogTitle = '谷歌验证'
+          this.confirmDialogTitle = this.$t('withdrawlAccount.dialog.confirmTitle')
           this.confirmDialogVisible = true
           this.$refs[form].resetFields()
         }
       })
     },
     submitConfirm(form) {
-      let orderMessage = this.confirmData.orderType === 1 ? 'Recharge' : this.confirmData.orderType === 2 ? 'Withdraw' : 'Manual Account Adjustment'
+      const orderMessageKey = this.confirmData.orderType === 1
+        ? 'withdrawlAccount.orderType.recharge'
+        : this.confirmData.orderType === 2
+          ? 'withdrawlAccount.orderType.withdraw'
+          : 'withdrawlAccount.orderType.manualAdjust'
+      const orderMessage = this.$t(orderMessageKey)
       this.$refs[form].validate(validate => {
         if (validate) {
           createStatementeOrderApply(this.confirmData).then(res => {
@@ -1060,9 +1054,9 @@ export default {
                 this.$refs.manualAccountAdjustmentOrderInfoForm?.resetFields()
               }
               this.$notify({
-                title: 'Success',
+                title: this.$t('common.success'),
                 type: 'success',
-                message: 'Create '+orderMessage+' Order Successfully.',
+                message: this.$t('withdrawlAccount.message.orderCreateSuccess', {type: orderMessage}),
                 duration: 3000,
                 position: 'bottom-right'
               })
@@ -1070,7 +1064,7 @@ export default {
               this.getNewstMerchantInfo()
             } else if (res.status === 200 && res.data.code !== 0) {
               this.$notify({
-                title: 'Failed',
+                title: this.$t('common.failed'),
                 type: 'error',
                 message: res.data.message,
                 duration: 3000,
@@ -1078,9 +1072,9 @@ export default {
               })
             } else {
               this.$notify({
-                title: 'Error',
+                title: this.$t('common.error'),
                 type: 'error',
-                message: 'somethind went wrong, try it again',
+                message: this.$t('common.requestFailed'),
                 duration: 3000,
                 position: 'bottom-right'
               })
@@ -1102,7 +1096,7 @@ export default {
           this.dialogRechargeTitle = ''
           this.confirmData = {}
           this.confirmData = Object.assign({},this.rechargeOrderInfo)
-          this.confirmDialogTitle = '谷歌验证'
+          this.confirmDialogTitle = this.$t('withdrawlAccount.dialog.confirmTitle')
           this.confirmDialogVisible = true
           this.$refs[form].resetFields()
           /*createStatementeOrderApply(this.rechargeOrderInfo).then(res => {
@@ -1147,7 +1141,7 @@ export default {
           this.dialogManualAccountAdjustmentVisible = false
           this.dialogManualAccountAdjustmentTitle = ''
           this.confirmData =  Object.assign({}, this.manualAccountAdjustmentOrderInfo)
-          this.confirmDialogTitle = '谷歌验证'
+          this.confirmDialogTitle = this.$t('withdrawlAccount.dialog.confirmTitle')
           this.confirmDialogVisible = true
         }
       })

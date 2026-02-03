@@ -5,13 +5,13 @@ import {getTimeFromTimestamp} from "@/api/common.js";
 </script>
 
 <template>
-  <div class="main-title">商户流水</div>
+  <div class="main-title">{{ $t('merchantStatement.title') }}</div>
   <!-- 工具栏 -->
   <el-collapse v-model="activeTool">
     <el-collapse-item name="1">
       <template #title>
         <span class="toolbarName">
-          工具栏
+          {{ $t('common.toolbar') }}
         </span>
       </template>
       <div class="main-toolbar">
@@ -20,15 +20,15 @@ import {getTimeFromTimestamp} from "@/api/common.js";
             <div class="main-toolform-line" style="justify-content: right;">
               <el-button @click="reset('filterboxForm')" class="filterButton">
                 <SvgIcon class="filterButtonSvg" name="reset"/>
-                <div>重置</div>
+                <div>{{ $t('common.reset') }}</div>
               </el-button>
               <el-button @click="search()" class="filterButton">
                 <SvgIcon class="filterButtonSvg" name="search"/>
-                <div>查询</div>
+                <div>{{ $t('common.query') }}</div>
               </el-button>
               <el-button @click="exportStatements()" class="filterButton">
                 <SvgIcon class="filterButtonSvg" name="export"/>
-                <div>导出</div>
+                <div>{{ $t('common.export') }}</div>
               </el-button>
             </div>
           </div>
@@ -39,7 +39,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
             >-->
               <el-row>
                 <el-col :span="6">
-                  <el-form-item label="商户名称:" label-width="150px" prop="merchantAgentId">
+                  <el-form-item :label="$t('merchantStatement.filter.merchantName')" label-width="150px" prop="merchantAgentId">
                     <el-select
                         :options="merchantAccountOptions"
                         :props="merchantAccountProps"
@@ -51,31 +51,31 @@ import {getTimeFromTimestamp} from "@/api/common.js";
                   </el-form-item>
                 </el-col>
                 <el-col :span="6">
-                  <el-form-item label="交易订单号:" label-width="150px" prop="id">
+                  <el-form-item :label="$t('merchantStatement.filter.orderId')" label-width="150px" prop="id">
                     <el-input v-model="filterbox.id" style="width: 200px" clearable/>
                   </el-form-item>
                 </el-col>
                 <el-col :span="6">
-                  <el-form-item label="交易类型:" label-width="150px" prop="orderType">
+                  <el-form-item :label="$t('merchantStatement.filter.transactionType')" label-width="150px" prop="orderType">
                     <el-select
                         v-model="filterbox.orderType"
                         style="width: 200px"
                         clearable
                     >
-                      <el-option label="充值" :value="1"></el-option>
-                      <el-option label="提现" :value="2"></el-option>
-                      <el-option label="手工调账" :value="3"></el-option>
+                      <el-option :label="$t('merchantStatement.transactionType.recharge')" :value="1"></el-option>
+                      <el-option :label="$t('merchantStatement.transactionType.withdraw')" :value="2"></el-option>
+                      <el-option :label="$t('merchantStatement.transactionType.manualReconcile')" :value="3"></el-option>
                     </el-select>
                   </el-form-item>
                 </el-col>
                 <el-col :span="6">
-                  <el-form-item label="时间:" label-width="150px" prop="filterDateRange">
+                  <el-form-item :label="$t('merchantStatement.filter.time')" label-width="150px" prop="filterDateRange">
                     <el-date-picker
                         v-model="filterbox.filterDateRange"
                         type="daterange"
-                        range-separator="至"
-                        start-placeholder="开始日期"
-                        end-placeholder="结束日期"
+                        :range-separator="$t('common.rangeSeparator')"
+                        :start-placeholder="$t('common.startDate')"
+                        :end-placeholder="$t('common.endDate')"
                         format="YYYY/MM/DD"
                         value-format="x"
                         clearable
@@ -99,7 +99,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           style="width: 100%;height: 100%"
       >
         <el-table-column
-            label="交易订单号"
+            :label="$t('merchantStatement.column.orderId')"
             v-slot="{row}"
             width="200px"
             align="center"
@@ -110,7 +110,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="商户名称"
-            label="商户名称"
+            :label="$t('merchantStatement.column.merchantName')"
             v-slot="{row}"
             align="center"
         >
@@ -120,12 +120,12 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="transactionType"
-            label="交易类型"
+            :label="$t('merchantStatement.column.transactionType')"
             v-slot="{row}"
             align="center"
         >
           <div>
-            {{transactionType[row.orderType]}}
+            {{transactionTypeLabel(row.orderType)}}
           </div>
         </el-table-column>
 <!--        <el-table-column
@@ -140,7 +140,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         </el-table-column>-->
         <el-table-column
             prop="transactionCurrencyType"
-            label="交易币种"
+            :label="$t('merchantStatement.column.currency')"
             v-slot="{row}"
             align="center"
         >
@@ -150,7 +150,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="transactionCashAmount"
-            label="交易金额"
+            :label="$t('merchantStatement.column.amount')"
             v-slot="{row}"
             align="center"
         >
@@ -160,7 +160,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="beforeTransactionAccountBalance"
-            label="交易前账户金额"
+            :label="$t('merchantStatement.column.balanceBefore')"
             v-slot="{row}"
             align="center"
             width="200px;"
@@ -171,7 +171,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="afterTransactionAccountBalance"
-            label="交易后账户余额"
+            :label="$t('merchantStatement.column.balanceAfter')"
             v-slot="{row}"
             align="center"
         >
@@ -181,7 +181,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="transactionTime"
-            label="交易时间"
+            :label="$t('merchantStatement.column.transactionTime')"
             v-slot="{row}"
             align="center"
         >
@@ -190,7 +190,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           </div>
         </el-table-column>
         <el-table-column
-            label="备注"
+            :label="$t('merchantStatement.column.remark')"
             v-slot="{row}"
             align="center"
         >
@@ -199,7 +199,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           </div>
         </el-table-column>
         <el-table-column
-            label="操作人"
+            :label="$t('merchantStatement.column.operator')"
             v-slot="{row}"
             align="center"
         >
@@ -238,11 +238,6 @@ export default {
   },
   data() {
     return {
-      transactionType: {
-        '1': '充值',
-        '2': '提现',
-        '3': '调账'
-      },
       activeTool: '1',
       filterbox: {
       },
@@ -265,6 +260,18 @@ export default {
     }
   },
   methods: {
+    transactionTypeLabel(type) {
+      if (type === 1 || type === '1') {
+        return this.$t('merchantStatement.transactionType.recharge')
+      }
+      if (type === 2 || type === '2') {
+        return this.$t('merchantStatement.transactionType.withdraw')
+      }
+      if (type === 3 || type === '3') {
+        return this.$t('merchantStatement.transactionType.manualReconcile')
+      }
+      return '-'
+    },
     handleConfirm() {
 
     },

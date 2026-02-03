@@ -1,3 +1,5 @@
+import { i18n } from '@/main.js';
+
 export function isValidIP(ipList) {
     ipList.replaceAll(' ','')
     const ips = ipList.split(',')
@@ -91,92 +93,92 @@ export function getPaymentReportTitle(i18n) {
 
 export function getMerchantAccountTitle(i18n) {
     const Merchant_Account_Title = [
-        {key: 'merchantName', title: '商户名称'},
-        {key: 'accountName', title: '商户账号'},
-        {key: 'walletAddr', title: '提现账号'},
-        {key: 'status', title: '账号状态'},
-        {key: 'createTime', title: '录入时间'},
-        {key: 'createBy', title: '创建人'},
+        {key: 'merchantName', title: i18n.$t('exportTitle.merchantAccount.merchantName')},
+        {key: 'accountName', title: i18n.$t('exportTitle.merchantAccount.accountName')},
+        {key: 'walletAddr', title: i18n.$t('exportTitle.merchantAccount.walletAddr')},
+        {key: 'status', title: i18n.$t('exportTitle.merchantAccount.status')},
+        {key: 'createTime', title: i18n.$t('exportTitle.merchantAccount.createTime')},
+        {key: 'createBy', title: i18n.$t('exportTitle.merchantAccount.createBy')},
     ]
     return Merchant_Account_Title
 }
 
 export function getAgentInfoTitle(i18n) {
     const Agent_Info_Title = [
-        {key: "agentName", title: "代理名称"},
-        {key: "agentAccountName", title: "代理账号"},
-        {key: "channelInfos", title: "代理渠道信息"},
-        {key: "parentAgentName", title: "上级代理名称"},
-        {key: "parentAccountName", title: "上级代理账号"},
-        {key: "parentChannelInfos", title: "上级代理渠道信息"},
-        {key: "level", title: "代理层级"},
-        {key: "status", title: "代理状态"},
-        {key: "payRate", title: "代付百分比费率"},
-        {key: "payFixedFee", title: "代付固定费用"},
-        {key: "payMinFee", title: "代付单笔最小金额"},
-        {key: "payMaxFee", title: "单笔最大金额"},
-        {key: "collectionRate", title: "代收百分比费率"},
-        {key: "collectionFixedFee", title: "代收固定费用"},
-        {key: "collectionMaxFee", title: "代收单笔最大费用"},
-        {key: "collectionMinFee", title: "代收单笔最小金额"},
+        {key: "agentName", title: i18n.$t('exportTitle.agentInfo.agentName')},
+        {key: "agentAccountName", title: i18n.$t('exportTitle.agentInfo.agentAccountName')},
+        {key: "channelInfos", title: i18n.$t('exportTitle.agentInfo.channelInfos')},
+        {key: "parentAgentName", title: i18n.$t('exportTitle.agentInfo.parentAgentName')},
+        {key: "parentAccountName", title: i18n.$t('exportTitle.agentInfo.parentAccountName')},
+        {key: "parentChannelInfos", title: i18n.$t('exportTitle.agentInfo.parentChannelInfos')},
+        {key: "level", title: i18n.$t('exportTitle.agentInfo.level')},
+        {key: "status", title: i18n.$t('exportTitle.agentInfo.status')},
+        {key: "payRate", title: i18n.$t('exportTitle.agentInfo.payRate')},
+        {key: "payFixedFee", title: i18n.$t('exportTitle.agentInfo.payFixedFee')},
+        {key: "payMinFee", title: i18n.$t('exportTitle.agentInfo.payMinFee')},
+        {key: "payMaxFee", title: i18n.$t('exportTitle.agentInfo.payMaxFee')},
+        {key: "collectionRate", title: i18n.$t('exportTitle.agentInfo.collectionRate')},
+        {key: "collectionFixedFee", title: i18n.$t('exportTitle.agentInfo.collectionFixedFee')},
+        {key: "collectionMaxFee", title: i18n.$t('exportTitle.agentInfo.collectionMaxFee')},
+        {key: "collectionMinFee", title: i18n.$t('exportTitle.agentInfo.collectionMinFee')},
     ]
     return Agent_Info_Title
 }
 
 export function getAgentAccountTitle(i18n) {
     const Agent_Account_Title = [
-        {key: "agentName", title: '代理名称'},
-        {key: "accountName", title: '代理账号'},
-        {key: "walletAddr", title: '代理提现账户'},
-        {key: "status", title: '状态'},
-        {key: "createTime", title: '创建时间'},
-        {key: "createBy", title: '创建人'},
+        {key: "agentName", title: i18n.$t('exportTitle.agentAccount.agentName')},
+        {key: "accountName", title: i18n.$t('exportTitle.agentAccount.accountName')},
+        {key: "walletAddr", title: i18n.$t('exportTitle.agentAccount.walletAddr')},
+        {key: "status", title: i18n.$t('exportTitle.agentAccount.status')},
+        {key: "createTime", title: i18n.$t('exportTitle.agentAccount.createTime')},
+        {key: "createBy", title: i18n.$t('exportTitle.agentAccount.createBy')},
     ]
     return Agent_Account_Title
 }
 
 export function getPaymentListTitle(i18n) {
     const Payment_List_Title = [
-        {key: 'paymentNo', title: '通道编号'},
-        {key: 'paymentName', title: '通道名称'},
-        {key: 'status', title: '通道状态'},
-        {key: 'isThird', title: '是否支持三方支付'},
-        {key: 'supportType', title: '支付类型'},
-        {key: 'enableTimePeriod', title: '可用时间'},
-        {key: 'paymentType', title: '通道类型'},
-        {key: 'isCheckoutCounter', title: '是否支持收银台'},
-        {key: 'collectionDailyLimit', title: '代收单日限额'},
-        {key: 'collectionMonthlyLimit', title: '代收月限额'},
-        {key: 'payDailyLimit', title: '代付日限额'},
-        {key: 'payMonthlyLimit', title: '代付月限额'},
-        {key: 'paymentRequestPayUrl', title: '代付api地址'},
-        {key: 'paymentRequestCollectionUrl', title: '代收api地址'},
-        {key: 'paymentCollectionRate', title: '通道代收费率'},
-        {key: 'paymentPayRate', title: '通道代付费率'},
-        {key: 'paymentCheckPayUrl', title: '代付订单校验地址'},
-        {key: 'paymentPayRate', title: '通道代付费率'},
-        {key: 'paymentCheckCollectionUrl', title: '代收订单校验地址'},
-        {key: 'collectionCallbackAddr', title: '代收回调地址'},
-        {key: 'payCallbackAddr', title: '代付回调地址'},
-        {key: 'checkoutCounterUrl', title: '收银台地址'},
-        {key: 'currency', title: '币种'},
-        {key: 'paymentMaxAmount', title: '最大金额'},
-        {key: 'paymentMinAmount', title: '最小金额'},
-        {key: 'bankName', title: '银行名称'},
-        {key: 'bankAccount', title: '银行账号'},
-        {key: 'bankUserName', title: '银行用户名'},
+        {key: 'paymentNo', title: i18n.$t('exportTitle.paymentList.paymentNo')},
+        {key: 'paymentName', title: i18n.$t('exportTitle.paymentList.paymentName')},
+        {key: 'status', title: i18n.$t('exportTitle.paymentList.status')},
+        {key: 'isThird', title: i18n.$t('exportTitle.paymentList.isThird')},
+        {key: 'supportType', title: i18n.$t('exportTitle.paymentList.supportType')},
+        {key: 'enableTimePeriod', title: i18n.$t('exportTitle.paymentList.enableTimePeriod')},
+        {key: 'paymentType', title: i18n.$t('exportTitle.paymentList.paymentType')},
+        {key: 'isCheckoutCounter', title: i18n.$t('exportTitle.paymentList.isCheckoutCounter')},
+        {key: 'collectionDailyLimit', title: i18n.$t('exportTitle.paymentList.collectionDailyLimit')},
+        {key: 'collectionMonthlyLimit', title: i18n.$t('exportTitle.paymentList.collectionMonthlyLimit')},
+        {key: 'payDailyLimit', title: i18n.$t('exportTitle.paymentList.payDailyLimit')},
+        {key: 'payMonthlyLimit', title: i18n.$t('exportTitle.paymentList.payMonthlyLimit')},
+        {key: 'paymentRequestPayUrl', title: i18n.$t('exportTitle.paymentList.paymentRequestPayUrl')},
+        {key: 'paymentRequestCollectionUrl', title: i18n.$t('exportTitle.paymentList.paymentRequestCollectionUrl')},
+        {key: 'paymentCollectionRate', title: i18n.$t('exportTitle.paymentList.paymentCollectionRate')},
+        {key: 'paymentPayRate', title: i18n.$t('exportTitle.paymentList.paymentPayRate')},
+        {key: 'paymentCheckPayUrl', title: i18n.$t('exportTitle.paymentList.paymentCheckPayUrl')},
+        {key: 'paymentPayRate', title: i18n.$t('exportTitle.paymentList.paymentPayRate')},
+        {key: 'paymentCheckCollectionUrl', title: i18n.$t('exportTitle.paymentList.paymentCheckCollectionUrl')},
+        {key: 'collectionCallbackAddr', title: i18n.$t('exportTitle.paymentList.collectionCallbackAddr')},
+        {key: 'payCallbackAddr', title: i18n.$t('exportTitle.paymentList.payCallbackAddr')},
+        {key: 'checkoutCounterUrl', title: i18n.$t('exportTitle.paymentList.checkoutCounterUrl')},
+        {key: 'currency', title: i18n.$t('exportTitle.paymentList.currency')},
+        {key: 'paymentMaxAmount', title: i18n.$t('exportTitle.paymentList.paymentMaxAmount')},
+        {key: 'paymentMinAmount', title: i18n.$t('exportTitle.paymentList.paymentMinAmount')},
+        {key: 'bankName', title: i18n.$t('exportTitle.paymentList.bankName')},
+        {key: 'bankAccount', title: i18n.$t('exportTitle.paymentList.bankAccount')},
+        {key: 'bankUserName', title: i18n.$t('exportTitle.paymentList.bankUserName')},
     ]
     return Payment_List_Title
 }
 
 export function getChannelListTitle(i18n) {
     const ChannelList_Title = [
-        {key: 'channelName', title: '渠道名称'},
-        {key: 'collectPayment', title: '代收通道列表'},
-        {key: 'payPayment', title: '代付通道列表'},
-        {key: 'status', title: '状态'},
-        {key: 'currency', title: '币种'},
-        {key: 'createTime', title: '创建时间'},
+        {key: 'channelName', title: i18n.$t('exportTitle.channelList.channelName')},
+        {key: 'collectPayment', title: i18n.$t('exportTitle.channelList.collectPayment')},
+        {key: 'payPayment', title: i18n.$t('exportTitle.channelList.payPayment')},
+        {key: 'status', title: i18n.$t('exportTitle.channelList.status')},
+        {key: 'currency', title: i18n.$t('exportTitle.channelList.currency')},
+        {key: 'createTime', title: i18n.$t('exportTitle.channelList.createTime')},
     ]
     return ChannelList_Title
 }
@@ -314,7 +316,7 @@ export function loadingBody(that, loadingClassName) {
         : undefined;
     const loadingInstance = that.$loading({
         lock: true,       // 设置进入加载
-        text: 'loading...',           // 加载文字
+        text: i18n.global.t('common.loading'),           // 加载文字
         // spinner: 'el-icon-loading',
         // background: 'rgba(255, 255, 255, 0.7)',
         target: target // 指定加载动画覆盖的DOM节点
@@ -329,6 +331,7 @@ export function getTodayStartTimestamp() {
 }
 
 export async function exportExcel(res, fileName, that) {
+    const t = i18n?.global?.t ? i18n.global.t.bind(i18n.global) : (key) => key;
 
     if (res.status === 200) {
         if (res.data.type === 'application/json') {
@@ -336,7 +339,7 @@ export async function exportExcel(res, fileName, that) {
             const jsonData = JSON.parse(await blobData.text())
             if (jsonData.code !== 0) {
                 that.$notify({
-                    title: 'Failed',
+                    title: t('common.error'),
                     message: jsonData.message,
                     duration: 3000,
                     type: 'error',
@@ -359,8 +362,8 @@ export async function exportExcel(res, fileName, that) {
                 window.URL.revokeObjectURL(href);
             }
             that.$notify({
-                title: 'Success',
-                message: 'export data success',
+                title: t('common.success'),
+                message: t('common.exportSuccess'),
                 duration: 3000,
                 type: 'success',
                 position: 'bottom-right',
@@ -371,7 +374,7 @@ export async function exportExcel(res, fileName, that) {
             const blobData = res.data;
             const jsonData = JSON.parse(await blobData.text())
             that.$notify({
-                title: 'Error',
+                title: t('common.error'),
                 message: jsonData.message,
                 duration: 3000,
                 type: 'error',
@@ -385,64 +388,67 @@ export async function exportExcel(res, fileName, that) {
 }
 
 export function getOrderStatus(orderStatus) {
+    const t = i18n?.global?.t ? i18n.global.t.bind(i18n.global) : (key) => key;
     if (!orderStatus) {
         return '-'
     } else if (orderStatus === '0') {
-        return '待处理'
+        return t('orderCommon.status.pending')
     } else if (orderStatus === '1') {
-        return '处理中'
+        return t('orderCommon.status.processing')
     } else if (orderStatus === '2') {
-        return '成功'
+        return t('orderCommon.status.success')
     } else if (orderStatus === '3') {
-        return '失败'
+        return t('orderCommon.status.failed')
     } else if (orderStatus === '4') {
-        return '超时'
+        return t('orderCommon.status.timeout')
     } else if (orderStatus === '5') {
-        return '已取消'
+        return t('orderCommon.status.cancelled')
     } else {
         return '-'
     }
 }
 
 export function getOrderStatusOptions() {
+    const t = i18n?.global?.t ? i18n.global.t.bind(i18n.global) : (key) => key;
     const options = [
         {
             value: '0',
-            label: '待处理'
+            label: t('orderCommon.status.pending')
         },
         {
             value: '1',
-            label: '处理中'
+            label: t('orderCommon.status.processing')
         },
         {
             value: '2',
-            label: '成功'
+            label: t('orderCommon.status.success')
         },
         {
             value: '3',
-            label: '失败'
+            label: t('orderCommon.status.failed')
         },
         {
             value: '4',
-            label: '超时'
+            label: t('orderCommon.status.timeout')
         },
         {
             value: '5',
-            label: '已取消'
+            label: t('orderCommon.status.cancelled')
         }
     ]
     return options
 }
 
 export function getCallBackStatus(callBackStatus) {
+    const t = i18n?.global?.t ? i18n.global.t.bind(i18n.global) : (key) => key;
     if (!callBackStatus) {
         return '-'
     } else if (callBackStatus === '1') {
-        return '已回调'
+        return t('orderCommon.callback.success')
     } else if (callBackStatus === '2') {
-        return '回调失败'
+        return t('orderCommon.callback.failed')
     } else if (callBackStatus === '3') {
-        return '待回调'
+        return t('orderCommon.callback.pending')
     } else {
         return '-'
     }

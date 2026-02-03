@@ -7,7 +7,7 @@ import { getAsyncRoutes } from "@/router/asyncRouter.js";
 
 const showNewMessage = (message) => {
   this.$notify({
-    title: 'new message',
+    title: this.$t('topbar.newMessage'),
     message: message.content,
     type: "info",
     duration: 0,
@@ -35,18 +35,7 @@ export default {
       notifications: [],
       selectedLang: 'zh-cn',
       selectedTimeZone: 'UTC+8',
-      languageOptions: [
-        {
-          value: 'en',
-          label: 'En',
-          flag: 'english'
-        },
-        {
-          value: 'zh-cn',
-          label: '中文',
-          flag: 'chinese'
-        }
-      ],
+      languageOptions: [],
       timeZoneOptions: [
         { value: 'UTC-12', label: 'UTC-12' },
         { value: 'UTC-8', label: 'UTC-8' },
@@ -65,6 +54,7 @@ export default {
     if (storedZone) {
       this.selectedTimeZone = storedZone;
     }
+    this.refreshLanguageOptions();
   },
   mounted() {
     this.username = localStorage.getItem("userName")
@@ -115,6 +105,21 @@ export default {
     },
     changeLanauage(lang) {
       this.$i18n.locale = lang;
+      this.refreshLanguageOptions();
+    },
+    refreshLanguageOptions() {
+      this.languageOptions = [
+        {
+          value: 'en',
+          label: this.$t('language.en'),
+          flag: 'english'
+        },
+        {
+          value: 'zh-cn',
+          label: this.$t('language.zh'),
+          flag: 'chinese'
+        }
+      ]
     },
     handleTimeZoneChange(value) {
       localStorage.setItem("timeZone", value);
@@ -133,7 +138,7 @@ export default {
         //this.speech.lang = 'ja-JP'
         window.speechSynthesis.speak(this.speech)
       } else {
-        alert('换个浏览器')
+        alert(this.$t('topbar.speechUnsupported'))
       }
     },
     showNewMessage(message) {
@@ -224,7 +229,7 @@ export default {
       return this.messageCount
     },
     viewDetail() {
-      alert("出发")
+      alert(this.$t('topbar.viewDetail'))
       router.push({
         name: 'AccountManagement'
       })
@@ -292,7 +297,7 @@ export default {
             <template #dropdown>
               <el-dropdown-menu class="notice-menu">
                 <el-dropdown-item v-if="notifications.length === 0" disabled>
-                  暂无消息
+                  {{ $t('topbar.noMessages') }}
                 </el-dropdown-item>
                 <el-dropdown-item
                   v-for="item in notifications"
@@ -319,7 +324,7 @@ export default {
 
         </div>
         <div v-else>
-          请登陆
+          {{ $t('topbar.pleaseLogin') }}
         </div>
       </div>
     </div>

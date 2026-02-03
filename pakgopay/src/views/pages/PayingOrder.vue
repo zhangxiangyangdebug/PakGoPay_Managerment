@@ -1,17 +1,17 @@
 <script setup>
 
 import SvgIcon from "@/components/SvgIcon/index.vue";
-import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api/common.js";
+import {getCallBackStatus, getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api/common.js";
 </script>
 
 <template>
   <div style="width: 100%;height: 110%; overflow-y: scroll;">
-    <div class="main-title">代付订单</div>
+    <div class="main-title">{{ $t('payingOrder.title') }}</div>
     <el-collapse v-model="activeTool">
       <el-collapse-item name="1">
         <template #title>
         <span class="toolbarName">
-          工具栏
+          {{ $t('common.toolbar') }}
         </span>
         </template>
         <div class="main-toolbar" style="height: 230px;width: 97%;">
@@ -28,18 +28,18 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
                 <div class="toolbar-action-row">
                   <el-button @click="search()" class="filterButton">
                     <SvgIcon class="filterButtonSvg" name="search"/>
-                    <div>查询</div>
+                    <div>{{ $t('common.query') }}</div>
                   </el-button>
                   <el-button @click="reset('filterboxForm')" class="filterButton">
                     <SvgIcon class="filterButtonSvg" name="reset"/>
-                    <div>重置</div>
+                    <div>{{ $t('common.reset') }}</div>
                   </el-button>
                 </div>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="6">
-                <el-form-item label="订单状态：" label-width="150px" prop="orderStatus">
+                <el-form-item :label="$t('payingOrder.filter.orderStatus')" label-width="150px" prop="orderStatus">
                   <el-select
                       :options="getOrderStatusOptions()"
                       v-model="filterbox.orderStatus"
@@ -49,12 +49,12 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="商户订单号：" label-width="150px" prop="merchantOrderNo">
+                <el-form-item :label="$t('payingOrder.filter.merchantOrderNo')" label-width="150px" prop="merchantOrderNo">
                   <el-input v-model="filterbox.merchantOrderNo" style="width: 200px"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="订单渠道：" label-width="150px" prop="channelId">
+                <el-form-item :label="$t('payingOrder.filter.channel')" label-width="150px" prop="channelId">
                   <el-select
                       :options="channelOptions"
                       :props="channelProps"
@@ -62,17 +62,17 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
                       style="width: 200px;"
                       clearable
                       filterable
-                      placeholder="请选择渠道"
+                      :placeholder="$t('payingOrder.placeholder.channel')"
                   />
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="商户：" label-width="150px" prop="merchantUserId">
+                <el-form-item :label="$t('payingOrder.filter.merchant')" label-width="150px" prop="merchantUserId">
                   <el-select
                       :options="merchantOptions"
                       :props="merchantInfoProps"
                       v-model="filterbox.merchantUserId"
-                      placeholder="请选择商户"
+                      :placeholder="$t('payingOrder.placeholder.merchant')"
                       style="width: 200px"
                       clearable
                       :disabled="filterAvaiable"
@@ -82,7 +82,7 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
             </el-row>
             <el-row>
               <el-col :span="6">
-                <el-form-item label="币种：" label-width="150px" prop="currency">
+                <el-form-item :label="$t('common.currency')" label-width="150px" prop="currency">
                   <el-select
                       :options="currencyOptions"
                       :props="currencyProps"
@@ -93,24 +93,24 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="订单类型：" label-width="150px" prop="orderType">
+                <el-form-item :label="$t('payingOrder.filter.orderType')" label-width="150px" prop="orderType">
                   <el-select
                       v-model="filterbox.orderType"
                       style="width: 200px"
                       clearable
                   >
-                    <el-option :value="1" label="系统订单"></el-option>
-                    <el-option :value="2" label="手工订单"></el-option>
+                    <el-option :value="1" :label="$t('payingOrder.orderType.system')"></el-option>
+                    <el-option :value="2" :label="$t('payingOrder.orderType.manual')"></el-option>
                   </el-select>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="平台订单号：" label-width="150px" prop="transactionNo">
+                <el-form-item :label="$t('payingOrder.filter.transactionNo')" label-width="150px" prop="transactionNo">
                   <el-input v-model="filterbox.transactionNo" style="width: 200px"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="商户代理：" label-width="150px" prop="merchantAgent">
+                <el-form-item :label="$t('payingOrder.filter.merchantAgent')" label-width="150px" prop="merchantAgent">
                   <el-input v-model="filterbox.merchantAgent" style="width: 200px"/>
                 </el-form-item>
               </el-col>
@@ -118,18 +118,18 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
             <el-row>
 
               <el-col :span="6">
-                <el-form-item label="订单金额：" label-width="150px">
+                <el-form-item :label="$t('payingOrder.filter.amount')" label-width="150px">
                   <el-input type="number" v-model="filterbox.amount" style="width: 200px"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="创建时间：">
+                <el-form-item :label="$t('payingOrder.filter.createTime')">
                   <el-date-picker
                       v-model="filterbox.filterDateRange"
                       type="datetimerange"
-                      range-separator="至"
-                      start-placeholder="开始日期"
-                      end-placeholder="结束日期"
+                      :range-separator="$t('common.rangeSeparator')"
+                      :start-placeholder="$t('common.startDate')"
+                      :end-placeholder="$t('common.endDate')"
                       format="YYYY/MM/DD HH:mm:ss"
                       value-format="x"
                       @change="handleDateRangeChange"
@@ -144,7 +144,7 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
 
     <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0">
       <div class="currency-tabs">
-        <span class="currency-tabs-label">统计币种:</span>
+        <span class="currency-tabs-label">{{ $t('orderCommon.currencyStats') }}</span>
         <el-tabs
             v-model="staticsData.currencyType"
             type="card"
@@ -176,7 +176,7 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
           <div style="display: flex;">
             <SvgIcon name="orderNum" width="100px" height="100px"/>
             <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">订单总数:</span>
+              <span class="statics-title">{{ $t('orderCommon.stats.totalOrders') }}</span>
               <textarea v-model="staticsData.orderTotalCount" disabled class="cash-text-area"></textarea>
             </div>
           </div>
@@ -185,7 +185,7 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
           <div style="display: flex;">
             <SvgIcon name="merchantCommission" width="100px" height="100px"/>
             <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">商户手续费:</span>
+              <span class="statics-title">{{ $t('orderCommon.stats.merchantFee') }}</span>
               <textarea v-model="staticsData.merchantCommission" disabled class="cash-text-area"></textarea>
             </div>
           </div>
@@ -194,7 +194,7 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
           <div style="display: flex;">
             <SvgIcon name="freezeAmount" width="100px" height="100px"/>
             <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">冻结金额:</span>
+              <span class="statics-title">{{ $t('orderCommon.stats.frozenAmount') }}</span>
               <textarea v-model="staticsData.merchantFreezeAmount" disabled class="cash-text-area"></textarea>
             </div>
           </div>
@@ -205,7 +205,7 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
           <div style="display: flex;">
             <SvgIcon name="orderSuccessRate" width="100px" height="100px"/>
             <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">订单成功率:</span>
+              <span class="statics-title">{{ $t('orderCommon.stats.successRate') }}</span>
               <textarea v-model="staticsData.ordereSuccessRate" disabled class="cash-text-area"></textarea>
             </div>
           </div>
@@ -214,7 +214,7 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
           <div style="display: flex;">
             <SvgIcon name="effectiveCommission" width="100px" height="100px"/>
             <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">商户有效手续费:</span>
+              <span class="statics-title">{{ $t('orderCommon.stats.effectiveFee') }}</span>
               <textarea v-model="staticsData.merchantEffectiveCommission" disabled class="cash-text-area"></textarea>
             </div>
           </div>
@@ -224,7 +224,7 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
             <SvgIcon name="accountBalance" width="100px" height="100px"/>
             <div
                 style="display: flex; flex-direction: column;width: 80%;margin-left: 2%;justify-content: space-between;">
-              <span class="statics-title">可用金额:</span>
+              <span class="statics-title">{{ $t('orderCommon.stats.availableAmount') }}</span>
               <textarea v-model="staticsData.merchantAvaiableAmount" disabled class="cash-text-area"></textarea>
             </div>
           </div>
@@ -238,7 +238,7 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
         <div style="display: flex; float: right">
           <el-button @click="createPathChannel()" class="filterButton">
             <SvgIcon class="filterButtonSvg" name="createOrder"/>
-            <div>创建订单</div>
+            <div>{{ $t('orderCommon.action.createOrder') }}</div>
           </el-button>
         </div>
         <el-table
@@ -251,7 +251,7 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
         >
           <el-table-column
               prop="orderId"
-              label="订单号"
+              :label="$t('payingOrder.column.orderId')"
               v-slot="{row}"
               align="center"
           >
@@ -259,7 +259,7 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
           </el-table-column>
           <el-table-column
               prop="merchantOrderId"
-              label="商户订单号"
+              :label="$t('payingOrder.column.merchantOrderNo')"
               v-slot="{row}"
               align="center"
           >
@@ -267,7 +267,7 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
           </el-table-column>
           <el-table-column
               prop="merchantAccount"
-              label="商户号"
+              :label="$t('payingOrder.column.merchantNo')"
               v-slot="{row}"
               align="center"
           >
@@ -275,7 +275,7 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
           </el-table-column>
           <el-table-column
               prop="merchantName"
-              label="商户名称"
+              :label="$t('payingOrder.column.merchantName')"
               v-slot="{row}"
               align="center"
           >
@@ -283,7 +283,7 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
           </el-table-column>
           <el-table-column
               prop="currencyType"
-              label="币种"
+              :label="$t('common.currency')"
               v-slot="{row}"
               align="center"
           >
@@ -291,7 +291,7 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
           </el-table-column>
           <el-table-column
               prop="orderStatus"
-              label="订单状态"
+              :label="$t('payingOrder.column.status')"
               v-slot="{row}"
               align="center"
           >
@@ -302,15 +302,15 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
           </el-table-column>
           <el-table-column
               prop="orderStatus"
-              label="订单类型"
+              :label="$t('payingOrder.column.orderType')"
               v-slot="{row}"
               align="center"
           >
-            <div>{{ row.orderType === 1 ? '系统订单':'手动订单' }}</div>
+            <div>{{ row.orderType === 1 ? $t('payingOrder.orderType.system') : $t('payingOrder.orderType.manual') }}</div>
           </el-table-column>
           <el-table-column
               prop="orderAmount"
-              label="订单金额"
+              :label="$t('payingOrder.column.amount')"
               v-slot="{row}"
               align="center"
           >
@@ -318,7 +318,7 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
           </el-table-column>
           <el-table-column
               prop="channelId"
-              label="订单渠道"
+              :label="$t('payingOrder.column.channel')"
               v-slot="{row}"
               align="center"
           >
@@ -326,15 +326,15 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
           </el-table-column>
           <el-table-column
               prop="callBackStatus"
-              label="回调状态"
+              :label="$t('payingOrder.column.callbackStatus')"
               v-slot="{row}"
               align="center"
           >
-            <div>{{ row.callBackStatus }}</div>
+            <div>{{ getCallBackStatus(row.callBackStatus) }}</div>
           </el-table-column>
           <el-table-column
               prop="createTime"
-              label="创建时间"
+              :label="$t('payingOrder.column.createTime')"
               v-slot="{row}"
               align="center"
           >
@@ -342,7 +342,7 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
           </el-table-column>
           <el-table-column
               prop="orderId"
-              label="请求IP"
+              :label="$t('payingOrder.column.requestIp')"
               v-slot="{row}"
               align="center"
           >
@@ -350,7 +350,7 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
           </el-table-column>
           <el-table-column
               width="100"
-              label="操作"
+              :label="$t('common.operation')"
               align="center"
               v-slot="{row}"
               fixed="right"
@@ -359,9 +359,9 @@ import {getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api
               <SvgIcon name="more" width="30" height="30"/>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item v-if="row.orderStatus === 1" @click="startUser(row)">审核</el-dropdown-item>
+                  <el-dropdown-item v-if="row.orderStatus === 1" @click="startUser(row)">{{ $t('payingOrder.action.review') }}</el-dropdown-item>
                   <!--                  <el-dropdown-item @click="editUser(row)">编辑</el-dropdown-item>-->
-                  <el-dropdown-item @click="callback(row)">回调</el-dropdown-item>
+                  <el-dropdown-item @click="callback(row)">{{ $t('payingOrder.action.callback') }}</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -400,7 +400,7 @@ export default {
       pageSizes: [10, 20, 50, 100, 200],
       activeToolBar: true,
       tableKey: 0,
-      activeNames: '筛选',
+      activeNames: '',
       activeTool: "1",
       checked: false,
       checkAll: false,
@@ -488,7 +488,7 @@ export default {
           this.pageSize = allData.pageSize
         } else if (res.status === 200 && res.data.code !== 0) {
           this.$notify({
-            title: 'Failed',
+            title: this.$t('common.error'),
             message: res.data.message,
             duration: 3000,
             position: 'bottom-right',
@@ -496,8 +496,8 @@ export default {
           })
         } else {
           this.$notify({
-            title: 'Failed',
-            message: 'something went wrong, try again!',
+            title: this.$t('common.error'),
+            message: this.$t('common.requestFailed'),
             duration: 3000,
             position: 'bottom-right',
             type: 'error',
@@ -572,6 +572,7 @@ export default {
     },
   },
   async mounted() {
+    this.activeNames = this.$t('orderCommon.filterTitle');
     this._timeZoneListener = (event) => {
       const nextZone = event.detail || localStorage.getItem("timeZone") || "UTC+8";
       const prevZone = this.timeZoneKey;

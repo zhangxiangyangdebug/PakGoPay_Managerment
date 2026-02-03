@@ -5,12 +5,12 @@ import {getTimeFromTimestamp} from "@/api/common.js";
 </script>
 
 <template>
-<div class="main-title">渠道列表</div>
+<div class="main-title">{{ $t('channelList.title') }}</div>
 
   <el-collapse v-model="activeTool">
     <el-collapse-item name="1">
       <template #title>
-        <span class="toolbarName">工具栏</span>
+        <span class="toolbarName">{{ $t('common.toolbar') }}</span>
       </template>
       <div class="main-toolbar" style="height: 130px;">
         <el-form class="main-toolform" ref="filterboxForm" :model="filterbox">
@@ -20,17 +20,17 @@ import {getTimeFromTimestamp} from "@/api/common.js";
                 <el-button @click="search()"
                            class="filterButton">
                   <SvgIcon class="filterButtonSvg" name="search"/>
-                  <div>查询</div>
+                  <div>{{ $t('common.query') }}</div>
                 </el-button>
                 <el-button @click="reset('filterboxForm')"
                            class="filterButton">
                   <SvgIcon class="filterButtonSvg" name="reset"/>
-                  <div>重置</div>
+                  <div>{{ $t('common.reset') }}</div>
                 </el-button>
                 <el-button @click="exportPathChannelInfos"
                            class="filterButton">
                   <SvgIcon class="filterButtonSvg" name="export"/>
-                  <div>导出</div>
+                  <div>{{ $t('common.export') }}</div>
                 </el-button>
               </div>
             </el-col>
@@ -38,7 +38,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           <el-row style="width: 100%;margin-top:10px">
             <div style="display: flex;flex-direction: row;width: 100%;justify-content: space-around">
               <el-col :span="5">
-                <el-form-item label="通道:" label-width="150px" prop="paymentId">
+                <el-form-item :label="$t('channelList.filter.channel')" label-width="150px" prop="paymentId">
                   <el-select
                       :options="paymentOptions"
                       :props="paymentProps"
@@ -49,13 +49,13 @@ import {getTimeFromTimestamp} from "@/api/common.js";
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="渠道名称:" label-width="150px" prop="channelName">
-                  <el-input v-model="filterbox.channelName" placeholder="渠道名称" style="width: 200px;height: 100%" />
+                <el-form-item :label="$t('channelList.filter.channelName')" label-width="150px" prop="channelName">
+                  <el-input v-model="filterbox.channelName" :placeholder="$t('channelList.placeholder.channelName')" style="width: 200px;height: 100%" />
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="启用状态:" label-width="150px" prop="status">
-                  <el-select v-model="filterbox.status" placeholder="渠道状态"
+                <el-form-item :label="$t('channelList.filter.status')" label-width="150px" prop="status">
+                  <el-select v-model="filterbox.status" :placeholder="$t('channelList.placeholder.status')"
                              style="width: 200px;height: 100%"
                              clearable
                              :options="channelStatusOptions"
@@ -64,8 +64,8 @@ import {getTimeFromTimestamp} from "@/api/common.js";
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="币种:" label-width="150px" prop="currency">
-                  <el-select v-model="filterbox.currency" placeholder="币种"
+                <el-form-item :label="$t('channelList.filter.currency')" label-width="150px" prop="currency">
+                  <el-select v-model="filterbox.currency" :placeholder="$t('common.currency')"
                              style="width: 200px;height: 100%"
                              clearable
                              :options="currencyOptions"
@@ -83,7 +83,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
   <div class="reportInfo">
     <div class="main-views-form" style="height: 700px">
       <div style="float: right;display: flex;">
-        <el-button @click="createNewChannel"><SvgIcon name="add" style="width: 20px;height: 20px"/>新增渠道</el-button>
+        <el-button @click="createNewChannel"><SvgIcon name="add" style="width: 20px;height: 20px"/>{{ $t('channelList.action.add') }}</el-button>
       </div>
       <el-table
           border :data="channelTableInfo"
@@ -93,7 +93,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
       >
         <el-table-column
             prop="channelName"
-            label="渠道名称"
+            :label="$t('channelList.column.channelName')"
             v-slot="{row}"
             align="center"
             fixed="left"
@@ -104,7 +104,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="pathChannelList"
-            label="代收通道列表"
+            :label="$t('channelList.column.collectionList')"
             v-slot="{row}"
             align="center"
         >
@@ -115,14 +115,14 @@ import {getTimeFromTimestamp} from "@/api/common.js";
               class="merchantInfos-table channel-card"
               :class="index % 2 === 0 ? 'channel-card-collect' : 'channel-card-collect-alt'"
             >
-              <div>通道编号:{{item.paymentNo}}</div>
-              <div>通道名称:{{item.paymentName}}</div>
+              <div>{{ $t('channelList.card.paymentNo') }}{{ item.paymentNo }}</div>
+              <div>{{ $t('channelList.card.paymentName') }}{{ item.paymentName }}</div>
             </el-card>
           </div>
         </el-table-column>
         <el-table-column
             prop="pathChannelList"
-            label="代付通道列表"
+            :label="$t('channelList.column.payoutList')"
             v-slot="{row}"
             align="center"
         >
@@ -133,14 +133,14 @@ import {getTimeFromTimestamp} from "@/api/common.js";
               class="merchantInfos-table channel-card"
               :class="index % 2 === 0 ? 'channel-card-pay' : 'channel-card-pay-alt'"
             >
-              <div>通道编号:{{item.paymentNo}}</div>
-              <div>通道名称:{{item.paymentName}}</div>
+              <div>{{ $t('channelList.card.paymentNo') }}{{ item.paymentNo }}</div>
+              <div>{{ $t('channelList.card.paymentName') }}{{ item.paymentName }}</div>
             </el-card>
           </div>
         </el-table-column>
         <el-table-column
             prop="status"
-            label="启用状态"
+            :label="$t('channelList.column.status')"
             v-slot="{row}"
             align="center"
         >
@@ -149,8 +149,8 @@ import {getTimeFromTimestamp} from "@/api/common.js";
               v-model="row.status"
               active-color="#13ce66"
               inactive-color="#ff4949"
-              active-text="启用"
-              inactive-text="停用"
+              :active-text="$t('common.enable')"
+              :inactive-text="$t('common.disable')"
               :active-value="1"
               :inactive-value="0"
               disabled
@@ -160,7 +160,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="supportCurrencyType"
-            label="支持币种"
+            :label="$t('channelList.column.currency')"
             v-slot="{row}"
             align="center"
         >
@@ -170,7 +170,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="channelAccountBalance"
-            label="创建时间"
+            :label="$t('channelList.column.createTime')"
             v-slot="{row}"
             align="center"
         >
@@ -180,7 +180,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         </el-table-column>
         <el-table-column
             prop="operation"
-            label="操作"
+            :label="$t('common.operation')"
             v-slot="{row}"
             align="center"
             fixed="right"
@@ -191,9 +191,9 @@ import {getTimeFromTimestamp} from "@/api/common.js";
               <SvgIcon name="more" width="30" height="30" />
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item @click="editChannel(row)">编辑</el-dropdown-item>
-                  <el-dropdown-item v-if="row.status === 1" @click="stopChannel(row)">停用</el-dropdown-item>
-                  <el-dropdown-item v-if="row.status === 0" @click="startChannel(row)">启用</el-dropdown-item>
+                  <el-dropdown-item @click="editChannel(row)">{{ $t('common.edit') }}</el-dropdown-item>
+                  <el-dropdown-item v-if="row.status === 1" @click="stopChannel(row)">{{ $t('common.disable') }}</el-dropdown-item>
+                  <el-dropdown-item v-if="row.status === 0" @click="startChannel(row)">{{ $t('common.enable') }}</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -226,14 +226,14 @@ import {getTimeFromTimestamp} from "@/api/common.js";
 <!--      <el-row style="width: 100%">-->
         <el-col :span="24">
           <div class="el-form-line" style="display: flex;justify-content: center;">
-            <el-form-item label="渠道名称:" label-width="150px" prop="channelName">
+            <el-form-item :label="$t('channelList.filter.channelName')" label-width="150px" prop="channelName">
               <el-input type="text" v-model="editChannelInfo.channelName" style="width: 200px"></el-input>
             </el-form-item>
           </div>
         </el-col>
         <el-col :span="24">
           <div class="el-form-line" style="display: flex;justify-content: center;">
-            <el-form-item label="通道列表:" label-width="150px" prop="paymentIds">
+            <el-form-item :label="$t('channelList.filter.channel')" label-width="150px" prop="paymentIds">
               <el-select
                   v-model="editChannelInfo.paymentIds"
                   :options="paymentOptions"
@@ -248,13 +248,13 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         </el-col>
         <el-col :span="24">
           <div class="el-form-line" style="display: flex;justify-content: center;">
-            <el-form-item label="启用状态:" label-width="150px" prop="status">
+            <el-form-item :label="$t('channelList.filter.status')" label-width="150px" prop="status">
               <el-switch
                   v-model="editChannelInfo.status"
                   active-color="#13ce66"
                   inactive-color="#ff4949"
-                  active-text="启用"
-                  inactive-text="停用"
+                  :active-text="$t('common.enable')"
+                  :inactive-text="$t('common.disable')"
                   :inactive-value="0"
                   :active-value="1"
                   style="width: 200px"
@@ -264,15 +264,15 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         </el-col>
         <el-col :span="24">
           <div class="el-form-line" style="display: flex;justify-content: center;">
-            <el-form-item label="谷歌验证码" label-width="150px" prop="googleCode">
-              <el-input type="text" v-model="editChannelInfo.googleCode" style="width: 200px" placeholder="input google verify code"/>
+            <el-form-item :label="$t('common.googleCode')" label-width="150px" prop="googleCode">
+              <el-input type="text" v-model="editChannelInfo.googleCode" style="width: 200px" :placeholder="$t('common.placeholder.googleCode')"/>
             </el-form-item>
           </div>
         </el-col>
     </el-form>
     <div slot="footer" class="dialog-footer" style="float: right;">
-      <el-button @click="cancelDialog">取 消</el-button>
-      <el-button type="primary" @click="submitForm('editChannelForm', this.submitType)">确 定</el-button>
+      <el-button @click="cancelDialog">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="submitForm('editChannelForm', this.submitType)">{{ $t('common.confirm') }}</el-button>
     </div>
   </el-dialog>
   <el-dialog
@@ -295,15 +295,15 @@ import {getTimeFromTimestamp} from "@/api/common.js";
    >
      <el-col :span="24">
        <div class="el-form-line" style="display: flex;justify-content: center;">
-         <el-form-item label="谷歌验证码" label-width="150px" prop="googleCode">
-           <el-input type="text" v-model="editChannelInfo.googleCode" style="width: 200px" placeholder="input google verify code"/>
+         <el-form-item :label="$t('common.googleCode')" label-width="150px" prop="googleCode">
+           <el-input type="text" v-model="editChannelInfo.googleCode" style="width: 200px" :placeholder="$t('common.placeholder.googleCode')"/>
          </el-form-item>
        </div>
      </el-col>
    </el-form>
     <div slot="footer" class="dialog-footer" style="float: right;">
-      <el-button @click="cancelStopDialog('stopForm')">取 消</el-button>
-      <el-button type="primary" @click="submitForm('stopForm', 'edit')">确 定</el-button>
+      <el-button @click="cancelStopDialog('stopForm')">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="submitForm('stopForm', 'edit')">{{ $t('common.confirm') }}</el-button>
     </div>
   </el-dialog>
 </template>
@@ -340,16 +340,7 @@ export default {
       },
       currencyMaps: {},
       paymentOptions: [],
-      channelStatusOptions: [
-        {
-          value: 1,
-          label: '启用',
-        },
-        {
-          value: 0,
-          label: '停用'
-        }
-      ],
+      channelStatusOptions: [],
       paymentProps: {
         value: 'paymentId',
         label: 'paymentName'
@@ -380,7 +371,9 @@ export default {
       stopDialogTitle: '',
       editChannelRules: {
         googleCode: {
-          required: true, messages: 'you need to specify a google Code', trigger: 'blur',
+          required: true,
+          messages: this.$t('common.googleCodeRequired'),
+          trigger: 'blur',
         }
       }
     }
@@ -390,7 +383,7 @@ export default {
       this.filterbox.columns = getChannelListTitle(this)
       exportChannelList(this.filterbox).then(async res => {
         /*const fileName = this.$t('exportPaymentListName') + getFormateTime()*/
-        const fileName = "渠道表" + getFormateTime()
+        const fileName = this.$t('channelList.exportName') + getFormateTime()
         await exportExcel(res, fileName, this)
         /*if (res.status === 200) {
           if (res.data.type === 'application/json') {
@@ -486,7 +479,7 @@ export default {
       }).catch(error => {
         loadingInstance.close()
         this.$notify({
-          title: 'Error',
+          title: this.$t('common.error'),
           message: error.message,
           duration: 5000,
           type: 'error',
@@ -501,15 +494,15 @@ export default {
               modifyChannelInfo(this.editChannelInfo).then(res => {
                 if (res.status === 200 && res.data.code === 0) {
                   this.$notify({
-                    title:'Success',
-                    message: 'Modify channel: '+ this.editChannelInfo.channelName + 'successfully.',
+                    title: this.$t('common.success'),
+                    message: this.$t('channelList.notify.modifySuccess', { name: this.editChannelInfo.channelName }),
                     duration: 3000,
                     type: 'success',
                     position:'bottom-right'
                   })
                 } else if (res.status === 200 && res.data.code !== 0) {
                   this.$notify({
-                    title:'Error',
+                    title: this.$t('common.error'),
                     message:res.data.message,
                     duration: 3000,
                     type: 'error',
@@ -517,8 +510,8 @@ export default {
                   })
                 } else {
                   this.$notify({
-                    title:'Error',
-                    message: 'Some error occurred. please try again.',
+                    title: this.$t('common.error'),
+                    message: this.$t('common.requestFailed'),
                     duration: 3000,
                     type: 'error',
                     position: 'bottom-right'
@@ -531,7 +524,7 @@ export default {
                 this.search()
               }).catch( err => {
                 this.$notify({
-                  title:'Error',
+                  title: this.$t('common.error'),
                   message:err.message,
                   duration: 3000,
                   type: 'error',
@@ -545,8 +538,8 @@ export default {
               createChannelInfo(this.editChannelInfo).then(res => {
                 if (res.status === 200 && res.data.code === 0) {
                   this.$notify({
-                    title:'Success',
-                    message: 'create new channel successfully.',
+                    title: this.$t('common.success'),
+                    message: this.$t('channelList.notify.createSuccess'),
                     duration: 3000,
                     type: 'success',
                     position:'bottom-right'
@@ -554,7 +547,7 @@ export default {
                   this.search()
                 } else if (res.status === 200 && res.data.code !== 0) {
                   this.$notify({
-                    title:'Error',
+                    title: this.$t('common.error'),
                     message:res.data.message,
                     duration: 3000,
                     type: 'error',
@@ -562,8 +555,8 @@ export default {
                   })
                 } else {
                   this.$notify({
-                    title:'Error',
-                    message: 'Some error occurred. please try again.',
+                    title: this.$t('common.error'),
+                    message: this.$t('common.requestFailed'),
                     duration: 3000,
                     type: 'error',
                     position: 'bottom-right'
@@ -573,7 +566,7 @@ export default {
                 this.channelDialogTitle = ''
               }).catch( err => {
                 this.$notify({
-                  title:'Error',
+                  title: this.$t('common.error'),
                   message:err.message,
                   duration: 3000,
                   type: 'error',
@@ -590,7 +583,7 @@ export default {
     createNewChannel() {
       this.editChannelInfo = {}
       this.dialogFormVisible = true
-      this.channelDialogTitle = '新增渠道'
+      this.channelDialogTitle = this.$t('channelList.dialog.add')
       this.submitType = 'create'
     },
     handleCurrentPageChange(currentPage) {
@@ -612,19 +605,19 @@ export default {
       this.editChannelInfo.paymentIds = row.paymentIds;
       this.editChannelInfo.status = row.status;
       this.dialogFormVisible = true;
-      this.channelDialogTitle = '编辑渠道'
+      this.channelDialogTitle = this.$t('channelList.dialog.edit')
       this.submitType = 'edit'
       this.tableKey++
     },
     stopChannel(row) {
       this.stopDialogVisible = true
-      this.channelDialogTitle = '停用渠道'
+      this.channelDialogTitle = this.$t('channelList.dialog.disable')
       this.editChannelInfo = row
       this.editChannelInfo.status = 0;
     },
     startChannel(row) {
       this.stopDialogVisible = true
-      this.stopDialogTitle = '启用渠道'
+      this.stopDialogTitle = this.$t('channelList.dialog.enable')
       this.editChannelInfo = row
       this.editChannelInfo.status = 1;
     },
@@ -658,6 +651,10 @@ export default {
     }
   },
   async mounted() {
+    this.channelStatusOptions = [
+      { value: 1, label: this.$t('common.enable') },
+      { value: 0, label: this.$t('common.disable') }
+    ];
     this._timeZoneListener = (event) => {
       this.timeZoneKey = event.detail || localStorage.getItem("timeZone") || "UTC+8";
       this.tableKey++;

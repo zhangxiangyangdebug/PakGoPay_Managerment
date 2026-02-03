@@ -5,12 +5,12 @@ import {getFormateDate} from "@/api/common.js";
 </script>
 
 <template>
- <div class="main-title">币种报表</div>
+ <div class="main-title">{{ $t('currencyTypeReport.title') }}</div>
   <el-collapse v-model="activeTool">
     <el-collapse-item name="1">
       <template #title>
         <span class="toolbarName">
-          工具栏
+          {{ $t('common.toolbar') }}
         </span>
       </template>
       <div class="toolbar" style="width: 96%">
@@ -18,19 +18,19 @@ import {getFormateDate} from "@/api/common.js";
           <el-row>
             <el-col :offset="16" :span="8">
               <div style="display: flex; flex-direction: row;float: right">
-                <el-button @click="reset('filterForm')" class="filterButton"><SvgIcon class="filterButtonSvg" name="reset"/>重置</el-button>
-                <el-button @click="filterSearch" class="filterButton"><SvgIcon class="filterButtonSvg" name="search"/>搜索</el-button>
-                <el-button @click="exportCurrencyInfo" class="filterButton"><SvgIcon class="filterButtonSvg" name="export"/>导出</el-button>
+                <el-button @click="reset('filterForm')" class="filterButton"><SvgIcon class="filterButtonSvg" name="reset"/>{{ $t('common.reset') }}</el-button>
+                <el-button @click="filterSearch" class="filterButton"><SvgIcon class="filterButtonSvg" name="search"/>{{ $t('common.search') }}</el-button>
+                <el-button @click="exportCurrencyInfo" class="filterButton"><SvgIcon class="filterButtonSvg" name="export"/>{{ $t('common.export') }}</el-button>
 <!--                <el-button @click="openAddDialog" class="filterButton"><SvgIcon class="filterButtonSvg" name="add"/>新增</el-button>-->
               </div>
             </el-col>
           </el-row>
           <el-row>
             <el-col :offset="4" :span="8">
-              <el-form-item label="币种:" label-width="150px" prop="currency">
+              <el-form-item :label="$t('currencyTypeReport.filter.currency')" label-width="150px" prop="currency">
                 <el-select
                     v-model="filterbox.currency"
-                    placeholder="请选择币种"
+                    :placeholder="$t('currencyTypeReport.placeholder.currency')"
 
                     style="width: 200px;"
                     :options="currencyOptions"
@@ -40,13 +40,13 @@ import {getFormateDate} from "@/api/common.js";
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label-width="150px" label="日期:" prop="filterDateRange">
+              <el-form-item label-width="150px" :label="$t('currencyTypeReport.filter.date')" prop="filterDateRange">
                 <el-date-picker
                     v-model="filterbox.filterDateRange"
                     type="daterange"
-                    range-separator="至"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
+                    :range-separator="$t('common.rangeSeparator')"
+                    :start-placeholder="$t('common.startDate')"
+                    :end-placeholder="$t('common.endDate')"
                     format="YYYY/MM/DD"
                     value-format="x"
                 >
@@ -61,7 +61,7 @@ import {getFormateDate} from "@/api/common.js";
   </el-collapse>
   <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0">
     <div style="display: flex;flex-direction: column;gap: 6px;margin-left: 2%;width: 96%;">
-      <span style="color: black;font-size: small;">统计币种:</span>
+      <span style="color: black;font-size: small;">{{ $t('currencyTypeReport.currencyLabel') }}</span>
       <el-tabs
           v-model="filterbox.currency"
           type="card"
@@ -81,7 +81,7 @@ import {getFormateDate} from "@/api/common.js";
       <div class="statistics-form-item">
         <SvgIcon name="tixian" width="100px" height="100px"/>
         <div style="display: flex; flex-direction: column;width: 80%;">
-          <span style="text-align: left;font-size: x-large">代收总金额:</span>
+          <span style="text-align: left;font-size: x-large">{{ $t('currencyTypeReport.statistics.collectionAmount') }}</span>
           <textarea v-model="statisticsInfo.collectionCurrencyAmount" disabled class="cash-text-area"></textarea>
         </div>
       </div>
@@ -91,7 +91,7 @@ import {getFormateDate} from "@/api/common.js";
       <div class="statistics-form-item">
         <SvgIcon name="paying" width="90px" height="90px"/>
         <div style="display: flex; flex-direction: column;width: 80%;">
-          <span style="text-align: left;font-size: x-large">代付总金额:</span>
+          <span style="text-align: left;font-size: x-large">{{ $t('currencyTypeReport.statistics.payoutAmount') }}</span>
           <textarea v-model="statisticsInfo.payingCurrencyAmount" disabled class="cash-text-area"></textarea>
         </div>
       </div>
@@ -102,7 +102,7 @@ import {getFormateDate} from "@/api/common.js";
 
   <div class="reportInfo">
     <el-tabs @tab-click="handleTabClick" v-model="activeTabPane">
-      <el-tab-pane label="代收" class="tabTable" style="width: 100%">
+      <el-tab-pane :label="$t('currencyTypeReport.tab.collection')" class="tabTable" style="width: 100%">
         <el-table
           :data="collectionCurrencyInfo"
           height="auto"
@@ -111,7 +111,7 @@ import {getFormateDate} from "@/api/common.js";
           class="reportInfo-table1"
         >
           <el-table-column
-            label="币种"
+            :label="$t('currencyTypeReport.column.currency')"
             prop="currencyType"
             align="center"
             v-slot="{row}"
@@ -119,7 +119,7 @@ import {getFormateDate} from "@/api/common.js";
             <div>{{row.currency}}</div>
           </el-table-column>
           <el-table-column
-              label="代收订单数量"
+              :label="$t('currencyTypeReport.column.collectionOrderTotal')"
               prop="orderQuantity"
               align="center"
               v-slot="{row}"
@@ -127,7 +127,7 @@ import {getFormateDate} from "@/api/common.js";
             <div>{{row.orderQuantity}}</div>
           </el-table-column>
           <el-table-column
-              label="代收成功订单数"
+              :label="$t('currencyTypeReport.column.collectionSuccess')"
               prop="successQuantity"
               align="center"
               v-slot="{row}"
@@ -135,7 +135,7 @@ import {getFormateDate} from "@/api/common.js";
             <div>{{row.successQuantity}}</div>
           </el-table-column>
           <el-table-column
-              label="代收失败订单数"
+              :label="$t('currencyTypeReport.column.collectionFailed')"
               prop="failureQuantity"
               align="center"
               v-slot="{row}"
@@ -143,7 +143,7 @@ import {getFormateDate} from "@/api/common.js";
             <div>{{row.orderQuantity-row.successQuantity}}</div>
           </el-table-column>
           <el-table-column
-              label="成功率"
+              :label="$t('currencyTypeReport.column.successRate')"
               prop="successRate"
               align="center"
               v-slot="{row}"
@@ -152,7 +152,7 @@ import {getFormateDate} from "@/api/common.js";
           </el-table-column>
 
           <el-table-column
-              label="订单总金额"
+              :label="$t('currencyTypeReport.column.orderAmount')"
               prop="orderBalance"
               align="center"
               v-slot="{row}"
@@ -160,7 +160,7 @@ import {getFormateDate} from "@/api/common.js";
             <div>{{currencyIcon + row.orderBalance}}</div>
           </el-table-column>
           <el-table-column
-              label="代收商户手续费"
+              :label="$t('currencyTypeReport.column.collectionMerchantFee')"
               prop="merchantFee"
               align="center"
               v-slot="{row}"
@@ -168,7 +168,7 @@ import {getFormateDate} from "@/api/common.js";
             <div>{{currencyIcon + row.merchantFee}}</div>
           </el-table-column>
           <el-table-column
-              label="平台手续费"
+              :label="$t('currencyTypeReport.column.platformFee')"
               prop="orderProfit"
               align="center"
               v-slot="{row}"
@@ -176,7 +176,7 @@ import {getFormateDate} from "@/api/common.js";
             <div>{{currencyIcon + row.orderProfit}}</div>
           </el-table-column>
           <el-table-column
-              label="日期"
+              :label="$t('currencyTypeReport.column.recordDate')"
               prop="recordDate"
               align="center"
               v-slot="{row}"
@@ -197,7 +197,7 @@ import {getFormateDate} from "@/api/common.js";
         >
         </el-pagination>
       </el-tab-pane>
-      <el-tab-pane label="代付" class="tabTable" style="width: 100%">
+      <el-tab-pane :label="$t('currencyTypeReport.tab.payout')" class="tabTable" style="width: 100%">
         <el-table
           :data="payingCurrencyInfo"
           height="auto"
@@ -205,7 +205,7 @@ import {getFormateDate} from "@/api/common.js";
           class="reportInfo-table2"
         >
           <el-table-column
-              label="币种"
+              :label="$t('currencyTypeReport.column.currency')"
               prop="currency"
               align="center"
               v-slot="{row}"
@@ -213,7 +213,7 @@ import {getFormateDate} from "@/api/common.js";
             <div>{{row.currency}}</div>
           </el-table-column>
           <el-table-column
-              label="代付订单数量"
+              :label="$t('currencyTypeReport.column.payoutOrderTotal')"
               prop="orderQuantity"
               align="center"
               v-slot="{row}"
@@ -221,7 +221,7 @@ import {getFormateDate} from "@/api/common.js";
             <div>{{row.orderQuantity}}</div>
           </el-table-column>
           <el-table-column
-              label="代付成功订单数"
+              :label="$t('currencyTypeReport.column.payoutSuccess')"
               prop="successQuantity"
               align="center"
               v-slot="{row}"
@@ -229,7 +229,7 @@ import {getFormateDate} from "@/api/common.js";
             <div>{{row.successQuantity}}</div>
           </el-table-column>
           <el-table-column
-              label="代付失败订单数"
+              :label="$t('currencyTypeReport.column.payoutFailed')"
               prop="failureQuantity"
               align="center"
               v-slot="{row}"
@@ -237,7 +237,7 @@ import {getFormateDate} from "@/api/common.js";
             <div>{{row.orderQuantity-row.successQuantity}}</div>
           </el-table-column>
           <el-table-column
-              label="成功率"
+              :label="$t('currencyTypeReport.column.successRate')"
               prop="successRate"
               align="center"
               v-slot="{row}"
@@ -245,7 +245,7 @@ import {getFormateDate} from "@/api/common.js";
             <div>{{row.orderQuantity === 0 ? 0 : ((row.successQuantity/row.orderQuantity)*100).toFixed(2)}}%</div>
           </el-table-column>
           <el-table-column
-              label="订单总金额"
+              :label="$t('currencyTypeReport.column.orderAmount')"
               prop="orderBalance"
               align="center"
               v-slot="{row}"
@@ -253,7 +253,7 @@ import {getFormateDate} from "@/api/common.js";
             <div>{{currencyIcon + row.orderBalance}}</div>
           </el-table-column>
           <el-table-column
-              label="代付商户手续费"
+              :label="$t('currencyTypeReport.column.payoutMerchantFee')"
               prop="merchantFee"
               align="center"
               v-slot="{row}"
@@ -261,7 +261,7 @@ import {getFormateDate} from "@/api/common.js";
             <div>{{row.merchantFee}}</div>
           </el-table-column>
           <el-table-column
-              label="平台手续费"
+              :label="$t('currencyTypeReport.column.platformFee')"
               prop="orderProfit"
               align="center"
               v-slot="{row}"
@@ -269,7 +269,7 @@ import {getFormateDate} from "@/api/common.js";
             <div>{{currencyIcon + row.orderProfit}}</div>
           </el-table-column>
           <el-table-column
-              label="日期"
+              :label="$t('currencyTypeReport.column.recordDate')"
               prop="recordDate"
               align="center"
               v-slot="{row}"
@@ -295,7 +295,7 @@ import {getFormateDate} from "@/api/common.js";
 
   <el-dialog
       v-model="addDialogVisible"
-      title="新增币种"
+      :title="$t('currencyTypeReport.dialog.addTitle')"
       class="dialog"
       center
       width="60%"
@@ -303,35 +303,35 @@ import {getFormateDate} from "@/api/common.js";
     <el-form ref="addFormRef" :model="addCurrencyForm" :rules="addRules" class="form">
       <el-row style="display: flex;justify-content: center;">
         <el-col :span="24" style="display: flex;justify-content: center;">
-          <el-form-item label="币种英文简称:" label-width="150px" prop="currencyType">
+          <el-form-item :label="$t('currencyTypeReport.form.currencyCode')" label-width="150px" prop="currencyType">
             <el-input v-model="addCurrencyForm.currencyType" style="width: 200px"/>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row style="display: flex;justify-content: center;">
         <el-col :span="24" style="display: flex;justify-content: center;">
-          <el-form-item label="币种名称:" label-width="150px" prop="name">
+          <el-form-item :label="$t('currencyTypeReport.form.currencyName')" label-width="150px" prop="name">
             <el-input v-model="addCurrencyForm.name" style="width: 200px"/>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row style="display: flex;justify-content: center;">
         <el-col :span="24" style="display: flex;justify-content: center;">
-          <el-form-item label="币种符号:" label-width="150px" prop="icon">
+          <el-form-item :label="$t('currencyTypeReport.form.currencySymbol')" label-width="150px" prop="icon">
             <el-input v-model="addCurrencyForm.icon" style="width: 200px"/>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row style="display: flex;justify-content: center;">
         <el-col :span="24" style="display: flex;justify-content: center;">
-          <el-form-item label="币种最小单位:" label-width="150px" prop="currencyAccuracy">
+          <el-form-item :label="$t('currencyTypeReport.form.currencyAccuracy')" label-width="150px" prop="currencyAccuracy">
             <el-input type="number" v-model="addCurrencyForm.currencyAccuracy" style="width: 200px"/>
           </el-form-item>
         </el-col>
       </el-row>
       <el-row style="display: flex;justify-content: center;">
         <el-col :span="24" style="display: flex;justify-content: center;">
-          <el-form-item label="对USDT汇率模式:" label-width="150px" prop="isRate">
+          <el-form-item :label="$t('currencyTypeReport.form.rateMode')" label-width="150px" prop="isRate">
             <el-select v-model="addCurrencyForm.isRate" style="width: 200px;text-align: center">
               <el-option
                   v-for="item in exchangeRateOptions"
@@ -345,21 +345,21 @@ import {getFormateDate} from "@/api/common.js";
       </el-row>
       <el-row v-if="addCurrencyForm.isRate === 2">
         <el-col :span="24" style="display: flex;justify-content: center;">
-          <el-form-item label="对USDT汇率:" label-width="150px" prop="exchangeRate">
+          <el-form-item :label="$t('currencyTypeReport.form.exchangeRate')" label-width="150px" prop="exchangeRate">
             <el-input type="number" v-model="addCurrencyForm.exchangeRate" style="width: 200px"/>
           </el-form-item>
         </el-col>
       </el-row>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="cancelAddDialog">取 消</el-button>
-      <el-button type="primary" @click="submitAddCurrency">确 定</el-button>
+      <el-button @click="cancelAddDialog">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="submitAddCurrency">{{ $t('common.confirm') }}</el-button>
     </div>
   </el-dialog>
 
   <el-dialog
       v-model="googleDialogVisible"
-      title="谷歌验证"
+      :title="$t('currencyTypeReport.dialog.googleTitle')"
       class="dialog"
       center
       width="30%"
@@ -368,15 +368,15 @@ import {getFormateDate} from "@/api/common.js";
     <el-form ref="googleFormRef" :rules="googleRule" :model="googleForm" style="height:100px;margin-top: 20px">
       <el-row>
         <el-col :span="24" style="display: flex;justify-content: center;align-items: center;">
-          <el-form-item label="谷歌验证码:" label-width="150px" prop="googleCode">
+          <el-form-item :label="$t('common.googleCode')" label-width="150px" prop="googleCode">
             <el-input v-model="googleForm.googleCode" style="width: 200px"/>
           </el-form-item>
         </el-col>
       </el-row>
     </el-form>
     <div slot="footer" class="dialog-footer" style="margin-right: 3%;height: 30px;">
-      <el-button @click="cancelGoogleDialog">取 消</el-button>
-      <el-button type="primary" @click="confirmAddCurrency">确 定</el-button>
+      <el-button @click="cancelGoogleDialog">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="confirmAddCurrency">{{ $t('common.confirm') }}</el-button>
     </div>
   </el-dialog>
 </template>
@@ -403,7 +403,7 @@ export default {
   data() {
     const validateExchangeRate = (rule, value, callback) => {
       if (this.addCurrencyForm.isRate === 2 && (value === '' || value === undefined)) {
-        callback(new Error('固定汇率模式下对USDT汇率为必填项'))
+        callback(new Error(this.$t('currencyTypeReport.validation.exchangeRateRequired')))
       } else {
         callback()
       }
@@ -445,19 +445,19 @@ export default {
       },
       addRules: {
         currencyType: [
-          { required: true, message: '请输入币种英文简称', trigger: 'blur' }
+          { required: true, message: this.$t('currencyTypeReport.validation.currencyCodeRequired'), trigger: 'blur' }
         ],
         name: [
-          { required: true, message: '请输入币种名称', trigger: 'blur' }
+          { required: true, message: this.$t('currencyTypeReport.validation.currencyNameRequired'), trigger: 'blur' }
         ],
         icon: [
-          { required: true, message: '请输入币种符号', trigger: 'blur' }
+          { required: true, message: this.$t('currencyTypeReport.validation.currencySymbolRequired'), trigger: 'blur' }
         ],
         currencyAccuracy: [
-          { required: true, message: '请输入币种最小单位', trigger: 'blur' }
+          { required: true, message: this.$t('currencyTypeReport.validation.currencyAccuracyRequired'), trigger: 'blur' }
         ],
         exchangeRate: [
-          { validator: validateExchangeRate, message: '请输入对USDT汇率', trigger: 'blur' }
+          { validator: validateExchangeRate, message: this.$t('currencyTypeReport.validation.exchangeRateRequired'), trigger: 'blur' }
         ]
       },
       googleForm: {
@@ -465,17 +465,17 @@ export default {
       },
       googleRule: {
         googleCode: {
-          required: true, trigger: 'blur', message: 'googleCode is required'
+          required: true, trigger: 'blur', message: this.$t('common.googleCodeRequired')
         }
       },
       exchangeRateOptions: [
         {
           value: 1,
-          label: '实时汇率'
+          label: this.$t('currencyTypeReport.rateMode.live')
         },
         {
           value: 2,
-          label: '固定汇率'
+          label: this.$t('currencyTypeReport.rateMode.fixed')
         }
       ],
     }
@@ -519,17 +519,17 @@ export default {
             this.$refs.addFormRef?.resetFields();
             this.refreshCurrencyOptions();
             this.$notify({
-              title: 'Success',
+              title: this.$t('common.success'),
               type: 'success',
-              message: '新增币种成功',
+              message: this.$t('currencyTypeReport.message.addSuccess'),
               duration: 3000,
               position: 'bottom-right'
             })
           } else {
             this.$notify({
-              title: 'Failed',
+              title: this.$t('common.failed'),
               type: 'error',
-              message: res.data.message || '新增币种失败',
+              message: res.data.message || this.$t('currencyTypeReport.message.addFailed'),
               duration: 3000,
               position: 'bottom-right'
             })
@@ -616,7 +616,7 @@ export default {
           }
         } else if (response.data.code !==0) {
           this.$notify({
-            title: 'Error',
+            title: this.$t('common.error'),
             message: response.data.message,
             duration: 3000,
             type: 'error',
@@ -624,8 +624,8 @@ export default {
           })
         } else {
           this.$notify({
-            title: 'Error',
-            message: 'Some error occurred.',
+            title: this.$t('common.error'),
+            message: this.$t('common.requestFailed'),
             duration: 3000,
             type: 'error',
             position: 'bottom-right'
@@ -649,7 +649,7 @@ export default {
         this.filterbox.endTime = getTodayStartTimestamp() + 86399
       }
       exportCurrencyReport(this.filterbox).then(async res => {
-          const fileName = this.$t('exportMerchantReportName') + getFormateTime()
+          const fileName = this.$t('exportCurrencyReportName') + getFormateTime()
          await exportExcel(res, fileName, this)
       }).catch(err => {
           console.log(err)

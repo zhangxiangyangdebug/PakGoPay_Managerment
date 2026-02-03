@@ -5,7 +5,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 
 <template>
 <div class="main-title">
-  代收测试
+  {{ $t('collectingTest.title') }}
 </div>
 
   <div class="main-views-container" style="background-color: white;height: 80%;">
@@ -15,9 +15,9 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-col :span="24">
             <el-form-item>
               <template #label>
-                <span class="form-label" style="width: 150px;"><SvgIcon name="must"/>选择商户:</span>
+                <span class="form-label" style="width: 150px;"><SvgIcon name="must"/>{{ $t('collectingTest.label.merchant') }}</span>
               </template>
-                <el-select v-model="apiTestInfo.selectedMerchant" placeholder="请选择商户">
+                <el-select v-model="apiTestInfo.selectedMerchant" :placeholder="$t('collectingTest.placeholder.merchant')">
                   <el-option
                       v-for="item in merchantInfos"
                       :value="item.value"
@@ -33,7 +33,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             <el-col>
               <el-form-item>
                 <template #label>
-                  <span class="form-label" style="width: 150px;"><SvgIcon name="must"/>代收金额:</span>
+                  <span class="form-label" style="width: 150px;"><SvgIcon name="must"/>{{ $t('collectingTest.label.amount') }}</span>
                 </template>
                 <el-input v-model="apiTestInfo.collectingAmount" type="number" min="1" style="width: 300px;"/>
               </el-form-item>
@@ -44,9 +44,9 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-col :span="24">
             <el-form-item>
               <template #label>
-                <span class="form-label" style="width: 150px;"><SvgIcon name="must"/>选择通道:</span>
+                <span class="form-label" style="width: 150px;"><SvgIcon name="must"/>{{ $t('collectingTest.label.channel') }}</span>
               </template>
-              <el-select v-model="apiTestInfo.selectedPathChannel" placeholder="请选择通道">
+              <el-select v-model="apiTestInfo.selectedPathChannel" :placeholder="$t('collectingTest.placeholder.channel')">
                 <el-option
                     v-for="item in pathChannelInfos"
                     :value="item.value"
@@ -62,9 +62,9 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             <el-col>
               <el-form-item>
                 <template #label>
-                  <span class="form-label" style="width: 150px;"><SvgIcon name="must"/>付款人姓名:</span>
+                  <span class="form-label" style="width: 150px;"><SvgIcon name="must"/>{{ $t('collectingTest.label.payerName') }}</span>
                 </template>
-                <el-input v-model="apiTestInfo.payerName" type="text" min="1" style="width: 300px;" placeholder="请输入付款人姓名"/>
+                <el-input v-model="apiTestInfo.payerName" type="text" min="1" style="width: 300px;" :placeholder="$t('collectingTest.placeholder.payerName')"/>
               </el-form-item>
             </el-col>
           </el-col>
@@ -74,9 +74,9 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             <el-col>
               <el-form-item>
                 <template #label>
-                  <span class="form-label" style="width: 150px;">回调地址:</span>
+                  <span class="form-label" style="width: 150px;">{{ $t('collectingTest.label.callbackUrl') }}</span>
                 </template>
-                <el-input v-model="apiTestInfo.callbackURL" type="text" min="1" style="width: 300px;" placeholder="请输入回调地址">
+                <el-input v-model="apiTestInfo.callbackURL" type="text" min="1" style="width: 300px;" :placeholder="$t('collectingTest.placeholder.callbackUrl')">
                   <template #prefix>https://</template>
                 </el-input>
               </el-form-item>
@@ -88,9 +88,9 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             <el-col>
               <el-form-item>
                 <template #label>
-                  <span class="form-label" style="width: 150px;">下单IP:</span>
+                  <span class="form-label" style="width: 150px;">{{ $t('collectingTest.label.requestIp') }}</span>
                 </template>
-                <el-input v-model="apiTestInfo.requestIP" type="text" min="1" style="width: 300px;" placeholder="请输入下单IP"/>
+                <el-input v-model="apiTestInfo.requestIP" type="text" min="1" style="width: 300px;" :placeholder="$t('collectingTest.placeholder.requestIp')"/>
               </el-form-item>
             </el-col>
           </el-col>
@@ -99,11 +99,11 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-col :span="24">
             <el-form-item>
               <template #label>
-                <span class="form-label" style="width: 150px;">返回方式:</span>
+                <span class="form-label" style="width: 150px;">{{ $t('collectingTest.label.responseType') }}</span>
               </template>
               <el-radio-group v-model="apiTestInfo.responseType" style="width: 300px;">
-                <el-radio :label="1">跳转收营台</el-radio>
-                <el-radio :label="2">返回json</el-radio>
+                <el-radio :label="1">{{ $t('collectingTest.option.redirect') }}</el-radio>
+                <el-radio :label="2">{{ $t('collectingTest.option.json') }}</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
@@ -111,8 +111,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       </el-form>
     </div>
     <div style="background-color: white; display: flex;justify-content: space-between;align-items: center;width: 100%;border-top: solid 2px gray;height: 100px;">
-      <el-button style="margin-left: 30%;color: dodgerblue;display: flex" @click="reset">重置</el-button>
-      <el-button style="margin-right: 30%;color: dodgerblue;display: flex">提交</el-button>
+      <el-button style="margin-left: 30%;color: dodgerblue;display: flex" @click="reset">{{ $t('common.reset') }}</el-button>
+      <el-button style="margin-right: 30%;color: dodgerblue;display: flex">{{ $t('common.submit') }}</el-button>
     </div>
   </div>
 </template>
@@ -147,19 +147,19 @@ export default {
     //加载商户信息/通道信息
     this.merchantInfos = [{
       value: '001',
-      label: '商户一'
+      label: this.$t('collectingTest.merchant.sample1')
     },
       {
         value: '002',
-        label: '商户二'
+        label: this.$t('collectingTest.merchant.sample2')
       }],
     this.pathChannelInfos = [{
       value: '001',
-      label: 'weChat'
+      label: this.$t('collectingTest.channel.wechat')
     },
       {
         value: '002',
-        label: 'aliPay'
+        label: this.$t('collectingTest.channel.alipay')
       }],
     this.apiTestInfo.responseType = 2
   }

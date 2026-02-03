@@ -1,7 +1,6 @@
 <script setup>
 import '@/api/common.css'
 import SvgIcon from "@/components/SvgIcon/index.vue";
-import merchantReport from "@/views/pages/MerchantReport.vue";
 import {getFormateDate} from "@/api/common.js";
 
 </script>
@@ -198,9 +197,9 @@ export default {
                this.statisticsInfo.payingCard = true
                this.statisticsInfo.collectionCard = false
              }
-         } else if (response.status === 200 && response.data.code !==0) {
+        } else if (response.status === 200 && response.data.code !==0) {
            this.$notify({
-             title: 'Error',
+             title: this.$t('common.error'),
              message: response.data.message,
              duration: 3000,
              type: 'error',
@@ -208,8 +207,8 @@ export default {
            })
          } else {
            this.$notify({
-             title: 'Error',
-             message: 'Some error occurred.',
+             title: this.$t('common.error'),
+             message: this.$t('common.requestFailed'),
              duration: 3000,
              type: 'error',
              position: 'bottom-right'
@@ -268,52 +267,52 @@ export default {
 }
 </script>
 <template>
-  <div class="main-title">渠道报表</div>
+  <div class="main-title">{{ $t('channelReport.title') }}</div>
   <el-collapse v-model="activeTool">
     <el-collapse-item name="1">
       <template #title>
         <span class="toolbarName">
-          工具栏
+          {{ $t('common.toolbar') }}
         </span>
       </template>
       <div class="main-toolbar">
         <el-form class="main-toolform" ref="filterForm" :model="filterbox">
           <el-row style="display: flex;justify-content: center;align-items: center;">
             <el-col :span="8">
-              <el-form-item label="渠道:" label-width="150px" prop="channelId">
+              <el-form-item :label="$t('channelReport.filter.channel')" label-width="150px" prop="channelId">
                 <el-select
                   :options="channelOptions"
                   :props="channelProps"
-                  placeholder="请选择渠道"
+                  :placeholder="$t('channelReport.placeholder.channel')"
                   v-model="filterbox.channelId"
                   style="width: 250px;text-align: center;"
                 />
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="时间范围:" label-width="150px" prop="filterDateRange">
+              <el-form-item :label="$t('common.timeRange')" label-width="150px" prop="filterDateRange">
                 <div style="display: flex; flex-direction: row;">
                   <el-date-picker
                       v-model="filterbox.filterDateRange"
                       type="daterange"
-                      range-separator="至"
-                      start-placeholder="开始日期"
-                      end-placeholder="结束日期"
+                      :range-separator="$t('common.rangeSeparator')"
+                      :start-placeholder="$t('common.startDate')"
+                      :end-placeholder="$t('common.endDate')"
                       format="YYYY/MM/DD"
                       value-format="x"
                   >
                   </el-date-picker>
                   <el-button @click="reset('filterForm')" class="filterButton">
                     <SvgIcon class="filterButtonSvg" name="reset"/>
-                    <div>重置</div>
+                    <div>{{ $t('common.reset') }}</div>
                   </el-button>
                   <el-button @click="filterSearch()" class="filterButton">
                     <SvgIcon class="filterButtonSvg" name="search"/>
-                    <div>查询</div>
+                    <div>{{ $t('common.query') }}</div>
                   </el-button>
                   <el-button @click="exportChannelInfo" class="filterButton">
                     <SvgIcon class="filterButtonSvg" name="export"/>
-                    <div>导出</div>
+                    <div>{{ $t('common.export') }}</div>
                   </el-button>
                 </div>
 
@@ -326,7 +325,7 @@ export default {
   </el-collapse>
   <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0">
     <div style="display: flex;flex-direction: column;gap: 6px;margin-left: 2%;width: 96%;">
-      <span style="color: black;font-size: small;">统计币种:</span>
+      <span style="color: black;font-size: small;">{{ $t('channelReport.currencyLabel') }}</span>
       <el-tabs
           v-model="filterbox.currency"
           type="card"
@@ -346,7 +345,7 @@ export default {
       <div class="statistics-form-item">
         <SvgIcon name="tixian" width="100px" height="100px"/>
         <div style="display: flex; flex-direction: column;width: 80%;">
-          <span style="text-align: left;font-size: x-large">代收金额:</span>
+          <span style="text-align: left;font-size: x-large">{{ $t('channelReport.statistics.collectionAmount') }}</span>
           <textarea v-model="statisticsInfo.collectionChannelAmount" disabled class="cash-text-area"></textarea>
         </div>
       </div>
@@ -356,7 +355,7 @@ export default {
       <div class="statistics-form-item">
         <SvgIcon name="paying" width="90px" height="90px"/>
         <div style="display: flex; flex-direction: column;width: 80%;">
-          <span style="text-align: left;font-size: x-large">代付总金额:</span>
+          <span style="text-align: left;font-size: x-large">{{ $t('channelReport.statistics.payoutAmount') }}</span>
           <textarea v-model="statisticsInfo.payingChannelAmount" disabled class="cash-text-area"></textarea>
         </div>
       </div>
@@ -364,12 +363,12 @@ export default {
   </div>
   <div class="reportInfo">
     <el-tabs @tab-click="handleTabClick" v-model="activeTabPane">
-      <el-tab-pane label="代收">
+      <el-tab-pane :label="$t('channelReport.tab.collection')">
         <form id="reportInfoTable" class="reportInfoForm">
           <el-table style="width: 100%; height: 100%;" border :data="collectionChannelInfo" class="reportInfo-table1">
             <el-table-column
                 prop="channelName"
-                label="渠道名称"
+                :label="$t('channelReport.column.channelName')"
                 align="center"
                 v-slot="{row}"
             >
@@ -377,7 +376,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="orderQuantity"
-                label="代收订单总数"
+                :label="$t('channelReport.column.collectionOrderTotal')"
                 align="center"
                 v-slot="{row}"
             >
@@ -385,7 +384,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="collectionChannelFailureOrderNumber"
-                label="代收失败订单数"
+                :label="$t('channelReport.column.collectionFailed')"
                 align="center"
                 v-slot="{row}"
             >
@@ -393,7 +392,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="collectionChannelSuccessOrderNumber"
-                label="代收成功订单数"
+                :label="$t('channelReport.column.collectionSuccess')"
                 align="center"
                 v-slot="{row}"
             >
@@ -401,7 +400,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="collectionChannelSuccessRate"
-                label="代收订单成功率"
+                :label="$t('channelReport.column.collectionSuccessRate')"
                 align="center"
                 v-slot="{row}"
             >
@@ -409,7 +408,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="collectionChannelMerchantCommission"
-                label="代收商户手续费"
+                :label="$t('channelReport.column.collectionMerchantFee')"
                 align="center"
                 v-slot="{row}"
             >
@@ -417,7 +416,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="collectionChannelProfit"
-                label="平台手续费"
+                :label="$t('channelReport.column.platformFee')"
                 align="center"
                 v-slot="{row}"
             >
@@ -425,7 +424,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="recordDate"
-                label="时间"
+                :label="$t('channelReport.column.recordDate')"
                 align="center"
                 v-slot="{row}"
             >
@@ -446,12 +445,12 @@ export default {
           </el-pagination>
         </form>
       </el-tab-pane>
-      <el-tab-pane label="代付">
+      <el-tab-pane :label="$t('channelReport.tab.payout')">
         <form id="reportInfoTable" class="reportInfoForm">
           <el-table style="width: 100%; height: 100%;" border :data="payingChannelInfo" class="reportInfo-table2">
             <el-table-column
                 prop="channelName"
-                label="渠道名称"
+                :label="$t('channelReport.column.channelName')"
                 align="center"
                 v-slot="{row}"
             >
@@ -459,7 +458,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="orderQuantity"
-                label="代付订单总数"
+                :label="$t('channelReport.column.payoutOrderTotal')"
                 align="center"
                 v-slot="{row}"
             >
@@ -467,7 +466,7 @@ export default {
             </el-table-column>
             <el-table-column
               prop="failureQuantity"
-                label="代付失败订单数"
+                :label="$t('channelReport.column.payoutFailed')"
                 align="center"
                 v-slot="{row}"
             >
@@ -475,7 +474,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="successQuantity"
-                label="代付成功订单数"
+                :label="$t('channelReport.column.payoutSuccess')"
                 align="center"
                 v-slot="{row}"
             >
@@ -483,7 +482,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="orderSuccessRate"
-                label="代收订单成功率"
+                :label="$t('channelReport.column.payoutSuccessRate')"
                 align="center"
                 v-slot="{row}"
             >
@@ -491,7 +490,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="merchantFee"
-                label="代付商户手续费"
+                :label="$t('channelReport.column.payoutMerchantFee')"
                 align="center"
                 v-slot="{row}"
             >
@@ -499,7 +498,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="orderBalance"
-                label="平台手续费"
+                :label="$t('channelReport.column.platformFee')"
                 align="center"
                 v-slot="{row}"
             >
@@ -507,7 +506,7 @@ export default {
             </el-table-column>
             <el-table-column
               prop="time"
-              label="时间"
+              :label="$t('channelReport.column.recordDate')"
               align="center"
               v-slot="{row}"
             >

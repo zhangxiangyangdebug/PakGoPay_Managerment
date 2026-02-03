@@ -44,8 +44,8 @@ import {getAsyncRoutes} from "@/router/asyncRouter.js";
                 return
               }
               this.heartPrompting = true
-              ElMessageBox.confirm('页面已过期，点击确定刷新', '提示', {
-                confirmButtonText: '确定',
+              ElMessageBox.confirm(this.$t('app.sessionExpired'), this.$t('common.prompt'), {
+                confirmButtonText: this.$t('common.confirm'),
                 showCancelButton: false,
                 type: 'warning'
               }).then(() => {

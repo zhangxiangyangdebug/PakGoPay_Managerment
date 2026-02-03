@@ -11,7 +11,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       <el-collapse-item>
         <template #title>
         <span class="toolbarName">
-          工具栏
+          {{ $t('common.toolbar') }}
         </span>
         </template>
         <div class="main-toolbar" style="height: auto;flex-direction: column;position: relative;">
@@ -21,22 +21,22 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           >
             <el-row style="width: 90%;">
               <el-col :span="8" style="display: flex;justify-content: center;align-items: center;">
-                <el-form-item label="商户名称:" style="height: 30px;"><el-input placeholder="商户名称" v-model="filterbox.merchantName" style="width: 200px;display: flex;text-align: center"/></el-form-item>
+                <el-form-item :label="$t('merchantRecharge.filter.merchantName')" style="height: 30px;"><el-input :placeholder="$t('merchantRecharge.placeholder.merchantName')" v-model="filterbox.merchantName" style="width: 200px;display: flex;text-align: center"/></el-form-item>
               </el-col>
               <el-col :span="16" style="display: flex;justify-content: center;align-items: center;">
                 <el-form-item style="height: 30px;">
                   <template #label>
-                    <span>时间范围:</span>
+                    <span>{{ $t('common.timeRange') }}</span>
                   </template>
                   <el-date-picker
                       v-model="filterbox.timeRage"
                       type="datetimerange"
                       value-format="yyyy-MM-dd HH:mm:ss"
-                      placeholder="选择日期时间"
+                      :placeholder="$t('merchantRecharge.placeholder.dateTime')"
                       style="width: 400px"
                   >
                   </el-date-picker>
-                  <el-button style="width: 80px;display: flex;align-items: center;background-color: deepskyblue;color: black"><SvgIcon name="search" style="width: 20px;height: 20px"/>查询</el-button>
+                  <el-button style="width: 80px;display: flex;align-items: center;background-color: deepskyblue;color: black"><SvgIcon name="search" style="width: 20px;height: 20px"/>{{ $t('common.query') }}</el-button>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -49,7 +49,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
     <div class="main-views-container" style="margin-top: 3%;height: 70%;width:95%;margin-left: 1%;">
       <div style="display: flex;position: relative;float: right">
         <el-button style="background-color: mediumseagreen" @click="rechargeAccount">
-          <SvgIcon name="withdrawl"/>充值
+          <SvgIcon name="withdrawl"/>{{ $t('merchantRecharge.action.recharge') }}
         </el-button>
       </div>
       <el-table
@@ -58,42 +58,42 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           border
       >
         <el-table-column
-            label="商户名称"
+            :label="$t('merchantRecharge.column.merchantName')"
             align="center"
             v-slot="{row}"
         >
           <div>{{row.merchantName}}</div>
         </el-table-column>
         <el-table-column
-            label="充值金额"
+            :label="$t('merchantRecharge.column.rechargeAmount')"
             align="center"
             v-slot="{row}"
         >
           <div>{{row.rechargeAmount}}</div>
         </el-table-column>
         <el-table-column
-            label="充值前余额"
+            :label="$t('merchantRecharge.column.beforeBalance')"
             align="center"
             v-slot="{row}"
         >
           <div>{{row.beforeBalance}}</div>
         </el-table-column>
         <el-table-column
-            label="充值后余额"
+            :label="$t('merchantRecharge.column.afterBalance')"
             align="center"
             v-slot="{row}"
         >
           <div>{{row.afterBalance}}</div>
         </el-table-column>
         <el-table-column
-            label="充值时间"
+            :label="$t('merchantRecharge.column.rechargeTime')"
             align="center"
             v-slot="{row}"
         >
           <div>{{row.rechargeTime}}</div>
         </el-table-column>
         <el-table-column
-            label="操作员"
+            :label="$t('merchantRecharge.column.operator')"
             align="center"
             v-slot="{row}"
         >
@@ -128,10 +128,10 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       <div class="el-form-line">
         <el-row style="display: flex;justify-content: center;">
           <el-col :span="24" style="display: flex;justify-content: center;">
-            <el-form-item label="充值商户:" label-width="150px"  prop="merchantName">
+            <el-form-item :label="$t('merchantRecharge.form.merchantName')" label-width="150px"  prop="merchantName">
               <el-autocomplete
                   v-model="rechargeAccountInfo.merchantName"
-                  placeholder="输入商户名称"
+                  :placeholder="$t('merchantRecharge.placeholder.merchantName')"
                   :fetch-suggestions="getOperators"
                   @select="handleSelect"
                   style="width: 200px"
@@ -141,23 +141,23 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </el-row>
         <el-row style="display: flex;justify-content: center;">
           <el-col :span="24" style="display: flex;justify-content: center;">
-            <el-form-item label="充值金额:" label-width="150px"  prop="rechargeAmount">
-              <el-input type="number" v-model="rechargeAccountInfo.rechargeAmount" placeholder="input recharge amount" style="width: 200px"/>
+            <el-form-item :label="$t('merchantRecharge.form.rechargeAmount')" label-width="150px"  prop="rechargeAmount">
+              <el-input type="number" v-model="rechargeAccountInfo.rechargeAmount" :placeholder="$t('merchantRecharge.placeholder.rechargeAmount')" style="width: 200px"/>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row style="display: flex;justify-content: center;">
           <el-col :span="24" style="display: flex;justify-content: center;">
-            <el-form-item label="谷歌验证码:" label-width="150px"  prop="googleCode">
-              <el-input oninput="if(value.length>6)value=value.slice(0,6)" type="number" v-model="rechargeAccountInfo.googleCode" placeholder="input google verify code" style="width: 200px"/>
+            <el-form-item :label="$t('common.googleCode')" label-width="150px"  prop="googleCode">
+              <el-input oninput="if(value.length>6)value=value.slice(0,6)" type="number" v-model="rechargeAccountInfo.googleCode" :placeholder="$t('common.placeholder.googleCode')" style="width: 200px"/>
             </el-form-item>
           </el-col>
         </el-row>
       </div>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="cancelDialog">取 消</el-button>
-      <el-button type="primary" @click="submit('rechargeAccountInfo')">确 定</el-button>
+      <el-button @click="cancelDialog">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="submit('rechargeAccountInfo')">{{ $t('common.confirm') }}</el-button>
     </div>
   </el-dialog>
 </template>
@@ -181,13 +181,13 @@ export default {
       dialogFormVisible: false,
       rules: {
         merchantName: [
-          {required: true, message: ' please input merchantName', trigger: 'blur' },
+          {required: true, message: this.$t('merchantRecharge.validation.merchantRequired'), trigger: 'blur' },
         ],
         rechargeAmount: [
-            {required: true, message: ' please input recharge amount', trigger: 'blur' },
+            {required: true, message: this.$t('merchantRecharge.validation.amountRequired'), trigger: 'blur' },
         ],
         googleCode: [
-            {required: true, message: ' please input google verify code', trigger: 'blur' },
+            {required: true, message: this.$t('common.googleCodeRequired'), trigger: 'blur' },
         ]
       }
     }
@@ -195,11 +195,11 @@ export default {
   mounted() {
     const merchantInfos = [
       {
-        value: '商户一',
+        value: this.$t('merchantRecharge.merchant.sample1'),
         merchantAccount: '123123'
       },
       {
-        value: '商户二',
+        value: this.$t('merchantRecharge.merchant.sample2'),
         merchantAccount: '121212'
       }
     ]
@@ -213,7 +213,7 @@ export default {
 
     },
     rechargeAccount() {
-      this.dialogTitle="充值"
+      this.dialogTitle = this.$t('merchantRecharge.dialog.title')
       this.dialogFormVisible = true
     },
     getOperators(queryString, cb) {
@@ -255,8 +255,8 @@ export default {
 
         } else {
           this.$notify({
-            title: '错误',
-            message: 'please check your typed info',
+            title: this.$t('common.error'),
+            message: this.$t('merchantRecharge.message.checkForm'),
             type: 'error',
             position: 'bottom-right'
           });

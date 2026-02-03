@@ -4,7 +4,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 </script>
 
 <template>
-  <div class="main-title">代理账号</div>
+  <div class="main-title">{{ $t('withdrawlHistory.title') }}</div>
   <!--  <div style="display: flex;height: 12vh;justify-content: space-between;margin-right: 10%;margin-left: 10%;">
       <el-card style="width: 30%;height: 100%;margin-top: 2%;">
         <div style="display: flex;">
@@ -38,7 +38,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
     <el-collapse-item name="1">
       <template #title>
          <span class="toolbarName">
-          工具栏
+          {{ $t('common.toolbar') }}
         </span>
       </template>
       <div class="main-toolbar" style="height: auto;">
@@ -46,13 +46,13 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                  :model="filterbox">
           <el-row>
             <el-col :span="7">
-              <el-form-item label="创建时间:" label-width="150px" prop="filterDateRange">
+              <el-form-item :label="$t('withdrawlHistory.filter.createTime')" label-width="150px" prop="filterDateRange">
                 <el-date-picker
                     v-model="filterbox.filterDateRange"
                     type="daterange"
-                    range-separator="至"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
+                    :range-separator="$t('common.rangeSeparator')"
+                    :start-placeholder="$t('common.startDate')"
+                    :end-placeholder="$t('common.endDate')"
                     format="YYYY/MM/DD"
                     value-format="x"
                     clearable
@@ -61,22 +61,22 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               </el-form-item>
             </el-col>
             <el-col :span="7">
-              <el-form-item label="收款账号地址:" label-width="150px" prop="walletAddr">
-                <el-input style="width: 200px" v-model="filterbox.walletAddr" placeholder="收款账号地址"/>
+              <el-form-item :label="$t('withdrawlHistory.filter.walletAddr')" label-width="150px" prop="walletAddr">
+                <el-input style="width: 200px" v-model="filterbox.walletAddr" :placeholder="$t('withdrawlHistory.placeholder.walletAddr')"/>
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="代理名称:" label-width="150px" prop="name">
+              <el-form-item :label="$t('withdrawlHistory.filter.agentName')" label-width="150px" prop="name">
                 <div style="display: flex;flex-direction: row">
-                  <el-input v-model="filterbox.name" clearable type="text" placeholder="代理名称" style="width:300px">
+                  <el-input v-model="filterbox.name" clearable type="text" :placeholder="$t('withdrawlHistory.placeholder.agentName')" style="width:300px">
                   </el-input>
                   <el-button class="filterButton" @click="reset('filteboxForm')">
                     <SvgIcon class="filterButtonSvg" name="search"/>
-                    <div>重置</div>
+                    <div>{{ $t('common.reset') }}</div>
                   </el-button>
                   <el-button class="filterButton" @click="search">
                     <SvgIcon class="filterButtonSvg" name="search"/>
-                    <div>搜索</div>
+                    <div>{{ $t('common.search') }}</div>
                   </el-button>
                 </div>
               </el-form-item>
@@ -125,11 +125,11 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       </el-button>-->
       <el-button @click="addWithdrawlAccount" class="filterButton">
         <SvgIcon name="add" class="filterButtonSvg"/>
-        新增
+        {{ $t('withdrawlHistory.action.addAccount') }}
       </el-button>
       <el-button @click="createWithdrawlApply" class="filterButton">
         <SvgIcon name="withdrawl" class="filterButtonSvg"/>
-        提现申请
+        {{ $t('withdrawlHistory.action.withdrawApply') }}
       </el-button>
       <el-button @click="createManualAccountAdjustment" class="filterButton">
         <template #icon>
@@ -137,7 +137,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             <SvgIcon class="filterButtonSvg" name="manualaccountadjustment"/>
           </div>
         </template>
-        <div>手工调账</div>
+        <div>{{ $t('withdrawlHistory.action.manualAdjust') }}</div>
       </el-button>
     </div>
     <form class="main-views-form" style="height: 100%">
@@ -149,35 +149,35 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       >
         <el-table-column
             v-slot="{row}"
-            label="代理名称"
+            :label="$t('withdrawlHistory.column.agentName')"
             align="center"
         >
           <div>{{ row.name }}</div>
         </el-table-column>
         <el-table-column
             v-slot="{row}"
-            label="代理账号"
+            :label="$t('withdrawlHistory.column.agentAccount')"
             align="center"
         >
           <div>{{ row.userName }}</div>
         </el-table-column>
         <el-table-column
             v-slot="{row}"
-            label="代理钱包"
+            :label="$t('withdrawlHistory.column.walletName')"
             align="center"
         >
           <div>{{ row.walletName }}</div>
         </el-table-column>
         <el-table-column
             v-slot="{row}"
-            label="代理钱包地址"
+            :label="$t('withdrawlHistory.column.walletAddr')"
             align="center"
         >
           <div>{{ row.walletAddr }}</div>
         </el-table-column>
         <el-table-column
             v-slot="{row}"
-            label="账号启用状态"
+            :label="$t('withdrawlHistory.column.status')"
             align="center"
         >
           <div>
@@ -185,8 +185,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                 v-model="row.status"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
-                active-text="启用"
-                inactive-text="停用"
+                :active-text="$t('common.enable')"
+                :inactive-text="$t('common.disable')"
                 :active-value="1"
                 :inactive-value="0"
                 disabled
@@ -195,30 +195,30 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </el-table-column>
         <el-table-column
             v-slot="{row}"
-            label="录入时间"
+            :label="$t('withdrawlHistory.column.createTime')"
             align="center"
         >
           <div>{{ formatTimeByZone(row.createTime) }}</div>
         </el-table-column>
         <el-table-column
             v-slot="{row}"
-            label="创建人"
+            :label="$t('withdrawlHistory.column.creator')"
             align="center"
         >
           <div>{{ row.createBy }}</div>
         </el-table-column>
         <el-table-column
             v-slot="{row}"
-            label="操作"
+            :label="$t('common.operation')"
             align="center"
         >
           <el-dropdown trigger="click">
             <SvgIcon name="more" width="30" height="30"/>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item @click="editAgentAccount(row)">编辑</el-dropdown-item>
-                <el-dropdown-item v-if="row.status === 0" @click="startAgentAccount(row)">启用</el-dropdown-item>
-                <el-dropdown-item v-if="row.status === 1" @click="stopAgentAccount(row)">停用</el-dropdown-item>
+                <el-dropdown-item @click="editAgentAccount(row)">{{ $t('common.edit') }}</el-dropdown-item>
+                <el-dropdown-item v-if="row.status === 0" @click="startAgentAccount(row)">{{ $t('common.enable') }}</el-dropdown-item>
+                <el-dropdown-item v-if="row.status === 1" @click="stopAgentAccount(row)">{{ $t('common.disable') }}</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -251,7 +251,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
              style="margin-top: 8%;">
       <el-col v-if="dialogType === 'create'" :span="24" class="addDialog">
         <el-form-item
-            label="代理名称:"
+            :label="$t('withdrawlHistory.form.agentName')"
             label-width="150px"
             prop="merchantAgentId"
         >
@@ -261,13 +261,13 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               :options="agentOptions"
               :props="agentProps"
               style="width: 200px"
-              placeholder="select agent"
+              :placeholder="$t('withdrawlHistory.placeholder.agentSelect')"
           />
         </el-form-item>
       </el-col>
       <el-col v-if="dialogType !== 'start' && dialogType !== 'stop'" :span="24" class="addDialog">
         <el-form-item
-            label="钱包名称:"
+            :label="$t('withdrawlHistory.form.walletName')"
             label-width="150px"
             prop="walletName"
         >
@@ -276,7 +276,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       </el-col>
       <el-col v-if="dialogType !== 'start' && dialogType !== 'stop'" :span="24" class="addDialog">
         <el-form-item
-            label="收款账号:"
+            :label="$t('withdrawlHistory.form.walletAddr')"
             label-width="150px"
             prop="walletAddr"
         >
@@ -294,7 +294,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             </el-col>-->
       <el-col v-if="dialogType !== 'start' && dialogType !== 'stop'" :span="24" class="addDialog">
         <el-form-item
-            label="是否启用:"
+            :label="$t('withdrawlHistory.form.status')"
             label-width="150px"
             prop="walletName"
         >
@@ -302,8 +302,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               v-model="createAgentAccountModel.status"
               active-color="#13ce66"
               inactive-color="#ff4949"
-              active-text="启用"
-              inactive-text="关闭"
+              :active-text="$t('common.enable')"
+              :inactive-text="$t('common.close')"
               :active-value="1"
               :inactive-value="0"
               style="width: 200px"
@@ -314,7 +314,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       </el-col>
       <el-col :span="24" class="addDialog">
         <el-form-item
-            label="谷歌验证码:"
+            :label="$t('common.googleCode')"
             label-width="150px"
             prop="googleCode"
         >
@@ -323,8 +323,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       </el-col>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="cancelDialog('createAccountForm')">取 消</el-button>
-      <el-button type="primary" @click="submit('createAccountForm')">确 定</el-button>
+      <el-button @click="cancelDialog('createAccountForm')">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="submit('createAccountForm')">{{ $t('common.confirm') }}</el-button>
     </div>
   </el-dialog>
   <!-- withdraw dialog -->
@@ -339,7 +339,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
     <el-form :model="withdrawOrderInfo" label-width="100%" class="form" ref="withdrawOrderInfoForm"
              :rules="withdrawOrderRule">
       <div class="el-form-line">
-        <el-form-item label="代理名称:" label-width="150px" prop="merchantAgentId">
+        <el-form-item :label="$t('withdrawlHistory.form.agentName')" label-width="150px" prop="merchantAgentId">
           <el-select
               :options="agentOptions"
               :props="agentProps"
@@ -352,7 +352,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </el-form-item>
       </div>
       <div class="el-form-line">
-        <el-form-item label="币种:" label-width="150px" prop="availableAmount">
+        <el-form-item :label="$t('common.currency')" label-width="150px" prop="availableAmount">
           <el-select v-model="withdrawOrderInfo.currency" style="width: 200px"
                      :options="currencyOptions"
                      :props="currencyProps"
@@ -361,12 +361,12 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </el-form-item>
       </div>
       <div class="el-form-line">
-        <el-form-item label="可用余额:" label-width="150px" prop="availableAmount">
+        <el-form-item :label="$t('withdrawlHistory.form.availableAmount')" label-width="150px" prop="availableAmount">
           <el-input disabled v-model="withdrawOrderInfo.availableAmount" style="width: 200px"></el-input>
         </el-form-item>
       </div>
       <div class="el-form-line">
-        <el-form-item label="钱包地址:" label-width="150px" prop="walletAddr">
+        <el-form-item :label="$t('withdrawlHistory.form.walletAddr')" label-width="150px" prop="walletAddr">
           <el-select
               v-model="withdrawOrderInfo.walletAddr"
               style="width: 200px"
@@ -377,7 +377,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </el-form-item>
       </div>
       <div class="el-form-line">
-        <el-form-item label="提现金额:" label-width="150px" prop="amount">
+        <el-form-item :label="$t('withdrawlHistory.form.amount')" label-width="150px" prop="amount">
           <el-input type="number" v-model="withdrawOrderInfo.amount" style="width: 200px"/>
         </el-form-item>
       </div>
@@ -388,8 +388,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             </div>-->
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="cancelWithdraw('withdrawOrderInfoForm')">取 消</el-button>
-      <el-button type="primary" @click="submitWithdraw('withdrawOrderInfoForm')">确 定</el-button>
+      <el-button @click="cancelWithdraw('withdrawOrderInfoForm')">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="submitWithdraw('withdrawOrderInfoForm')">{{ $t('common.confirm') }}</el-button>
     </div>
   </el-dialog>
   <el-dialog
@@ -404,7 +404,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       <el-row>
         <el-col :span="24" style="display: flex;justify-content: center;justify-items: center;align-items: center;">
           <div>
-            <el-form-item label="谷歌验证码:" label-width="150px" prop="googleCode">
+            <el-form-item :label="$t('common.googleCode')" label-width="150px" prop="googleCode">
               <el-input v-model="confirmData.googleCode" style="width: 200px"/>
             </el-form-item>
           </div>
@@ -412,8 +412,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       </el-row>
     </el-form>
     <div slot="footer" class="dialog-footer" style="margin-right: 3%;height: 30px;">
-      <el-button @click="cancelConfirmDialog('confirmDataForm')">取 消</el-button>
-      <el-button type="primary" @click="submitConfirm('confirmDataForm')">确 定
+      <el-button @click="cancelConfirmDialog('confirmDataForm')">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="submitConfirm('confirmDataForm')">{{ $t('common.confirm') }}
       </el-button>
     </div>
   </el-dialog>
@@ -434,9 +434,9 @@ export default {
 
     const amountValidate = (rule, value, callback) => {
       if (!value || value === 0) {
-        callback(new Error("amount is required"));
+        callback(new Error(this.$t('withdrawlHistory.validation.amountRequired')));
       } else if (value > this.withdrawOrderInfo.availableAmount) {
-        callback(new Error("amount is more than your available amount"));
+        callback(new Error(this.$t('withdrawlHistory.validation.amountExceed')));
       } else {
         callback();
       }
@@ -493,16 +493,16 @@ export default {
       pageSizes: [10, 20, 50, 100, 200],
       createAccountRules: {
         merchantAgentId: {
-          required: true, messages: 'you need to select a merchant', trigger: 'blur'
+          required: true, messages: this.$t('withdrawlHistory.validation.agentRequired'), trigger: 'blur'
         },
         walletAddr: {
-          required: true, messages: 'you need to type walletAddr', trigger: 'blur'
+          required: true, messages: this.$t('withdrawlHistory.validation.walletAddrRequired'), trigger: 'blur'
         },
         walletName: {
-          required: true, messages: 'you need to type walletAddr', trigger: 'blur'
+          required: true, messages: this.$t('withdrawlHistory.validation.walletNameRequired'), trigger: 'blur'
         },
         googleCode: {
-          required: true, messages: 'you need to type walletAddr', trigger: 'blur'
+          required: true, messages: this.$t('common.googleCodeRequired'), trigger: 'blur'
         }
       },
       withdrawOrderRule: {
@@ -554,7 +554,7 @@ export default {
       }
       exportAgentAccount(this.filterbox).then(async res => {
         //const fileName = this.$t('exportPaymentReportName') + getFormateTime()
-        const fileName = '代理账号信息表' + getFormateTime()
+        const fileName = this.$t('withdrawlHistory.exportName') + getFormateTime()
         await exportExcel(res, fileName, this)
       })
     },
@@ -636,7 +636,7 @@ export default {
     },
     addWithdrawlAccount() {
       this.createAccountVisible = true
-      this.createAccountTitle = '新增代理账号'
+      this.createAccountTitle = this.$t('withdrawlHistory.dialog.addTitle')
       this.dialogType = 'create'
       this.submitType = 'create'
     },
@@ -648,14 +648,14 @@ export default {
         this.handleMerchantChange(this.withdrawOrderInfo.merchantAgentId)
       }
       this.dialogWithdrawVisible = true
-      this.dialogWithdrawTitle = '提现'
+      this.dialogWithdrawTitle = this.$t('withdrawlHistory.dialog.withdrawTitle')
       this.withdrawOrderInfo.orderType = 2
     },
     editAgentAccount(row) {
       this.createAgentAccountModel = {}
       this.createAgentAccountModel = row
       this.createAccountVisible = true
-      this.createAccountTitle = '修改'
+      this.createAccountTitle = this.$t('withdrawlHistory.dialog.editTitle')
       this.submitType = 'edit'
     },
     startAgentAccount(row) {
@@ -663,14 +663,14 @@ export default {
       this.createAgentAccountModel.status = 1
       this.dialogType = 'start'
       this.createAccountVisible = true
-      this.createAccountTitle = '启用账号'
+      this.createAccountTitle = this.$t('withdrawlHistory.dialog.enableTitle')
     },
     stopAgentAccount(row) {
       this.createAgentAccountModel = row
       this.createAgentAccountModel.status = 0
       this.dialogType = 'start'
       this.createAccountVisible = true
-      this.createAccountTitle = '停用账号'
+      this.createAccountTitle = this.$t('withdrawlHistory.dialog.disableTitle')
     },
     handleSizeChange(pageSize) {
       this.pageSize = pageSize;
@@ -698,15 +698,15 @@ export default {
                 this.submitType = ''
                 this.search()
                 this.$notify({
-                  title: 'Success',
-                  message: 'Create Account Successfully',
+                  title: this.$t('common.success'),
+                  message: this.$t('withdrawlHistory.message.createSuccess'),
                   duration: 3000,
                   position: 'bottom-right',
                   type: 'success'
                 })
               } else if (res.status === 200 && res.data.code !== 0) {
                 this.$notify({
-                  title: 'Error',
+                  title: this.$t('common.error'),
                   message: res.data.message,
                   duration: 3000,
                   position: 'bottom-right',
@@ -714,8 +714,8 @@ export default {
                 })
               } else {
                 this.$notify({
-                  title: 'Error',
-                  message: 'Create Account Failed',
+                  title: this.$t('common.error'),
+                  message: this.$t('common.requestFailed'),
                   duration: 3000,
                   position: 'bottom-right',
                   type: 'error'
@@ -731,8 +731,8 @@ export default {
                 this.$refs[form].resetFields()
                 this.submitType = ''
                 this.$notify({
-                  title: 'Success',
-                  message: 'Create Account Successfully',
+                  title: this.$t('common.success'),
+                  message: this.$t('withdrawlHistory.message.updateSuccess'),
                   duration: 3000,
                   position: 'bottom-right',
                   type: 'success'
@@ -740,7 +740,7 @@ export default {
                 this.search()
               } else if (res.status === 200 && res.data.code !== 0) {
                 this.$notify({
-                  title: 'Error',
+                  title: this.$t('common.error'),
                   message: res.data.message,
                   duration: 3000,
                   position: 'bottom-right',
@@ -748,8 +748,8 @@ export default {
                 })
               } else {
                 this.$notify({
-                  title: 'Error',
-                  message: 'Create Account Failed',
+                  title: this.$t('common.error'),
+                  message: this.$t('common.requestFailed'),
                   duration: 3000,
                   position: 'bottom-right',
                   type: 'error'
@@ -783,14 +783,18 @@ export default {
           this.dialogWithdrawVisible = false
           this.dialogWithdrawTitle = ''
           this.confirmData =  Object.assign({}, this.withdrawOrderInfo)
-          this.confirmDialogTitle = '谷歌验证'
+          this.confirmDialogTitle = this.$t('withdrawlHistory.dialog.confirmTitle')
           this.confirmDialogVisible = true
           this.$refs[form].resetFields()
         }
       })
     },
     submitConfirm(form) {
-      let orderMessage = form.orderType === 1 ? 'Recharge' : form.orderType === 2 ? 'Withdraw' : 'Manual Account Adjustment'
+      let orderMessage = form.orderType === 1
+        ? this.$t('withdrawlHistory.orderType.recharge')
+        : form.orderType === 2
+          ? this.$t('withdrawlHistory.orderType.withdraw')
+          : this.$t('withdrawlHistory.orderType.manualAdjust')
       this.$refs[form].validate(validate => {
         if (validate) {
           createStatementeOrderApply(this.confirmData).then(res => {
@@ -799,9 +803,9 @@ export default {
             if (res.status === 200 && res.data.code === 0) {
               this.$refs[form].resetFields()
               this.$notify({
-                title: 'Success',
+                title: this.$t('common.success'),
                 type: 'success',
-                message: 'Create '+orderMessage+' Order Successfully.',
+                message: this.$t('withdrawlHistory.message.orderCreateSuccess', { type: orderMessage }),
                 duration: 3000,
                 position: 'bottom-right'
               })
@@ -809,7 +813,7 @@ export default {
               this.getNewstMerchantInfo()
             } else if (res.status === 200 && res.data.code !== 0) {
               this.$notify({
-                title: 'Failed',
+                title: this.$t('common.error'),
                 type: 'error',
                 message: res.data.message,
                 duration: 3000,
@@ -817,9 +821,9 @@ export default {
               })
             } else {
               this.$notify({
-                title: 'Error',
+                title: this.$t('common.error'),
                 type: 'error',
-                message: 'somethind went wrong, try it again',
+                message: this.$t('common.requestFailed'),
                 duration: 3000,
                 position: 'bottom-right'
               })
@@ -840,7 +844,7 @@ export default {
           this.tableKey++
         } else if (res.status === 200 && res.data.code !== 0) {
           this.$notify({
-            title: 'Error',
+            title: this.$t('common.error'),
             type: 'error',
             message: res.data.message,
             duration: 3000,
@@ -848,9 +852,9 @@ export default {
           })
         } else {
           this.$notify({
-            title: 'Error',
+            title: this.$t('common.error'),
             type: 'error',
-            message: 'something wrong happened, try it again',
+            message: this.$t('common.requestFailed'),
             duration: 3000,
             position: "bottom-right"
           })
@@ -859,7 +863,7 @@ export default {
       }).catch(err => {
         loadingInstance !== null ? loadingInstance.close() : ''
         this.$notify({
-          title: 'Error',
+          title: this.$t('common.error'),
           type: 'error',
           message: err.message,
           duration: 3000,

@@ -59,6 +59,23 @@ export default {
     this.expandActiveMenu()
   },
   methods: {
+    normalizeMenuMetaTitle(item, titleKey) {
+      if (!item) {
+        return
+      }
+      let meta = null
+      if (item.meta) {
+        try {
+          meta = typeof item.meta === 'string' ? JSON.parse(item.meta) : item.meta
+        } catch (error) {
+          meta = null
+        }
+      }
+      if (!meta || !meta.title) {
+        meta = { ...(meta || {}), title: titleKey }
+        item.meta = JSON.stringify(meta)
+      }
+    },
     resolveMenuIcon(item) {
       const homePath = "/web/pakGoPay";
       if (Array.isArray(item?.children) && item.children.some(child => child.path === homePath)) {
@@ -68,26 +85,31 @@ export default {
     },
     ensureHomeMenu() {
       const homePath = "/web/pakGoPay";
-      const hasHome = this.menuItems.some(item =>
+      const homeItem = this.menuItems.find(item =>
         Array.isArray(item.children) && item.children.some(child => child.path === homePath)
-      );
-      if (hasHome) {
-        return;
+      )
+      if (homeItem) {
+        this.normalizeMenuMetaTitle(homeItem, 'route.home')
+        const homeChild = homeItem.children.find(child => child.path === homePath)
+        this.normalizeMenuMetaTitle(homeChild, 'route.home')
+      } else {
+        const homeMenu = {
+          menuId: "home",
+          menuName: this.$t('route.home'),
+          icon: "orderNum",
+          showItem: true,
+          meta: JSON.stringify({ title: "route.home" }),
+          children: [
+            {
+              menuId: "home-1",
+              menuName: this.$t('route.home'),
+              path: homePath,
+              meta: JSON.stringify({ title: "route.home" })
+            }
+          ]
+        };
+        this.menuItems.unshift(homeMenu);
       }
-      const homeMenu = {
-        menuId: "home",
-        menuName: "主页",
-        icon: "orderNum",
-        showItem: true,
-        children: [
-          {
-            menuId: "home-1",
-            menuName: "主页",
-            path: homePath
-          }
-        ]
-      };
-      this.menuItems.unshift(homeMenu);
       localStorage.setItem("menu", JSON.stringify(this.menuItems));
     },
     /*async fetchMenu() {
@@ -145,6 +167,9 @@ export default {
   watch: {
     '$route.path'() {
       this.expandActiveMenu()
+    },
+    '$i18n.locale'() {
+      this.ensureHomeMenu()
     }
   }
 }

@@ -11,11 +11,11 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       <el-row style="display: flex;justify-content: space-between;">
         <el-form-item style="display: flex;justify-content: center;color: deepskyblue">
           <template #label>
-            <span>币种:</span>
+            <span>{{ $t('currencyTypeList.filter.currency') }}</span>
           </template>
           <el-select
               v-model="filterbox.id"
-              placeholder="请选择币种"
+              :placeholder="$t('currencyTypeList.placeholder.currency')"
               style="width: 150px;"
               clearable
               :props="currencyProps"
@@ -23,14 +23,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               filterable
           >
           </el-select>
-          <el-button @click="search" style="color: dodgerblue">搜索</el-button>
+          <el-button @click="search" style="color: dodgerblue">{{ $t('common.search') }}</el-button>
         </el-form-item>
       </el-row>
     </div>
 
   <div class="reportInfo">
     <div style="display:flex;justify-content: right;">
-      <el-button @click="createNewCurrency"><SvgIcon name="add"/>新增</el-button>
+      <el-button @click="createNewCurrency"><SvgIcon name="add"/>{{ $t('common.operate.add') }}</el-button>
     </div>
     <el-form style="height: 650px">
       <el-table
@@ -40,31 +40,31 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         :key="tableKey"
       >
         <el-table-column
-          label="币种名称"
+          :label="$t('currencyTypeList.column.name')"
           align="center"
           v-slot="{row}">
           <div>{{row.name}}</div>
         </el-table-column>
         <el-table-column
-            label="币种英文缩写"
+            :label="$t('currencyTypeList.column.code')"
             align="center"
             v-slot="{row}">
           <div>{{row.currencyType}}</div>
         </el-table-column>
         <el-table-column
-            label="币种符号"
+            :label="$t('currencyTypeList.column.icon')"
             align="center"
             v-slot="{row}">
           <div>{{row.icon}}</div>
         </el-table-column>
         <el-table-column
-            label="币种单位"
+            :label="$t('currencyTypeList.column.accuracy')"
             align="center"
             v-slot="{row}">
           <div>{{row.currencyAccuracy}}</div>
         </el-table-column>
         <el-table-column
-            label="对USDT汇率"
+            :label="$t('currencyTypeList.column.exchangeRate')"
             align="center"
             v-slot="{row}">
           <div>{{row.exchangeRate}}</div>
@@ -96,35 +96,35 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <div class="el-form-line">
           <el-row style="display: flex;justify-content: center;">
             <el-col :span="24" style="display: flex;justify-content: center;">
-              <el-form-item label="币种英文缩写:" label-width="150px"  prop="currencyType">
+              <el-form-item :label="$t('currencyTypeList.form.code')" label-width="150px"  prop="currencyType">
                 <el-input style="width: 200px;" v-model="addCurrencyTypeInfo.currencyType"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row style="display: flex;justify-content: center;">
             <el-col :span="24" style="display: flex;justify-content: center;">
-              <el-form-item label="币种简称:" label-width="150px"  prop="name">
+              <el-form-item :label="$t('currencyTypeList.form.name')" label-width="150px"  prop="name">
                 <el-input style="width: 200px;" v-model="addCurrencyTypeInfo.name"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row style="display: flex;justify-content: center;">
             <el-col :span="24" style="display: flex;justify-content: center;">
-              <el-form-item label="币种符号:" label-width="150px"  prop="icon">
+              <el-form-item :label="$t('currencyTypeList.form.icon')" label-width="150px"  prop="icon">
                 <el-input v-model="addCurrencyTypeInfo.icon" style="width: 200px"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row style="display: flex;justify-content: center;">
             <el-col :span="24" style="display: flex;justify-content: center;">
-              <el-form-item label="币种最小单位:" label-width="150px"  prop="currencyAccuracy" style="display: flex;flex-direction: row;">
+              <el-form-item :label="$t('currencyTypeList.form.accuracy')" label-width="150px"  prop="currencyAccuracy" style="display: flex;flex-direction: row;">
                 <div style="display: grid;align-items: center;justify-content: center;">
                   <el-input type="number" v-model="addCurrencyTypeInfo.currencyAccuracy" style="width: 200px;">
                   </el-input>
                   <div style="color: red;display: flex;flex-direction: row;width: 150px;align-items: center;height: 12px">
                     <SvgIcon style="width: 12px;height: 12px;" name="notice2"/>
                     <div style="font-size:12px">
-                      输入提示:0.xxxx
+                      {{ $t('currencyTypeList.tip.accuracy') }}
                     </div>
                   </div>
                 </div>
@@ -133,7 +133,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-row>
           <el-row style="display: flex;justify-content: center;">
             <el-col :span="24" style="display: flex;justify-content: center;">
-              <el-form-item label="对USDT汇率模式:" label-width="150px"  prop="exchangeRate" style="display: flex;flex-direction: row">
+              <el-form-item :label="$t('currencyTypeList.form.rateMode')" label-width="150px"  prop="exchangeRate" style="display: flex;flex-direction: row">
                 <el-select v-model="addCurrencyTypeInfo.isRate" style="width: 200px;text-align: center">
                   <el-option
                     v-for="item in exchangeRateOptions"
@@ -147,23 +147,23 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           </el-row>
           <el-row v-if="addCurrencyTypeInfo.isRate === 2">
             <el-col :span="24" style="display: flex;justify-content: center;">
-              <el-form-item label="对USDT汇率:" label-width="150px"  prop="exchangeRate">
+              <el-form-item :label="$t('currencyTypeList.form.exchangeRate')" label-width="150px"  prop="exchangeRate">
                 <el-input type="number" v-model="addCurrencyTypeInfo.exchangeRate" style="width: 200px"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row style="display: flex;justify-content: center;">
             <el-col :span="24" style="display: flex;justify-content: center;">
-              <el-form-item label="谷歌验证码:" label-width="150px"  prop="googleCode">
-                <el-input oninput="if(value.length>6)value=value.slice(0,6)" type="number" v-model="addCurrencyTypeInfo.googleCode" placeholder="input google verify code" style="width: 200px"/>
+              <el-form-item :label="$t('common.googleCode')" label-width="150px"  prop="googleCode">
+                <el-input oninput="if(value.length>6)value=value.slice(0,6)" type="number" v-model="addCurrencyTypeInfo.googleCode" :placeholder="$t('common.placeholder.googleCode')" style="width: 200px"/>
               </el-form-item>
             </el-col>
           </el-row>
         </div>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="cancelDialog">取 消</el-button>
-        <el-button type="primary" @click="submit('addCurrencyTypeInfo')">确 定</el-button>
+        <el-button @click="cancelDialog">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="submit('addCurrencyTypeInfo')">{{ $t('common.confirm') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -180,7 +180,7 @@ export default {
   data() {
     const validateExchangeRate = (rule, value, callback) => {
       if (this.addCurrencyTypeInfo.exchangeRate === 2 && (value === '' || value === undefined)) {
-        callback(new Error('固定汇率模式下对USTD汇率为必填项'))
+        callback(new Error(this.$t('currencyTypeList.validation.exchangeRateRequired')))
       } else {
         callback()
       }
@@ -213,31 +213,31 @@ export default {
       exchangeRateOptions: [
         {
           value: 1,
-          label: '实时汇率'
+          label: this.$t('currencyTypeList.rateMode.live')
         },
         {
           value: 2,
-          label: '固定汇率'
+          label: this.$t('currencyTypeList.rateMode.fixed')
         }
       ],
       rules: {
         currencyType: [
-          { required: true, message: '请输入币种英文简称', trigger: 'blur' }
+          { required: true, message: this.$t('currencyTypeList.validation.codeRequired'), trigger: 'blur' }
         ],
         name: [
-          { required: true, message: '请输入币种名称', trigger: 'blur' }
+          { required: true, message: this.$t('currencyTypeList.validation.nameRequired'), trigger: 'blur' }
         ],
         icon: [
-          { required: true, message: '请输入币种符号', trigger: 'blur' }
+          { required: true, message: this.$t('currencyTypeList.validation.iconRequired'), trigger: 'blur' }
         ],
         currencyAccuracy: [
-          { required: true, message: '请输入币种最小单位', trigger: 'blur' }
+          { required: true, message: this.$t('currencyTypeList.validation.accuracyRequired'), trigger: 'blur' }
         ],
         googleCode: [
-          { required: true, message: '请输入谷歌验证码', trigger: 'blur' }
+          { required: true, message: this.$t('common.googleCodeRequired'), trigger: 'blur' }
         ],
         exchangeRate: [
-          { validator: validateExchangeRate, message: '请输入对USDT汇率', trigger: 'blur', }
+          { validator: validateExchangeRate, message: this.$t('currencyTypeList.validation.exchangeRateRequired'), trigger: 'blur', }
         ]
       },
       totalCount: 0,
@@ -258,7 +258,7 @@ export default {
              this.totalCount = allData.totalNumber
            } else {
             this.$notify({
-              title: 'error',
+              title: this.$t('common.error'),
               message: res.data.message,
               duration: 3000,
               type: 'error',
@@ -267,8 +267,8 @@ export default {
            }
         } else {
           this.$notify({
-            title: 'Failed',
-            message: 'get currency failed, try again',
+            title: this.$t('common.failed'),
+            message: this.$t('currencyTypeList.message.getFailed'),
             type: 'error',
             position: 'bottom-right'
           })
@@ -283,7 +283,7 @@ export default {
     createNewCurrency() {
       this.addCurrencyTypeInfo.isRate = 2
       this.dialogFormVisible = true;
-      this.dialogTitle = "新增币种"
+      this.dialogTitle = this.$t('currencyTypeList.dialog.add')
     },
     handleCurrentChange(val) {
 
@@ -305,15 +305,15 @@ export default {
               if (res.status === 200) {
                 if (res.data.code !== 0) {
                   this.$notify({
-                    title: 'Failed',
+                    title: this.$t('common.failed'),
                     message: res.data.message,
                     type: 'error',
                     position: 'bottom-right'
                   })
                 } else {
                   this.$notify({
-                    title: 'Success',
-                    message: 'add currency success',
+                    title: this.$t('common.success'),
+                    message: this.$t('currencyTypeList.message.addSuccess'),
                     type: 'success',
                     position: 'bottom-right'
                   })

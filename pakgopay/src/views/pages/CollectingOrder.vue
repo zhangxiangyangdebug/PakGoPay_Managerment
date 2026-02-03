@@ -9,12 +9,12 @@ import {
 
 <template>
   <div style="width: 100%;height: 110%; overflow-y: scroll;">
-    <div class="main-title">代收订单</div>
+    <div class="main-title">{{ $t('collectingOrder.title') }}</div>
     <el-collapse v-model="activeTool">
       <el-collapse-item name="1">
         <template #title>
         <span class="toolbarName">
-          工具栏
+          {{ $t('common.toolbar') }}
         </span>
         </template>
         <div class="main-toolbar" style="height: 230px;width: 97%;">
@@ -24,18 +24,18 @@ import {
                 <div class="toolbar-action-row">
                   <el-button @click="search()" class="filterButton">
                     <SvgIcon class="filterButtonSvg" name="search"/>
-                    <div>查询</div>
+                    <div>{{ $t('common.query') }}</div>
                   </el-button>
                   <el-button @click="reset('filterboxForm')" class="filterButton">
                     <SvgIcon class="filterButtonSvg" name="reset"/>
-                    <div>重置</div>
+                    <div>{{ $t('common.reset') }}</div>
                   </el-button>
                 </div>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="6">
-                <el-form-item label="订单状态：" label-width="150px" prop="orderStatus">
+                <el-form-item :label="$t('collectingOrder.filter.orderStatus')" label-width="150px" prop="orderStatus">
 <!--                  <el-input v-model="filterbox.orderStatus" style="width: 200px"/>-->
                   <el-select
                     :options="getOrderStatusOptions()"
@@ -46,12 +46,12 @@ import {
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="商户订单编号：" label-width="150px" prop="merchantOrderNo">
+                <el-form-item :label="$t('collectingOrder.filter.merchantOrderNo')" label-width="150px" prop="merchantOrderNo">
                   <el-input v-model="filterbox.merchantOrderNo" style="width: 200px"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="订单渠道：" label-width="150px" prop="channelId">
+                <el-form-item :label="$t('collectingOrder.filter.channel')" label-width="150px" prop="channelId">
 <!--                  <el-input v-model="filterbox.channelId" style="width: 200px"/>-->
                   <el-select
                     :options="channelOptions"
@@ -63,13 +63,13 @@ import {
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="商户：" label-width="150px" prop="merchantUserId">
+                <el-form-item :label="$t('collectingOrder.filter.merchant')" label-width="150px" prop="merchantUserId">
 <!--                  <el-input v-model="filterbox.merchantUserId" style="width: 200px"/>-->
                   <el-select
                     :options="merchantOptions"
                     :props="merchantInfoProps"
                     v-model="filterbox.merchantUserId"
-                    placeholder="请选择商户"
+                    :placeholder="$t('collectingOrder.placeholder.merchant')"
                     style="width: 200px"
                     clearable
                     :disabled="filterAvaiable"
@@ -79,55 +79,55 @@ import {
             </el-row>
             <el-row>
               <el-col :span="6">
-                <el-form-item label="平台订单号：" label-width="150px" prop="transactionNo">
+                <el-form-item :label="$t('collectingOrder.filter.transactionNo')" label-width="150px" prop="transactionNo">
                   <el-input v-model="filterbox.transactionNo" style="width: 200px"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="订单类型：" label-width="150px" >
+                <el-form-item :label="$t('collectingOrder.filter.orderType')" label-width="150px" >
 <!--                  <el-input v-model="filterbox.orderType" style="width: 200px"/>-->
                   <el-select
                     v-model="filterbox.orderType"
                     style="width: 200px"
                     clearable
                   >
-                    <el-option :value="1" label="系统订单"></el-option>
-                    <el-option :value="2" label="手工订单"></el-option>
+                    <el-option :value="1" :label="$t('collectingOrder.orderType.system')"></el-option>
+                    <el-option :value="2" :label="$t('collectingOrder.orderType.manual')"></el-option>
                   </el-select>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="订单金额：" label-width="150px" prop="amount">
+                <el-form-item :label="$t('collectingOrder.filter.amount')" label-width="150px" prop="amount">
                   <el-input v-model="filterbox.amount" style="width: 200px"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="商户代理：" label-width="150px" >
+                <el-form-item :label="$t('collectingOrder.filter.merchantAgent')" label-width="150px" >
                   <el-input v-model="filterbox.merchantAgent" style="width: 200px"/>
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row>
               <el-col :span="6">
-                <el-form-item label="币种：" label-width="150px" prop="currency">
+                <el-form-item :label="$t('common.currency')" label-width="150px" prop="currency">
                   <el-select
                       :options="currencyOptions"
                       :props="currencyProps"
                       v-model="filterbox.currency"
-                      placeholder="请选择币种"
+                      :placeholder="$t('collectingOrder.placeholder.currency')"
                       style="width: 200px"
                   />
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item label="创建时间：" label-width="150px" prop="filterDateRange">
+                <el-form-item :label="$t('collectingOrder.filter.createTime')" label-width="150px" prop="filterDateRange">
 <!--                  <el-input v-model="filterbox.requestTime"style="width: 200px"/>-->
                   <el-date-picker
                       v-model="filterbox.filterDateRange"
                       type="datetimerange"
-                      range-separator="至"
-                      start-placeholder="开始日期"
-                      end-placeholder="结束日期"
+                      :range-separator="$t('common.rangeSeparator')"
+                      :start-placeholder="$t('common.startDate')"
+                      :end-placeholder="$t('common.endDate')"
                       format="YYYY/MM/DD HH:mm:ss"
                       value-format="x"
                       @change="handleDateRangeChange"
@@ -142,7 +142,7 @@ import {
 
     <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0">
       <div class="currency-tabs">
-        <span class="currency-tabs-label">统计币种:</span>
+        <span class="currency-tabs-label">{{ $t('orderCommon.currencyStats') }}</span>
         <el-tabs
             v-model="filterbox.currencyType"
             type="card"
@@ -165,7 +165,7 @@ import {
           <div style="display: flex;">
             <SvgIcon name="orderNum" width="100px" height="100px"/>
             <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">订单总数:</span>
+              <span class="statics-title">{{ $t('orderCommon.stats.totalOrders') }}</span>
               <textarea v-model="staticsData.orderTotalCount" disabled class="cash-text-area"></textarea>
             </div>
           </div>
@@ -174,7 +174,7 @@ import {
           <div style="display: flex;">
             <SvgIcon name="merchantCommission" width="100px" height="100px"/>
             <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">商户手续费:</span>
+              <span class="statics-title">{{ $t('orderCommon.stats.merchantFee') }}</span>
               <textarea v-model="staticsData.merchantCommission" disabled class="cash-text-area"></textarea>
             </div>
           </div>
@@ -183,7 +183,7 @@ import {
           <div style="display: flex;">
             <SvgIcon name="freezeAmount" width="100px" height="100px"/>
             <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">冻结金额:</span>
+              <span class="statics-title">{{ $t('orderCommon.stats.frozenAmount') }}</span>
               <textarea v-model="staticsData.merchantFreezeAmount" disabled class="cash-text-area"></textarea>
             </div>
           </div>
@@ -194,7 +194,7 @@ import {
           <div style="display: flex;">
             <SvgIcon name="orderSuccessRate" width="100px" height="100px"/>
             <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">订单成功率:</span>
+              <span class="statics-title">{{ $t('orderCommon.stats.successRate') }}</span>
               <textarea v-model="staticsData.ordereSuccessRate" disabled class="cash-text-area"></textarea>
             </div>
           </div>
@@ -203,7 +203,7 @@ import {
           <div style="display: flex;">
             <SvgIcon name="effectiveCommission" width="100px" height="100px"/>
             <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">商户有效手续费:</span>
+              <span class="statics-title">{{ $t('orderCommon.stats.effectiveFee') }}</span>
               <textarea v-model="staticsData.merchantEffectiveCommission" disabled class="cash-text-area"></textarea>
             </div>
           </div>
@@ -212,7 +212,7 @@ import {
           <div style="display: flex;justify-content: space-between">
             <SvgIcon name="accountBalance" width="100px" height="100px"/>
             <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%;justify-content: space-between;">
-              <span class="statics-title">可用金额:</span>
+              <span class="statics-title">{{ $t('orderCommon.stats.availableAmount') }}</span>
               <textarea v-model="staticsData.merchantAvaiableAmount" disabled class="cash-text-area"></textarea>
             </div>
           </div>
@@ -226,7 +226,7 @@ import {
         <div style="display: flex; float: right">
           <el-button @click="createPathChannel()" class="filterButton">
             <SvgIcon class="filterButtonSvg" name="createOrder"/>
-            <div>创建订单</div>
+            <div>{{ $t('orderCommon.action.createOrder') }}</div>
           </el-button>
 <!--          <div v-on:click="createPathChannel()" style="background-color: limegreen;width:100px;display: flex; flex-direction: row;justify-content: center;cor: lightskyblue;cursor: pointer;align-items: center;">
             <SvgIcon height="30px" width="22px" name="callBack"/>
@@ -243,7 +243,7 @@ import {
         >
           <el-table-column
               prop="orderId"
-              label="订单号"
+              :label="$t('collectingOrder.column.orderId')"
               v-slot="{row}"
               align="center"
           >
@@ -251,7 +251,7 @@ import {
           </el-table-column>
           <el-table-column
               prop="merchantOrderId"
-              label="商户订单号"
+              :label="$t('collectingOrder.column.merchantOrderNo')"
               v-slot="{row}"
               align="center"
           >
@@ -259,7 +259,7 @@ import {
           </el-table-column>
           <el-table-column
               prop="merchantAccount"
-              label="商户号"
+              :label="$t('collectingOrder.column.merchantNo')"
               v-slot="{row}"
               align="center"
           >
@@ -267,7 +267,7 @@ import {
           </el-table-column>
           <el-table-column
               prop="merchantName"
-              label="商户名称"
+              :label="$t('collectingOrder.column.merchantName')"
               v-slot="{row}"
               align="center"
           >
@@ -275,7 +275,7 @@ import {
           </el-table-column>
           <el-table-column
               prop="currencyType"
-              label="币种"
+              :label="$t('common.currency')"
               v-slot="{row}"
               align="center"
           >
@@ -283,7 +283,7 @@ import {
           </el-table-column>
           <el-table-column
               prop="orderStatus"
-              label="订单状态"
+              :label="$t('collectingOrder.column.status')"
               v-slot="{row}"
               align="center"
           >
@@ -294,15 +294,15 @@ import {
           </el-table-column>
           <el-table-column
               prop="orderStatus"
-              label="订单类型"
+              :label="$t('collectingOrder.column.orderType')"
               v-slot="{row}"
               align="center"
           >
-            <div>{{ row.orderType === 1 ? '系统订单':'手动订单' }}</div>
+            <div>{{ row.orderType === 1 ? $t('collectingOrder.orderType.system') : $t('collectingOrder.orderType.manual') }}</div>
           </el-table-column>
           <el-table-column
               prop="orderAmount"
-              label="订单金额"
+              :label="$t('collectingOrder.column.amount')"
               v-slot="{row}"
               align="center"
           >
@@ -310,7 +310,7 @@ import {
           </el-table-column>
           <el-table-column
               prop="channelId"
-              label="订单渠道"
+              :label="$t('collectingOrder.column.channel')"
               v-slot="{row}"
               align="center"
           >
@@ -318,7 +318,7 @@ import {
           </el-table-column>
           <el-table-column
               prop="callBackStatus"
-              label="回调状态"
+              :label="$t('collectingOrder.column.callbackStatus')"
               v-slot="{row}"
               align="center"
           >
@@ -326,7 +326,7 @@ import {
           </el-table-column>
           <el-table-column
               prop="createTime"
-              label="创建时间"
+              :label="$t('collectingOrder.column.createTime')"
               v-slot="{row}"
               align="center"
           >
@@ -334,7 +334,7 @@ import {
           </el-table-column>
           <el-table-column
               prop="orderId"
-              label="请求IP"
+              :label="$t('collectingOrder.column.requestIp')"
               v-slot="{row}"
               align="center"
           >
@@ -342,7 +342,7 @@ import {
           </el-table-column>
           <el-table-column
               width="100"
-              label="操作"
+              :label="$t('common.operation')"
               align="center"
               v-slot="{row}"
               fixed="right"
@@ -351,9 +351,9 @@ import {
               <SvgIcon name="more" width="30" height="30" />
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item v-if="row.orderStatus === 1" @click="startUser(row)">审核</el-dropdown-item>
+                  <el-dropdown-item v-if="row.orderStatus === 1" @click="startUser(row)">{{ $t('collectingOrder.action.review') }}</el-dropdown-item>
 <!--                  <el-dropdown-item @click="editUser(row)">编辑</el-dropdown-item>-->
-                  <el-dropdown-item @click="callback(row)">回调</el-dropdown-item>
+                  <el-dropdown-item @click="callback(row)">{{ $t('collectingOrder.action.callback') }}</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -393,7 +393,7 @@ export default {
       activeToolBar: true,
       tableKey: 0,
       timeZoneKey: localStorage.getItem("timeZone") || "UTC+8",
-      activeNames: '筛选',
+      activeNames: '',
       activeTool: "1",
       checked: false,
       checkAll: false,
@@ -650,7 +650,7 @@ export default {
            this.pageSize = allData.pageSize
         } else if (res.status === 200 && res.data.code !== 0) {
           this.$notify({
-            title: 'Failed',
+            title: this.$t('common.error'),
             message: res.data.message,
             duration: 3000,
             position: 'bottom-right',
@@ -658,8 +658,8 @@ export default {
           })
         } else {
           this.$notify({
-            title: 'Failed',
-            message: 'something went wrong, try again!',
+            title: this.$t('common.error'),
+            message: this.$t('common.requestFailed'),
             duration: 3000,
             position: 'bottom-right',
             type: 'error',
@@ -708,6 +708,7 @@ export default {
     },
   },
   async mounted() {
+    this.activeNames = this.$t('orderCommon.filterTitle');
     this._timeZoneListener = (event) => {
       const nextZone = event.detail || localStorage.getItem("timeZone") || "UTC+8";
       const prevZone = this.timeZoneKey;

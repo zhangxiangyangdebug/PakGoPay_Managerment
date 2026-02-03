@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <div class="main-title">手工调账</div>
+  <div class="main-title">{{ $t('manualReconciliation.title') }}</div>
 </template>
 
 <style scoped>

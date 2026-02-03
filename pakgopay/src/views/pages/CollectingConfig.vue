@@ -6,7 +6,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 <template>
   <div class="main-views-container">
     <div class="main-title" style="width:95%;margin-left:0; border-radius: 0;margin-right: 0;padding-left:20px;padding-top:20px;">
-      代收配置
+      {{ $t('collectingConfig.title') }}
     </div>
 
     <div class="main-views-form" style="background-color: white;height: 500px;margin-top: 0;width: 96%;display: flex;justify-content: center;">
@@ -14,7 +14,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <div class="el-form-line">
           <el-form-item >
             <template #label>
-              <span style="width: 250px;font-size: 16px;color: dodgerblue">代收订单失效时长(min):</span>
+              <span style="width: 250px;font-size: 16px;color: dodgerblue">{{ $t('collectingConfig.label.orderTimeout') }}</span>
             </template>
             <el-input :min="1" :step="1" class="center-input" type="number" v-model="orderLoseEfficacy" style="width: 200px">
             </el-input>
@@ -23,7 +23,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <div class="el-form-line" style="width: auto">
           <el-form-item >
             <template #label>
-              <span style="width: 250px;font-size: 16px;color: dodgerblue">代收回调失败重试配置(times):</span>
+              <span style="width: 250px;font-size: 16px;color: dodgerblue">{{ $t('collectingConfig.label.callbackRetry') }}</span>
             </template>
             <el-input :min="1" :step="1" type="number" v-model="callbackRetry" style="width: 200px;">
             </el-input>
@@ -32,30 +32,30 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <div class="el-form-line">
           <el-form-item  class="large-label">
             <template #label>
-              <span style="width: 250px;font-size: 16px;color: dodgerblue">代收通道匹配模式:</span>
+              <span style="width: 250px;font-size: 16px;color: dodgerblue">{{ $t('collectingConfig.label.matchMode') }}</span>
             </template>
             <el-radio-group v-model="collectingPathChannelMatchMode">
-              <el-radio :label="3">优先级</el-radio>
-              <el-radio :label="6">随机</el-radio>
-              <el-radio :label="9">平均</el-radio>
+              <el-radio :label="3">{{ $t('common.matchMode.priority') }}</el-radio>
+              <el-radio :label="6">{{ $t('common.matchMode.random') }}</el-radio>
+              <el-radio :label="9">{{ $t('common.matchMode.average') }}</el-radio>
             </el-radio-group>
           </el-form-item>
           <div style="text-align: left">
-            <SvgIcon name="notice"></SvgIcon>模式说明:
+            <SvgIcon name="notice"></SvgIcon>{{ $t('common.matchMode.title') }}
           </div>
           <div style="text-align: left">
             <div>
-              1.按优先级是指按照系统设置的优先级从小到大顺序,符合条件的返回<br>
-              2.按随机是指所有符合条件的渠道随机返回<br>
-              3.按平均是指符合条件的渠道按平均返回
+              {{ $t('common.matchMode.desc1') }}<br>
+              {{ $t('common.matchMode.desc2') }}<br>
+              {{ $t('common.matchMode.desc3') }}
             </div>
           </div>
         </div>
       </el-form>
     </div>
     <div style="background-color: white; display: flex;justify-content: space-between;align-items: center;width: 96%;border-top: solid 2px gray;height: 30%;">
-      <el-button style="margin-left: 30%;width: 100px;height: auto;color: dodgerblue" @click="reset">重置</el-button>
-      <el-button style="margin-right: 30%;width: 100px;height: auto;color: dodgerblue">提交</el-button>
+      <el-button style="margin-left: 30%;width: 100px;height: auto;color: dodgerblue" @click="reset">{{ $t('common.reset') }}</el-button>
+      <el-button style="margin-right: 30%;width: 100px;height: auto;color: dodgerblue">{{ $t('common.submit') }}</el-button>
     </div>
   </div>
 </template>

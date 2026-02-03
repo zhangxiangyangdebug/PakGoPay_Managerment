@@ -40,7 +40,7 @@ export default {
       statisticsInfo: {},
       timeRange: '',
       filterbox: {},
-      reportTitle: '代收订单订单总数｜代收订单成功率｜代收订单成功数｜代付订单总数｜代收订单成功率｜代收订单成功数｜代收/付商户手续费｜一二三级代理佣金｜代收/付总利润',
+      reportTitle: this.$t('merchantReport.reportTitle'),
       tab1CurrentPage: 1,
       tab1TotalCount: 2,
       pageSizes: [10, 15, 30, 50, 100],
@@ -61,7 +61,7 @@ export default {
           commission: 10000,
           agencyCommission: 100000000,
           totalProfit: 100000000000,
-          merchantAccount: '测试商户'
+          merchantAccount: this.$t('common.sampleMerchant')
         }
       ],
       allPayingReportInfoData: [
@@ -75,7 +75,7 @@ export default {
           commission: 10000,
           agencyCommission: 100000000,
           totalProfit: 100000000000,
-          merchantAccount: '测试商户'
+          merchantAccount: this.$t('common.sampleMerchant')
         }
       ],
     }
@@ -260,7 +260,7 @@ export default {
 
         } else if (res.status === 200 && res.data.code !== 0) {
           this.$notify({
-            title: 'Error',
+            title: this.$t('common.error'),
             message: res.data.message,
             duration: 3000,
             type: 'error',
@@ -268,8 +268,8 @@ export default {
           })
         } else {
           this.$notify({
-            title: 'Error',
-            message: 'Some error occurred.',
+            title: this.$t('common.error'),
+            message: this.$t('common.requestFailed'),
             duration: 3000,
             type: 'error',
             position: 'bottom-right'
@@ -329,31 +329,31 @@ export default {
 </script>
 <template>
   <div class="main-title">
-    商户报表
+    {{ $t('merchantReport.title') }}
   </div>
   <el-collapse v-model="activeTool">
     <el-collapse-item name="1">
       <template #title>
         <span class="toolbarName">
-          工具栏
+          {{ $t('common.toolbar') }}
         </span>
       </template>
       <div class="toolbar" style="height: auto">
         <el-form class="toolform" :model="filterbox" ref="filterForm">
           <el-row class="toolform-item">
             <el-col :span="8" class="toolform-line" style="display: flex;justify-content: center;align-items: center;">
-              <el-form-item label="商户名称:" label-width="150px" prop="merchantAccount">
-                <el-input v-model="filterbox.merchantName" type="text" placeholder="商户账号"/>
+              <el-form-item :label="$t('merchantReport.filter.merchantName')" label-width="150px" prop="merchantAccount">
+                <el-input v-model="filterbox.merchantName" type="text" :placeholder="$t('merchantReport.placeholder.merchantAccount')"/>
               </el-form-item>
             </el-col>
             <el-col :span="16" class="toolform-line" style="display: flex;justify-content: center;align-items: center;">
-              <el-form-item label="时间范围:" label-width="150px" prop="filterDateRange">
+              <el-form-item :label="$t('merchantReport.filter.timeRange')" label-width="150px" prop="filterDateRange">
                 <el-date-picker
                     v-model="filterbox.filterDateRange"
                     type="daterange"
-                    range-separator="至"
-                    start-placeholder="开始日期"
-                    end-placeholder="结束日期"
+                    :range-separator="$t('common.rangeSeparator')"
+                    :start-placeholder="$t('common.startDate')"
+                    :end-placeholder="$t('common.endDate')"
                     format="YYYY/MM/DD"
                     value-format="x"
                 >
@@ -362,17 +362,17 @@ export default {
                   <el-button @click="reset('filterForm')"
                        class="filterButton">
                     <SvgIcon class="filterButtonSvg" name="reset"/>
-                    <div>重置</div>
+                    <div>{{ $t('common.reset') }}</div>
                   </el-button>
                   <el-button @click="filtersearch"
                        class="filterButton">
                     <SvgIcon class="filterButtonSvg" name="search"/>
-                    <div>查询</div>
+                    <div>{{ $t('common.query') }}</div>
                   </el-button>
                   <el-button @click="exportMerchantInfo"
                        class="filterButton">
                     <SvgIcon class="filterButtonSvg" name="export"/>
-                    <div>导出</div>
+                    <div>{{ $t('common.export') }}</div>
                   </el-button>
                 </div>
               </el-form-item>
@@ -384,7 +384,7 @@ export default {
   </el-collapse>
   <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0">
     <div class="currency-tabs">
-      <span class="currency-tabs-label">统计币种:</span>
+      <span class="currency-tabs-label">{{ $t('merchantReport.currencyLabel') }}</span>
       <el-tabs
           v-model="filterbox.currency"
           type="card"
@@ -406,7 +406,7 @@ export default {
       <div class="statistics-form-item">
         <SvgIcon name="cash" width="100px" height="100px"/>
         <div style="display: flex; flex-direction: column;width: 80%;">
-          <span style="text-align: left;font-size: x-large">总账户金额:</span>
+          <span style="text-align: left;font-size: x-large">{{ $t('merchantReport.statistics.totalAmount') }}</span>
           <textarea v-model="statisticsInfo.totalAmount" disabled class="cash-text-area"></textarea>
         </div>
       </div>
@@ -416,7 +416,7 @@ export default {
       <div class="statistics-form-item">
         <SvgIcon name="tixian" width="90px" height="90px"/>
         <div style="display: flex; flex-direction: column;width: 80%;">
-          <span style="text-align: left;font-size: x-large">提现总金额:</span>
+          <span style="text-align: left;font-size: x-large">{{ $t('merchantReport.statistics.withdrawAmount') }}</span>
           <textarea v-model="statisticsInfo.totalWithdrawlAmount" disabled class="cash-text-area"></textarea>
         </div>
       </div>
@@ -426,7 +426,7 @@ export default {
       <div class="statistics-form-item">
         <SvgIcon name="cash-freeze" width="100px" height="100px"/>
         <div style="display: flex; flex-direction: column;width: 80%;">
-          <span style="text-align: left;font-size: x-large">冻结总金额:</span>
+          <span style="text-align: left;font-size: x-large">{{ $t('merchantReport.statistics.freezeAmount') }}</span>
           <textarea v-model="statisticsInfo.totalFreezeAmount" disabled class="cash-text-area"></textarea>
         </div>
       </div>
@@ -434,7 +434,7 @@ export default {
   </div>
   <div class="reportInfo">
     <el-tabs type="border-card" class="report-tabs" @tab-click="handleTabClick" v-model="activeTabPane">
-      <el-tab-pane label="代收报表" style="width: 100%">
+      <el-tab-pane :label="$t('merchantReport.tab.collection')" style="width: 100%">
         <form id="reportInfo" class="reportInfoForm" style="height: auto">
           <el-table
               border :data="collectingReportInfoData"
@@ -443,7 +443,7 @@ export default {
               height="auto"
           >
             <el-table-column
-                label="商户名称"
+                :label="$t('merchantReport.column.merchantName')"
                 v-slot="{row}"
                 align="center"
                 width="150px"
@@ -454,7 +454,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="orderQuantity"
-                label="代收订单总数"
+                :label="$t('merchantReport.column.collectionOrderTotal')"
                 v-slot="{row}"
                 align="center"
             >
@@ -464,7 +464,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="dsOrderSuccessRate"
-                label="代收订单成功率"
+                :label="$t('merchantReport.column.collectionSuccessRate')"
                 v-slot="{row}"
                 align="center"
             >
@@ -474,7 +474,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="successQuantity"
-                label="代收订单成功数"
+                :label="$t('merchantReport.column.collectionSuccessCount')"
                 v-slot="{row}"
                 align="center"
             >
@@ -494,7 +494,7 @@ export default {
             </el-table-column>-->
             <el-table-column
                 prop="merchantFee"
-                label="代收商户手续费"
+                :label="$t('merchantReport.column.collectionMerchantFee')"
                 v-slot="{row}"
                 align="center"
             >
@@ -504,7 +504,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="agent1Fee"
-                label="一级代理佣金"
+                :label="$t('merchantReport.column.agent1Fee')"
                 v-slot="{row}"
                 align="center"
             >
@@ -514,7 +514,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="agent2Fee"
-                label="二级代理佣金"
+                :label="$t('merchantReport.column.agent2Fee')"
                 v-slot="{row}"
                 align="center"
             >
@@ -524,7 +524,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="agent3Fee"
-                label="三级代理佣金"
+                :label="$t('merchantReport.column.agent3Fee')"
                 v-slot="{row}"
                 align="center"
             >
@@ -534,7 +534,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="orderProfit"
-                label="平台手续费"
+                :label="$t('merchantReport.column.platformFee')"
                 v-slot="{row}"
                 align="center"
             >
@@ -544,7 +544,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="recordDate"
-                label="时间"
+                :label="$t('merchantReport.column.recordDate')"
                 v-slot="{row}"
                 align="center"
             >
@@ -567,7 +567,7 @@ export default {
           </el-pagination>
         </form>
       </el-tab-pane>
-      <el-tab-pane label="代付报表" style="width: 100%">
+      <el-tab-pane :label="$t('merchantReport.tab.payout')" style="width: 100%">
         <form id="reportInfo" class="reportInfoForm" style="height: auto">
           <el-table
               border :data="payingReportInfoData"
@@ -576,7 +576,7 @@ export default {
               height="auto"
           >
             <el-table-column
-                label="商户名称"
+                :label="$t('merchantReport.column.merchantName')"
                 v-slot="{row}"
                 align="center"
                 width="150px"
@@ -587,7 +587,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="dfOrderNumber"
-                label="代付订单总数"
+                :label="$t('merchantReport.column.payoutOrderTotal')"
                 v-slot="{row}"
                 align="center"
             >
@@ -597,7 +597,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="dfOrderSuccessRate"
-                label="代付订单成功率"
+                :label="$t('merchantReport.column.payoutSuccessRate')"
                 v-slot="{row}"
                 align="center"
             >
@@ -607,7 +607,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="dfOrderSuccessNumber"
-                label="代付订单成功数"
+                :label="$t('merchantReport.column.payoutSuccessCount')"
                 v-slot="{row}"
                 align="center"
             >
@@ -627,7 +627,7 @@ export default {
             </el-table-column>-->
             <el-table-column
                 prop="commission"
-                label="代付商户手续费"
+                :label="$t('merchantReport.column.payoutMerchantFee')"
                 v-slot="{row}"
                 align="center"
             >
@@ -637,7 +637,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="firstLevelAgentCommission"
-                label="一级代理佣金"
+                :label="$t('merchantReport.column.agent1Fee')"
                 v-slot="{row}"
                 align="center"
             >
@@ -647,7 +647,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="secondLevelAgentCommission"
-                label="二级代理佣金"
+                :label="$t('merchantReport.column.agent2Fee')"
                 v-slot="{row}"
                 align="center"
             >
@@ -657,7 +657,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="thirdLevelAgentCommission"
-                label="三级代理佣金"
+                :label="$t('merchantReport.column.agent3Fee')"
                 v-slot="{row}"
                 align="center"
             >
@@ -667,7 +667,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="totalProfit"
-                label="平台手续费"
+                :label="$t('merchantReport.column.platformFee')"
                 v-slot="{row}"
                 align="center"
             >
@@ -677,7 +677,7 @@ export default {
             </el-table-column>
             <el-table-column
                 prop="time"
-                label="时间"
+                :label="$t('merchantReport.column.recordDate')"
                 v-slot="{row}"
                 align="center"
             >
