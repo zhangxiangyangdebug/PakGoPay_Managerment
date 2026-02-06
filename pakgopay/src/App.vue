@@ -23,6 +23,12 @@ import {getAsyncRoutes} from "@/router/asyncRouter.js";
       isLoginRoute() {
         return this.$route?.path === "/web/login" || this.$route?.meta?.showBar;
       },
+      hasAuthToken() {
+        return !!localStorage.getItem("token");
+      },
+      hasRefreshToken() {
+        return !!localStorage.getItem("refreshToken");
+      },
       logOut() {
         localStorage.removeItem("token" );
         localStorage.removeItem("userName")
@@ -35,7 +41,7 @@ import {getAsyncRoutes} from "@/router/asyncRouter.js";
       },
       startHeartbeat() {
         const runHeart = () => {
-          if (this.isLoginRoute()) {
+          if (this.isLoginRoute() || !this.hasAuthToken()) {
             return;
           }
           heart().then(res => {
@@ -49,6 +55,11 @@ import {getAsyncRoutes} from "@/router/asyncRouter.js";
                 showCancelButton: false,
                 type: 'warning'
               }).then(() => {
+                if (!this.hasRefreshToken()) {
+                  this.heartPrompting = false
+                  this.logOut()
+                  return
+                }
                 refreshAccessToken(localStorage.getItem("refreshToken")).then(response => {
                   if (response && response.data && response.data.code === 0) {
                     if (response.data.token) {
@@ -73,13 +84,17 @@ import {getAsyncRoutes} from "@/router/asyncRouter.js";
       }
     },
     mounted() {
-      if (this.isLoginRoute()) {
+      if (this.isLoginRoute() || !this.hasAuthToken()) {
         return;
       }
       this.startHeartbeat();
       heart().then(res => {
         if (res.status === 200) {
           if (res.data === 'refresh') {
+                if (!this.hasRefreshToken()) {
+                  this.logOut()
+                  return
+                }
                 refreshAccessToken(localStorage.getItem("refreshToken")).then((response) => {
                 if (response && response.data) {
                   if (response.data.code !== 0) {
