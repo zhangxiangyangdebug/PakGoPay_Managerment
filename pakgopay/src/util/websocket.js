@@ -10,7 +10,8 @@ const RETRY_TIMEOUT = 5000; // reconnect time 5s
  * connect websocket
  */
 export function connectWebSocket(topic, onMessageCallback, refreshCallback) {
-    const socket = new SockJS('http://localhost:8090/pakGoPay/server/notify');
+    const wsBaseUrl = import.meta.env.VITE_WS_BASE_URL || '';
+    const socket = new SockJS(`${wsBaseUrl}/pakGoPay/server/notify`);
     const headers = {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
     }

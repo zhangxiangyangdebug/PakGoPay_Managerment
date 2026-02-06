@@ -190,7 +190,7 @@
         <header class="card-header">
           <div>
             <h2>{{ $t('home.trendTitle') }}</h2>
-            <p>{{ $t('home.trendSubtitle', { dimension: dimensionLabel }) }}</p>
+            <p>{{ trendSubtitle }}</p>
           </div>
           <div class="chart-tabs">
             <button
@@ -357,10 +357,18 @@ export default {
       return this.$i18n.locale;
     },
     dateLabel() {
-      return this.$t('home.dateLabel', {
+      const message = this.$t('home.dateLabel', {
         dimension: this.getDimensionLabel(),
         date: this.getFormattedDate()
       });
+      return this.formatI18nMessage(message, {
+        dimension: this.getDimensionLabel(),
+        date: this.getFormattedDate()
+      });
+    },
+    trendSubtitle() {
+      const message = this.$t('home.trendSubtitle', { dimension: this.getDimensionLabel() });
+      return this.formatI18nMessage(message, { dimension: this.getDimensionLabel() });
     },
     dimensionLabel() {
       return this.getDimensionLabel();
@@ -485,11 +493,16 @@ export default {
       if (res.status === 200 && res.data.code === 0) {
         if (res.data.data !== 'success') {
           const remainTimes = 3 - Number(res.data.data || 0);
+          const remainHtml = `<strong>${remainTimes}</strong>`;
+          let unboundText = this.$t('home.googleUnboundText', { times: remainHtml });
+          if (unboundText.includes('{times}')) {
+            unboundText = unboundText.replace('{times}', remainHtml);
+          }
           const alertContent = `
             <div class="ops-alert-body">
               <div class="ops-alert-title">${this.$t('home.googleUnboundTitle')}</div>
               <div class="ops-alert-text">
-                ${this.$t('home.googleUnboundText', { times: `<strong>${remainTimes}</strong>` })}
+                ${unboundText}
               </div>
             </div>
           `;
@@ -532,12 +545,11 @@ export default {
     fetchOpsReport() {
       const payload = this.buildOpsRequest();
       if (!payload.currency) {
-        this.$notify({
-          title: this.$t('common.failed'),
-          type: 'error',
-          duration: 3000,
-          message: this.$t('home.currencyFetchFailed')
-        });
+        this.selectedDate = this.getDefaultDateForDimension();
+        this.opsReport = {
+          collection: {},
+          paying: {}
+        };
         return;
       }
       this.isLoading = true;
@@ -551,6 +563,9 @@ export default {
           const data = this.parseOpsPayload(res.data.data);
           const collectionList = data.collectionList || data.collection || data.collecting || data.ds || [];
           const payoutList = data.payoutList || data.paying || data.df || [];
+          if ((!collectionList || collectionList.length === 0) && (!payoutList || payoutList.length === 0)) {
+            this.selectedDate = this.getDefaultDateForDimension();
+          }
           this.applyOpsData(collectionList, payoutList);
         } else if (res?.data?.code !== 0) {
           this.$notify({
@@ -688,6 +703,15 @@ export default {
             });
             this.currencyIcon = this.currencyIcons[this.currency] || "";
           }
+          return;
+        }
+        if (res?.data?.code !== 0) {
+          this.$notify({
+            title: this.$t('common.failed'),
+            type: 'error',
+            duration: 3000,
+            message: res.data.message || this.$t('home.currencyFetchFailed')
+          });
         }
       } catch (error) {
         this.currency = "";
@@ -880,6 +904,16 @@ export default {
     },
     getFormattedDate() {
       return this.selectedDate || "";
+    },
+    formatI18nMessage(message, params) {
+      if (!message || !params) {
+        return message;
+      }
+      let result = String(message);
+      Object.entries(params).forEach(([key, value]) => {
+        result = result.replace(`{${key}}`, value ?? "");
+      });
+      return result;
     },
     getDefaultDateForDimension() {
       const now = new Date();

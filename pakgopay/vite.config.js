@@ -1,31 +1,38 @@
-import { fileURLToPath, URL } from 'node:url'
+import {fileURLToPath, URL} from 'node:url'
 
-import { defineConfig } from 'vite'
+import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
+import {createSvgIconsPlugin} from "vite-plugin-svg-icons";
 import path from 'path'
 import {resolve} from "node:dns";
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    vue(),
-    createSvgIconsPlugin({
-        iconDirs: [path.resolve(process.cwd(), 'src/assets/svg')],
-        symbolId: 'icon-[dir]-[name]'
-    }),
-    /*viteCompression({
-        verbose:true,//控制台输出压缩结果
-        disable:false,//开启还是禁用
-        threshold:1024,//体积大于threshold的设置压缩
-        algorithm:'gzip',//压缩算法
-        ext:'gz',//文件后缀名
-    })*/
-  ],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+    base: "https://static.wanwanpay.com/",
+    define: {
+        __VUE_I18N_FULL_INSTALL__: true,
+        __VUE_I18N_LEGACY_API__: true,
+        __INTLIFY_PROD_DEVTOOLS__: false,
+        __INTLIFY_JIT_COMPILATION__: true,
     },
-  },
+    plugins: [
+        vue(),
+        createSvgIconsPlugin({
+            iconDirs: [path.resolve(process.cwd(), 'src/assets/svg')],
+            symbolId: 'icon-[dir]-[name]'
+        }),
+        /*viteCompression({
+            verbose:true,//控制台输出压缩结果
+            disable:false,//开启还是禁用
+            threshold:1024,//体积大于threshold的设置压缩
+            algorithm:'gzip',//压缩算法
+            ext:'gz',//文件后缀名
+        })*/
+    ],
+    resolve: {
+        alias: {
+            '@': fileURLToPath(new URL('./src', import.meta.url))
+        },
+    },
 
     server: {
         host: 'localhost',

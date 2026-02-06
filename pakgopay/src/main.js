@@ -14,8 +14,19 @@ import { createI18n } from 'vue-i18n'
 // 导入语言包
 import messages from './locales'
 
+const storedLang = localStorage.getItem('lang');
+const browserLang = (navigator.language || '').toLowerCase();
+const resolvedBrowserLang = browserLang.startsWith('zh')
+  ? 'zh-cn'
+  : browserLang.startsWith('ms')
+    ? 'ms'
+    : 'en';
+const initialLang = storedLang || resolvedBrowserLang || 'zh-cn';
+if (!storedLang) {
+  localStorage.setItem('lang', initialLang);
+}
 export const i18n = createI18n({
-    locale: 'zh-cn', //默认语言
+    locale: initialLang, //默认语言
     fallbackLocale: 'zh-cn',
     messages,
     globalInjection: true, //全局注入$t函数

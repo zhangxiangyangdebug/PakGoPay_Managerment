@@ -65,12 +65,12 @@ const handleRegister = () => {
     <div class="auth-card">
       <!-- 标题：根据模式显示不同文字 -->
       <h1 class="title">
-        {{ isLogin ? 'Welcome Back' : 'Create Account' }}
+        {{ isLogin ? $t('login.legacy.title.login') : $t('login.legacy.title.register') }}
       </h1>
 
       <!-- 副标题 -->
       <p class="subtitle">
-        {{ isLogin ? 'login to use' : 'sign info to use' }}
+        {{ isLogin ? $t('login.legacy.subtitle.login') : $t('login.legacy.subtitle.register') }}
       </p>
 
       <!-- 表单内容区域（后面会填充） -->
@@ -81,14 +81,14 @@ const handleRegister = () => {
             <!-- 标签 -->
             <label class="form-label">
               <SvgIcon name="user"/>
-              Account/Email
+              {{ $t('login.legacy.label.accountEmail') }}
             </label>
 
             <!-- 输入框 -->
             <input
                 v-model="loginForm.userName"
                 type="text"
-                placeholder="input username or email address"
+                :placeholder="$t('login.legacy.placeholder.usernameEmail')"
                 class="form-input"
                 autocomplete="loginForm.username"
                 :style="firstInput"
@@ -99,13 +99,13 @@ const handleRegister = () => {
           <div class="form-item">
             <label class="form-label">
               <SvgIcon name="pass"/>
-              Password
+              {{ $t('login.legacy.label.password') }}
             </label>
 
             <input
                 v-model="loginForm.password"
                 type="password"
-                placeholder="please input password"
+                :placeholder="$t('login.legacy.placeholder.password')"
                 class="form-input"
                 autocomplete="loginForm.password"
                 :style="secondInput"
@@ -115,12 +115,12 @@ const handleRegister = () => {
           <div class="form-item">
             <label class="form-label">
               <SvgIcon name="pass"/>
-              Verification Code
+              {{ $t('login.legacy.label.verificationCode') }}
             </label>
               <input
                   v-model="loginForm.code"
                   type="text"
-                  placeholder="please input verification code"
+                  :placeholder="$t('login.legacy.placeholder.verificationCode')"
                   class="form-input"
                   autocomplete="loginForm.code"
                   :style="thirdInput"
@@ -139,19 +139,19 @@ const handleRegister = () => {
                   type="checkbox"
                   class="checkbox-input"
               />
-              <span>remember me</span>
+              <span>{{ $t('login.legacy.rememberMe') }}</span>
             </label>
 
-            <input style="background-color: transparent;box-shadow: none;color: white;border:white;text-decoration: underline;cursor: pointer;" type="button" @click="getQrCodes(loginForm.userName, loginForm.password)" value="haven't code? click here" />
+            <input style="background-color: transparent;box-shadow: none;color: white;border:white;text-decoration: underline;cursor: pointer;" type="button" @click="getQrCodes(loginForm.userName, loginForm.password)" :value="$t('login.legacy.needCode')" />
 
             <!-- 忘记密码链接 -->
-            <a href="#" class="forgot-link">forgot password？</a>
+            <a href="#" class="forgot-link">{{ $t('login.legacy.forgotPassword') }}</a>
           </div>
 
           <!-- 登录按钮 -->
           <button class="submit-btn" @click="login(loginForm)" type="button">
             <SvgIcon name="submitBtn"/>
-            Login Now
+            {{ $t('login.legacy.action.loginNow') }}
           </button>
 <!--          <button class="submit-btn" @click="getQrCodes(loginForm.username)" type="button">扫码登录</button>-->
         </div>
@@ -160,14 +160,14 @@ const handleRegister = () => {
             <!-- 标签 -->
             <label class="form-label">
               <SvgIcon name="user"/>
-              Account
+              {{ $t('login.legacy.label.account') }}
             </label>
 
             <!-- 输入框 -->
             <input
                 v-model="registerForm.username"
                 type="text"
-                placeholder="input username or email address"
+                :placeholder="$t('login.legacy.placeholder.usernameEmail')"
                 class="form-input"
                 autocomplete="registerForm.username"
             />
@@ -177,13 +177,13 @@ const handleRegister = () => {
           <div class="form-item">
             <label class="form-label">
               <SvgIcon name="pass"/>
-              Password
+              {{ $t('login.legacy.label.password') }}
             </label>
 
             <input
                 v-model="registerForm.password"
                 type="password"
-                placeholder="please input password"
+                :placeholder="$t('login.legacy.placeholder.password')"
                 class="form-input"
                 autocomplete="registerForm.password"
             />
@@ -193,13 +193,13 @@ const handleRegister = () => {
           <div class="form-item">
             <label class="form-label">
               <SvgIcon name="pass"/>
-              Confirm Password
+              {{ $t('login.legacy.label.confirmPassword') }}
             </label>
 
             <input
                 v-model="registerForm.password2"
                 type="password"
-                placeholder="please input password again"
+                :placeholder="$t('login.legacy.placeholder.passwordAgain')"
                 class="form-input"
                 autocomplete="registerForm.password2"
             />
@@ -209,13 +209,13 @@ const handleRegister = () => {
           <div class="form-item">
             <label class="form-label">
               <SvgIcon name="email"/>
-              Email
+              {{ $t('login.legacy.label.email') }}
             </label>
 
             <input
                 v-model="registerForm.email"
                 type="password"
-                placeholder="please input email"
+                :placeholder="$t('login.legacy.placeholder.email')"
                 class="form-input"
             />
           </div>
@@ -223,7 +223,7 @@ const handleRegister = () => {
           <!-- 注册按钮 -->
           <button class="submit-btn" @click="handleRegister">
             <SvgIcon name="submitBtn"/>
-            Sign Up Now
+            {{ $t('login.legacy.action.signUpNow') }}
           </button>
 
         </div>
@@ -231,9 +231,9 @@ const handleRegister = () => {
       <canvas ref="canvas" width="300" height="300"></canvas>
       <!-- 底部切换按钮 -->
       <div class="toggle-mode">
-        <span>{{ isLogin ? 'no account？' : 'have account？' }}</span>
+        <span>{{ isLogin ? $t('login.legacy.toggle.noAccount') : $t('login.legacy.toggle.haveAccount') }}</span>
         <button @click="toggleMode">
-          {{ isLogin ? 'register now' : 'login now' }}
+          {{ isLogin ? $t('login.legacy.toggle.registerNow') : $t('login.legacy.toggle.loginNow') }}
         </button>
       </div>
 

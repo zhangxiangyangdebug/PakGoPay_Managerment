@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "vite --mode development",
     "build": "vite build",
+    "postbuild": "node scripts/gen-headers.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

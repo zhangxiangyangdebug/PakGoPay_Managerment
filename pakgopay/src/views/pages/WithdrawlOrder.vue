@@ -623,6 +623,13 @@ export default {
           });
           this.currencyIcon = this.currencyIcons[this.currency] || '';
         }
+      } else if (res.status !== 200 || res.data.code !== 0) {
+        this.$notify({
+          title: this.$t('common.failed'),
+          type: 'error',
+          duration: 3000,
+          message: this.$t('currencyTypeList.message.getFailed')
+        })
       }
     });
     await getMerchantInfo({pageSize: 1000}).then(res => {

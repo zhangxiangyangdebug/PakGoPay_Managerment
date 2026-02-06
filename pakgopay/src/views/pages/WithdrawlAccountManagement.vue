@@ -1122,9 +1122,9 @@ export default {
     this.filterbox.name = this.roleName=== 'merchant'? localStorage.getItem('userName') : null
     this.filterAvaiable = this.roleName === 'merchant'? true : false
         getAllCurrencyType().then(res => {
-      if (res.status === 200) {
-        if (res.data.code === 0) {
-          this.currencyOptions = JSON.parse(res.data.data).currencyTypeDTOList
+      if (res.status === 200 && res.data.code === 0) {
+        this.currencyOptions = JSON.parse(res.data.data).currencyTypeDTOList
+        if (this.currencyOptions.length > 0) {
           this.currency = this.currencyOptions[0].currencyType
           this.filterbox.currency = this.currencyOptions[0].currencyType
           //this.filterbox.currency = this.currencyOptions[0].currencyType
@@ -1137,6 +1137,14 @@ export default {
           let iconKey = this.currency;
           this.currencyIcon = this.currencyIcons[iconKey]
         }
+      } else if (res.status !== 200 || res.data.code !== 0) {
+        this.$notify({
+          title: this.$t('common.failed'),
+          message: this.$t('currencyTypeList.message.getFailed'),
+          duration: 3000,
+          type: 'error',
+          position: 'bottom-right'
+        })
       }
       this.search()
       this.getNewstMerchantInfo()

@@ -1,5 +1,16 @@
 <template>
   <div class="login-page">
+    <div class="lang-switch">
+      <label class="lang-label">
+        <SvgIcon class="lang-icon" name="language" />
+        {{ $t('language') }}
+      </label>
+      <select class="lang-select" v-model="selectedLang" @change="changeLanguage">
+        <option v-for="item in languageOptions" :key="item.value" :value="item.value">
+          {{ item.label }}
+        </option>
+      </select>
+    </div>
     <div class="login-card">
       <div class="login-title">{{ $t('login.title') }}</div>
       <div class="login-subtitle">{{ $t('login.subtitle') }}</div>
@@ -73,6 +84,11 @@
           :placeholder="$t('login.placeholder.googleCode')"
           autocomplete="one-time-code"
         />
+        <label class="login-label">{{ $t('login.label.turnstile') }}</label>
+        <div class="turnstile-wrap">
+          <div ref="turnstileWidget" class="turnstile-widget"></div>
+          <div v-if="turnstileError" class="turnstile-error">{{ turnstileError }}</div>
+        </div>
         <div class="login-actions">
           <button class="btn-primary" type="button" @click="login(loginForm)">
             {{ $t('login.action.login') }}
@@ -89,6 +105,7 @@
 
 <script>
 import Modal from "@/components/Modal.vue";
+import SvgIcon from "@/components/SvgIcon/index.vue";
 import { ElMessage } from "element-plus";
 import {getCommonMessage, getQrCode, LoginBack, menu} from "@/api/interface/backendInterface.js";
 import { getAsyncRoutes } from "@/router/asyncRouter.js";
@@ -97,30 +114,112 @@ import router from "@/router/index.js";
 export default {
   name: "LoginNew",
   components: {
-    Modal
+    Modal,
+    SvgIcon
   },
   data() {
     return {
       loginForm: {
         userName: "",
         password: "",
-        code: ""
+        code: "",
+        turnstileToken: ""
       },
+      turnstileEnabled: import.meta.env.VITE_TURNSTILE_ENABLED !== "false",
+      turnstileSiteKey: import.meta.env.VITE_TURNSTILE_SITE_KEY || "",
+      turnstileWidgetId: null,
+      turnstileError: "",
       showPassword: false,
       isQrCode: true,
-      qrCodeUrl: ""
+      qrCodeUrl: "",
+      selectedLang: "zh-cn",
+      languageOptions: []
     };
   },
   methods: {
+    changeLanguage() {
+      this.$i18n.locale = this.selectedLang;
+      localStorage.setItem("lang", this.selectedLang);
+      this.refreshLanguageOptions();
+    },
+    refreshLanguageOptions() {
+      this.languageOptions = [
+        { value: 'en', label: this.$t('language.en') },
+        { value: 'zh-cn', label: this.$t('language.zh') },
+        { value: 'ms', label: this.$t('language.ms') }
+      ];
+    },
+    loadTurnstile() {
+      if (!this.turnstileEnabled) {
+        return;
+      }
+      if (!this.turnstileSiteKey) {
+        this.turnstileError = this.$t('login.error.turnstileMissing');
+        return;
+      }
+      if (window.turnstile) {
+        this.renderTurnstile();
+        return;
+      }
+      const scriptId = "cf-turnstile-script";
+      const existing = document.getElementById(scriptId);
+      if (existing) {
+        existing.addEventListener("load", this.renderTurnstile);
+        return;
+      }
+      const script = document.createElement("script");
+      script.id = scriptId;
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.defer = true;
+      script.onload = () => this.renderTurnstile();
+      script.onerror = () => {
+        this.turnstileError = this.$t('login.error.turnstileFailed');
+      };
+      document.head.appendChild(script);
+    },
+    renderTurnstile() {
+      if (!window.turnstile || !this.$refs.turnstileWidget) return;
+      if (this.turnstileWidgetId !== null) {
+        window.turnstile.reset(this.turnstileWidgetId);
+        return;
+      }
+      this.turnstileWidgetId = window.turnstile.render(this.$refs.turnstileWidget, {
+        sitekey: this.turnstileSiteKey,
+        callback: (token) => {
+          this.turnstileError = "";
+          this.loginForm.turnstileToken = token;
+        },
+        "expired-callback": () => {
+          this.loginForm.turnstileToken = "";
+        },
+        "error-callback": () => {
+          this.loginForm.turnstileToken = "";
+          this.turnstileError = this.$t('login.error.turnstileFailed');
+        }
+      });
+    },
+    resetTurnstile() {
+      if (window.turnstile && this.turnstileWidgetId !== null) {
+        window.turnstile.reset(this.turnstileWidgetId);
+      }
+      this.loginForm.turnstileToken = "";
+    },
     async login(loginForm) {
       if (!loginForm.userName || !loginForm.password) {
         ElMessage.error(this.$t('login.error.missingAccountPassword'));
         return;
       }
+      if (this.turnstileEnabled && !loginForm.turnstileToken) {
+        ElMessage.error(this.$t('login.error.turnstileRequired'));
+        this.resetTurnstile();
+        return;
+      }
       await LoginBack(loginForm).then((response) => {
         if (response.status === 200 && response.data) {
           if (response.data.code !== 0) {
-            ElMessage.error(response.data.message);
+            ElMessage.error(response.data.message || this.$t('login.error.loginFailed'));
+            this.resetTurnstile();
             return;
           }
           try {
@@ -151,13 +250,17 @@ export default {
                 });
                 // get commonMessage
 
+              } else {
+                ElMessage.error(this.$t('login.error.menuFailed'));
               }
             });
           } catch (e) {
             console.error(e);
+            ElMessage.error(this.$t('login.error.loginFailed'));
           }
         } else {
-          ElMessage.error(response.data.message);
+          ElMessage.error(response?.data?.message || this.$t('login.error.loginFailed'));
+          this.resetTurnstile();
         }
       });
     },
@@ -169,16 +272,27 @@ export default {
       getQrCode(username, password).then((res) => {
         if (res.status === 200 && res.data.code !== 0) {
           ElMessage({
-            message: res.data.message,
+            message: res.data.message || this.$t('login.error.qrFailed'),
             type: "warning",
             showClose: true
           });
+          return;
+        }
+        if (res.status !== 200) {
+          ElMessage.error(this.$t('login.error.qrFailed'));
           return;
         }
         this.isQrCode = false;
         this.qrCodeUrl = "data:image/png;base64," + res.data.data;
       });
     }
+  },
+  mounted() {
+    const storedLang = localStorage.getItem("lang");
+    this.selectedLang = storedLang || this.$i18n.locale || "zh-cn";
+    this.$i18n.locale = this.selectedLang;
+    this.refreshLanguageOptions();
+    this.loadTurnstile();
   }
 };
 </script>
@@ -275,6 +389,68 @@ export default {
 .password-field .login-input {
   width: 100%;
   padding-right: 70px;
+}
+
+.turnstile-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.turnstile-widget {
+  min-height: 65px;
+  display: flex;
+  align-items: center;
+}
+
+.turnstile-error {
+  font-size: 12px;
+  color: #ef4444;
+}
+
+.lang-switch {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+}
+
+.lang-label {
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-shadow: none;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  line-height: 1;
+}
+
+.lang-icon {
+  width: 25px;
+  height: 25px;
+  flex: 0 0 auto;
+}
+
+.lang-select {
+  background: rgba(9, 18, 40, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.65);
+  color: #f8fafc;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  outline: none;
+  box-shadow: 0 4px 12px rgba(4, 10, 24, 0.3);
+}
+
+.lang-select:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.25);
 }
 
 .toggle-password {

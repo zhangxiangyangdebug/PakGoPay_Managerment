@@ -4,7 +4,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 </script>
 
 <template>
- <div class="main-title">{{ this.$t('route.currencyTypeList') }}</div>
+ <div class="main-title">{{ $t('route.currencyTypeList') }}</div>
 
 
  <div class="toolbar" style="width: 96%">
@@ -329,6 +329,15 @@ export default {
     getAllCurrencyType().then(res => {
       if (res.status === 200 && res.data.code === 0) {
         this.currencyOptions = JSON.parse(res.data.data).currencyTypeDTOList
+        return;
+      }
+      if (res.status !== 200 || res.data.code !== 0) {
+        this.$notify({
+          title: this.$t('common.failed'),
+          message: this.$t('currencyTypeList.message.getFailed'),
+          type: 'error',
+          position: 'bottom-right'
+        })
       }
     })
     this.getCurrencyTypeList();

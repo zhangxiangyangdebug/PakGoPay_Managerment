@@ -37,11 +37,18 @@ if ! command -v npm >/dev/null 2>&1; then
   exit 1
 fi
 
+# prompt for Turnstile site key
+read -r -p "Enter VITE_TURNSTILE_SITE_KEY: " VITE_TURNSTILE_SITE_KEY
+if [ -z "$VITE_TURNSTILE_SITE_KEY" ]; then
+  echo "ERROR: VITE_TURNSTILE_SITE_KEY is required" >&2
+  exit 1
+fi
+
 # 1) build dist locally
 if [ ! -d "$SCRIPT_DIR/node_modules" ]; then
   npm install
 fi
-npm run build -- --mode "$VITE_MODE"
+VITE_TURNSTILE_SITE_KEY="$VITE_TURNSTILE_SITE_KEY" npm run build -- --mode "$VITE_MODE"
 
 if [ ! -d "$SCRIPT_DIR/dist" ]; then
   echo "ERROR: dist not found after build in $SCRIPT_DIR/dist" >&2

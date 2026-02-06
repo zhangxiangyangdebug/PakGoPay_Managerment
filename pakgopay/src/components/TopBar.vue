@@ -105,6 +105,7 @@ export default {
     },
     changeLanauage(lang) {
       this.$i18n.locale = lang;
+      localStorage.setItem("lang", lang);
       this.refreshLanguageOptions();
     },
     refreshLanguageOptions() {
