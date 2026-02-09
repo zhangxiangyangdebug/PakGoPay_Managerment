@@ -32,6 +32,16 @@ export const i18n = createI18n({
     globalInjection: true, //全局注入$t函数
 });
 
+// Ensure named interpolation still works even if runtime compiler is missing in production
+const rawT = i18n.global.t.bind(i18n.global);
+i18n.global.t = (key, params) => {
+  const msg = rawT(key, params);
+  if (!params || typeof msg !== 'string') return msg;
+  return Object.keys(params).reduce((text, k) => {
+    return text.replace(`{${k}}`, params[k]);
+  }, msg);
+};
+
 
 
 let clientId = '554967085940-o3uql5embk68sm0ihlh466ho3qkqsv26.apps.googleusercontent.com'

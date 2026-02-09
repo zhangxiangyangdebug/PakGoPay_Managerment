@@ -293,6 +293,11 @@ export default {
     this.$i18n.locale = this.selectedLang;
     this.refreshLanguageOptions();
     this.loadTurnstile();
+  },
+  watch: {
+    "$i18n.locale"() {
+      this.refreshLanguageOptions();
+    }
   }
 };
 </script>

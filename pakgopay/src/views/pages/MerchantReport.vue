@@ -209,6 +209,9 @@ export default {
       this.filterbox.isNeeded = true
     },
     search(orderType, paneName) {
+      if (this.currencyOptions.length === 0) {
+        return
+      }
       this.filterbox.isNeedCardData = true
       let loadingClass = ''
       if (paneName === '0') {

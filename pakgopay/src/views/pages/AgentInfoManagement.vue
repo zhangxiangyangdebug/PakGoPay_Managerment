@@ -988,7 +988,6 @@ export default {
            this.agentInfo.channelIds = this.agentInfo.channelIdList
            if (this.modifyType === 'edit') {
              // modify
-             alert(JSON.stringify(this.agentInfo))
              modifyAgentInfo(this.agentInfo).then((res) => {
                if (res.status === 200 && res.data.code === 0) {
                  this.search()

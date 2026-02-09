@@ -832,6 +832,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             is-range
             range-separator="-"
             @change="timeChange"
+            style="width: 200px"
             />
           </el-form-item>
         </el-col>
@@ -865,6 +866,15 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
       </el-row>
       <el-row style="width: 100%">
+        <el-col :span="6" v-if="createPathChannelInfo.isCheckoutCounter===1">
+          <el-form-item
+            :label="$t('pathChannelList.form.checkoutCounterUrl')"
+            label-width="150px"
+            prop="checkoutCounterUrl"
+          >
+            <el-input style="width: 200px" v-model="createPathChannelInfo.checkoutCounterUrl"></el-input>
+          </el-form-item>
+        </el-col>
         <el-col :span="6">
           <el-form-item
               :label="$t('pathChannelList.form.paymentMinAmount')"
@@ -1061,21 +1071,34 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
           </el-form-item>
         </el-col>
       </el-row>
-      <el-row style="width: 100%">
-        <el-col :span="6">
-          <el-form-item
-              :label="$t('common.googleCode')"
-              label-width="150px"
-              prop="googleCode"
-          >
-            <el-input v-model="createPathChannelInfo.googleCode" type="number" style="width: 200px"/>
-          </el-form-item>
-        </el-col>
-      </el-row>
     </el-form>
     <div slot="footer" class="dialog-footer" style="float: right;">
       <el-button @click="cancelDialog">{{ $t('common.cancel') }}</el-button>
       <el-button type="primary" @click="submitCreatePaymentInfo(submitType)">{{ $t('common.confirm') }}</el-button>
+    </div>
+  </el-dialog>
+  <el-dialog
+    :title="confirmDialogTitle"
+    v-model="confirmDialogVisible"
+    class="dialog"
+    center
+    width="30%"
+    height="200px"
+  >
+    <el-form ref="confirmDataForm" :rules="confirmRule" :model="confirmData" style="height:100px;margin-top: 20px">
+      <el-row>
+        <el-col :span="24" style="display: flex;justify-content: center;justify-items: center;align-items: center;">
+          <div>
+            <el-form-item :label="$t('common.googleCode')" label-width="150px" prop="googleCode">
+              <el-input v-model="confirmData.googleCode" style="width: 200px"/>
+            </el-form-item>
+          </div>
+        </el-col>
+      </el-row>
+    </el-form>
+    <div slot="footer" class="dialog-footer" style="margin-right: 3%;height: 30px;">
+      <el-button @click="cancelConfirmDialog('confirmDataForm')">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="submitConfirm('confirmDataForm')">{{ $t('common.confirm') }}</el-button>
     </div>
   </el-dialog>
 </template>
@@ -1126,6 +1149,16 @@ export default {
       }
     }
 
+    const validateCheckoutCounterUrl = (rule, value, callback) => {
+      if (this.createPathChannelInfo.isCheckoutCounter == 1) {
+        if (value == '' || value === undefined) {
+          callback(new Error(this.$t('pathChannelList.validation.checkoutCounterUrl')))
+          return;
+        }
+      }
+      callback();
+    }
+
     return {
       activeTool: '1',
       createPaymentInfoRules : {
@@ -1152,6 +1185,9 @@ export default {
         },
         isCheckoutCounter: {
           required: true, type: 'number', messages: this.$t('pathChannelList.validation.checkoutCounter'), trigger: 'blur'
+        },
+        checkoutCounterUrl: {
+          validator: validateCheckoutCounterUrl, trigger: 'blur'
         },
         paymentMinAmount: {
           required: true, type: 'number', messages: this.$t('pathChannelList.validation.paymentMinAmount'), trigger: 'blur'
@@ -1213,9 +1249,6 @@ export default {
         currency: {
           required: true, messages: this.$t('pathChannelList.validation.currency'),trigger: 'blur'
         },
-        googleCode: {
-          required: true, messages: this.$t('common.googleCodeRequired'),trigger: 'blur'
-        }
       },
       submitType: "",
       currencyMaps: {},
@@ -1231,6 +1264,19 @@ export default {
       toolbarIsVisible: true,
       pathChannelDialogTitle: "",
       dialogFormVisible: false,
+      confirmDialogVisible: false,
+      confirmDialogTitle: '',
+      confirmData: {
+        googleCode: ''
+      },
+      confirmRule: {
+        googleCode: {
+          required: true,
+          message: this.$t('common.googleCodeRequired'),
+          trigger: 'blur',
+        }
+      },
+      pendingSubmitType: '',
       paymentStatusOptions: [],
       pathChannelCurrencyTypeOptions: [],
       supportTypeOptions: [],
@@ -1398,6 +1444,11 @@ export default {
     editPathChannelInfo(row) {
       console.log('editInfo----'+JSON.stringify(row))
       this.createPathChannelInfo = row
+      if (row && row.enableTimePeriod) {
+        this.createPathChannelInfo.enableTimePeriod1 = row.enableTimePeriod.split(',')
+      } else {
+        this.createPathChannelInfo.enableTimePeriod1 = ''
+      }
       this.dialogFormVisible = true
       this.pathChannelDialogTitle = this.$t('pathChannelList.dialog.edit')
       this.submitType='edit'
@@ -1427,7 +1478,14 @@ export default {
     },
     cancelDialog() {
       this.dialogFormVisible = false
-      this.createPathChannelInfo = []
+      if (this.createPathChannelInfo && this.createPathChannelInfo.googleCode) {
+        this.createPathChannelInfo.googleCode = ''
+      }
+      if (this.createPathChannelInfo) {
+        this.createPathChannelInfo.enableTimePeriod1 = ''
+        this.createPathChannelInfo.enableTimePeriod = ''
+      }
+      this.createPathChannelInfo = {}
       this.pathChannelDialogTitle = ''
       this.$refs['createPaymentForm'].resetFields()
     },
@@ -1440,6 +1498,8 @@ export default {
       this.createPathChannelInfo.isThird = '0'
       // set default checkout counter
       this.createPathChannelInfo.isCheckoutCounter = 0
+      this.createPathChannelInfo.enableTimePeriod1 = ''
+      this.createPathChannelInfo.enableTimePeriod = ''
       this.submitType = "create"
     },
     handlePayingTypeChange(val) {
@@ -1447,82 +1507,95 @@ export default {
         this.showURL = true;
       }
     },
+    handlePaymentResponse(res, successMessage) {
+      if (res.status === 200 && res.data.code === 0) {
+        this.$notify({
+          title: this.$t('common.success'),
+          message: successMessage,
+          duration:3000,
+          type: 'success',
+          position: 'bottom-right'
+        })
+        this.dialogFormVisible = false
+        this.pathChannelDialogTitle = ''
+        this.$refs['createPaymentForm'].resetFields()
+        if (this.createPathChannelInfo) {
+          this.createPathChannelInfo.enableTimePeriod1 = ''
+          this.createPathChannelInfo.enableTimePeriod = ''
+        }
+      } else if (res.status === 200 && res.data.code !== 0) {
+        this.$notify({
+          title: this.$t('common.error'),
+          message:res.data.message,
+          duration:3000,
+          type: 'error',
+          position: 'bottom-right'
+        })
+      } else {
+        this.$notify({
+          title: this.$t('common.error'),
+          message: this.$t('common.requestFailed'),
+          duration:3000,
+          type: 'error',
+          position: 'bottom-right'
+        })
+      }
+      this.search()
+      if (this.createPathChannelInfo && this.createPathChannelInfo.googleCode) {
+        this.createPathChannelInfo.googleCode = ''
+      }
+    },
     submitCreatePaymentInfo(type) {
       console.log('submitCreatePaymentInfo'+ JSON.stringify(this.createPathChannelInfo))
       if (type === 'create') {
         this.$refs['createPaymentForm'].validate(valid => {
           if (valid) {
-            // reuqest interface to create
-            createPaymentInfo(this.createPathChannelInfo).then(res => {
-              if (res.status === 200 && res.data.code === 0) {
-                this.$notify({
-                  title: this.$t('common.success'),
-                  message: this.$t('pathChannelList.message.createSuccess'),
-                  duration:3000,
-                  type: 'success',
-                  position: 'bottom-right'
-                })
-              } else if (res.status === 200 && res.data.code !== 0) {
-                this.$notify({
-                  title: this.$t('common.error'),
-                  message:res.data.message,
-                  duration:3000,
-                  type: 'error',
-                  position: 'bottom-right'
-                })
-              } else {
-                this.$notify({
-                  title: this.$t('common.error'),
-                  message: this.$t('common.requestFailed'),
-                  duration:3000,
-                  type: 'error',
-                  position: 'bottom-right'
-                })
-              }
-              this.dialogFormVisible = false
-              this.pathChannelDialogTitle = ''
-              this.$refs['createPaymentForm'].resetFields()
-              this.search()
-            })
+            this.pendingSubmitType = 'create'
+            this.confirmDialogTitle = this.$t('common.prompt')
+            this.confirmDialogVisible = true
           }
         })
       } else {
         this.$refs['createPaymentForm'].validate(valid => {
           if (valid) {
-            // request interface to edit
-            editPaymentInfo(this.createPathChannelInfo).then(res => {
-                if (res.status === 200 && res.data.code === 0) {
-                   this.$notify({
-                     title: this.$t('common.success'),
-                     message: this.$t('pathChannelList.message.editSuccess'),
-                     duration:3000,
-                     type: 'success',
-                     position: 'bottom-right'
-                   })
-                } else if (res.status === 200 && res.data.code !== 0) {
-                  this.$notify({
-                    title: this.$t('common.error'),
-                    message:res.data.message,
-                    duration:3000,
-                    type: 'error',
-                    position: 'bottom-right'
-                  })
-                } else {
-                  this.$notify({
-                    title: this.$t('common.error'),
-                    message: this.$t('common.requestFailed'),
-                    duration:3000,
-                    type: 'error',
-                    position: 'bottom-right'
-                  })
-                }
-                this.dialogFormVisible = false
-                this.pathChannelDialogTitle = ''
-                this.$refs['createPaymentForm'].resetFields()
-                this.search()
-            })
+            this.pendingSubmitType = 'edit'
+            this.confirmDialogTitle = this.$t('common.prompt')
+            this.confirmDialogVisible = true
           }
         })
+      }
+    },
+    submitConfirm(form) {
+      this.$refs[form].validate(valid => {
+        if (!valid) return
+        this.createPathChannelInfo.googleCode = this.confirmData.googleCode
+        this.confirmDialogVisible = false
+        this.confirmDialogTitle = ''
+        if (this.pendingSubmitType === 'create') {
+          createPaymentInfo(this.createPathChannelInfo).then(res => {
+            this.handlePaymentResponse(res, this.$t('pathChannelList.message.createSuccess'))
+            this.confirmData.googleCode = ''
+            this.pendingSubmitType = ''
+          })
+        } else if (this.pendingSubmitType === 'edit') {
+          editPaymentInfo(this.createPathChannelInfo).then(res => {
+            this.handlePaymentResponse(res, this.$t('pathChannelList.message.editSuccess'))
+            this.confirmData.googleCode = ''
+            this.pendingSubmitType = ''
+          })
+        }
+      })
+    },
+    cancelConfirmDialog(form) {
+      this.confirmDialogVisible = false
+      this.confirmDialogTitle = ''
+      this.confirmData.googleCode = ''
+      this.pendingSubmitType = ''
+      if (this.createPathChannelInfo && this.createPathChannelInfo.googleCode) {
+        this.createPathChannelInfo.googleCode = ''
+      }
+      if (this.$refs[form]) {
+        this.$refs[form].resetFields()
       }
     }
   },

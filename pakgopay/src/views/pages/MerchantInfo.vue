@@ -1,62 +1,10 @@
 <script setup>
 import SvgIcon from "@/components/SvgIcon/index.vue";
-import merchantReport from "@/views/pages/MerchantReport.vue";
 import '@/assets/base.css'
-import {getFormateDate} from "@/api/common.js";
 </script>
 
 <template>
   <div class="main-title">{{$t('route.merchantInfo')}}</div>
-<!--  <div style="display: flex;align-items: inherit;margin-top: 1%;margin-bottom:0">
-    <el-form-item style="margin-left: 2%;">
-      <template #label>
-          <span style="color: black;font-size: small;align-items: center;">
-            统计币种:
-          </span>
-      </template>
-      <el-select
-          style="width: 100px;align-items: center;text-align: center;"
-          :options="currencyOptions"
-          :props="currencyProps"
-          default-first-option
-          v-model="filterbox.currency"
-          @change="handleCurrencyChange"
-          filterable
-      />
-    </el-form-item>
-  </div>-->
-  <!-- 统计数据展示 -->
-<!--  <div class="statistics-container">
-    <el-card id="statistics" class="statistics-form">
-      <div class="statistics-form-item">
-        <SvgIcon name="cash" width="100px" height="100px"/>
-        <div style="display: flex; flex-direction: column;width: 80%;">
-          <span>总账户金额:</span>
-          <textarea v-model="statisticsInfo.total" disabled class="cash-text-area"></textarea>
-        </div>
-      </div>
-    </el-card>
-
-    <el-card id="statistics" class="statistics-form">
-      <div class="statistics-form-item">
-        <SvgIcon name="tixian" width="90px" height="90px"/>
-        <div style="display: flex; flex-direction: column;width: 80%;">
-          <span>提现总金额:</span>
-          <textarea v-model="statisticsInfo.withdraw" disabled class="cash-text-area"></textarea>
-        </div>
-      </div>
-    </el-card>
-
-    <el-card id="statistics" class="statistics-form">
-      <div class="statistics-form-item">
-        <SvgIcon name="cash-freeze" width="100px" height="100px"/>
-        <div style="display: flex; flex-direction: column;width: 80%;">
-          <span>冻结总金额:</span>
-          <textarea v-model="statisticsInfo.frozen" disabled class="cash-text-area"></textarea>
-        </div>
-      </div>
-    </el-card>
-  </div>-->
   <el-collapse v-model="activeTool">
     <el-collapse-item name="1">
       <template #title>
@@ -376,12 +324,12 @@ import {getFormateDate} from "@/api/common.js";
         </el-col>
         <el-col :span="6" v-if="dialogFlag !== 'edit'">
           <el-form-item :label="$t('merchantInfo.form.password')" label-width="150px"  prop="accountPwd">
-            <el-input v-model="merchantAddInfo.accountPwd" style="width: 200px"></el-input>
+            <el-input type="password" v-model="merchantAddInfo.accountPwd" style="width: 200px"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="6" v-if="dialogFlag !== 'edit'">
           <el-form-item :label="$t('merchantInfo.form.confirmPassword')" label-width="150px"  prop="accountConfirmPwd">
-            <el-input v-model="merchantAddInfo.accountConfirmPwd" style="width: 200px"></el-input>
+            <el-input type="password" v-model="merchantAddInfo.accountConfirmPwd" style="width: 200px"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -540,12 +488,20 @@ import {getFormateDate} from "@/api/common.js";
         <el-col :span="6">
           <el-form-item :label="$t('merchantInfo.form.payFixedFee')" label-width="150px" prop="payFixedFee">
             <el-input v-model="merchantAddInfo.payFixedFee" style="width: 200px"/>
+            <div v-if="showAgentPayHint && !payFixedFeeValid" class="agent-fee-hint">
+              <SvgIcon name="notice2" class="agent-fee-icon" />
+              <span class="agent-fee-text">{{ $t('merchantInfo.validation.payFixedFeeMin', { value: selectedAgentPayFixedFeeDisplay }) }}</span>
+            </div>
           </el-form-item>
         </el-col>
 <!--        <el-col :span="6" v-if="merchantAddInfo.payingChargingModel===1 || merchantAddInfo.payingChargingModel === 3">-->
         <el-col :span="6">
           <el-form-item :label="$t('merchantInfo.form.payRate')" label-width="150px" prop="payRate">
             <el-input v-model="merchantAddInfo.payRate" style="width: 200px"/>
+            <div v-if="showAgentPayHint && !payRateValid" class="agent-fee-hint">
+              <SvgIcon name="notice2" class="agent-fee-icon" />
+              <span class="agent-fee-text">{{ $t('merchantInfo.validation.payRateMin', { value: selectedAgentPayRateDisplay }) }}</span>
+            </div>
           </el-form-item>
         </el-col>
       </el-row>
@@ -623,11 +579,19 @@ import {getFormateDate} from "@/api/common.js";
         <el-col :span="6">
           <el-form-item :label="$t('merchantInfo.form.collectionFixedFee')" label-width="150px" prop="collectionFixedFee">
             <el-input v-model="merchantAddInfo.collectionFixedFee" style="width: 200px"/>
+            <div v-if="showAgentCollectionHint && !collectionFixedFeeValid" class="agent-fee-hint">
+              <SvgIcon name="notice2" class="agent-fee-icon" />
+              <span class="agent-fee-text">{{ $t('merchantInfo.validation.collectionFixedFeeMin', { value: selectedAgentCollectionFixedFeeDisplay }) }}</span>
+            </div>
           </el-form-item>
         </el-col>
         <el-col :span="6">
           <el-form-item :label="$t('merchantInfo.form.collectionRate')" label-width="150px" prop="collectionRate">
             <el-input v-model="merchantAddInfo.collectionRate" style="width: 200px"/>
+            <div v-if="showAgentCollectionHint && !collectionRateValid" class="agent-fee-hint">
+              <SvgIcon name="notice2" class="agent-fee-icon" />
+              <span class="agent-fee-text">{{ $t('merchantInfo.validation.collectionRateMin', { value: selectedAgentCollectionRateDisplay }) }}</span>
+            </div>
           </el-form-item>
         </el-col>
       </el-row>
@@ -804,6 +768,70 @@ import {
 } from "@/api/interface/backendInterface.js";
 export default {
   name: "MerchantInfo",
+  computed: {
+    selectedAgentInfo() {
+      if (this.merchantAddInfo.useAgent !== 1 || !this.merchantAddInfo.parentId) {
+        return null;
+      }
+      return this.agentOptions.find(item => item.userId === this.merchantAddInfo.parentId) || null;
+    },
+    selectedAgentPayFixedFeeDisplay() {
+      const value = this.selectedAgentInfo?.payFixedFee;
+      return value === undefined || value === null ? '-' : value;
+    },
+    selectedAgentPayRateDisplay() {
+      const value = this.selectedAgentInfo?.payRate;
+      return value === undefined || value === null ? '-' : value;
+    },
+    selectedAgentCollectionFixedFeeDisplay() {
+      const value = this.selectedAgentInfo?.collectionFixedFee;
+      return value === undefined || value === null ? '-' : value;
+    },
+    selectedAgentCollectionRateDisplay() {
+      const value = this.selectedAgentInfo?.collectionRate;
+      return value === undefined || value === null ? '-' : value;
+    },
+    showAgentPayHint() {
+      return this.merchantAddInfo.supportPaying === 1 && this.merchantAddInfo.useAgent === 1 && !!this.merchantAddInfo.parentId;
+    },
+    showAgentCollectionHint() {
+      return this.merchantAddInfo.supportCollection === 1 && this.merchantAddInfo.useAgent === 1 && !!this.merchantAddInfo.parentId;
+    }
+  },
+  watch: {
+    "merchantAddInfo.payFixedFee"() {
+      this.payFixedFeeValid = false;
+    },
+    "merchantAddInfo.payRate"() {
+      this.payRateValid = false;
+    },
+    "merchantAddInfo.parentId"() {
+      this.payFixedFeeValid = false;
+      this.payRateValid = false;
+      this.collectionFixedFeeValid = false;
+      this.collectionRateValid = false;
+    },
+    "merchantAddInfo.useAgent"() {
+      this.payFixedFeeValid = false;
+      this.payRateValid = false;
+      this.collectionFixedFeeValid = false;
+      this.collectionRateValid = false;
+    },
+    "merchantAddInfo.supportPaying"() {
+      this.payFixedFeeValid = false;
+      this.payRateValid = false;
+    },
+    "merchantAddInfo.collectionFixedFee"() {
+      this.collectionFixedFeeValid = false;
+    },
+    "merchantAddInfo.collectionRate"() {
+      this.collectionRateValid = false;
+    },
+    "merchantAddInfo.supportCollection"() {
+      this.collectionFixedFeeValid = false;
+      this.collectionRateValid = false;
+    }
+  },
   data() {
     const cashFloatNumValidate = (rule, value, callback) => {
       if (this.merchantAddInfo.isFloat === 1 && !value) {
@@ -885,29 +913,105 @@ export default {
         callback()
       }
     };
-    const validPayFixedFee = (rule, value, callback) => {
-      if (this.merchantAddInfo.supportPaying === 1) {
-        // support pay
-        if(!value && !this.merchantAddInfo.payRate) {
-          callback(new Error(this.$t('merchantInfo.validation.payFeeRequired')));
-        } else {
-          callback()
-        }
-      } else {
-        callback()
+    const getAgentPayLimits = () => {
+      if (this.merchantAddInfo.useAgent !== 1 || !this.merchantAddInfo.parentId) {
+        return { payFixedFee: null, payRate: null };
       }
+      const agent = this.agentOptions.find(item => item.userId === this.merchantAddInfo.parentId);
+      if (!agent) {
+        return { payFixedFee: null, payRate: null };
+      }
+      return {
+        payFixedFee: agent.payFixedFee ?? null,
+        payRate: agent.payRate ?? null
+      };
+    };
+    const getAgentCollectionLimits = () => {
+      if (this.merchantAddInfo.useAgent !== 1 || !this.merchantAddInfo.parentId) {
+        return { collectionFixedFee: null, collectionRate: null };
+      }
+      const agent = this.agentOptions.find(item => item.userId === this.merchantAddInfo.parentId);
+      if (!agent) {
+        return { collectionFixedFee: null, collectionRate: null };
+      }
+      return {
+        collectionFixedFee: agent.collectionFixedFee ?? null,
+        collectionRate: agent.collectionRate ?? null
+      };
+    };
+    const parseNum = (val) => {
+      if (val === '' || val === null || val === undefined) return 0;
+      const num = Number(val);
+      return Number.isNaN(num) ? 0 : num;
+    };
+    const hasPayValue = (val) => parseNum(val) > 0;
+    const validPayFixedFee = (rule, value, callback) => {
+      if (this.merchantAddInfo.supportPaying !== 1) {
+        this.payFixedFeeValid = true;
+        callback();
+        return;
+      }
+      const payFixedFee = parseNum(value);
+      const payRate = parseNum(this.merchantAddInfo.payRate);
+      const fixedHasValue = payFixedFee > 0;
+      const rateHasValue = payRate > 0;
+      if (!fixedHasValue && !rateHasValue) {
+        this.payFixedFeeValid = false;
+        callback(new Error(this.$t('merchantInfo.validation.payFeeRequired')));
+        return;
+      }
+      const { payFixedFee: minFixed } = getAgentPayLimits();
+      if (minFixed !== null) {
+        if (fixedHasValue) {
+          if (payFixedFee < Number(minFixed)) {
+            this.payFixedFeeValid = false;
+            callback(new Error(this.$t('merchantInfo.validation.payFixedFeeMin', { value: minFixed })));
+            return;
+          }
+        } else if (rateHasValue && payFixedFee > 0) {
+          if (payFixedFee < Number(minFixed)) {
+            this.payFixedFeeValid = false;
+            callback(new Error(this.$t('merchantInfo.validation.payFixedFeeMin', { value: minFixed })));
+            return;
+          }
+        }
+      }
+      this.payFixedFeeValid = true;
+      callback();
     };
     const validPayRate = (rule, value, callback) => {
-      if (this.merchantAddInfo.supportPaying === 1) {
-        // support pay
-        if(!value && !this.merchantAddInfo.payFixedFee) {
-          callback(new Error(this.$t('merchantInfo.validation.payFeeRequired')));
-        } else {
-          callback()
-        }
-      } else {
-        callback()
+      if (this.merchantAddInfo.supportPaying !== 1) {
+        this.payRateValid = true;
+        callback();
+        return;
       }
+      const payRate = parseNum(value);
+      const payFixedFee = parseNum(this.merchantAddInfo.payFixedFee);
+      const rateHasValue = payRate > 0;
+      const fixedHasValue = payFixedFee > 0;
+      if (!rateHasValue && !fixedHasValue) {
+        this.payRateValid = false;
+        callback(new Error(this.$t('merchantInfo.validation.payFeeRequired')));
+        return;
+      }
+      const { payRate: minRate } = getAgentPayLimits();
+      if (minRate !== null) {
+        if (rateHasValue) {
+          if (payRate < Number(minRate)) {
+            this.payRateValid = false;
+            callback(new Error(this.$t('merchantInfo.validation.payRateMin', { value: minRate })));
+            return;
+          }
+        } else if (fixedHasValue && payRate > 0) {
+          if (payRate < Number(minRate)) {
+            this.payRateValid = false;
+            callback(new Error(this.$t('merchantInfo.validation.payRateMin', { value: minRate })));
+            return;
+          }
+        }
+      }
+      this.payRateValid = true;
+      callback();
     };
     const validCollection = (rule, value, callback) => {
       if (this.merchantAddInfo.supportCollection === 1) {
@@ -922,28 +1026,72 @@ export default {
       }
     };
     const validCollectionFixedFee = (rule, value, callback) => {
-      if (this.merchantAddInfo.supportCollection === 1) {
-        // support pay
-        if(!value && !this.merchantAddInfo.collectionRate) {
-          callback(new Error(this.$t('merchantInfo.validation.collectionFeeRequired')));
-        } else {
-          callback()
-        }
-      } else {
-        callback()
+      if (this.merchantAddInfo.supportCollection !== 1) {
+        this.collectionFixedFeeValid = true;
+        callback();
+        return;
       }
+      const collectionFixedFee = parseNum(value);
+      const collectionRate = parseNum(this.merchantAddInfo.collectionRate);
+      const fixedHasValue = collectionFixedFee > 0;
+      const rateHasValue = collectionRate > 0;
+      if (!fixedHasValue && !rateHasValue) {
+        this.collectionFixedFeeValid = false;
+        callback(new Error(this.$t('merchantInfo.validation.collectionFeeRequired')));
+        return;
+      }
+      const { collectionFixedFee: minFixed } = getAgentCollectionLimits();
+      if (minFixed !== null) {
+        if (fixedHasValue) {
+          if (collectionFixedFee < Number(minFixed)) {
+            this.collectionFixedFeeValid = false;
+            callback(new Error(this.$t('merchantInfo.validation.collectionFixedFeeMin', { value: minFixed })));
+            return;
+          }
+        } else if (rateHasValue && collectionFixedFee > 0) {
+          if (collectionFixedFee < Number(minFixed)) {
+            this.collectionFixedFeeValid = false;
+            callback(new Error(this.$t('merchantInfo.validation.collectionFixedFeeMin', { value: minFixed })));
+            return;
+          }
+        }
+      }
+      this.collectionFixedFeeValid = true;
+      callback();
     };
     const validCollectionRate = (rule, value, callback) => {
-      if (this.merchantAddInfo.supportCollection === 1) {
-        // support pay
-        if(!value && !this.merchantAddInfo.collectionFixedFee) {
-          callback(new Error(this.$t('merchantInfo.validation.collectionFeeRequired')));
-        } else {
-          callback()
-        }
-      } else {
-        callback()
+      if (this.merchantAddInfo.supportCollection !== 1) {
+        this.collectionRateValid = true;
+        callback();
+        return;
       }
+      const collectionRate = parseNum(value);
+      const collectionFixedFee = parseNum(this.merchantAddInfo.collectionFixedFee);
+      const rateHasValue = collectionRate > 0;
+      const fixedHasValue = collectionFixedFee > 0;
+      if (!rateHasValue && !fixedHasValue) {
+        this.collectionRateValid = false;
+        callback(new Error(this.$t('merchantInfo.validation.collectionFeeRequired')));
+        return;
+      }
+      const { collectionRate: minRate } = getAgentCollectionLimits();
+      if (minRate !== null) {
+        if (rateHasValue) {
+          if (collectionRate < Number(minRate)) {
+            this.collectionRateValid = false;
+            callback(new Error(this.$t('merchantInfo.validation.collectionRateMin', { value: minRate })));
+            return;
+          }
+        } else if (fixedHasValue && collectionRate > 0) {
+          if (collectionRate < Number(minRate)) {
+            this.collectionRateValid = false;
+            callback(new Error(this.$t('merchantInfo.validation.collectionRateMin', { value: minRate })));
+            return;
+          }
+        }
+      }
+      this.collectionRateValid = true;
+      callback();
     };
     return {
       isAdmin: false,
@@ -1017,10 +1165,10 @@ export default {
             {required: true, validator: validPay, trigger: 'blur'}
         ],
         payFixedFee: [
-            {required: true, validator: validPayFixedFee, trigger: 'blur'}
+            { validator: validPayFixedFee, trigger: 'blur' }
         ],
         payRate: [
-          {required: true, validator: validPayRate, trigger: 'blur'}
+          { validator: validPayRate, trigger: 'blur' }
         ],
         collectionMinFee: [
             {required: true, message: this.$t('merchantInfo.validation.collectionMinFeeRequired'), trigger: 'blur'}
@@ -1107,6 +1255,10 @@ export default {
       merchantInfoFormData: [
       ],
       merchantAddInfo: {},
+      payFixedFeeValid: false,
+      payRateValid: false,
+      collectionFixedFeeValid: false,
+      collectionRateValid: false,
       merchantInfo: {
       },
       dialogTitle: '',
@@ -1674,6 +1826,29 @@ export default {
 
 .agent-card-channel{
   background-color: #f0f2f5;
+}
+
+.agent-fee-hint{
+  margin-top: 6px;
+  color: #b91c1c;
+  font-size: 12px;
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.agent-fee-icon{
+  width: 12px;
+  height: 12px;
+  display: inline-block;
+  vertical-align: middle;
+  transform: translateY(-1px);
+}
+
+.agent-fee-text{
+  display: inline-block;
+  transform: translateY(1px);
 }
 
 </style>

@@ -153,6 +153,9 @@ export default {
       this.filterbox.isNeed = true
     },
     search(orderType, paneName){
+      if (this.currencyOptions.length === 0){
+        return
+      }
       let loadingClass = ''
       if (paneName === '0') {
         loadingClass = 'reportInfo-table1'

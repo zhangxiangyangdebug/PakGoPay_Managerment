@@ -219,7 +219,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
       v-model="dialogFormVisible"
       class="dialog"
       center="true"
-      width="90%"
+      width="45%"
       style="height: 600px;align-content: center"
   >
     <el-form style="margin-top: 50px;width: 100%" ref="editChannelForm" :rules="editChannelRules" :model="editChannelInfo">
@@ -264,15 +264,12 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         </el-col>
         <el-col :span="24">
           <div class="el-form-line" style="display: flex;justify-content: center;">
-            <el-form-item :label="$t('common.googleCode')" label-width="150px" prop="googleCode">
-              <el-input type="text" v-model="editChannelInfo.googleCode" style="width: 200px" :placeholder="$t('common.placeholder.googleCode')"/>
-            </el-form-item>
           </div>
         </el-col>
     </el-form>
     <div slot="footer" class="dialog-footer" style="float: right;">
       <el-button @click="cancelDialog">{{ $t('common.cancel') }}</el-button>
-      <el-button type="primary" @click="submitForm('editChannelForm', this.submitType)">{{ $t('common.confirm') }}</el-button>
+      <el-button type="primary" @click="submitForm('editChannelForm', submitType)">{{ $t('common.confirm') }}</el-button>
     </div>
   </el-dialog>
   <el-dialog
@@ -295,15 +292,36 @@ import {getTimeFromTimestamp} from "@/api/common.js";
    >
      <el-col :span="24">
        <div class="el-form-line" style="display: flex;justify-content: center;">
-         <el-form-item :label="$t('common.googleCode')" label-width="150px" prop="googleCode">
-           <el-input type="text" v-model="editChannelInfo.googleCode" style="width: 200px" :placeholder="$t('common.placeholder.googleCode')"/>
-         </el-form-item>
        </div>
      </el-col>
    </el-form>
     <div slot="footer" class="dialog-footer" style="float: right;">
       <el-button @click="cancelStopDialog('stopForm')">{{ $t('common.cancel') }}</el-button>
       <el-button type="primary" @click="submitForm('stopForm', 'edit')">{{ $t('common.confirm') }}</el-button>
+    </div>
+  </el-dialog>
+  <el-dialog
+      :title="confirmDialogTitle"
+      v-model="confirmDialogVisible"
+      class="dialog"
+      center
+      width="30%"
+      height="200px"
+  >
+    <el-form ref="confirmDataForm" :rules="confirmRule" :model="confirmData" style="height:100px;margin-top: 20px">
+      <el-row>
+        <el-col :span="24" style="display: flex;justify-content: center;justify-items: center;align-items: center;">
+          <div>
+            <el-form-item :label="$t('common.googleCode')" label-width="150px" prop="googleCode">
+              <el-input v-model="confirmData.googleCode" style="width: 200px"/>
+            </el-form-item>
+          </div>
+        </el-col>
+      </el-row>
+    </el-form>
+    <div slot="footer" class="dialog-footer" style="margin-right: 3%;height: 30px;">
+      <el-button @click="cancelConfirmDialog('confirmDataForm')">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="submitConfirm('confirmDataForm')">{{ $t('common.confirm') }}</el-button>
     </div>
   </el-dialog>
 </template>
@@ -369,13 +387,20 @@ export default {
       channelDialogTitle: '',
       stopDialogVisible: false,
       stopDialogTitle: '',
-      editChannelRules: {
+      editChannelRules: {},
+      confirmDialogVisible: false,
+      confirmDialogTitle: '',
+      confirmData: {
+        googleCode: ''
+      },
+      confirmRule: {
         googleCode: {
           required: true,
-          messages: this.$t('common.googleCodeRequired'),
+          message: this.$t('common.googleCodeRequired'),
           trigger: 'blur',
         }
-      }
+      },
+      pendingSubmitType: ''
     }
   },
   methods: {
@@ -490,95 +515,137 @@ export default {
     submitForm(form, submitType) {
       this.$refs[form].validate(valid => {
         if (valid) {
-            if(submitType === 'edit') {
-              modifyChannelInfo(this.editChannelInfo).then(res => {
-                if (res.status === 200 && res.data.code === 0) {
-                  this.$notify({
-                    title: this.$t('common.success'),
-                    message: this.$t('channelList.notify.modifySuccess', { name: this.editChannelInfo.channelName }),
-                    duration: 3000,
-                    type: 'success',
-                    position:'bottom-right'
-                  })
-                } else if (res.status === 200 && res.data.code !== 0) {
-                  this.$notify({
-                    title: this.$t('common.error'),
-                    message:res.data.message,
-                    duration: 3000,
-                    type: 'error',
-                    position: 'bottom-right'
-                  })
-                } else {
-                  this.$notify({
-                    title: this.$t('common.error'),
-                    message: this.$t('common.requestFailed'),
-                    duration: 3000,
-                    type: 'error',
-                    position: 'bottom-right'
-                  })
-                }
-                this.dialogFormVisible = false;
-                this.channelDialogTitle = ''
-                this.stopDialogTitle = ''
-                this.stopDialogVisible = false
-                this.search()
-              }).catch( err => {
-                this.$notify({
-                  title: this.$t('common.error'),
-                  message:err.message,
-                  duration: 3000,
-                  type: 'error',
-                  position: 'bottom-right'
-                })
-                this.dialogFormVisible = false;
-                this.channelDialogTitle = ''
-                this.search()
-              })
-            } else if (submitType === 'create') {
-              createChannelInfo(this.editChannelInfo).then(res => {
-                if (res.status === 200 && res.data.code === 0) {
-                  this.$notify({
-                    title: this.$t('common.success'),
-                    message: this.$t('channelList.notify.createSuccess'),
-                    duration: 3000,
-                    type: 'success',
-                    position:'bottom-right'
-                  })
-                  this.search()
-                } else if (res.status === 200 && res.data.code !== 0) {
-                  this.$notify({
-                    title: this.$t('common.error'),
-                    message:res.data.message,
-                    duration: 3000,
-                    type: 'error',
-                    position: 'bottom-right'
-                  })
-                } else {
-                  this.$notify({
-                    title: this.$t('common.error'),
-                    message: this.$t('common.requestFailed'),
-                    duration: 3000,
-                    type: 'error',
-                    position: 'bottom-right'
-                  })
-                }
-                this.dialogFormVisible = false;
-                this.channelDialogTitle = ''
-              }).catch( err => {
-                this.$notify({
-                  title: this.$t('common.error'),
-                  message:err.message,
-                  duration: 3000,
-                  type: 'error',
-                  position: 'bottom-right'
-                })
-                this.dialogFormVisible = false;
-                this.channelDialogTitle = ''
-              })
-            }
-
+          this.pendingSubmitType = submitType
+          this.confirmDialogTitle = this.$t('common.prompt')
+          this.confirmDialogVisible = true
         }
       })
+    },
+    submitConfirm(form) {
+      this.$refs[form].validate(valid => {
+        if (!valid) return
+        this.editChannelInfo.googleCode = this.confirmData.googleCode
+        this.confirmDialogVisible = false
+        this.confirmDialogTitle = ''
+        if (this.pendingSubmitType === 'edit') {
+          modifyChannelInfo(this.editChannelInfo).then(res => {
+            if (res.status === 200 && res.data.code === 0) {
+              this.$notify({
+                title: this.$t('common.success'),
+                message: this.$t('channelList.notify.modifySuccess', { name: this.editChannelInfo.channelName }),
+                duration: 3000,
+                type: 'success',
+                position:'bottom-right'
+              })
+            } else if (res.status === 200 && res.data.code !== 0) {
+              this.$notify({
+                title: this.$t('common.error'),
+                message:res.data.message,
+                duration: 3000,
+                type: 'error',
+                position: 'bottom-right'
+              })
+            } else {
+              this.$notify({
+                title: this.$t('common.error'),
+                message: this.$t('common.requestFailed'),
+                duration: 3000,
+                type: 'error',
+                position: 'bottom-right'
+              })
+            }
+            this.dialogFormVisible = false;
+            this.channelDialogTitle = ''
+            this.stopDialogTitle = ''
+            this.stopDialogVisible = false
+            this.search()
+            if (this.editChannelInfo?.googleCode) {
+              this.editChannelInfo.googleCode = ''
+            }
+            this.confirmData.googleCode = ''
+            this.pendingSubmitType = ''
+          }).catch( err => {
+            this.$notify({
+              title: this.$t('common.error'),
+              message:err.message,
+              duration: 3000,
+              type: 'error',
+              position: 'bottom-right'
+            })
+            this.dialogFormVisible = false;
+            this.channelDialogTitle = ''
+            this.search()
+            if (this.editChannelInfo?.googleCode) {
+              this.editChannelInfo.googleCode = ''
+            }
+            this.confirmData.googleCode = ''
+            this.pendingSubmitType = ''
+          })
+        } else if (this.pendingSubmitType === 'create') {
+          createChannelInfo(this.editChannelInfo).then(res => {
+            if (res.status === 200 && res.data.code === 0) {
+              this.$notify({
+                title: this.$t('common.success'),
+                message: this.$t('channelList.notify.createSuccess'),
+                duration: 3000,
+                type: 'success',
+                position:'bottom-right'
+              })
+              this.search()
+            } else if (res.status === 200 && res.data.code !== 0) {
+              this.$notify({
+                title: this.$t('common.error'),
+                message:res.data.message,
+                duration: 3000,
+                type: 'error',
+                position: 'bottom-right'
+              })
+            } else {
+              this.$notify({
+                title: this.$t('common.error'),
+                message: this.$t('common.requestFailed'),
+                duration: 3000,
+                type: 'error',
+                position: 'bottom-right'
+              })
+            }
+            this.dialogFormVisible = false;
+            this.channelDialogTitle = ''
+            if (this.editChannelInfo?.googleCode) {
+              this.editChannelInfo.googleCode = ''
+            }
+            this.confirmData.googleCode = ''
+            this.pendingSubmitType = ''
+          }).catch( err => {
+            this.$notify({
+              title: this.$t('common.error'),
+              message:err.message,
+              duration: 3000,
+              type: 'error',
+              position: 'bottom-right'
+            })
+            this.dialogFormVisible = false;
+            this.channelDialogTitle = ''
+            if (this.editChannelInfo?.googleCode) {
+              this.editChannelInfo.googleCode = ''
+            }
+            this.confirmData.googleCode = ''
+            this.pendingSubmitType = ''
+          })
+        }
+      })
+    },
+    cancelConfirmDialog(form) {
+      this.confirmDialogVisible = false
+      this.confirmDialogTitle = ''
+      this.confirmData.googleCode = ''
+      this.pendingSubmitType = ''
+      if (this.editChannelInfo?.googleCode) {
+        this.editChannelInfo.googleCode = ''
+      }
+      if (this.$refs[form]) {
+        this.$refs[form].resetFields()
+      }
     },
     createNewChannel() {
       this.editChannelInfo = {}
@@ -625,11 +692,17 @@ export default {
       this.dialogFormVisible = false;
       this.createChannelInfo = {}
       this.channelDialogTitle = ''
+      if (this.editChannelInfo?.googleCode) {
+        this.editChannelInfo.googleCode = ''
+      }
     },
     cancelStopDialog(form) {
       this.stopDialogVisible = false
       this.stopDialogTitle = ''
       this.$refs[form].resetFields()
+      if (this.editChannelInfo?.googleCode) {
+        this.editChannelInfo.googleCode = ''
+      }
     },
     applyChannelNameFromRoute() {
       let channelName = this.$route?.query?.["filterbox.channelName"]

@@ -89,7 +89,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         class="dialog"
         center="true"
         width="40%"
-        style="height: 500px;"
+        style="height: 440px;"
         @closed="cancelDialog"
     >
       <el-form style="margin-top: 25px;" :model="addCurrencyTypeInfo" :rules="rules" ref="addCurrencyTypeInfo">
@@ -152,18 +152,36 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row style="display: flex;justify-content: center;">
-            <el-col :span="24" style="display: flex;justify-content: center;">
-              <el-form-item :label="$t('common.googleCode')" label-width="150px"  prop="googleCode">
-                <el-input oninput="if(value.length>6)value=value.slice(0,6)" type="number" v-model="addCurrencyTypeInfo.googleCode" :placeholder="$t('common.placeholder.googleCode')" style="width: 200px"/>
-              </el-form-item>
-            </el-col>
-          </el-row>
         </div>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="cancelDialog">{{ $t('common.cancel') }}</el-button>
         <el-button type="primary" @click="submit('addCurrencyTypeInfo')">{{ $t('common.confirm') }}</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog
+      :title="confirmDialogTitle"
+      v-model="confirmDialogVisible"
+      class="dialog confirm-dialog"
+      center
+      width="40%"
+      height="200px"
+      style="min-width: 420px;"
+    >
+      <el-form ref="confirmDataForm" :rules="confirmRule" :model="confirmData" style="height:100px;margin-top: 20px">
+        <el-row class="confirm-row">
+          <el-col :span="24" style="display: flex;justify-content: center;justify-items: center;align-items: center;">
+            <div>
+              <el-form-item :label="$t('common.googleCode')" label-width="150px" prop="googleCode" class="confirm-item">
+                <el-input v-model="confirmData.googleCode" style="width: 240px"/>
+              </el-form-item>
+            </div>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer" style="margin-right: 3%;height: 30px;">
+        <el-button @click="cancelConfirmDialog('confirmDataForm')">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="submitConfirm('confirmDataForm')">{{ $t('common.confirm') }}</el-button>
       </div>
     </el-dialog>
   </div>
@@ -233,9 +251,6 @@ export default {
         currencyAccuracy: [
           { required: true, message: this.$t('currencyTypeList.validation.accuracyRequired'), trigger: 'blur' }
         ],
-        googleCode: [
-          { required: true, message: this.$t('common.googleCodeRequired'), trigger: 'blur' }
-        ],
         exchangeRate: [
           { validator: validateExchangeRate, message: this.$t('currencyTypeList.validation.exchangeRateRequired'), trigger: 'blur', }
         ]
@@ -244,6 +259,16 @@ export default {
       pageSize: 10,
       currentPage: 1,
       pageSizes: [10, 20, 30, 40],
+      confirmDialogVisible: false,
+      confirmDialogTitle: '',
+      confirmData: {
+        googleCode: ''
+      },
+      confirmRule: {
+        googleCode: [
+          { required: true, message: this.$t('common.googleCodeRequired'), trigger: 'blur' }
+        ]
+      },
     }
   },
   methods: {
@@ -281,7 +306,7 @@ export default {
         this.getCurrencyTypeList()
     },
     createNewCurrency() {
-      this.addCurrencyTypeInfo.isRate = 2
+      this.resetDialogForm();
       this.dialogFormVisible = true;
       this.dialogTitle = this.$t('currencyTypeList.dialog.add')
     },
@@ -292,37 +317,72 @@ export default {
 
     },
     cancelDialog() {
-      this.addCurrencyTypeInfo = {
-
-      };
+      this.resetDialogForm();
       this.dialogTitle = '';
       this.dialogFormVisible = false;
+    },
+    resetDialogForm() {
+      this.addCurrencyTypeInfo = {
+        currencyType: '',
+        name: '',
+        icon: '',
+        currencyAccuracy: '',
+        isRate: 2,
+        exchangeRate: '',
+        googleCode: ''
+      };
+      if (this.$refs.addCurrencyTypeInfo) {
+        this.$refs.addCurrencyTypeInfo.resetFields();
+      }
     },
     submit(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
-            addCurrencyType(this.addCurrencyTypeInfo).then(res => {
-              if (res.status === 200) {
-                if (res.data.code !== 0) {
-                  this.$notify({
-                    title: this.$t('common.failed'),
-                    message: res.data.message,
-                    type: 'error',
-                    position: 'bottom-right'
-                  })
-                } else {
-                  this.$notify({
-                    title: this.$t('common.success'),
-                    message: this.$t('currencyTypeList.message.addSuccess'),
-                    type: 'success',
-                    position: 'bottom-right'
-                  })
-                  this.getCurrencyTypeList()
-                }
-              }
-            })
+          this.confirmDialogTitle = this.$t('common.prompt')
+          this.confirmDialogVisible = true
         }
       })
+    },
+    submitConfirm(form) {
+      this.$refs[form].validate(valid => {
+        if (!valid) return
+        this.addCurrencyTypeInfo.googleCode = this.confirmData.googleCode
+        this.confirmDialogVisible = false
+        this.confirmDialogTitle = ''
+        addCurrencyType(this.addCurrencyTypeInfo).then(res => {
+          if (res.status === 200) {
+            if (res.data.code !== 0) {
+              this.$notify({
+                title: this.$t('common.failed'),
+                message: res.data.message,
+                type: 'error',
+                position: 'bottom-right'
+              })
+            } else {
+              this.$notify({
+                title: this.$t('common.success'),
+                message: this.$t('currencyTypeList.message.addSuccess'),
+                type: 'success',
+                position: 'bottom-right'
+              })
+              this.getCurrencyTypeList()
+              this.dialogFormVisible = false;
+              this.resetDialogForm();
+            }
+          }
+          this.confirmData.googleCode = ''
+        }).catch(() => {
+          this.confirmData.googleCode = ''
+        })
+      })
+    },
+    cancelConfirmDialog(form) {
+      this.confirmDialogVisible = false
+      this.confirmDialogTitle = ''
+      this.confirmData.googleCode = ''
+      if (this.$refs[form]) {
+        this.$refs[form].resetFields()
+      }
     }
   },
   mounted() {
@@ -349,5 +409,18 @@ export default {
 .toolbar {
   margin-left: 2%;
   margin-top: 1%;
+}
+
+.confirm-row {
+  display: flex;
+  justify-content: center;
+}
+
+.confirm-item {
+  margin: 0 auto;
+}
+
+.confirm-item :deep(.el-form-item__content) {
+  margin-left: 0;
 }
 </style>
