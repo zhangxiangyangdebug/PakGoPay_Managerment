@@ -223,35 +223,45 @@ import '@/assets/base.css'
         </el-table-column>
         <el-table-column
             prop="loginIPs"
-            :label="$t('merchantInfo.column.loginWithdrawWhitelist')"
+            :label="$t('merchantInfo.column.ipWhitelist')"
             v-slot="{row}"
             align="center"
             width="300px"
         >
-          <div>
-            {{row.loginIps}}
-          </div>
-        </el-table-column>
-        <el-table-column
-            prop="payingIPWhiteList"
-            :label="$t('merchantInfo.column.payWhitelist')"
-            v-slot="{row}"
-            align="center"
-            width="300px"
-        >
-          <div>
-            {{row.payWhiteIps}}
-          </div>
-        </el-table-column>
-        <el-table-column
-            prop="collectingIPWhiteList"
-            :label="$t('merchantInfo.column.collectWhitelist')"
-            v-slot="{row}"
-            align="center"
-            width="300px"
-        >
-          <div>
-            {{row.colWhiteIps}}
+          <div class="ip-whitelist-stack">
+            <div class="ip-whitelist-card">
+              <div class="ip-whitelist-title">{{ $t('merchantInfo.ip.loginWithdraw') }}</div>
+              <div class="ip-whitelist-value">
+                <div class="ip-whitelist-line">
+                  <span class="ip-label">{{ $t('merchantInfo.ip.login') }}</span>
+                  <div class="ip-list">
+                    <div v-for="(ip, index) in formatIpLines(row.loginIps)" :key="`login-${index}`">{{ ip }}</div>
+                  </div>
+                </div>
+                <div class="ip-whitelist-line">
+                  <span class="ip-label">{{ $t('merchantInfo.ip.withdraw') }}</span>
+                  <div class="ip-list">
+                    <div v-for="(ip, index) in formatIpLines(row.withdrawalIps)" :key="`withdraw-${index}`">{{ ip }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="ip-whitelist-card">
+              <div class="ip-whitelist-title">{{ $t('merchantInfo.ip.paying') }}</div>
+              <div class="ip-whitelist-value">
+                <div class="ip-list">
+                  <div v-for="(ip, index) in formatIpLines(row.payWhiteIps)" :key="`pay-${index}`">{{ ip }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="ip-whitelist-card">
+              <div class="ip-whitelist-title">{{ $t('merchantInfo.ip.collecting') }}</div>
+              <div class="ip-whitelist-value">
+                <div class="ip-list">
+                  <div v-for="(ip, index) in formatIpLines(row.colWhiteIps)" :key="`collect-${index}`">{{ ip }}</div>
+                </div>
+              </div>
+            </div>
           </div>
         </el-table-column>
         <el-table-column
@@ -1368,6 +1378,23 @@ export default {
     }
   },
   methods: {
+    formatIpLines(value) {
+      if (!value) return ['-'];
+      const list = String(value)
+        .split(',')
+        .map(item => item.trim())
+        .filter(Boolean);
+      return list.length ? list : ['-'];
+    },
+    formatIpLinesMerge(primary, secondary) {
+      const list = []
+        .concat(primary ? String(primary).split(',') : [])
+        .concat(secondary ? String(secondary).split(',') : [])
+        .map(item => item.trim())
+        .filter(Boolean);
+      if (!list.length) return ['-'];
+      return Array.from(new Set(list));
+    },
     saveMerchantDraft() {
       if (!this.dialogAddFormVisible) return;
       const mode = this.dialogFlag || '';
@@ -1929,6 +1956,65 @@ export default {
   .agent-info-card:hover{
     transform: scale(1.03);
     box-shadow: 0 6px 16px rgba(24, 24, 24, 0.24);
+  }
+
+  .ip-whitelist-stack{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: stretch;
+  }
+
+  .ip-whitelist-card{
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 6px 8px;
+    text-align: left;
+    box-shadow: 0 2px 6px rgba(24, 24, 24, 0.08);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    will-change: transform;
+  }
+
+  .ip-whitelist-card:hover{
+    transform: scale(1.03);
+    box-shadow: 0 6px 14px rgba(24, 24, 24, 0.18);
+  }
+
+  .ip-whitelist-title{
+    font-size: 12px;
+    font-weight: 600;
+    color: #4b5563;
+    margin-bottom: 4px;
+  }
+
+  .ip-whitelist-value{
+    font-size: 12px;
+    color: #111827;
+    line-height: 1.3;
+    word-break: break-all;
+  }
+
+  .ip-whitelist-line{
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+    margin-bottom: 4px;
+  }
+
+  .ip-whitelist-line:last-child{
+    margin-bottom: 0;
+  }
+
+  .ip-label{
+    color: #374151;
+    white-space: nowrap;
+  }
+
+  .ip-list{
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 
   .account-info-row{

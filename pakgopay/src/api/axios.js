@@ -67,6 +67,7 @@ service.interceptors.response.use(response => {
                 offset: 500
             })
             clearAuthAndRedirect();
+            location.reload();
             return Promise.reject(error);
         }
 
@@ -90,6 +91,7 @@ service.interceptors.response.use(response => {
                     offset: 500
                 })
                 clearAuthAndRedirect();
+                location.reload();
                 refreshQueue.forEach(({ reject }) => reject(error));
                 refreshQueue = [];
                 return Promise.reject(error);
@@ -112,6 +114,16 @@ service.interceptors.response.use(response => {
 
             return Promise.reject(error);
         }).catch((err) => {
+            ElNotification({
+                title: 'warn',
+                message: 'login expired, please login again',
+                closeIcon: CloseBold,
+                type: 'error',
+                position: 'bottom-right',
+                offset: 500
+            })
+            clearAuthAndRedirect();
+            location.reload();
             refreshQueue.forEach(({ reject }) => reject(err));
             refreshQueue = [];
             return Promise.reject(err);

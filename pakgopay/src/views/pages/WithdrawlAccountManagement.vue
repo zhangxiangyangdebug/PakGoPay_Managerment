@@ -1029,6 +1029,7 @@ export default {
           this.dialogWithdrawVisible = false
           this.dialogWithdrawTitle = ''
           this.confirmData =  Object.assign({}, this.withdrawOrderInfo)
+          this.confirmData.userRole = 1
           this.confirmDialogTitle = this.$t('withdrawlAccount.dialog.confirmTitle')
           this.confirmDialogVisible = true
           this.$refs[form].resetFields()

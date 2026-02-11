@@ -215,20 +215,30 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <div>{{ row.loginIP }}</div>
         </el-table-column>-->
         <el-table-column
-            :label="$t('agentInfo.column.loginWhitelist')"
+            :label="$t('agentInfo.column.ipWhitelist')"
             v-slot="{row}"
             align="center"
-            width="150px"
+            width="300px"
         >
-          <div>{{ row.loginIps }}</div>
-        </el-table-column>
-        <el-table-column
-            :label="$t('agentInfo.column.withdrawWhitelist')"
-            v-slot="{row}"
-            align="center"
-            width="150px"
-        >
-          <div>{{ row.withdrawIps }}</div>
+          <div class="ip-whitelist-stack">
+            <div class="ip-whitelist-card">
+              <div class="ip-whitelist-title">{{ $t('agentInfo.ip.loginWithdraw') }}</div>
+              <div class="ip-whitelist-value">
+                <div class="ip-whitelist-line">
+                  <span class="ip-label">{{ $t('agentInfo.ip.login') }}</span>
+                  <div class="ip-list">
+                    <div v-for="(ip, index) in formatIpLines(row.loginIps)" :key="`login-${index}`">{{ ip }}</div>
+                  </div>
+                </div>
+                <div class="ip-whitelist-line">
+                  <span class="ip-label">{{ $t('agentInfo.ip.withdraw') }}</span>
+                  <div class="ip-list">
+                    <div v-for="(ip, index) in formatIpLines(row.withdrawIps)" :key="`withdraw-${index}`">{{ ip }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </el-table-column>
         <el-table-column
             :label="$t('agentInfo.column.accountInfo')"
@@ -1040,6 +1050,23 @@ export default {
     this.search()
   },
   methods: {
+    formatIpLines(value) {
+      if (!value) return ['-'];
+      const list = String(value)
+        .split(',')
+        .map(item => item.trim())
+        .filter(Boolean);
+      return list.length ? list : ['-'];
+    },
+    formatIpLinesMerge(primary, secondary) {
+      const list = []
+        .concat(primary ? String(primary).split(',') : [])
+        .concat(secondary ? String(secondary).split(',') : [])
+        .map(item => item.trim())
+        .filter(Boolean);
+      if (!list.length) return ['-'];
+      return Array.from(new Set(list));
+    },
     saveAgentDraft() {
       if (!this.dialogFormVisible) return;
       const isEdit = this.modifyType === 'edit';
@@ -1380,6 +1407,65 @@ export default {
 
 .agent-card-channel{
   background-color: #f0f2f5;
+}
+
+.ip-whitelist-stack{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+}
+
+.ip-whitelist-card{
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 6px 8px;
+  text-align: left;
+  box-shadow: 0 2px 6px rgba(24, 24, 24, 0.08);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  will-change: transform;
+}
+
+.ip-whitelist-card:hover{
+  transform: scale(1.03);
+  box-shadow: 0 6px 14px rgba(24, 24, 24, 0.18);
+}
+
+.ip-whitelist-title{
+  font-size: 12px;
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 4px;
+}
+
+.ip-whitelist-value{
+  font-size: 12px;
+  color: #111827;
+  line-height: 1.3;
+  word-break: break-all;
+}
+
+.ip-whitelist-line{
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.ip-whitelist-line:last-child{
+  margin-bottom: 0;
+}
+
+.ip-label{
+  color: #374151;
+  white-space: nowrap;
+}
+
+.ip-list{
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .account-info-row{

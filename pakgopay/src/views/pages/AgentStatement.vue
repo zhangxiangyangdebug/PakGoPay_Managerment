@@ -268,6 +268,7 @@ export default {
             this.filterbox.startTime = getTodayStartTimestamp()
         this.filterbox.endTime = getTodayStartTimestamp() + 86399
       }
+      this.filterbox.userRole = 2
       getWithdrawStatementeOrder(this.filterbox).then(response => {
         this.agentStatementsFormData = [];
         let result = JSON.parse(response.data.data);

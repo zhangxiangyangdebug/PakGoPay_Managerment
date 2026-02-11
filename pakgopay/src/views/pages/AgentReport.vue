@@ -15,7 +15,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-form class="main-toolform" ref="filterForm" :model="filterbox">
           <el-row style="display: flex;justify-content: center;align-items: center;">
             <el-col :span="8">
-              <el-form-item :label="$t('agentReport.filter.agent')" label-width="150px" prop="agentId">
+              <el-form-item :label="$t('agentReport.filter.agent')" label-width="150px" prop="agentName">
                 <el-select
                     :options="agentOptions"
                     :props="agentNameProps"
@@ -362,10 +362,14 @@ export default {
         this.tab2PageSize = 10;
         return
       }
+      const activePane = paneName !== undefined && paneName !== null ? String(paneName) : String(this.activeTabPane || '0');
+      if (orderType === undefined || orderType === null) {
+        orderType = activePane === '1' ? 1 : 0;
+      }
       let loadingClass = ''
-      if (paneName === '0') {
+      if (activePane === '0') {
         loadingClass = 'reportInfo-table1'
-      } else if (paneName === '1') {
+      } else if (activePane === '1') {
         loadingClass = 'reportInfo-table2'
       } else {
         loadingClass = 'reportInfo-table1'
@@ -380,11 +384,7 @@ export default {
         this.filterbox.endTime = timeRange.split(',')[1] / 1000 + 86399
       }
 
-      if (!orderType) {
-        this.filterbox.orderType = 0;
-      } else {
-        this.filterbox.orderType = orderType
-      }
+      this.filterbox.orderType = orderType
       // request backend interface to get data
       getAgentReport(this.filterbox).then(response => {
         if (response.status === 200 && response.data.code === 0) {
@@ -535,6 +535,11 @@ export default {
     })
     this.startTime = getTodayStartTimestamp()
     this.endTime = getTodayStartTimestamp()
+    const startMs = getTodayStartTimestamp() * 1000;
+    const endMs = startMs + 86399 * 1000;
+    if (!this.filterbox.filterDateRange || this.filterbox.filterDateRange.length !== 2) {
+      this.filterbox.filterDateRange = [startMs, endMs];
+    }
     this.filterbox.isNeedCardData = true
     this.activeTabPane = '0'
     this.search(0)

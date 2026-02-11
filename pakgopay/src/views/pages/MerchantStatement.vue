@@ -313,6 +313,7 @@ export default {
         this.filterbox.startTime = getTodayStartTimestamp()
         this.filterbox.endTime = getTodayStartTimestamp() + 86399
       }
+      this.filterbox.userRole = 1
       await getWithdrawStatementeOrder(this.filterbox).then(response => {
         this.merchantStatementsFormData = [];
         let result = JSON.parse(response.data.data);

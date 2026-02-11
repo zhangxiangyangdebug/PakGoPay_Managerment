@@ -270,7 +270,6 @@ export default {
       //获取所有数据
     },
     filtersearch() {
-      console.log('filterbox----'+JSON.stringify(this.filterbox))
       this.collectingReportInfoData = []
       this.payingReportInfoData = []
       this.activeTabPane = '0'
@@ -404,6 +403,11 @@ export default {
     })
     this.startTime = getTodayStartTimestamp()
     this.endTime = getTodayStartTimestamp()
+    const startMs = getTodayStartTimestamp() * 1000;
+    const endMs = startMs + 86399 * 1000;
+    if (!this.filterbox.filterDateRange || this.filterbox.filterDateRange.length !== 2) {
+      this.filterbox.filterDateRange = [startMs, endMs];
+    }
     this.filterbox.isNeedCardData = true
     this.activeTabPane = '0'
     this.search(0)
@@ -428,7 +432,7 @@ export default {
         <el-form class="toolform" :model="filterbox" ref="filterForm">
           <el-row class="toolform-item">
             <el-col :span="8" class="toolform-line" style="display: flex;justify-content: center;align-items: center;">
-              <el-form-item :label="$t('merchantReport.filter.merchantName')" label-width="150px" prop="merchantAccount">
+              <el-form-item :label="$t('merchantReport.filter.merchantName')" label-width="150px" prop="merchantName">
                 <el-select
                   ref="merchantSelect"
                   v-model="filterbox.merchantName"

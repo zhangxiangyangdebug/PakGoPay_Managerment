@@ -1,7 +1,7 @@
 <script setup>
 
 import SvgIcon from "@/components/SvgIcon/index.vue";
-import {getCallBackStatus, getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp} from "@/api/common.js";
+import {getCallBackStatus, getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp, getTodayStartTimestamp} from "@/api/common.js";
 </script>
 
 <template>
@@ -699,6 +699,12 @@ export default {
     if (roleName && roleName !== 'admin') {
       this.filterbox.merchantUserId = localStorage.getItem('userId');
       this.filterAvaiable = true
+    }
+    const startMs = getTodayStartTimestamp() * 1000;
+    const endMs = startMs + 86399 * 1000;
+    if (!this.filterbox.filterDateRange || this.filterbox.filterDateRange.length !== 2) {
+      this.filterbox.filterDateRange = [startMs, endMs];
+      this.filterbox.filterDateRangeUtc = this.toUtcRange([startMs, endMs], this.timeZoneKey);
     }
 
     await getMerchantInfo(this.filterbox).then(res => {

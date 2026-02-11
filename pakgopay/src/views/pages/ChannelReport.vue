@@ -273,6 +273,11 @@ export default {
     })
     this.startTime = getTodayStartTimestamp()
     this.endTime = getTodayStartTimestamp()
+    const startMs = getTodayStartTimestamp() * 1000;
+    const endMs = startMs + 86399 * 1000;
+    if (!this.filterbox.filterDateRange || this.filterbox.filterDateRange.length !== 2) {
+      this.filterbox.filterDateRange = [startMs, endMs];
+    }
     this.filterbox.isNeedCardData = true
     this.activeTabPane = '0'
     this.search(0)

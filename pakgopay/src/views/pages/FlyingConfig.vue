@@ -29,6 +29,26 @@
             <el-input v-model="form.webhookSecret" show-password :placeholder="$t('flyingConfig.telegram.webhookSecretPlaceholder')" style="width: 300px;" />
           </el-form-item>
         </div>
+        <div class="el-form-line">
+          <el-form-item>
+            <template #label>
+              <span class="flying-config-label">{{ $t('flyingConfig.telegram.allowedUserIds') }}</span>
+            </template>
+            <el-input
+              v-model="form.allowedUserIds"
+              :placeholder="$t('flyingConfig.telegram.allowedUserIdsPlaceholder')"
+              style="width: 300px;"
+            />
+          </el-form-item>
+        </div>
+        <div class="el-form-line">
+          <el-form-item>
+            <template #label>
+              <span class="flying-config-label">{{ $t('flyingConfig.telegram.enabled') }}</span>
+            </template>
+            <el-switch v-model="form.enabled" :active-value="1" :inactive-value="0" />
+          </el-form-item>
+        </div>
       </el-form>
     </div>
     <div class="flying-config-actions">
@@ -52,7 +72,9 @@ export default {
       form: {
         token: "",
         chatId: "",
-        webhookSecret: ""
+        webhookSecret: "",
+        allowedUserIds: "",
+        enabled: 1
       },
       loading: false,
       saving: false
@@ -67,6 +89,8 @@ export default {
           this.form.token = data.token || "";
           this.form.chatId = data.chatId || "";
           this.form.webhookSecret = data.webhookSecret || "";
+          this.form.allowedUserIds = data.allowedUserIds || "";
+          this.form.enabled = data.enabled === undefined || data.enabled === null || data.enabled === "" ? 1 : Number(data.enabled);
         } else {
           this.$notify({
             title: this.$t('common.error'),

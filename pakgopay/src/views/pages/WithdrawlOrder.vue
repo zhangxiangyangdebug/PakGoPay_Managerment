@@ -1,7 +1,7 @@
 <script setup>
 
 import SvgIcon from "@/components/SvgIcon/index.vue";
-import {getTimeFromTimestamp} from "@/api/common.js";
+import {getTimeFromTimestamp, getTodayStartTimestamp} from "@/api/common.js";
 </script>
 
 <template>
@@ -596,6 +596,12 @@ export default {
       this.filterbox.userId = userName
     } else if (roleName &&  roleName === 'admin') {
       this.filterbox.userType = 1
+    }
+    const startMs = getTodayStartTimestamp() * 1000;
+    const endMs = startMs + 86399 * 1000;
+    if (!this.filterbox.filterDateRange || this.filterbox.filterDateRange.length !== 2) {
+      this.filterbox.filterDateRange = [startMs, endMs];
+      this.filterbox.filterDateRangeUtc = this.toUtcRange([startMs, endMs], this.timeZoneKey);
     }
     this._timeZoneListener = (event) => {
       const nextZone = event.detail || localStorage.getItem("timeZone") || "UTC+8";
