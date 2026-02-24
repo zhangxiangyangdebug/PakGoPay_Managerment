@@ -144,8 +144,8 @@ import '@/assets/base.css'
             align="center"
             width="300px"
         >
-          <div v-for="item in row.agentInfos">
-            <div class="agent-info-card">
+          <div v-for="(item, index) in row.agentInfos" :key="`${row.userId || row.accountName}-agent-${index}`">
+            <div class="agent-info-card" :style="{ backgroundColor: agentCardColors[index % agentCardColors.length] }">
               <div>{{ $t('merchantInfo.agent.name') }} {{item.agentName}}</div>
               <div>{{ $t('merchantInfo.agent.account') }} {{item.accountName}}</div>
               <div v-if="row.channelDtoList" style="background-color: lightgreen">
@@ -191,6 +191,23 @@ import '@/assets/base.css'
         >
           <div v-for="item in row.channelIds ? row.channelIds.toLocaleString().split(',') : ''">
             <div>{{channelMaps[item]}}</div>
+          </div>
+        </el-table-column>
+        <el-table-column
+            :label="$t('merchantInfo.column.fee')"
+            v-slot="{row}"
+            align="center"
+            width="200px"
+        >
+          <div class="merchant-fee-card">
+            <div class="merchant-fee-row">
+              <div class="merchant-fee-title">{{ $t('merchantInfo.fee.collection') }}:</div>
+              <div class="merchant-fee-value">{{ formatRatePair(row.collectionFixedFee, row.collectionRate) }}</div>
+            </div>
+            <div class="merchant-fee-row">
+              <div class="merchant-fee-title">{{ $t('merchantInfo.fee.pay') }}:</div>
+              <div class="merchant-fee-value">{{ formatRatePair(row.payFixedFee, row.payRate) }}</div>
+            </div>
           </div>
         </el-table-column>
         <el-table-column
@@ -1374,10 +1391,21 @@ export default {
       channelProps: {
         value: 'channelId',
         label: 'channelName'
-      }
+      },
+      agentCardColors: ['#e8f2ff', '#e9f6ee', '#f0f2f5']
     }
   },
   methods: {
+    formatRatePair(fixedFee, rate) {
+      const fixedEmpty = fixedFee === null || fixedFee === undefined || fixedFee === '';
+      const rateEmpty = rate === null || rate === undefined || rate === '';
+      if (fixedEmpty && rateEmpty) {
+        return '-';
+      }
+      const fixedDisplay = fixedEmpty ? '-' : fixedFee;
+      const rateDisplay = rateEmpty ? '-' : `${rate}%`;
+      return `${fixedDisplay}+${rateDisplay}`;
+    },
     formatIpLines(value) {
       if (!value) return ['-'];
       const list = String(value)
@@ -1944,7 +1972,6 @@ export default {
   }
 
   .agent-info-card{
-    background-color: #f5f5f5;
     margin-top: 6px;
     border-radius: 6px;
     padding: 4px 6px;
@@ -2092,6 +2119,38 @@ export default {
 .agent-fee-text{
   display: inline-block;
   transform: translateY(1px);
+}
+
+.merchant-fee-card{
+  width: 100%;
+  border: 1px solid #dcdfe6;
+  border-radius: 6px;
+  padding: 6px 8px;
+  background: #f8fafc;
+  text-align: left;
+}
+
+.merchant-fee-title{
+  font-size: 12px;
+  color: #606266;
+  margin-right: 6px;
+}
+
+.merchant-fee-value{
+  font-weight: 600;
+  color: #303133;
+  font-size: 13px;
+}
+
+.merchant-fee-row{
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+}
+
+.merchant-fee-row + .merchant-fee-row{
+  margin-top: 6px;
 }
 
 </style>
