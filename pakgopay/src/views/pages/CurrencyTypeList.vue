@@ -73,7 +73,9 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             :label="$t('common.operate')"
             align="center"
             v-slot="{row}">
-          <el-button type="primary" @click="editCurrency(row)">{{ $t('common.operate.edit') }}</el-button>
+          <div style="display: flex;justify-content: center;">
+            <el-button class="filterButton" @click="editCurrency(row)">{{ $t('common.operate.edit') }}</el-button>
+          </div>
         </el-table-column>
       </el-table>
       <el-pagination class="pageTool"
