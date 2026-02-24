@@ -63,11 +63,17 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             v-slot="{row}">
           <div>{{row.currencyAccuracy}}</div>
         </el-table-column>
-        <el-table-column
+<!--        <el-table-column
             :label="$t('currencyTypeList.column.exchangeRate')"
             align="center"
             v-slot="{row}">
           <div>{{row.exchangeRate}}</div>
+        </el-table-column>-->
+        <el-table-column
+            :label="$t('common.operate')"
+            align="center"
+            v-slot="{row}">
+          <el-button type="primary" @click="editCurrency(row)">{{ $t('common.operate.edit') }}</el-button>
         </el-table-column>
       </el-table>
       <el-pagination class="pageTool"
@@ -131,7 +137,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row style="display: flex;justify-content: center;">
+<!--          <el-row style="display: flex;justify-content: center;">
             <el-col :span="24" style="display: flex;justify-content: center;">
               <el-form-item :label="$t('currencyTypeList.form.rateMode')" label-width="150px"  prop="exchangeRate" style="display: flex;flex-direction: row">
                 <el-select v-model="addCurrencyTypeInfo.isRate" style="width: 200px;text-align: center">
@@ -144,14 +150,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                 </el-select>
               </el-form-item>
             </el-col>
-          </el-row>
-          <el-row v-if="addCurrencyTypeInfo.isRate === 2">
+          </el-row>-->
+<!--          <el-row v-if="addCurrencyTypeInfo.isRate === 2">
             <el-col :span="24" style="display: flex;justify-content: center;">
               <el-form-item :label="$t('currencyTypeList.form.exchangeRate')" label-width="150px"  prop="exchangeRate">
                 <el-input type="number" v-model="addCurrencyTypeInfo.exchangeRate" style="width: 200px"/>
               </el-form-item>
             </el-col>
-          </el-row>
+          </el-row>-->
         </div>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -189,13 +195,16 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 
 <script>
 import {
-  addCurrencyType, getAllCurrencyType,
-  getCurrencyTypeByPage
+  addCurrencyType,
+  getAllCurrencyType,
+  getCurrencyTypeByPage,
+  updateCurrencyType
 } from "@/api/interface/backendInterface.js";
 import {saveDraft, loadDraft, clearDraft} from "@/util/draft.js";
 
 const CURRENCY_TYPE_DRAFT_KEY = 'draft:CurrencyTypeList:add';
 const buildEmptyCurrencyTypeInfo = () => ({
+  id: null,
   currencyType: '',
   name: '',
   icon: '',
@@ -281,14 +290,16 @@ export default {
           { required: true, message: this.$t('common.googleCodeRequired'), trigger: 'blur' }
         ]
       },
+      isEditing: false,
     }
   },
   methods: {
     saveCurrencyTypeDraft() {
-      if (!this.dialogFormVisible) return;
+      if (!this.dialogFormVisible || this.isEditing) return;
       saveDraft(CURRENCY_TYPE_DRAFT_KEY, { data: this.addCurrencyTypeInfo || {} });
     },
     loadCurrencyTypeDraft() {
+      if (this.isEditing) return;
       const draft = loadDraft(CURRENCY_TYPE_DRAFT_KEY);
       if (!draft || !draft.data) return;
       this.addCurrencyTypeInfo = Object.assign(buildEmptyCurrencyTypeInfo(), draft.data);
@@ -331,8 +342,16 @@ export default {
     },
     createNewCurrency() {
       this.resetDialogForm();
+      this.isEditing = false;
       this.dialogFormVisible = true;
       this.dialogTitle = this.$t('currencyTypeList.dialog.add')
+    },
+    editCurrency(row) {
+      this.resetDialogForm();
+      this.isEditing = true;
+      this.dialogFormVisible = true;
+      this.dialogTitle = this.$t('currencyTypeList.dialog.edit');
+      this.addCurrencyTypeInfo = Object.assign(buildEmptyCurrencyTypeInfo(), row);
     },
     handleCurrentChange(val) {
 
@@ -344,6 +363,7 @@ export default {
       this.resetDialogForm();
       this.dialogTitle = '';
       this.dialogFormVisible = false;
+      this.isEditing = false;
       this.clearCurrencyTypeDraft();
     },
     resetDialogForm() {
@@ -366,7 +386,10 @@ export default {
         this.addCurrencyTypeInfo.googleCode = this.confirmData.googleCode
         this.confirmDialogVisible = false
         this.confirmDialogTitle = ''
-        addCurrencyType(this.addCurrencyTypeInfo).then(res => {
+        const request = this.isEditing
+          ? updateCurrencyType(this.addCurrencyTypeInfo)
+          : addCurrencyType(this.addCurrencyTypeInfo);
+        request.then(res => {
           if (res.status === 200) {
             if (res.data.code !== 0) {
               this.$notify({
@@ -378,13 +401,16 @@ export default {
             } else {
               this.$notify({
                 title: this.$t('common.success'),
-                message: this.$t('currencyTypeList.message.addSuccess'),
+                message: this.isEditing
+                  ? this.$t('currencyTypeList.message.editSuccess')
+                  : this.$t('currencyTypeList.message.addSuccess'),
                 type: 'success',
                 position: 'bottom-right'
               })
               this.getCurrencyTypeList()
               this.dialogFormVisible = false;
               this.resetDialogForm();
+              this.isEditing = false;
               this.clearCurrencyTypeDraft();
             }
           }

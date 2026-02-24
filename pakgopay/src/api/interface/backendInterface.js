@@ -436,6 +436,18 @@ export function addCurrencyType(form) {
     })
 }
 
+export function updateCurrencyType(form) {
+    return service({
+        url: '/api/pakGoPay/server/CurrencyTypeManagement/updateCurrencyType',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form,
+    })
+}
+
 export function getMerchantReport(form) {
     return service({
         url: '/api/pakGoPay/server/queryMerchantReport',
