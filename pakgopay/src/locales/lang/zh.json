@@ -767,6 +767,7 @@
     "agentInfo.form.confirmPwd": "确认密码:",
     "agentInfo.form.channelRate": "渠道费率:",
     "agentInfo.form.agentRate": "代理费率:",
+    "agentInfo.hint.minParentFee": "不得小于{value}",
     "agentInfo.parent.agentName": "上级代理名称:",
     "agentInfo.parent.accountName": "上级代理账号:",
     "agentInfo.dialog.addFirstLevel": "新增一级代理",

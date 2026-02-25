@@ -20,6 +20,17 @@ const refreshClient = axios.create({
 let isRefreshing = false;
 let refreshQueue = [];
 
+function processRefreshQueue(error, token) {
+    refreshQueue.forEach(({ resolve, reject }) => {
+        if (error) {
+            reject(error);
+        } else {
+            resolve(token);
+        }
+    });
+    refreshQueue = [];
+}
+
 function isLoginRoute() {
     const currentPath = router.currentRoute?.value?.path;
     const currentMeta = router.currentRoute?.value?.meta;
@@ -56,6 +67,9 @@ service.interceptors.response.use(response => {
         if (isLoginRoute()) {
             return Promise.reject(error);
         }
+        if (error.config && error.config._retry) {
+            return Promise.reject(error);
+        }
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) {
             ElNotification({
@@ -67,17 +81,22 @@ service.interceptors.response.use(response => {
                 offset: 500
             })
             clearAuthAndRedirect();
-            location.reload();
             return Promise.reject(error);
         }
 
         if (isRefreshing) {
             return new Promise((resolve, reject) => {
                 refreshQueue.push({ resolve, reject });
+            }).then((token) => {
+                const retryConfig = { ...error.config };
+                retryConfig.headers = retryConfig.headers || {};
+                retryConfig.headers.Authorization = `Bearer ${token}`;
+                return service(retryConfig);
             });
         }
 
         isRefreshing = true;
+        error.config._retry = true;
         return refreshClient.get('/api/pakGoPay/server/Login/refreshToken', {
             params: { freshToken: refreshToken }
         }).then((res) => {
@@ -91,9 +110,7 @@ service.interceptors.response.use(response => {
                     offset: 500
                 })
                 clearAuthAndRedirect();
-                location.reload();
-                refreshQueue.forEach(({ reject }) => reject(error));
-                refreshQueue = [];
+                processRefreshQueue(error, null);
                 return Promise.reject(error);
             }
 
@@ -106,10 +123,11 @@ service.interceptors.response.use(response => {
                 if (newRefreshToken) {
                     localStorage.setItem("refreshToken", newRefreshToken);
                 }
-                refreshQueue.forEach(({ resolve }) => resolve());
-                refreshQueue = [];
-                location.reload();
-                return Promise.reject(error);
+                processRefreshQueue(null, token);
+                const retryConfig = { ...error.config };
+                retryConfig.headers = retryConfig.headers || {};
+                retryConfig.headers.Authorization = `Bearer ${token}`;
+                return service(retryConfig);
             }
 
             return Promise.reject(error);
@@ -123,9 +141,7 @@ service.interceptors.response.use(response => {
                 offset: 500
             })
             clearAuthAndRedirect();
-            location.reload();
-            refreshQueue.forEach(({ reject }) => reject(err));
-            refreshQueue = [];
+            processRefreshQueue(err, null);
             return Promise.reject(err);
         }).finally(() => {
             isRefreshing = false;

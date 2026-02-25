@@ -757,6 +757,7 @@
   "agentInfo.form.confirmPwd": "Sahkan kata laluan:",
   "agentInfo.form.channelRate": "Kadar saluran:",
   "agentInfo.form.agentRate": "Kadar ejen:",
+  "agentInfo.hint.minParentFee": "Tidak boleh kurang daripada {value}",
   "agentInfo.parent.agentName": "Nama ejen induk:",
   "agentInfo.parent.accountName": "Akaun ejen induk:",
   "agentInfo.dialog.addFirstLevel": "Tambah ejen tahap pertama",

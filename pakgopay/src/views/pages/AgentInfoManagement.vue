@@ -73,21 +73,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                 </el-form-item>
               </div>
             </el-col>
-<!--            <el-col :span="6">
-              <el-form-item>
-                <div style="display: flex; flex-direction: row;">
-                  <el-button @click="reset('filterboxForm')" class="filterButton">
-                    <SvgIcon class="filterButtonSvg" name="reset"/>
-                    <div>重置</div>
-                  </el-button>&nbsp;
-                  <el-button @click="search()"
-                             class="filterButton">
-                    <SvgIcon class="filterButtonSvg" name="search"/>
-                    <div>查询</div>
-                  </el-button>&nbsp;
-                </div>
-              </el-form-item>
-            </el-col>-->
           </el-row>
         </el-form>
       </div>
@@ -101,10 +86,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <SvgIcon class="filterButtonSvg" name="add"/>
           <div>{{ $t('agentInfo.action.addFirstLevel') }}</div>
         </el-button>
-<!--        <el-button @click="exportAgent" style="margin:0">
-          <SvgIcon height="20px" width="20px" name="export"/>
-          <div style="color: black;font-size: 13px;">导出</div>
-        </el-button>-->
       </div>
       <el-table
           border :data="agentInfoTableData"
@@ -272,20 +253,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             {{ $t('agentInfo.contact.email') }} {{row.contactEmail ? row.contactEmail: '-'}}
           </div>
         </el-table-column>
-<!--        <el-table-column
-            label="最近登陆时间"
-            v-slot="{row}"
-            align="center"
-        >
-          <div>{{ row.lastLoginTime }}</div>
-        </el-table-column>
-        <el-table-column
-            label="创建时间"
-            v-slot="{row}"
-            align="center"
-        >
-          <div>{{ row.createTime }}</div>
-        </el-table-column>-->
         <el-table-column
             :label="$t('common.operation')"
             align="center"
@@ -387,21 +354,39 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-col :span="8">
             <div class="el-form-line">
               <el-form-item :label="$t('agentInfo.form.collectionFixedFee')" label-width="150px" prop="collectionFixedFee">
-                <el-input type="number" v-model.number="agentInfo.collectionFixedFee" style="width: 200px" @blur="handleCollectionFeeBlur"></el-input>
+                <div class="agent-fee-field">
+                  <el-input type="number" v-model.number="agentInfo.collectionFixedFee" style="width: 200px" @blur="handleCollectionFeeBlur"></el-input>
+                  <div v-if="createType === 'nextLevel'" class="agent-fee-hint">
+                    <SvgIcon class="agent-fee-icon" name="notice2" />
+                    <span>{{ $t('agentInfo.hint.minParentFee', { value: formatParentFee(parentFeeLimits.collectionFixedFee) }) }}</span>
+                  </div>
+                </div>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
               <el-form-item :label="$t('agentInfo.form.collectionRate')" label-width="150px" prop="collectionRate">
-                <el-input type="number" v-model.number="agentInfo.collectionRate" style="width: 200px" @blur="handleCollectionFeeBlur"></el-input>
+                <div class="agent-fee-field">
+                  <el-input type="number" v-model.number="agentInfo.collectionRate" style="width: 200px" @blur="handleCollectionFeeBlur"></el-input>
+                  <div v-if="createType === 'nextLevel'" class="agent-fee-hint">
+                    <SvgIcon class="agent-fee-icon" name="notice2" />
+                    <span>{{ $t('agentInfo.hint.minParentFee', { value: formatParentFee(parentFeeLimits.collectionRate, '%') }) }}</span>
+                  </div>
+                </div>
               </el-form-item>
             </div>
           </el-col>
           <el-col :span="8">
             <div class="el-form-line">
               <el-form-item :label="$t('agentInfo.form.payFixedFee')" label-width="150px" prop="payFixedFee">
-                <el-input type="number" v-model.number="agentInfo.payFixedFee" style="width: 200px" @blur="handlePayFeeBlur"></el-input>
+                <div class="agent-fee-field">
+                  <el-input type="number" v-model.number="agentInfo.payFixedFee" style="width: 200px" @blur="handlePayFeeBlur"></el-input>
+                  <div v-if="createType === 'nextLevel'" class="agent-fee-hint">
+                    <SvgIcon class="agent-fee-icon" name="notice2" />
+                    <span>{{ $t('agentInfo.hint.minParentFee', { value: formatParentFee(parentFeeLimits.payFixedFee) }) }}</span>
+                  </div>
+                </div>
               </el-form-item>
             </div>
           </el-col>
@@ -410,7 +395,13 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-col :span="8">
             <div class="el-form-line">
               <el-form-item :label="$t('agentInfo.form.payRate')" label-width="150px" prop="payRate">
-                <el-input type="number" v-model.number="agentInfo.payRate" style="width: 200px" @blur="handlePayFeeBlur"></el-input>
+                <div class="agent-fee-field">
+                  <el-input type="number" v-model.number="agentInfo.payRate" style="width: 200px" @blur="handlePayFeeBlur"></el-input>
+                  <div v-if="createType === 'nextLevel'" class="agent-fee-hint">
+                    <SvgIcon class="agent-fee-icon" name="notice2" />
+                    <span>{{ $t('agentInfo.hint.minParentFee', { value: formatParentFee(parentFeeLimits.payRate, '%') }) }}</span>
+                  </div>
+                </div>
               </el-form-item>
             </div>
           </el-col>
@@ -809,6 +800,12 @@ export default {
         value: 'channelId',
         label: 'channelName'
       },
+      parentFeeLimits: {
+        collectionFixedFee: null,
+        collectionRate: null,
+        payFixedFee: null,
+        payRate: null
+      },
       dialogTitle: '',
       agentInfo: buildEmptyAgentInfo(),
       nextLevelAgentInfo: {
@@ -1050,6 +1047,10 @@ export default {
     this.search()
   },
   methods: {
+    formatParentFee(value, suffix = '') {
+      const normalized = value === null || value === undefined || value === '' ? 0 : value;
+      return `${normalized}${suffix}`;
+    },
     formatIpLines(value) {
       if (!value) return ['-'];
       const list = String(value)
@@ -1293,6 +1294,12 @@ export default {
     addFistLevelAgent() {
       this.modifyType = ''
       this.agentInfo = buildEmptyAgentInfo()
+      this.parentFeeLimits = {
+        collectionFixedFee: null,
+        collectionRate: null,
+        payFixedFee: null,
+        payRate: null
+      }
       this.dialogFormVisible = true;
       this.dialogTitle = this.$t('agentInfo.dialog.addFirstLevel')
       this.agentInfo.level = 1
@@ -1306,11 +1313,23 @@ export default {
       this.dialogFormVisible = false;
       this.dialogTitle = ''
       this.agentInfo = buildEmptyAgentInfo()
+      this.parentFeeLimits = {
+        collectionFixedFee: null,
+        collectionRate: null,
+        payFixedFee: null,
+        payRate: null
+      }
       this.clearAgentDraft()
     },
     calcelParentDialog() {
       this.parentDialogVisible = false
       this.nextLevelAgentInfo = []
+      this.parentFeeLimits = {
+        collectionFixedFee: null,
+        collectionRate: null,
+        payFixedFee: null,
+        payRate: null
+      }
     },
     handleCurrentPageChange(currentPage) {
       this.filterbox.pageNo = currentPage;
@@ -1326,23 +1345,29 @@ export default {
     },
     editAgentInfo(val) {
       this.agentInfo = val
+      this.parentFeeLimits = {
+        collectionFixedFee: null,
+        collectionRate: null,
+        payFixedFee: null,
+        payRate: null
+      }
       this.dialogTitle = this.$t('agentInfo.dialog.edit')
       this.dialogFormVisible = true;
       this.modifyType = 'edit'
     },
     addNextLevelAgent(val) {
-      /*this.nextLevelAgentInfo.parentAgentName = val.agentName
-      this.nextLevelAgentInfo.parentAgentAccount = val.agentAccount
-      this.parentDialogVisible = true
-      this.parentDialogTitle = '增加下一级代理'*/
-      //this.agentInfo = val
-      console.log(JSON.stringify(val.channelDtoList))
       this.createType = 'nextLevel'
       this.agentInfo = buildEmptyAgentInfo()
       this.agentInfo.parentId = val.userId
       this.agentInfo.topAgentId = val.topAgentId
       this.agentInfo.parentChannelDtoList = val.channelDtoList
       this.agentInfo.level = val.level + 1
+      this.parentFeeLimits = {
+        collectionFixedFee: val.collectionFixedFee,
+        collectionRate: val.collectionRate,
+        payFixedFee: val.payFixedFee,
+        payRate: val.payRate
+      }
       this.dialogTitle = this.$t('agentInfo.dialog.addNextLevel')
       this.dialogFormVisible = true;
       this.loadAgentDraft()
@@ -1389,6 +1414,29 @@ export default {
 .el-form-line {
   display: flex;
   justify-content: center;
+}
+
+.agent-fee-field{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.agent-fee-hint{
+  margin-top: 4px;
+  color: #ea580c;
+  font-size: 12px;
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.agent-fee-icon{
+  width: 12px;
+  height: 12px;
+  display: inline-block;
+  color: currentColor;
 }
 
 .agent-card-row{

@@ -757,6 +757,7 @@
   "agentInfo.form.confirmPwd": "Confirm password:",
   "agentInfo.form.channelRate": "Channel rate:",
   "agentInfo.form.agentRate": "Agent rate:",
+  "agentInfo.hint.minParentFee": "Must be at least {value}",
   "agentInfo.parent.agentName": "Parent agent name:",
   "agentInfo.parent.accountName": "Parent agent account:",
   "agentInfo.dialog.addFirstLevel": "Add first-level agent",

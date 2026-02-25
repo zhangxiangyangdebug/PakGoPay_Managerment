@@ -37,14 +37,14 @@ import {getTimeFromTimestamp} from "@/api/common.js";
                 ref="filterboxForm" class="form" :model="filterbox"
                 style="width: 100%"
             >-->
-              <el-row>
+              <el-row class="merchant-statement-filter-row">
                 <el-col :span="6">
                   <el-form-item :label="$t('merchantStatement.filter.merchantName')" label-width="150px" prop="merchantAgentId">
                     <el-select
                         :options="merchantAccountOptions"
                         :props="merchantAccountProps"
                         v-model="filterbox.merchantAgentId"
-                        style="width: 200px"
+                        class="merchant-statement-filter-input"
                         clearable
                         filterable
                     ></el-select>
@@ -52,14 +52,14 @@ import {getTimeFromTimestamp} from "@/api/common.js";
                 </el-col>
                 <el-col :span="6">
                   <el-form-item :label="$t('merchantStatement.filter.orderId')" label-width="150px" prop="id">
-                    <el-input v-model="filterbox.id" style="width: 200px" clearable/>
+                    <el-input v-model="filterbox.id" class="merchant-statement-filter-input" clearable/>
                   </el-form-item>
                 </el-col>
                 <el-col :span="6">
                   <el-form-item :label="$t('merchantStatement.filter.transactionType')" label-width="150px" prop="orderType">
                     <el-select
                         v-model="filterbox.orderType"
-                        style="width: 200px"
+                        class="merchant-statement-filter-input"
                         clearable
                     >
                       <el-option :label="$t('merchantStatement.transactionType.recharge')" :value="1"></el-option>
@@ -79,6 +79,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
                         format="YYYY/MM/DD"
                         value-format="x"
                         clearable
+                        class="merchant-statement-filter-input"
                     >
                     </el-date-picker>
                   </el-form-item>
@@ -91,12 +92,13 @@ import {getTimeFromTimestamp} from "@/api/common.js";
     </el-collapse-item>
   </el-collapse>
 
-  <div class="reportInfo">
-    <form class="main-views-form" style="height: 62%">
+  <div :class="['reportInfo', 'merchant-statement-report', { 'merchant-statement-report--empty': isEmpty } ]">
+    <form :class="['main-views-form', 'merchant-statement-form', { 'merchant-statement-form--empty': isEmpty }]">
+      <div class="merchant-statement-table-wrap">
       <el-table
           border :data="merchantStatementsFormData"
           class="merchantInfos-table"
-          style="width: 100%;height: 100%"
+          :style="{ width: '100%', height: isEmpty ? 'auto' : '100%' }"
       >
         <el-table-column
             :label="$t('merchantStatement.column.orderId')"
@@ -208,7 +210,8 @@ import {getTimeFromTimestamp} from "@/api/common.js";
           </div>
         </el-table-column>
       </el-table>
-      <el-pagination class="pageTool"
+      </div>
+      <el-pagination class="pageTool merchant-statement-pagination"
           background
           layout="sizes, prev, pager, next, jumper, total"
           :total="totalCount"
@@ -257,6 +260,11 @@ export default {
       pageSizes: [10,20,50, 100, 200],
       totalCount: 1,
 
+    }
+  },
+  computed: {
+    isEmpty() {
+      return !this.merchantStatementsFormData || this.merchantStatementsFormData.length === 0;
     }
   },
   methods: {
@@ -343,5 +351,57 @@ export default {
 
 .main-toolform-line input{
   width: 200px;
+}
+
+.merchant-statement-filter-row{
+  width: 100%;
+}
+
+.merchant-statement-filter-input{
+  width: 100%;
+}
+
+.merchant-statement-report{
+  height: calc(100vh - 300px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.merchant-statement-form{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.merchant-statement-table-wrap{
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.merchant-statement-pagination{
+  margin-top: auto;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.merchant-statement-report--empty{
+  height: auto;
+  overflow: visible;
+}
+
+.merchant-statement-form--empty{
+  height: auto;
+}
+
+.merchant-statement-form--empty .merchant-statement-table-wrap{
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+.merchant-statement-form--empty .merchant-statement-pagination{
+  margin-top: 12px;
 }
 </style>
