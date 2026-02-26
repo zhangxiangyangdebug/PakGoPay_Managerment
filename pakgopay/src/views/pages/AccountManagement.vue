@@ -125,7 +125,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       width="70%"
       style="height: 600px;align-content: center"
       >
-      <el-form :model="createUserInfo" style="margin-top: 50px;width: 100%" :rules="rules" ref="createUserInfo">
+      <el-form :model="createUserInfo" style="margin-top: 16px;width: 100%" :rules="rules" ref="createUserInfo">
         <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
@@ -177,6 +177,51 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
+              <el-form-item :label="$t('accountManagement.form.contactName')" label-width="150px" prop="contactName">
+                <el-input type="text" v-model.trim="createUserInfo.contactName" style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+        </el-row>
+        <el-row style="width: 100%" class="dialog-row">
+          <el-col :span="8">
+            <div class="el-form-line">
+              <el-form-item :label="$t('accountManagement.form.contactEmail')" label-width="150px" prop="contactEmail">
+                <el-input type="text" v-model.trim="createUserInfo.contactEmail" style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+        </el-row>
+        <el-row style="width: 100%" class="dialog-row">
+          <el-col :span="8">
+            <div class="el-form-line">
+              <el-form-item :label="$t('accountManagement.form.contactPhone')" label-width="150px" prop="contactPhone">
+                <el-input type="text" v-model.trim="createUserInfo.contactPhone" style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+        </el-row>
+        <el-row style="width: 100%" class="dialog-row">
+          <el-col :span="8">
+            <div class="el-form-line">
+              <el-form-item :label="$t('accountManagement.form.loginIps')" label-width="150px" prop="loginIps">
+                <el-input type="text" v-model.trim="createUserInfo.loginIps" style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+        </el-row>
+        <el-row style="width: 100%" class="dialog-row">
+          <el-col :span="8">
+            <div class="el-form-line">
+              <el-form-item :label="$t('accountManagement.form.withdrawalIps')" label-width="150px" prop="withdrawalIps">
+                <el-input type="text" v-model.trim="createUserInfo.withdrawalIps" style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+        </el-row>
+        <el-row style="width: 100%" class="dialog-row">
+          <el-col :span="8">
+            <div class="el-form-line">
               <el-form-item :label="$t('accountManagement.form.status')" label-width="150px" >
                 <el-switch
                     v-model="createUserInfo.status"
@@ -188,15 +233,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                     :inactive-value="0"
                 >
                 </el-switch>
-              </el-form-item>
-            </div>
-          </el-col>
-        </el-row>
-        <el-row style="width: 100%" class="dialog-row">
-          <el-col :span="8">
-            <div class="el-form-line">
-              <el-form-item :label="$t('common.googleCode')" label-width="150px"  prop="googleCode">
-                <el-input autocomplete="new-password" type="number" v-model.trim="createUserInfo.googleCode" style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
@@ -218,13 +254,41 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       </div>
     </el-dialog>
     <el-dialog
+      :title="$t('accountManagement.dialog.googleCodeTitle')"
+      v-model="googleCodeDialogVisible"
+      class="dialog"
+      width="40%"
+      style="height: 240px;align-content: center"
+    >
+      <el-form
+        ref="googleCodeFormRef"
+        :model="googleCodeForm"
+        :rules="googleCodeRules"
+        style="margin-top: 8px;width: 100%"
+      >
+        <el-row style="width: 100%;" class="dialog-row">
+          <el-col :span="24">
+            <div class="el-form-line" style="display: flex;justify-content: center;align-items: center;">
+              <el-form-item :label="$t('common.googleCode')" label-width="150px" prop="googleCode">
+                <el-input autocomplete="new-password" type="number" v-model.trim="googleCodeForm.googleCode" style="width: 200px"></el-input>
+              </el-form-item>
+            </div>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancelGoogleCodeDialog">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="confirmGoogleCode">{{ $t('common.confirm') }}</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog
         :title="dialogTitle2"
         v-model="dialogVisible2"
         class="dialog"
         width="40%"
         style="height: 250px;align-content: center"
     >
-      <el-form style="margin-top: 20px;width: 100%"
+      <el-form style="margin-top: 8px;width: 100%"
                :model="stopUserInfo"
       >
         <el-row style="width: 100%;" class="dialog-row">
@@ -262,7 +326,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
     >
       <el-form
         ref="resetGoogleForm"
-        style="margin-top: 20px;width: 100%"
+        style="margin-top: 8px;width: 100%"
         :model="resetGoogleForm"
         :rules="resetGoogleRules"
       >
@@ -358,7 +422,12 @@ const buildEmptyCreateUserInfo = () => ({
   confirmPassword: '',
   roleId: '',
   status: 1,
-  googleCode: ''
+  googleCode: '',
+  contactName: '',
+  contactEmail: '',
+  contactPhone: '',
+  loginIps: '',
+  withdrawalIps: ''
 });
 
 export default {
@@ -415,6 +484,15 @@ export default {
       dialogTitle: '',
       createUserInfo: buildEmptyCreateUserInfo(),
       dialogMode: '',
+      googleCodeDialogVisible: false,
+      googleCodeForm: {
+        googleCode: ''
+      },
+      googleCodeRules: {
+        googleCode: [
+          { required: true, message: this.$t('common.googleCodeRequired'), trigger: 'blur' }
+        ]
+      },
       resetGoogleVisible: false,
       resetGoogleForm: {},
       resetGoogleResult: {
@@ -440,16 +518,30 @@ export default {
           { required: true, message: this.$t('accountManagement.validation.userNameRequired'), trigger: 'blur' }
         ],
         password: [
+          { required: true, message: this.$t('accountManagement.validation.passwordRequired'), trigger: 'blur' },
           { validator: validatePass, trigger: 'blur' }
         ],
         confirmPassword: [
+          { required: true, message: this.$t('accountManagement.validation.confirmPasswordRequired'), trigger: 'blur' },
           { validator: validatePass2, trigger: 'blur' }
         ],
         roleId: [
           { required: true, message: this.$t('accountManagement.validation.roleRequired'), trigger: 'blur' }
         ],
-        googleCode: [
-          { required: true, message: this.$t('common.googleCodeRequired'), trigger: 'blur' }
+        contactName: [
+          { required: true, message: this.$t('accountManagement.validation.contactNameRequired'), trigger: 'blur' }
+        ],
+        contactEmail: [
+          { required: true, message: this.$t('accountManagement.validation.contactEmailRequired'), trigger: 'blur' }
+        ],
+        contactPhone: [
+          { required: true, message: this.$t('accountManagement.validation.contactPhoneRequired'), trigger: 'blur' }
+        ],
+        loginIps: [
+          { required: true, message: this.$t('accountManagement.validation.loginIpsRequired'), trigger: 'blur' }
+        ],
+        withdrawalIps: [
+          { required: true, message: this.$t('accountManagement.validation.withdrawalIpsRequired'), trigger: 'blur' }
         ]
       },
       resetGoogleRules: {
@@ -549,8 +641,26 @@ export default {
       this.dialogTitle = ''
       this.passwordmatch = true
       this.createUserInfo = buildEmptyCreateUserInfo()
+      this.googleCodeDialogVisible = false
+      this.googleCodeForm.googleCode = ''
       this.clearAccountDraft()
       this.dialogMode = ''
+    },
+    cancelGoogleCodeDialog() {
+      this.googleCodeDialogVisible = false
+      this.googleCodeForm.googleCode = ''
+      this.$refs.googleCodeFormRef?.resetFields();
+    },
+    confirmGoogleCode() {
+      this.$refs.googleCodeFormRef.validate((valid) => {
+        if (!valid) {
+          return;
+        }
+        this.createUserInfo.googleCode = this.googleCodeForm.googleCode;
+        this.googleCodeDialogVisible = false;
+        this.googleCodeForm.googleCode = '';
+        this.submitCreateUser();
+      });
     },
     cancelDialog2() {
       this.dialogVisible2 = false
@@ -737,41 +847,7 @@ export default {
     },
     submit(createUserInfo) {
       this.$refs[createUserInfo].validate((valid) => {
-        if (valid) {
-          this.createUserInfo.operatorId = localStorage.getItem("userId")
-          addNewLoginUser(this.createUserInfo).then(response => {
-            if (response.status !== 200) {
-              this.$notify({
-                title: this.$t('common.failed'),
-                message: this.$t('accountManagement.message.createFailed'),
-                type: 'error',
-                position: 'bottom-right'
-              });
-            }
-            if (response.data.code === 0) {
-              this.dialogVisible = false
-              this.dialogTitle = ""
-              this.clearAccountDraft()
-              this.dialogMode = ''
-              this.createUserInfo = buildEmptyCreateUserInfo()
-              this.loadData()
-              this.$notify({
-                title: this.$t('common.success'),
-                message: this.$t('accountManagement.message.createSuccess'),
-                type: 'success',
-                position: 'bottom-right'
-              });
-            }
-            if (response.data.code === 1) {
-              this.$notify({
-                title: this.$t('common.failed'),
-                message: response.data.message,
-                type: 'error',
-                position: 'bottom-right'
-              })
-            }
-          })
-        } else {
+        if (!valid) {
           this.$notify({
             title: this.$t('common.error'),
             message: this.$t('accountManagement.message.checkForm'),
@@ -780,7 +856,46 @@ export default {
           });
           return false;
         }
+        this.googleCodeDialogVisible = true;
+        this.$nextTick(() => {
+          this.$refs.googleCodeFormRef?.clearValidate();
+        });
       });
+    },
+    submitCreateUser() {
+      this.createUserInfo.operatorId = localStorage.getItem("userId")
+      addNewLoginUser(this.createUserInfo).then(response => {
+        if (response.status !== 200) {
+          this.$notify({
+            title: this.$t('common.failed'),
+            message: this.$t('accountManagement.message.createFailed'),
+            type: 'error',
+            position: 'bottom-right'
+          });
+        }
+        if (response.data.code === 0) {
+          this.dialogVisible = false
+          this.dialogTitle = ""
+          this.clearAccountDraft()
+          this.dialogMode = ''
+          this.createUserInfo = buildEmptyCreateUserInfo()
+          this.loadData()
+          this.$notify({
+            title: this.$t('common.success'),
+            message: this.$t('accountManagement.message.createSuccess'),
+            type: 'success',
+            position: 'bottom-right'
+          });
+        }
+        if (response.data.code === 1) {
+          this.$notify({
+            title: this.$t('common.failed'),
+            message: response.data.message,
+            type: 'error',
+            position: 'bottom-right'
+          })
+        }
+      })
       this.tablekey++
     },
     checkPassword() {
@@ -864,10 +979,10 @@ export default {
 }
 
 .dialog-footer {
-  bottom: 0;
-  position: sticky;
-  position: -webkit-sticky;
-  right: 2%;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 12px;
 }
 
 .notice {
