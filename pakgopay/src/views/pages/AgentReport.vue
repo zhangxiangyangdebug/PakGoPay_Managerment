@@ -122,14 +122,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <div>{{ row.agentName }}</div>
             </el-table-column>
             <el-table-column
-                :label="$t('agentReport.column.time')"
-                v-slot="{row}"
-                align="center"
-                prop="recordDate"
-            >
-              <div>{{ row.recordDate }}</div>
-            </el-table-column>
-            <el-table-column
                 :label="$t('agentReport.column.collectionTotalOrders')"
                 v-slot="{row}"
                 align="center"
@@ -169,6 +161,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             >
               <div>{{ currencyIcon + row.commission }}</div>
             </el-table-column>
+            <el-table-column
+                :label="$t('agentReport.column.time')"
+                v-slot="{row}"
+                align="center"
+                prop="recordDate"
+            >
+              <div>{{ formatRecordDate(row.recordDate) }}</div>
+            </el-table-column>
           </el-table>
           <el-pagination class="pageTool"
               background
@@ -200,14 +200,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                 prop="agentName"
             >
               <div>{{ row.agentName }}</div>
-            </el-table-column>
-            <el-table-column
-                :label="$t('agentReport.column.time')"
-                v-slot="{row}"
-                align="center"
-                prop="recordTime"
-            >
-              <div>{{ row.recordDate }}</div>
             </el-table-column>
             <el-table-column
                 :label="$t('agentReport.column.payoutTotalOrders')"
@@ -249,6 +241,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             >
               <div>{{ currencyIcon + row.commission }}</div>
             </el-table-column>
+            <el-table-column
+                :label="$t('agentReport.column.time')"
+                v-slot="{row}"
+                align="center"
+                prop="recordTime"
+            >
+              <div>{{ formatRecordDate(row.recordDate) }}</div>
+            </el-table-column>
 
           </el-table>
           <el-pagination class="pageTool"
@@ -272,7 +272,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 <script>
 import {ref} from "vue";
 import {exportAgentReport, getAgentInfo, getAgentReport, getAllCurrencyType} from "@/api/interface/backendInterface.js";
-import {exportExcel, getAgentReportTitle, getFormateTime, getTodayStartTimestamp, loadingBody} from "@/api/common.js";
+import {exportExcel, getAgentReportTitle, getFormateTime, getTodayStartTimestamp, loadingBody, getDateFromTimestamp} from "@/api/common.js";
 
 const filterTimeRange = ref('')
 export default {
@@ -319,6 +319,9 @@ export default {
     }
   },
   methods: {
+    formatRecordDate(value) {
+      return getDateFromTimestamp(value);
+    },
     exportAgentInfo() {
       this.filterbox.orderType = null
       this.filterbox.columns = getAgentReportTitle(this)

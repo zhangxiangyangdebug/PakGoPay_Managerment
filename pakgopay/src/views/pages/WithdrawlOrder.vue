@@ -106,68 +106,6 @@ import {getTimeFromTimestamp, getTodayStartTimestamp} from "@/api/common.js";
       </div>
     </div>
 
-    <!-- 统计信息 -->
-    <div>
-      <div style="display: flex; justify-content: space-between;">
-        <el-card style="width: 28%;height: 100%;margin-top: 1%;margin-left: 3%;">
-          <div style="display: flex;">
-            <SvgIcon name="orderNum" width="100px" height="100px"/>
-            <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">{{ $t('orderCommon.stats.totalOrders') }}</span>
-              <textarea v-model="staticsData.orderTotalCount" disabled class="cash-text-area"></textarea>
-            </div>
-          </div>
-        </el-card>
-        <el-card style="width: 28%;height: 100%;margin-top: 1%;">
-          <div style="display: flex;">
-            <SvgIcon name="merchantCommission" width="100px" height="100px"/>
-            <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">{{ $t('orderCommon.stats.merchantFee') }}</span>
-              <textarea v-model="staticsData.merchantCommission" disabled class="cash-text-area"></textarea>
-            </div>
-          </div>
-        </el-card>
-        <el-card style="width: 28%;height: 100%;margin-top: 1%;margin-right: 4%;">
-          <div style="display: flex;">
-            <SvgIcon name="freezeAmount" width="100px" height="100px"/>
-            <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">{{ $t('orderCommon.stats.frozenAmount') }}</span>
-              <textarea v-model="staticsData.merchantFreezeAmount" disabled class="cash-text-area"></textarea>
-            </div>
-          </div>
-        </el-card>
-      </div>
-      <div style="display: flex; justify-content: space-between;">
-        <el-card style="width: 28%;height: 100%;margin-top: 1%;margin-left: 3%;">
-          <div style="display: flex;">
-            <SvgIcon name="orderSuccessRate" width="100px" height="100px"/>
-            <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">{{ $t('orderCommon.stats.successRate') }}</span>
-              <textarea v-model="staticsData.ordereSuccessRate" disabled class="cash-text-area"></textarea>
-            </div>
-          </div>
-        </el-card>
-        <el-card style="width: 28%;height: 100%;margin-top: 1%;">
-          <div style="display: flex;">
-            <SvgIcon name="effectiveCommission" width="100px" height="100px"/>
-            <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%">
-              <span class="statics-title">{{ $t('orderCommon.stats.effectiveFee') }}</span>
-              <textarea v-model="staticsData.merchantEffectiveCommission" disabled class="cash-text-area"></textarea>
-            </div>
-          </div>
-        </el-card>
-        <el-card style="width: 28%;height: 100%;margin-top: 1%;margin-right: 4%;">
-          <div style="display: flex;justify-content: space-between">
-            <SvgIcon name="accountBalance" width="100px" height="100px"/>
-            <div style="display: flex; flex-direction: column;width: 80%;margin-left: 2%;justify-content: space-between;">
-              <span class="statics-title">{{ $t('orderCommon.stats.availableAmount') }}</span>
-              <textarea v-model="staticsData.merchantAvaiableAmount" disabled class="cash-text-area"></textarea>
-            </div>
-          </div>
-        </el-card>
-      </div>
-    </div>
-
     <!-- 订单列表 -->
     <div class="reportInfo">
       <div class="main-views-form" style="width: auto;height:100%;">
@@ -183,7 +121,7 @@ import {getTimeFromTimestamp, getTodayStartTimestamp} from "@/api/common.js";
         </div>
         <el-table
             border :data="withdrawlOrderTableInfo"
-            class="merchantInfos-table"
+            class="merchantInfos-table reportInfo-table1"
             style="height: auto;"
             :key="tableKey"
             max-height="90vh"
@@ -197,20 +135,20 @@ import {getTimeFromTimestamp, getTodayStartTimestamp} from "@/api/common.js";
             <div>{{row.id}}</div>
           </el-table-column>
           <el-table-column
-              prop="amount"
-              :label="$t('withdrawlOrder.column.amount')"
-              v-slot="{row}"
-              align="center"
-          >
-            <div>{{row.amount}}</div>
-          </el-table-column>
-          <el-table-column
               prop="merchantAgentName"
               :label="$t('withdrawlOrder.column.userName')"
               v-slot="{row}"
               align="center"
           >
             <div>{{filterbox.userType === 1 ? merchantMaps[row.userId] : agentMaps[row.userId]}}</div>
+          </el-table-column>
+          <el-table-column
+              prop="amount"
+              :label="$t('withdrawlOrder.column.amount')"
+              v-slot="{row}"
+              align="center"
+          >
+            <div>{{ formatWithdrawAmount(row) }}</div>
           </el-table-column>
           <el-table-column
               prop="orderStatus"
@@ -324,6 +262,7 @@ import {
   getMerchantInfo,
   getWithdrawStatementeOrder, modifyWithdrawStatementeOrder
 } from "@/api/interface/backendInterface.js";
+import {loadingBody} from "@/api/common.js";
 
 export default {
   name: "WithdrawlOrder",
@@ -344,7 +283,7 @@ export default {
         orderType: '',
         createTime: '',
         merchantAgent: '',
-        currencyType: '',
+        currency: '',
         orderAmount: '',
         platformOrderId: '',
       },
@@ -426,6 +365,7 @@ export default {
         this.filterbox.startTime = Number(range[0]) / 1000;
         this.filterbox.endTime = Number(range[1]) / 1000;
       }
+      const loadingInstance = loadingBody(this, 'reportInfo-table1')
       getWithdrawStatementeOrder(this.filterbox).then(res => {
         if (res.status === 200 && res.data.code === 0) {
           let allData = JSON.parse(res.data.data)
@@ -433,7 +373,25 @@ export default {
           this.totalCount = allData.totalNumber
           this.pageSize = allData.pageSize
           this.currentPage = allData.pageNo
+        } else {
+          this.$notify({
+            title: this.$t('common.error'),
+            message: res.data?.message || this.$t('common.requestFailed'),
+            duration: 3000,
+            type: 'error',
+            position: 'bottom-right'
+          })
         }
+        loadingInstance.close()
+      }).catch(error => {
+        loadingInstance.close()
+        this.$notify({
+          title: this.$t('common.error'),
+          message: error.message || this.$t('common.requestFailed'),
+          duration: 3000,
+          type: 'error',
+          position: 'bottom-right'
+        })
       })
     },
     handleDateRangeChange(val) {
@@ -480,6 +438,15 @@ export default {
         2: this.$t('withdrawlOrder.status.rejected')
       };
       return statusMap[status] || status;
+    },
+    formatWithdrawAmount(row) {
+      const rawAmount = row ? row.amount : null;
+      if (rawAmount === null || rawAmount === undefined || rawAmount === '') {
+        return rawAmount;
+      }
+      const currencyType = row.currencyType || row.currency || this.currency || this.filterbox.currencyType;
+      const icon = this.currencyIcons[currencyType] || this.currencyIcon || '';
+      return icon ? `${icon}${rawAmount}` : rawAmount;
     },
     approveWithdrawOrder(row) {
       this.openApprovalDialog(true, row)
@@ -555,19 +522,15 @@ export default {
     rejectWithdrawOrder(row) {
       this.openApprovalDialog(false, row)
     },
-    applyCurrencyToStatics(row) {
-      let info = {}
-      info.status = 1
-      info.id = row.id
-      this.submit(info)
-    },
     handleCurrencyChange(tab) {
       if (tab && tab.paneName !== undefined) {
-        this.filterbox.currencyType = tab.paneName;
+        this.filterbox.currency = tab.paneName;
       }
-      this.currency = this.filterbox.currencyType;
+      this.currency = this.filterbox.currency;
       this.currencyIcon = this.currencyIcons[this.currency] || '';
-      this.applyCurrencyToStatics();
+      this.currentPage = 1;
+      this.filterbox.pageNo = 1;
+      this.search();
     },
     handleChange(currentPage) {
       this.currentPage = currentPage;
@@ -623,7 +586,8 @@ export default {
         this.currencyOptions = JSON.parse(res.data.data).currencyTypeDTOList;
         if (this.currencyOptions.length > 0) {
           this.currency = this.currencyOptions[0].currencyType;
-          //this.filterbox.currencyType = this.currencyOptions[0].currencyType;
+          this.staticsData.currencyType = this.currencyOptions[0].currencyType;
+          this.filterbox.currency = this.currencyOptions[0].currencyType;
           this.currencyIcons = {};
           this.currencyOptions.forEach(currency => {
             this.currencyIcons[currency.currencyType] = currency.icon;
@@ -704,6 +668,7 @@ export default {
 .status-other {
   background-color: #9ca3af;
 }
+
 </style>
 <style>
 
