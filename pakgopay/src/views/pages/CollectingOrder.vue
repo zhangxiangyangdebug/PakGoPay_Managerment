@@ -125,6 +125,7 @@ import {
                   <el-date-picker
                       v-model="filterbox.filterDateRange"
                       type="datetimerange"
+                      :clearable="false"
                       :range-separator="$t('common.rangeSeparator')"
                       :start-placeholder="$t('common.startDate')"
                       :end-placeholder="$t('common.endDate')"
@@ -410,6 +411,8 @@ export default {
       filterbox: {
         filterDateRange: [],
         filterDateRangeUtc: [],
+        filterDateRangeLast: [],
+        filterDateRangeUtcLast: [],
       },
       currency: '',
       currencyIcon: '',
@@ -683,7 +686,21 @@ export default {
         this.filterbox.filterDateRangeUtc = [];
         return;
       }
-      this.filterbox.filterDateRangeUtc = this.toUtcRange(val, this.timeZoneKey);
+      const normalized = this.clampRangeWithinSixMonths(val[0], val[1]);
+      this.filterbox.filterDateRange = [...normalized];
+      this.filterbox.filterDateRangeUtc = this.toUtcRange(normalized, this.timeZoneKey);
+      this.filterbox.startTime = Number(this.filterbox.filterDateRangeUtc[0]) / 1000;
+      this.filterbox.endTime = Number(this.filterbox.filterDateRangeUtc[1]) / 1000 + 86399;
+      this.filterbox.filterDateRangeLast = [...normalized];
+      this.filterbox.filterDateRangeUtcLast = [...this.filterbox.filterDateRangeUtc];
+    },
+    clampRangeWithinSixMonths(startMs, endMs) {
+      const start = new Date(Number(startMs));
+      const limit = new Date(start.getTime());
+      limit.setMonth(limit.getMonth() + 6);
+      const maxEndMs = limit.getTime() - 86399 * 1000;
+      const safeEnd = Math.min(Number(endMs), maxEndMs);
+      return [Number(startMs), Math.max(Number(startMs), safeEnd)];
     },
     parseOffsetMinutes(tz) {
       const match = String(tz || '').match(/UTC\s*([+-])\s*(\d{1,2})(?::?(\d{2}))?/i);
@@ -840,6 +857,8 @@ export default {
       this.filterbox.filterDateRange = [startMs, endMs];
       this.filterbox.filterDateRangeUtc = this.toUtcRange([startMs, endMs], this.timeZoneKey);
     }
+    this.filterbox.filterDateRangeLast = [...this.filterbox.filterDateRange];
+    this.filterbox.filterDateRangeUtcLast = [...this.filterbox.filterDateRangeUtc];
 
     await getMerchantInfo(this.filterbox).then(res => {
       if (res.status === 200 && res.data.code === 0) {

@@ -170,7 +170,9 @@ export default {
       this.notifications.unshift({
         id: messageData.id,
         content: messageData.content,
-        read: false
+        read: false,
+        path: messageData.path,
+        timestamp: messageData.timestamp
       })
       this.fetchWsMessages()
       this.textToSpeak = messageData.content;
@@ -199,17 +201,61 @@ export default {
         }
         //this.unreadCount()
       })
-      await this.ensureRouteLoaded("ChannelList")
-      await router.push({
-        name: "ChannelList",
-        query: {
-          "filterbox.channelName": "New Channel By Front"
+      const targetPath = notification?.path
+      if (targetPath) {
+        await this.ensureRouteLoaded()
+        const dayTimestamp = this.toDayStartTimestamp(notification?.timestamp)
+        const notifyQuery = {
+          orderNo: notification?.id,
+          timestamp: dayTimestamp
         }
-      })
-      /*router.push('/web/OrderManagement/ChannelList')*/
+        if (router.hasRoute(targetPath)) {
+          await router.push({
+            name: targetPath,
+            query: notifyQuery
+          })
+          return
+        }
+        if (String(targetPath).startsWith('/')) {
+          await this.ensureRouteLoadedByPath(targetPath)
+          const resolved = router.resolve({ path: targetPath })
+          if (resolved?.matched?.length > 0) {
+            await router.push({
+              path: resolved.path,
+              query: {
+                ...resolved.query,
+                ...notifyQuery
+              }
+            })
+          }
+        }
+      }
+    },
+    toDayStartTimestamp(rawTimestamp) {
+      const ts = Number(rawTimestamp)
+      if (!Number.isFinite(ts)) {
+        return undefined
+      }
+      const normalized = String(Math.trunc(ts)).length === 10 ? ts * 1000 : ts
+      const date = new Date(normalized)
+      if (Number.isNaN(date.getTime())) {
+        return undefined
+      }
+      const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0)
+      return String(dayStart.getTime())
+    },
+    async ensureRouteLoadedByPath(targetPath) {
+      if (!String(targetPath).startsWith('/')) {
+        return
+      }
+      const resolved = router.resolve({ path: targetPath })
+      if (resolved?.matched?.length > 0) {
+        return
+      }
+      await this.ensureRouteLoaded()
     },
     async ensureRouteLoaded(routeName) {
-      if (router.hasRoute(routeName)) {
+      if (routeName && router.hasRoute(routeName)) {
         return
       }
       let menuJson = null

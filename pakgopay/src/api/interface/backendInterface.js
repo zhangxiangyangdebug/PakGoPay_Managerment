@@ -322,6 +322,28 @@ export function updateTelegramConfig(form) {
     })
 }
 
+export function getRateLimitConfig() {
+    return service({
+        url: '/api/pakGoPay/server/SystemConfig/rateLimitConfig',
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+    })
+}
+
+export function updateRateLimitConfig(form) {
+    return service({
+        url: '/api/pakGoPay/server/SystemConfig/rateLimitConfig',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        data: form,
+    })
+}
+
 export function getCommonMessage() {
     return service({
         url: '/api/pakGoPay/server/SystemConfig/unCommonMessage',

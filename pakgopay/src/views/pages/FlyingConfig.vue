@@ -55,10 +55,32 @@
       <el-button style="margin-left: 30%;width: 100px;height: auto;color: dodgerblue" @click="load" :loading="loading">
         {{ $t('flyingConfig.action.reload') }}
       </el-button>
-      <el-button style="margin-right: 30%;width: 100px;height: auto;color: dodgerblue" @click="save" :loading="saving">
+      <el-button style="margin-right: 30%;width: 100px;height: auto;color: dodgerblue" @click="openGoogleDialog" :loading="saving">
         {{ $t('flyingConfig.action.save') }}
       </el-button>
     </div>
+    <el-dialog
+      v-model="googleDialogVisible"
+      :title="$t('common.googleCode')"
+      class="dialog"
+      center
+      width="30%"
+      height="200px"
+    >
+      <el-form ref="googleFormRef" :rules="googleRule" :model="googleForm" style="height:100px;margin-top: 20px">
+        <el-row>
+          <el-col :span="24" style="display: flex;justify-content: center;align-items: center;">
+            <el-form-item :label="$t('common.googleCode')" label-width="150px" prop="googleCode">
+              <el-input v-model="googleForm.googleCode" style="width: 200px"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer" class="dialog-footer" style="margin-right: 3%;height: 30px;">
+        <el-button @click="cancelGoogleDialog">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="confirmSave">{{ $t('common.confirm') }}</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -75,6 +97,15 @@ export default {
         webhookSecret: "",
         allowedUserIds: "",
         enabled: 1
+      },
+      googleDialogVisible: false,
+      googleForm: {
+        googleCode: ''
+      },
+      googleRule: {
+        googleCode: {
+          required: true, trigger: 'blur', message: this.$t('common.googleCodeRequired')
+        }
       },
       loading: false,
       saving: false
@@ -112,14 +143,37 @@ export default {
         this.loading = false;
       });
     },
+    openGoogleDialog() {
+      this.googleDialogVisible = true;
+      this.$nextTick(() => {
+        this.$refs.googleFormRef?.clearValidate();
+      });
+    },
+    cancelGoogleDialog() {
+      this.googleDialogVisible = false;
+      this.googleForm.googleCode = '';
+      this.$refs.googleFormRef?.resetFields();
+    },
+    confirmSave() {
+      this.$refs.googleFormRef.validate(valid => {
+        if (!valid) {
+          return;
+        }
+        this.save();
+      })
+    },
     save() {
       this.saving = true;
-      updateTelegramConfig(this.form).then(res => {
+      const payload = Object.assign({}, this.form, { googleCode: this.googleForm.googleCode });
+      updateTelegramConfig(payload).then(res => {
         if (res.status === 200 && res.data.code === 0) {
           this.$message({
             type: 'success',
             message: this.$t('common.success')
           })
+          this.googleDialogVisible = false;
+          this.googleForm.googleCode = '';
+          this.$refs.googleFormRef?.resetFields();
         } else {
           this.$notify({
             title: this.$t('common.error'),

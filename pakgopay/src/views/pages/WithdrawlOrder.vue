@@ -72,6 +72,7 @@ import {getTimeFromTimestamp, getTodayStartTimestamp} from "@/api/common.js";
                   <el-date-picker
                       v-model="filterbox.filterDateRange"
                       type="datetimerange"
+                      :clearable="false"
                       :range-separator="$t('common.rangeSeparator')"
                       :start-placeholder="$t('common.startDate')"
                       :end-placeholder="$t('common.endDate')"
@@ -286,6 +287,10 @@ export default {
         currency: '',
         orderAmount: '',
         platformOrderId: '',
+        filterDateRange: [],
+        filterDateRangeUtc: [],
+        filterDateRangeLast: [],
+        filterDateRangeUtcLast: [],
       },
       currency: '',
       currencyIcon: '',
@@ -341,6 +346,34 @@ export default {
     }
   },
   methods: {
+    applyRouteQueryFilters() {
+      const query = this.$route?.query || {}
+      const orderNo = query.orderNo
+      if (orderNo) {
+        this.filterbox.id = String(orderNo)
+      }
+      const range = this.buildDayRangeFromTimestamp(query.timestamp)
+      if (range) {
+        this.filterbox.filterDateRange = range
+        this.filterbox.filterDateRangeUtc = this.toUtcRange(range, this.timeZoneKey)
+        this.filterbox.filterDateRangeLast = [...this.filterbox.filterDateRange]
+        this.filterbox.filterDateRangeUtcLast = [...this.filterbox.filterDateRangeUtc]
+      }
+    },
+    buildDayRangeFromTimestamp(rawTimestamp) {
+      const ts = Number(rawTimestamp)
+      if (!Number.isFinite(ts)) {
+        return null
+      }
+      const normalized = String(Math.trunc(ts)).length === 10 ? ts * 1000 : ts
+      const date = new Date(normalized)
+      if (Number.isNaN(date.getTime())) {
+        return null
+      }
+      const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0).getTime()
+      const dayEnd = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 0).getTime()
+      return [dayStart, dayEnd]
+    },
     getOrderStatusClass(status) {
       const map = {
         0: 'status-pending',
@@ -399,7 +432,20 @@ export default {
         this.filterbox.filterDateRangeUtc = [];
         return;
       }
-      this.filterbox.filterDateRangeUtc = this.toUtcRange(val, this.timeZoneKey);
+      const normalized = this.clampRangeWithinSixMonths(val[0], val[1]);
+      this.filterbox.filterDateRange = [...normalized];
+      this.filterbox.filterDateRangeUtc = this.toUtcRange(normalized, this.timeZoneKey);
+      this.filterbox.startTime = Number(this.filterbox.filterDateRangeUtc[0]) / 1000;
+      this.filterbox.endTime = Number(this.filterbox.filterDateRangeUtc[1]) / 1000;
+      this.filterbox.filterDateRangeLast = [...normalized];
+      this.filterbox.filterDateRangeUtcLast = [...this.filterbox.filterDateRangeUtc];
+    },
+    clampRangeWithinSixMonths(startMs, endMs) {
+      const start = new Date(Number(startMs));
+      const limit = new Date(start.getTime());
+      limit.setMonth(limit.getMonth() + 6);
+      const safeEnd = Math.min(Number(endMs), limit.getTime());
+      return [Number(startMs), Math.max(Number(startMs), safeEnd)];
     },
     parseOffsetMinutes(tz) {
       const match = String(tz || '').match(/UTC\s*([+-])\s*(\d{1,2})(?::?(\d{2}))?/i);
@@ -566,6 +612,8 @@ export default {
       this.filterbox.filterDateRange = [startMs, endMs];
       this.filterbox.filterDateRangeUtc = this.toUtcRange([startMs, endMs], this.timeZoneKey);
     }
+    this.filterbox.filterDateRangeLast = [...this.filterbox.filterDateRange];
+    this.filterbox.filterDateRangeUtcLast = [...this.filterbox.filterDateRangeUtc];
     this._timeZoneListener = (event) => {
       const nextZone = event.detail || localStorage.getItem("timeZone") || "UTC+8";
       const prevZone = this.timeZoneKey;
@@ -621,6 +669,7 @@ export default {
       }
     })
 
+    this.applyRouteQueryFilters()
     this.search()
 
    /* this.totalCount = this.withdrawlOrderTableInfo.length;
@@ -634,6 +683,16 @@ export default {
   beforeUnmount() {
     if (this._timeZoneListener) {
       window.removeEventListener("timezone-change", this._timeZoneListener);
+    }
+  }
+  ,
+  watch: {
+    '$route.query': {
+      deep: true,
+      handler() {
+        this.applyRouteQueryFilters()
+        this.search()
+      }
     }
   }
 }

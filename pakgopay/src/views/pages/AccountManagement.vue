@@ -123,31 +123,27 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       v-model="dialogVisible"
       class="dialog"
       width="70%"
-      style="height: 600px;align-content: center"
+      style="height: 400px;"
       >
-      <el-form :model="createUserInfo" style="margin-top: 16px;width: 100%" :rules="rules" ref="createUserInfo">
+      <el-form :model="createUserInfo" style="margin-top: 35px;width: 100%" :rules="rules" ref="createUserInfo">
         <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item :label="$t('accountManagement.form.userName')" label-width="150px"  prop="loginName">
+              <el-form-item :label="$t('accountManagement.form.userName')" label-width="150px" prop="loginName">
                 <el-input auto-complete="new-password" type="text" v-model.trim="createUserInfo.loginName" style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
-        </el-row>
-        <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item :label="$t('accountManagement.form.password')" label-width="150px"  prop="password">
+              <el-form-item :label="$t('accountManagement.form.password')" label-width="150px" prop="password">
                 <el-input autocomplete="new-password" type="password" v-model.trim="createUserInfo.password" style="width: 200px"></el-input>
               </el-form-item>
             </div>
           </el-col>
-        </el-row>
-        <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item :label="$t('accountManagement.form.confirmPassword')" label-width="150px"  prop="confirmPassword">
+              <el-form-item :label="$t('accountManagement.form.confirmPassword')" label-width="150px" prop="confirmPassword">
                 <el-input type="password" v-model.trim="createUserInfo.confirmPassword" style="width: 200px"></el-input>
               </el-form-item>
             </div>
@@ -156,7 +152,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item :label="$t('accountManagement.form.role')" label-width="150px"  prop="roleId">
+              <el-form-item :label="$t('accountManagement.form.role')" label-width="150px" prop="roleId">
                 <el-select
                   v-model.trim="createUserInfo.roleId"
                   :placeholder="$t('accountManagement.placeholder.role')"
@@ -173,8 +169,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               </el-form-item>
             </div>
           </el-col>
-        </el-row>
-        <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
               <el-form-item :label="$t('accountManagement.form.contactName')" label-width="150px" prop="contactName">
@@ -182,8 +176,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               </el-form-item>
             </div>
           </el-col>
-        </el-row>
-        <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
               <el-form-item :label="$t('accountManagement.form.contactEmail')" label-width="150px" prop="contactEmail">
@@ -200,8 +192,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               </el-form-item>
             </div>
           </el-col>
-        </el-row>
-        <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
               <el-form-item :label="$t('accountManagement.form.loginIps')" label-width="150px" prop="loginIps">
@@ -209,8 +199,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               </el-form-item>
             </div>
           </el-col>
-        </el-row>
-        <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
               <el-form-item :label="$t('accountManagement.form.withdrawalIps')" label-width="150px" prop="withdrawalIps">
@@ -222,7 +210,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
             <div class="el-form-line">
-              <el-form-item :label="$t('accountManagement.form.status')" label-width="150px" >
+              <el-form-item :label="$t('accountManagement.form.status')" label-width="150px">
                 <el-switch
                     v-model="createUserInfo.status"
                     active-color="#13ce66"
@@ -236,6 +224,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               </el-form-item>
             </div>
           </el-col>
+          <el-col :span="8"></el-col>
+          <el-col :span="8"></el-col>
         </el-row>
 <!--        <el-row style="width: 100%" class="dialog-row">
           <el-col :span="8">
@@ -887,7 +877,7 @@ export default {
             position: 'bottom-right'
           });
         }
-        if (response.data.code === 1) {
+        if (response.data.code !== 0) {
           this.$notify({
             title: this.$t('common.failed'),
             message: response.data.message,
