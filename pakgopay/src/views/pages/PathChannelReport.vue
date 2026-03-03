@@ -433,7 +433,7 @@ export default {
                 align="center"
                 v-slot="{row}"
             >
-              <div>{{ row.orderQuantity === 0 ? 0 : ((row.successQuantity / row.orderQuantity) * 100).toFixed(2) }}%</div>
+              <div>{{ row.orderQuantity === 0 ? '0.00' : ((row.successQuantity / row.orderQuantity) * 100).toFixed(2) }}%</div>
             </el-table-column>
             <el-table-column
                 prop="orderBalance"
@@ -523,7 +523,7 @@ export default {
                 align="center"
                 v-slot="{row}"
             >
-              <div>{{ row.orderQuantity === 0 ? 0 : ((row.successQuantity / row.orderQuantity) * 100).toFixed(2) }}%</div>
+              <div>{{ row.orderQuantity === 0 ? '0.00' : ((row.successQuantity / row.orderQuantity) * 100).toFixed(2) }}%</div>
             </el-table-column>
             <el-table-column
                 prop="orderBalance"

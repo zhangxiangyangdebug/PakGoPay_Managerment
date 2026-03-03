@@ -877,9 +877,69 @@ export function getCollectionOrder(form) {
     })
 }
 
+export function manualNotifyCollectionOrder(form) {
+    return service({
+        url: '/api/pakGoPay/server/v1/manualNotifyCollectionOrder',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
+export function manualCreateCollectionOrder(form) {
+    return service({
+        url: '/api/pakGoPay/server/v1/manualCreateCollectionOrder',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
+export function queryMerchantAvailableChannels(form) {
+    return service({
+        url: '/api/pakGoPay/server/v1/queryMerchantAvailableChannels',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
 export function getPayingOrder(form) {
     return service({
         url: '/api/pakGoPay/server/v1/queryPayOutOrders',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
+export function manualNotifyPayOutOrder(form) {
+    return service({
+        url: '/api/pakGoPay/server/v1/manualNotifyPayOutOrder',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
+export function manualCreatePayOutOrder(form) {
+    return service({
+        url: '/api/pakGoPay/server/v1/manualCreatePayOutOrder',
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,

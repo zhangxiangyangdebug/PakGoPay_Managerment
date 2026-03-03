@@ -151,7 +151,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                 align="center"
                 prop="successRate"
             >
-              <div>{{ row.orderQuantity === 0 ? 0 : ((row.successQuantity/row.orderQuantity)*100).toFixed(2) }}%</div>
+              <div>{{ row.orderQuantity === 0 ? '0.00' : ((row.successQuantity/row.orderQuantity)*100).toFixed(2) }}%</div>
             </el-table-column>
             <el-table-column
                 :label="$t('agentReport.column.collectionCommission')"
@@ -231,7 +231,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                 align="center"
                 prop="successRate"
             >
-              <div>{{ row.orderQuantity === 0 ? 0 : ((row.successQuantity/row.orderQuantity)*100).toFixed(2) }}%</div>
+              <div>{{ row.orderQuantity === 0 ? '0.00' : ((row.successQuantity/row.orderQuantity)*100).toFixed(2) }}%</div>
             </el-table-column>
             <el-table-column
                 :label="$t('agentReport.column.payoutCommission')"

@@ -441,14 +441,16 @@ export function getOrderStatusOptions() {
 
 export function getCallBackStatus(callBackStatus) {
     const t = i18n?.global?.t ? i18n.global.t.bind(i18n.global) : (key) => key;
-    if (!callBackStatus) {
+    if (callBackStatus === null || callBackStatus === undefined || callBackStatus === '') {
         return '-'
-    } else if (callBackStatus === '1') {
-        return t('orderCommon.callback.success')
-    } else if (callBackStatus === '2') {
-        return t('orderCommon.callback.failed')
-    } else if (callBackStatus === '3') {
+    }
+    const normalized = String(callBackStatus).trim()
+    if (normalized === '0') {
         return t('orderCommon.callback.pending')
+    } else if (normalized === '1') {
+        return t('orderCommon.callback.success')
+    } else if (normalized === '2') {
+        return t('orderCommon.callback.failed')
     } else {
         return '-'
     }

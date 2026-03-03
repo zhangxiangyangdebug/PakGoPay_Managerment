@@ -110,16 +110,6 @@ import {getTimeFromTimestamp, getTodayStartTimestamp} from "@/api/common.js";
     <!-- 订单列表 -->
     <div class="reportInfo">
       <div class="main-views-form" style="width: auto;height:100%;">
-        <div style="display: flex; float: right">
-          <el-button @click="createPathChannel()" class="filterButton">
-            <SvgIcon class="filterButtonSvg" name="createOrder"/>
-            <div>{{ $t('orderCommon.action.createOrder') }}</div>
-          </el-button>
-<!--          <el-button @click="createPathChannel()" class="filterButton">
-            <SvgIcon class="filterButtonSvg" name="callBack"/>
-            <div>批量回调</div>
-          </el-button>-->
-        </div>
         <el-table
             border :data="withdrawlOrderTableInfo"
             class="merchantInfos-table reportInfo-table1"

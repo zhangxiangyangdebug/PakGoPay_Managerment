@@ -545,7 +545,6 @@ export default {
     fetchOpsReport() {
       const payload = this.buildOpsRequest();
       if (!payload.currency) {
-        this.selectedDate = this.getDefaultDateForDimension();
         this.opsReport = {
           collection: {},
           paying: {}
@@ -563,9 +562,6 @@ export default {
           const data = this.parseOpsPayload(res.data.data);
           const collectionList = data.collectionList || data.collection || data.collecting || data.ds || [];
           const payoutList = data.payoutList || data.paying || data.df || [];
-          if ((!collectionList || collectionList.length === 0) && (!payoutList || payoutList.length === 0)) {
-            this.selectedDate = this.getDefaultDateForDimension();
-          }
           this.applyOpsData(collectionList, payoutList);
         } else if (res?.data?.code !== 0) {
           this.$notify({
