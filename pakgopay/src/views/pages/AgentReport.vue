@@ -84,7 +84,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </div>
       </div>
     </el-card>
-
     <el-card id="statistics" class="statistics-form" v-if="statisticsInfo.payingCard">
       <div class="statistics-form-item">
         <SvgIcon name="paying" width="90px" height="90px"/>
@@ -399,7 +398,8 @@ export default {
             this.tab1CurrentPage = resData.pageNo
             this.tab1TotalCount = resData.totalNumber
             this.tab1PageSize = resData.pageSize
-            this.statisticsInfo.collectionAgentAmount = this.currencyIcon + cardInfo.total
+            this.statisticsInfo.collectionAgentAmount = this.currencyIcon + (cardInfo?.total ?? 0)
+            this.statisticsInfo.collectionAgentCommissionAmount = this.currencyIcon + (cardInfo?.successOrderBalance ?? 0)
             this.statisticsInfo.collectionCard = true
             this.statisticsInfo.payingCard = false
           } else if (orderType === 1) {
@@ -407,7 +407,8 @@ export default {
             this.tab2CurrentPage = resData.pageNo
             this.tab2TotalCount = resData.totalNumber
             this.tab2PageSize = resData.pageSize
-            this.statisticsInfo.payingAgentAmount = this.currencyIcon + cardInfo.total
+            this.statisticsInfo.payingAgentAmount = this.currencyIcon + (cardInfo?.total ?? 0)
+            this.statisticsInfo.payingAgentCommissionAmount = this.currencyIcon + (cardInfo?.successOrderBalance ?? 0)
             this.statisticsInfo.collectionCard = false
             this.statisticsInfo.payingCard = true
           }

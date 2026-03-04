@@ -759,6 +759,8 @@ export default {
       })
     },
     handleAgentChange(value) {
+      this.selectedAgentOptions = [];
+      this.withdrawOrderInfo.walletAddr = '';
       let opt = [];
       this.agentAccountOptions.find((item) => {
         //return item.merchantAgentId === value;
@@ -766,7 +768,7 @@ export default {
           opt.push(item);
         }
       });
-      this.withdrawOrderInfo.merchantAgentName = opt[0].name;
+      this.withdrawOrderInfo.merchantAgentName = opt.length > 0 ? opt[0].name : '';
       //this.withdrawOrderInfo.walletAddr = opt.walletAddr;
       //this.agentAccountOptions = Object.assign([], opt)
       this.selectedAgentBalance = this.amountInfo[value]
@@ -847,7 +849,7 @@ export default {
       if(this.roleName === 'merchant') {
         const merchantInfo = this.merchantAccountOptions[0]
         this.withdrawOrderInfo.merchantAgentId = merchantInfo.merchantAgentId
-        this.handleMerchantChange(this.withdrawOrderInfo.merchantAgentId)
+        this.handleAgentChange(this.withdrawOrderInfo.merchantAgentId)
       }
       this.dialogWithdrawVisible = true
       this.dialogWithdrawTitle = this.$t('withdrawlHistory.dialog.withdrawTitle')
@@ -942,6 +944,8 @@ export default {
       this.$refs[form].resetFields()
       this.dialogWithdrawTitle = ''
       this.dialogWithdrawVisible = false
+      this.selectedAgentOptions = []
+      this.selectedAgentBalance = {}
       this.updateAgentAccount(null)
       this.clearWithdrawOrderDraft()
     },

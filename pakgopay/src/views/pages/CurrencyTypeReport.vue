@@ -15,18 +15,8 @@ import {getFormateDate} from "@/api/common.js";
       </template>
       <div class="toolbar" style="width: 96%">
         <el-form class="main-toolform" ref="filterForm" :model="filterbox">
-          <el-row>
-            <el-col :offset="16" :span="8">
-              <div style="display: flex; flex-direction: row;float: right">
-                <el-button @click="reset('filterForm')" class="filterButton"><SvgIcon class="filterButtonSvg" name="reset"/>{{ $t('common.reset') }}</el-button>
-                <el-button @click="filterSearch" class="filterButton"><SvgIcon class="filterButtonSvg" name="search"/>{{ $t('common.search') }}</el-button>
-                <el-button @click="exportCurrencyInfo" class="filterButton"><SvgIcon class="filterButtonSvg" name="export"/>{{ $t('common.export') }}</el-button>
-<!--                <el-button @click="openAddDialog" class="filterButton"><SvgIcon class="filterButtonSvg" name="add"/>新增</el-button>-->
-              </div>
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :offset="4" :span="8">
+          <el-row style="display: flex;justify-content: center;align-items: center;">
+            <el-col :span="8">
               <el-form-item :label="$t('currencyTypeReport.filter.currency')" label-width="150px" prop="currency">
                 <el-select
                     v-model="filterbox.currency"
@@ -39,18 +29,32 @@ import {getFormateDate} from "@/api/common.js";
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="8">
+            <el-col :span="12">
               <el-form-item label-width="150px" :label="$t('currencyTypeReport.filter.date')" prop="filterDateRange">
-                <el-date-picker
-                    v-model="filterbox.filterDateRange"
-                    type="daterange"
-                    :range-separator="$t('common.rangeSeparator')"
-                    :start-placeholder="$t('common.startDate')"
-                    :end-placeholder="$t('common.endDate')"
-                    format="YYYY/MM/DD"
-                    value-format="x"
-                >
-                </el-date-picker>
+                <div style="display: flex; flex-direction: row; align-items: center; flex-wrap: nowrap;">
+                  <el-date-picker
+                      v-model="filterbox.filterDateRange"
+                      type="daterange"
+                      :range-separator="$t('common.rangeSeparator')"
+                      :start-placeholder="$t('common.startDate')"
+                      :end-placeholder="$t('common.endDate')"
+                      format="YYYY/MM/DD"
+                      value-format="x"
+                  >
+                  </el-date-picker>
+                  <el-button @click="reset('filterForm')" class="filterButton">
+                    <SvgIcon class="filterButtonSvg" name="reset"/>
+                    {{ $t('common.reset') }}
+                  </el-button>
+                  <el-button @click="filterSearch" class="filterButton">
+                    <SvgIcon class="filterButtonSvg" name="search"/>
+                    {{ $t('common.search') }}
+                  </el-button>
+                  <el-button @click="exportCurrencyInfo" class="filterButton">
+                    <SvgIcon class="filterButtonSvg" name="export"/>
+                    {{ $t('common.export') }}
+                  </el-button>
+                </div>
               </el-form-item>
             </el-col>
           </el-row>
@@ -86,6 +90,15 @@ import {getFormateDate} from "@/api/common.js";
         </div>
       </div>
     </el-card>
+    <el-card id="statistics" class="statistics-form" v-if="statisticsInfo.collectionCard">
+      <div class="statistics-form-item">
+        <SvgIcon name="merchantCommission" width="100px" height="100px"/>
+        <div style="display: flex; flex-direction: column;width: 80%;">
+          <span style="text-align: left;font-size: x-large">{{ $t('currencyTypeReport.statistics.collectionCommission') }}</span>
+          <textarea v-model="statisticsInfo.collectionCurrencyCommission" disabled class="cash-text-area"></textarea>
+        </div>
+      </div>
+    </el-card>
 
     <el-card id="statistics" class="statistics-form" v-if="statisticsInfo.payingCard">
       <div class="statistics-form-item">
@@ -93,6 +106,15 @@ import {getFormateDate} from "@/api/common.js";
         <div style="display: flex; flex-direction: column;width: 80%;">
           <span style="text-align: left;font-size: x-large">{{ $t('currencyTypeReport.statistics.payoutAmount') }}</span>
           <textarea v-model="statisticsInfo.payingCurrencyAmount" disabled class="cash-text-area"></textarea>
+        </div>
+      </div>
+    </el-card>
+    <el-card id="statistics" class="statistics-form" v-if="statisticsInfo.payingCard">
+      <div class="statistics-form-item">
+        <SvgIcon name="merchantCommission" width="100px" height="100px"/>
+        <div style="display: flex; flex-direction: column;width: 80%;">
+          <span style="text-align: left;font-size: x-large">{{ $t('currencyTypeReport.statistics.payoutCommission') }}</span>
+          <textarea v-model="statisticsInfo.payingCurrencyCommission" disabled class="cash-text-area"></textarea>
         </div>
       </div>
     </el-card>
@@ -650,7 +672,8 @@ export default {
             this.tab1CurrentPage = resData.pageNo
             this.tab1TotalCount = resData.totalNumber
             this.tab1PageSize = resData.pageSize
-            this.statisticsInfo.collectionCurrencyAmount = this.currencyIcon + cardInfo.total
+            this.statisticsInfo.collectionCurrencyAmount = this.currencyIcon + (cardInfo?.total ?? 0)
+            this.statisticsInfo.collectionCurrencyCommission = this.currencyIcon + (cardInfo?.successOrderBalance ?? 0)
             this.statisticsInfo.collectionCard = true
             this.statisticsInfo.payingCard = false
           } else if (orderType === 1) {
@@ -658,7 +681,8 @@ export default {
             this.tab2CurrentPage = resData.pageNo
             this.tab2TotalCount = resData.totalNumber
             this.tab2PageSize = resData.pageSize
-            this.statisticsInfo.payingCurrencyAmount = this.currencyIcon + cardInfo.total
+            this.statisticsInfo.payingCurrencyAmount = this.currencyIcon + (cardInfo?.total ?? 0)
+            this.statisticsInfo.payingCurrencyCommission = this.currencyIcon + (cardInfo?.successOrderBalance ?? 0)
             this.statisticsInfo.payingCard = true
             this.statisticsInfo.collectionCard = false
           }
@@ -760,6 +784,8 @@ export default {
         this.currencyIcon = this.currencyIcons[iconKey] || ''
         this.statisticsInfo.collectionCurrencyAmount = (this.currencyIcon || '') + 0;
         this.statisticsInfo.payingCurrencyAmount = (this.currencyIcon || '') + 0;
+        this.statisticsInfo.collectionCurrencyCommission = (this.currencyIcon || '') + 0;
+        this.statisticsInfo.payingCurrencyCommission = (this.currencyIcon || '') + 0;
 
         this.startTime = getTodayStartTimestamp()
         this.endTime = getTodayStartTimestamp()+86399

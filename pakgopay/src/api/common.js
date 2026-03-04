@@ -184,11 +184,17 @@ export function getChannelListTitle(i18n) {
 }
 
 export function getFormateDate(ts) {
-    const d = new Date(ts * 1000);
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
+    try {
+        const ms = normalizeTimestampToMs(ts);
+        if (!ms) {
+            return '-';
+        }
+        const offsetMinutes = getTimeZoneOffsetMinutes();
+        const date = offsetMinutes === null ? new Date(ms) : new Date(ms + offsetMinutes * 60 * 1000);
+        return formatDate(date, offsetMinutes !== null);
+    } catch (e) {
+        return '-';
+    }
 }
 
 export function getFormateTime() {
@@ -448,9 +454,9 @@ export function getCallBackStatus(callBackStatus) {
     if (normalized === '0') {
         return t('orderCommon.callback.pending')
     } else if (normalized === '1') {
-        return t('orderCommon.callback.success')
-    } else if (normalized === '2') {
         return t('orderCommon.callback.failed')
+    } else if (normalized === '2') {
+        return t('orderCommon.callback.success')
     } else {
         return '-'
     }

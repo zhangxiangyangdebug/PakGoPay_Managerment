@@ -1,12 +1,35 @@
 <template>
   <div style="overflow-y: auto">
-    <router-view></router-view>
+    <router-view :key="viewKey"></router-view>
   </div>
 </template>
 
 <script>
 export default {
-  props: ['collapse']
+  props: ['collapse'],
+  data() {
+    return {
+      timeZoneRenderKey: 0,
+      _timeZoneListener: null
+    }
+  },
+  computed: {
+    viewKey() {
+      return `${this.$route.fullPath || ''}::${this.timeZoneRenderKey}`;
+    }
+  },
+  mounted() {
+    this._timeZoneListener = () => {
+      this.timeZoneRenderKey += 1;
+    };
+    window.addEventListener("timezone-change", this._timeZoneListener);
+  },
+  beforeUnmount() {
+    if (this._timeZoneListener) {
+      window.removeEventListener("timezone-change", this._timeZoneListener);
+      this._timeZoneListener = null;
+    }
+  }
 }
 </script>
 

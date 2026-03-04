@@ -331,7 +331,10 @@ import {
               v-slot="{row}"
               align="center"
           >
-            <div>{{getCallBackStatus(row.callbackStatus)}}</div>
+            <div class="status-cell">
+              <span :class="['status-dot', getCallbackStatusClass(row)]"></span>
+              <span>{{ getCallbackStatusText(row) }}</span>
+            </div>
           </el-table-column>
           <el-table-column
               prop="createTime"
@@ -589,6 +592,7 @@ export default {
       googleConfirmRules: {
         googleCode: [{ required: true, message: this.$t('common.googleCodeRequired'), trigger: 'blur' }]
       },
+      callbackLoadingMap: {},
       /*collectingOrderFormInfo: [
         {
           orderId: 'DF001',
@@ -1236,6 +1240,8 @@ export default {
           ...this.callbackForm,
           googleCode: this.googleConfirmForm.googleCode
         }
+        const callbackKey = this.buildCallbackLoadingKey(payload)
+        this.setCallbackLoading(callbackKey, true)
         manualNotifyCollectionOrder(payload).then((res) => {
           if (res.status === 200 && res.data.code === 0) {
             this.$notify({
@@ -1247,8 +1253,7 @@ export default {
             this.googleConfirmVisible = false
             this.callbackDialogVisible = false
             this.googleConfirmForm.googleCode = ''
-            this.search()
-            return
+            return this.search()
           }
           this.$notify({
             title: this.$t('common.error'),
@@ -1263,8 +1268,42 @@ export default {
             duration: 3000,
             message: err.message || this.$t('common.requestFailed')
           })
+        }).finally(() => {
+          this.setCallbackLoading(callbackKey, false)
         })
       })
+    },
+    buildCallbackLoadingKey(payloadOrRow) {
+      const key = payloadOrRow?.transactionNo || payloadOrRow?.merchantOrderNo || payloadOrRow?.orderId || ''
+      return String(key || '').trim()
+    },
+    setCallbackLoading(key, loading) {
+      if (!key) return
+      if (loading) {
+        this.callbackLoadingMap = { ...this.callbackLoadingMap, [key]: true }
+        return
+      }
+      const nextMap = { ...this.callbackLoadingMap }
+      delete nextMap[key]
+      this.callbackLoadingMap = nextMap
+    },
+    isCallbackLoading(row) {
+      const key = this.buildCallbackLoadingKey(row)
+      return !!(key && this.callbackLoadingMap[key])
+    },
+    getCallbackStatusText(row) {
+      if (this.isCallbackLoading(row)) {
+        return this.$t('orderCommon.status.processing')
+      }
+      return getCallBackStatus(row?.callbackStatus)
+    },
+    getCallbackStatusClass(row) {
+      if (this.isCallbackLoading(row)) return 'status-processing';
+      const callbackStatus = String(row?.callbackStatus ?? '').trim();
+      if (callbackStatus === '0') return 'status-pending';
+      if (callbackStatus === '1') return 'status-fail';
+      if (callbackStatus === '2') return 'status-success';
+      return 'status-other';
     },
     buildCardQueryPayload() {
       const roleName = localStorage.getItem('roleName');
@@ -1353,11 +1392,12 @@ export default {
       return String(callbackStatus ?? '').trim() === '0';
     },
     shouldShowCallbackAction(row) {
+      if (this.isCallbackLoading(row)) return false;
       const orderStatus = String(row?.orderStatus ?? '').trim();
       const callbackStatus = String(row?.callbackStatus ?? '').trim();
       if (orderStatus === '3') return false;
       return (orderStatus === '4' && callbackStatus === '0')
-        || (orderStatus === '2' && callbackStatus === '2');
+        || (orderStatus === '2' && callbackStatus === '1');
     },
     handleDateRangeChange(val) {
       if (!val || val.length !== 2) {
@@ -1412,7 +1452,7 @@ export default {
     },
     search() {
       this.ensureQueryTimeRange()
-      getCollectionOrder(this.filterbox).then(res => {
+      return getCollectionOrder(this.filterbox).then(res => {
         if (res.status === 200 && res.data.code === 0) {
            let allData = JSON.parse(res.data.data)
            this.collectingOrderTableInfo = allData.collectionOrderDtoList

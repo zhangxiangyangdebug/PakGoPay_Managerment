@@ -735,6 +735,7 @@ export default {
       this.confirmDialogTitle = ''
     },
     handleMerchantChange(value) {
+      this.selectedMerchantOptions = [];
       this.withdrawOrderInfo.currency = null;
       this.withdrawOrderInfo.availableAmount = null;
       this.withdrawOrderInfo.walletAddr = null;
@@ -1021,6 +1022,8 @@ export default {
       this.$refs[form].resetFields()
       this.dialogWithdrawTitle = ''
       this.dialogWithdrawVisible = false
+      this.selectedMerchantOptions = []
+      this.selectedMerchantBalance = {}
       this.updateMerchantAccount(null)
     },
     submitWithdraw(form) {

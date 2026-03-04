@@ -988,7 +988,13 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
               label-width="150px"
               prop="collectionInterfaceParam"
           >
-            <el-input v-model="createPathChannelInfo.collectionInterfaceParam" style="width: 200px"/>
+            <el-input
+              :model-value="createPathChannelInfo.collectionInterfaceParam"
+              readonly
+              style="width: 200px"
+              :placeholder="$t('pathChannelList.placeholder.paramEditor')"
+              @click="openParamEditor('collectionInterfaceParam')"
+            />
           </el-form-item>
         </el-col>
       </el-row>
@@ -1055,7 +1061,13 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
               label-width="150px"
               prop="payInterfaceParam"
           >
-            <el-input v-model="createPathChannelInfo.payInterfaceParam" style="width: 200px"/>
+            <el-input
+              :model-value="createPathChannelInfo.payInterfaceParam"
+              readonly
+              style="width: 200px"
+              :placeholder="$t('pathChannelList.placeholder.paramEditor')"
+              @click="openParamEditor('payInterfaceParam')"
+            />
           </el-form-item>
         </el-col>
       </el-row>
@@ -1092,6 +1104,30 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
     <div slot="footer" class="dialog-footer" style="float: right;">
       <el-button @click="cancelDialog">{{ $t('common.cancel') }}</el-button>
       <el-button type="primary" @click="submitCreatePaymentInfo(submitType)">{{ $t('common.confirm') }}</el-button>
+    </div>
+  </el-dialog>
+  <el-dialog
+    :title="paramEditorTitle"
+    v-model="paramEditorVisible"
+    class="dialog param-editor-dialog"
+    center
+    width="500px"
+  >
+    <div class="param-editor">
+      <div class="param-editor-head">
+        <el-button type="primary" @click="addParamRow">{{ $t('pathChannelList.param.addRow') }}</el-button>
+      </div>
+      <div class="param-editor-body">
+        <div class="param-editor-row" v-for="(row, index) in paramEditorRows" :key="`param-${index}`">
+          <el-input class="param-editor-input" v-model="row.key" :placeholder="$t('pathChannelList.param.key')" style="width: 200px" />
+          <el-input class="param-editor-input" v-model="row.value" :placeholder="$t('pathChannelList.param.value')" style="width: 200px" />
+          <el-button @click="removeParamRow(index)">{{ $t('pathChannelList.param.removeRow') }}</el-button>
+        </div>
+      </div>
+    </div>
+    <div slot="footer" class="dialog-footer param-editor-footer">
+      <el-button @click="cancelParamEditor">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="confirmParamEditor">{{ $t('common.confirm') }}</el-button>
     </div>
   </el-dialog>
   <el-dialog
@@ -1308,6 +1344,10 @@ export default {
       paymentNamePageSize: 20,
       paymentNameQuery: '',
       paymentNameScrollBound: false,
+      paramEditorVisible: false,
+      paramEditorField: '',
+      paramEditorTitle: '',
+      paramEditorRows: [],
       currency: '',
       currencyIcon: '',
       currencyIcons: [],
@@ -1344,6 +1384,9 @@ export default {
     },
     submitType() {
       this.savePathChannelDraft();
+    },
+    '$i18n.locale'() {
+      this.refreshOptions();
     }
   },
   methods: {
@@ -1435,6 +1478,88 @@ export default {
       if (el.scrollTop + el.clientHeight >= el.scrollHeight - 8) {
         this.fetchPaymentNameOptions(true);
       }
+    },
+    openParamEditor(field) {
+      this.paramEditorField = field
+      this.paramEditorTitle = field === 'collectionInterfaceParam'
+        ? this.$t('pathChannelList.dialog.paramEditorCollection')
+        : this.$t('pathChannelList.dialog.paramEditorPay')
+      this.paramEditorRows = this.parseParamEditorRows(this.createPathChannelInfo?.[field])
+      this.paramEditorVisible = true
+    },
+    parseParamEditorRows(raw) {
+      const value = String(raw || '').trim()
+      if (!value) {
+        return [{ key: '', value: '' }]
+      }
+      try {
+        const parsed = JSON.parse(value)
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          const rows = Object.keys(parsed).map((key) => ({
+            key,
+            value: parsed[key] === null || parsed[key] === undefined ? '' : String(parsed[key])
+          }))
+          return rows.length > 0 ? rows : [{ key: '', value: '' }]
+        }
+      } catch (e) {
+      }
+      return [{ key: '', value }]
+    },
+    addParamRow() {
+      this.paramEditorRows.push({ key: '', value: '' })
+    },
+    removeParamRow(index) {
+      this.paramEditorRows.splice(index, 1)
+      if (this.paramEditorRows.length === 0) {
+        this.paramEditorRows.push({ key: '', value: '' })
+      }
+    },
+    cancelParamEditor() {
+      this.paramEditorVisible = false
+      this.paramEditorField = ''
+      this.paramEditorTitle = ''
+      this.paramEditorRows = []
+    },
+    confirmParamEditor() {
+      const result = {}
+      for (const row of this.paramEditorRows) {
+        const key = String(row?.key || '').trim()
+        const value = row?.value === null || row?.value === undefined ? '' : String(row.value)
+        if (!key && String(value).trim()) {
+          this.$notify({
+            title: this.$t('common.error'),
+            message: this.$t('pathChannelList.validation.paramKeyRequired'),
+            duration: 3000,
+            type: 'error',
+            position: 'bottom-right'
+          })
+          return
+        }
+        if (!key) {
+          continue
+        }
+        if (Object.prototype.hasOwnProperty.call(result, key)) {
+          this.$notify({
+            title: this.$t('common.error'),
+            message: this.$t('pathChannelList.validation.paramKeyDuplicate'),
+            duration: 3000,
+            type: 'error',
+            position: 'bottom-right'
+          })
+          return
+        }
+        result[key] = value
+      }
+      if (this.paramEditorField) {
+        this.createPathChannelInfo[this.paramEditorField] = Object.keys(result).length > 0
+          ? JSON.stringify(result)
+          : ''
+      }
+      this.cancelParamEditor()
+    },
+    buildSubmitPayload() {
+      const payload = Object.assign({}, this.createPathChannelInfo)
+      return payload
     },
     refreshOptions() {
       this.paymentStatusOptions = [
@@ -1610,6 +1735,7 @@ export default {
     },
     cancelDialog() {
       this.dialogFormVisible = false
+      this.cancelParamEditor()
       if (this.createPathChannelInfo && this.createPathChannelInfo.googleCode) {
         this.createPathChannelInfo.googleCode = ''
       }
@@ -1703,16 +1829,17 @@ export default {
       this.$refs[form].validate(valid => {
         if (!valid) return
         this.createPathChannelInfo.googleCode = this.confirmData.googleCode
+        const payload = this.buildSubmitPayload()
         this.confirmDialogVisible = false
         this.confirmDialogTitle = ''
         if (this.pendingSubmitType === 'create') {
-          createPaymentInfo(this.createPathChannelInfo).then(res => {
+          createPaymentInfo(payload).then(res => {
             this.handlePaymentResponse(res, this.$t('pathChannelList.message.createSuccess'))
             this.confirmData.googleCode = ''
             this.pendingSubmitType = ''
           })
         } else if (this.pendingSubmitType === 'edit') {
-          editPaymentInfo(this.createPathChannelInfo).then(res => {
+          editPaymentInfo(payload).then(res => {
             this.handlePaymentResponse(res, this.$t('pathChannelList.message.editSuccess'))
             this.confirmData.googleCode = ''
             this.pendingSubmitType = ''
@@ -1764,12 +1891,6 @@ export default {
     })
     this.search()
   }
-  ,
-  watch: {
-    '$i18n.locale'() {
-      this.refreshOptions();
-    }
-  }
 }
 </script>
 <style scoped>
@@ -1794,6 +1915,53 @@ export default {
 .main-toolbar .el-input__inner::placeholder,
 .main-toolbar .el-select__input::placeholder {
   text-align: center;
+}
+
+.param-editor {
+  width: 100%;
+  padding-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.param-editor-head {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+.param-editor-body {
+  max-height: 440px;
+  overflow-y: auto;
+  margin-bottom: 44px;
+  width: 100%;
+}
+
+.param-editor-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.param-editor-input input {
+  text-align: center !important;
+}
+
+.param-editor-input input::placeholder {
+  text-align: center !important;
+}
+
+.param-editor-footer {
+  justify-content: flex-end;
+  float: none;
+}
+
+:deep(.param-editor-dialog) {
+  width: 400px !important;
 }
 
 :deep().el-table th.is-leaf {

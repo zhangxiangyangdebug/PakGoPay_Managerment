@@ -33,6 +33,7 @@ export default {
       username: "",
       userId: "",
       notifications: [],
+      expandedNotificationId: null,
       selectedLang: 'zh-cn',
       selectedTimeZone: 'UTC+8',
       languageOptions: [],
@@ -169,15 +170,18 @@ export default {
       })*/
       this.notifications.unshift({
         id: messageData.id,
+        title: messageData.title,
         content: messageData.content,
         read: false,
         path: messageData.path,
         timestamp: messageData.timestamp
       })
       this.fetchWsMessages()
-      this.textToSpeak = messageData.content;
+      this.textToSpeak = messageData.title || ''
       this.playNotice()
-      this.speak()
+      if (this.textToSpeak) {
+        this.speak()
+      }
     },
     fetchWsMessages() {
       getWsMessages().then(res => {
@@ -185,6 +189,9 @@ export default {
           let data = JSON.parse(res.data.data)
           this.messageCount = data.messageCount
           this.notifications = data.messages
+          if (!this.notifications.some(item => item.id === this.expandedNotificationId)) {
+            this.expandedNotificationId = null
+          }
         }
       })
     },
@@ -193,14 +200,7 @@ export default {
       this.$refs.noticePlayer.muted=false
       await this.$refs.noticePlayer.play()
     },
-    async handleNotificationClick(notification) {
-      markReadMessage(notification.id).then(res => {
-        if(res.status === 200 && res.data.code === 0) {
-          this.messageCount = JSON.parse(res.data.data).messageCount
-          this.notifications = JSON.parse(res.data.data).messages
-        }
-        //this.unreadCount()
-      })
+    async navigateToNotification(notification) {
       const targetPath = notification?.path
       if (targetPath) {
         await this.ensureRouteLoaded()
@@ -230,6 +230,61 @@ export default {
           }
         }
       }
+    },
+    async markNotificationRead(notificationId) {
+      if (!notificationId) {
+        return
+      }
+      await markReadMessage(notificationId).then(res => {
+        if(res.status === 200 && res.data.code === 0) {
+          this.messageCount = JSON.parse(res.data.data).messageCount
+          this.notifications = JSON.parse(res.data.data).messages
+        }
+      })
+    },
+    toggleNotification(notification) {
+      const currentId = notification?.id
+      if (!currentId) {
+        return
+      }
+      this.expandedNotificationId = this.expandedNotificationId === currentId ? null : currentId
+    },
+    async goNotification(notification) {
+      await this.markNotificationRead(notification?.id)
+      this.expandedNotificationId = null
+      await this.navigateToNotification(notification)
+    },
+    resolveNotificationTypeLabel(rawTitle) {
+      const key = String(rawTitle || '').toLowerCase()
+      if (key === 'withdraw') {
+        return this.$t('topbar.type.withdrawOrder')
+      }
+      if (key === 'payout') {
+        return this.$t('topbar.type.payoutTimeoutOrder')
+      }
+      if (key === 'collection') {
+        return this.$t('topbar.type.collectionTimeoutOrder')
+      }
+      return this.$t('topbar.newMessage')
+    },
+    resolveNotificationPayload(notification) {
+      const content = notification?.content
+      let payload = {}
+      if (content && typeof content === 'string') {
+        const text = content.trim()
+        if (text.startsWith('{') && text.endsWith('}')) {
+          try {
+            payload = JSON.parse(text)
+          } catch (e) {
+            payload = {}
+          }
+        }
+      } else if (content && typeof content === 'object') {
+        payload = content
+      }
+      const orderNo = payload.orderNo || payload.transactionNo || payload.id || notification?.id || notification?.content || '-'
+      const amount = payload.orderAmount ?? payload.amount ?? notification?.amount ?? '-'
+      return { orderNo, amount }
     },
     toDayStartTimestamp(rawTimestamp) {
       const ts = Number(rawTimestamp)
@@ -282,6 +337,45 @@ export default {
     },
     unreadCount() {
       return this.messageCount
+    },
+    formatNotificationTitle(notification) {
+      const rawTitle = String(notification?.title || '').toLowerCase()
+      if (rawTitle === 'withdraw') {
+        return this.$t('topbar.title.withdraw')
+      }
+      if (rawTitle === 'payout') {
+        return this.$t('topbar.title.payout')
+      }
+      if (rawTitle === 'collection') {
+        return this.$t('topbar.title.collection')
+      }
+      return notification?.title || this.$t('topbar.newMessage')
+    },
+    formatNotificationOrderNo(notification) {
+      return this.resolveNotificationPayload(notification).orderNo
+    },
+    formatNotificationTime(timestamp) {
+      return this.formatDateByTs(timestamp)
+    },
+    formatDateByTs(ts) {
+      const ms = Number(String(Math.trunc(Number(ts))).length === 10 ? Number(ts) * 1000 : Number(ts))
+      if (!Number.isFinite(ms)) {
+        return '-'
+      }
+      const d = new Date(ms)
+      if (Number.isNaN(d.getTime())) {
+        return '-'
+      }
+      const year = d.getFullYear()
+      const month = String(d.getMonth() + 1).padStart(2, '0')
+      const day = String(d.getDate()).padStart(2, '0')
+      const hour = String(d.getHours()).padStart(2, '0')
+      const minute = String(d.getMinutes()).padStart(2, '0')
+      const second = String(d.getSeconds()).padStart(2, '0')
+      return `${year}-${month}-${day} ${hour}:${minute}:${second}`
+    },
+    isNotificationExpanded(notification) {
+      return notification?.id && this.expandedNotificationId === notification.id
     },
     viewDetail() {
       alert(this.$t('topbar.viewDetail'))
@@ -352,7 +446,7 @@ export default {
       </div>
       <div style="display: flex;justify-content: center;align-items: center;">
         <div v-if="username" style="display: flex; align-items: center;">
-          <el-dropdown trigger="click" class="notice-dropdown">
+          <el-dropdown trigger="click" class="notice-dropdown" :hide-on-click="false">
             <span class="notice-trigger">
               <el-badge :value="unreadCount()" :hidden="unreadCount() === 0">
                 <SvgIcon name="bell" style="width: 22px;height: 22px"/>
@@ -367,7 +461,20 @@ export default {
                   v-for="item in notifications"
                   :key="item.id"
                 >
-                  <span @click="handleNotificationClick(item)" :class="{ 'notice-unread': !item.read }">{{ item.content }}</span>
+                  <div class="notice-item" :class="{ 'notice-unread': !item.read }">
+                    <div class="notice-title" @click.stop="toggleNotification(item)">
+                      {{ formatNotificationTitle(item) }}
+                    </div>
+                    <div v-if="isNotificationExpanded(item)" class="notice-detail">
+                      <div class="notice-line">{{ $t('topbar.orderNo') }}{{ formatNotificationOrderNo(item) }}</div>
+                      <div class="notice-line">{{ $t('topbar.orderCreateTime') }}{{ formatNotificationTime(item.timestamp) }}</div>
+                      <div class="notice-actions">
+                        <el-button type="primary" size="small" @click.stop="goNotification(item)">
+                          {{ $t('topbar.goTo') }}
+                        </el-button>
+                      </div>
+                    </div>
+                  </div>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -445,6 +552,35 @@ export default {
 
 .notice-unread {
   font-weight: 600;
+}
+.notice-item {
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.notice-title {
+  font-size: 13px;
+  line-height: 18px;
+  cursor: pointer;
+}
+.notice-line {
+  font-size: 12px;
+  line-height: 16px;
+  color: #606266;
+  word-break: break-all;
+}
+.notice-detail {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.notice-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2px;
 }
 .lang-option {
   display: inline-flex;

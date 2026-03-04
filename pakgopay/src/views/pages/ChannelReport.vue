@@ -190,7 +190,8 @@ export default {
                this.tab1CurrentPage = resData.pageNo
                this.tab1TotalCount = resData.totalNumber
                this.tab1PageSize = resData.pageSize
-               this.statisticsInfo.collectionChannelAmount = this.currencyIcon + cardInfo.total
+               this.statisticsInfo.collectionChannelAmount = this.currencyIcon + (cardInfo?.total ?? 0)
+               this.statisticsInfo.collectionChannelCommission = this.currencyIcon + (cardInfo?.successOrderBalance ?? 0)
                this.statisticsInfo.collectionCard = true
                this.statisticsInfo.payingCard = false
              } else if (orderType === 1) {
@@ -198,7 +199,8 @@ export default {
                this.tab2CurrentPage = resData.pageNo
                this.tab2TotalCount = resData.totalNumber
                this.tab2PageSize = resData.pageSize
-               this.statisticsInfo.payingChannelAmount = this.currencyIcon + cardInfo.total
+               this.statisticsInfo.payingChannelAmount = this.currencyIcon + (cardInfo?.total ?? 0)
+               this.statisticsInfo.payingChannelCommission = this.currencyIcon + (cardInfo?.successOrderBalance ?? 0)
                this.statisticsInfo.payingCard = true
                this.statisticsInfo.collectionCard = false
              }
@@ -371,6 +373,15 @@ export default {
         </div>
       </div>
     </el-card>
+    <el-card id="statistics" class="statistics-form" v-if="statisticsInfo.collectionCard">
+      <div class="statistics-form-item">
+        <SvgIcon name="merchantCommission" width="100px" height="100px"/>
+        <div style="display: flex; flex-direction: column;width: 80%;">
+          <span style="text-align: left;font-size: x-large">{{ $t('channelReport.statistics.collectionCommission') }}</span>
+          <textarea v-model="statisticsInfo.collectionChannelCommission" disabled class="cash-text-area"></textarea>
+        </div>
+      </div>
+    </el-card>
 
     <el-card id="statistics" class="statistics-form" v-if="statisticsInfo.payingCard">
       <div class="statistics-form-item">
@@ -378,6 +389,15 @@ export default {
         <div style="display: flex; flex-direction: column;width: 80%;">
           <span style="text-align: left;font-size: x-large">{{ $t('channelReport.statistics.payoutAmount') }}</span>
           <textarea v-model="statisticsInfo.payingChannelAmount" disabled class="cash-text-area"></textarea>
+        </div>
+      </div>
+    </el-card>
+    <el-card id="statistics" class="statistics-form" v-if="statisticsInfo.payingCard">
+      <div class="statistics-form-item">
+        <SvgIcon name="merchantCommission" width="100px" height="100px"/>
+        <div style="display: flex; flex-direction: column;width: 80%;">
+          <span style="text-align: left;font-size: x-large">{{ $t('channelReport.statistics.payoutCommission') }}</span>
+          <textarea v-model="statisticsInfo.payingChannelCommission" disabled class="cash-text-area"></textarea>
         </div>
       </div>
     </el-card>
