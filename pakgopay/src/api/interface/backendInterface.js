@@ -189,6 +189,32 @@ export async function modifyMerchantInfo(form) {
     })
 }
 
+export async function queryMerchantSecretKey(form) {
+    return service({
+        url: '/api/pakGoPay/server/merchant/queryMerchantSecretKey',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        data: form,
+        responseType: 'json',
+    })
+}
+
+export async function resetMerchantSignKey(form) {
+    return service({
+        url: '/api/pakGoPay/server/merchant/resetMerchantSignKey',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        data: form,
+        responseType: 'json',
+    })
+}
+
 export async function roleList(roleName) {
     return service({
         url: '/api/pakGoPay/server/SystemConfig/roleList',
@@ -205,6 +231,30 @@ export async function roleList(roleName) {
 export async function loginUserList(formData) {
     return service({
         url: '/api/pakGoPay/server/SystemConfig/loginUserList',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        data: formData,
+    })
+}
+
+export async function loginLogList(formData) {
+    return service({
+        url: '/api/pakGoPay/server/SystemConfig/loginLogList',
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        data: formData,
+    })
+}
+
+export async function operateLogList(formData) {
+    return service({
+        url: '/api/pakGoPay/server/SystemConfig/operateLogList',
         method: 'POST',
         headers: {
             'Content-Type': 'application/json;charset=UTF-8',
@@ -302,45 +352,72 @@ export function bindGoogleKey(user_id, loginName) {
 
 export function getTelegramConfig() {
     return service({
-        url: '/api/pakGoPay/server/SystemConfig/telegramConfig',
+        url: '/api/pakGoPay/server/SystemConfig/config',
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        params: {
+            group: 'telegram'
         }
     })
 }
 
 export function updateTelegramConfig(form) {
+    const payload = {
+        group: 'telegram',
+        configItems: [
+            { key: 'token', value: form?.token ?? '' },
+            { key: 'chatId', value: form?.chatId ?? '' },
+            { key: 'webhookSecret', value: form?.webhookSecret ?? '' },
+            { key: 'allowedUserIds', value: form?.allowedUserIds ?? '' },
+            { key: 'enabled', value: form?.enabled ?? 0 }
+        ],
+        googleCode: form?.googleCode
+    };
     return service({
-        url: '/api/pakGoPay/server/SystemConfig/telegramConfig',
+        url: '/api/pakGoPay/server/SystemConfig/config',
         method: 'POST',
         headers: {
             'Content-Type': 'application/json;charset=UTF-8',
             'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        data: form,
+        data: payload,
     })
 }
 
 export function getRateLimitConfig() {
     return service({
-        url: '/api/pakGoPay/server/SystemConfig/rateLimitConfig',
+        url: '/api/pakGoPay/server/SystemConfig/config',
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        params: {
+            group: 'ratelimit'
         }
     })
 }
 
 export function updateRateLimitConfig(form) {
+    const payload = {
+        group: 'ratelimit',
+        configItems: [
+            { key: 'enabled', value: form?.enabled ?? false },
+            { key: 'windowSeconds', value: form?.windowSeconds ?? null },
+            { key: 'maxRequests', value: form?.maxRequests ?? null },
+            { key: 'fixedIpQps', value: form?.fixedIpQps ?? '' }
+        ],
+        googleCode: form?.googleCode
+    };
     return service({
-        url: '/api/pakGoPay/server/SystemConfig/rateLimitConfig',
+        url: '/api/pakGoPay/server/SystemConfig/config',
         method: 'POST',
         headers: {
             'Content-Type': 'application/json;charset=UTF-8',
             'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        data: form,
+        data: payload,
     })
 }
 
@@ -940,6 +1017,30 @@ export function manualNotifyPayOutOrder(form) {
 export function manualCreatePayOutOrder(form) {
     return service({
         url: '/api/pakGoPay/server/v1/manualCreatePayOutOrder',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
+export function manualReverseOrder(form) {
+    return service({
+        url: '/api/pakGoPay/server/v1/manualReverseOrder',
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json;charset=UTF-8',
+        },
+        data: form
+    })
+}
+
+export function queryOrderFlowLogs(form) {
+    return service({
+        url: '/api/pakGoPay/server/v1/queryOrderFlowLogs',
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,

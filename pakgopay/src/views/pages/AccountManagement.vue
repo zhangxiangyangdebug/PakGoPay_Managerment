@@ -249,7 +249,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       class="dialog"
       width="40%"
       style="height: 240px;align-content: center"
-    >
+    
+      align-center>
       <el-form
         ref="googleCodeFormRef"
         :model="googleCodeForm"
@@ -313,7 +314,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         center
         width="40%"
         style="height: 320px;align-content: center"
-    >
+    
+      align-center>
       <el-form
         ref="resetGoogleForm"
         style="margin-top: 8px;width: 100%"
@@ -374,7 +376,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         center
         width="30%"
         style="align-content: center"
-    >
+    
+      align-center>
       <div style="display: flex;flex-direction: column;align-items: center;gap: 12px;">
         <img
           v-if="googleQrCodeUrl"

@@ -4,6 +4,7 @@ import router from "@/router/index.js";
 import SvgIcon from "@/components/SvgIcon/index.vue";
 import { connectWebSocket, disconnectWebSocket } from "@/util/websocket.js"
 import { getAsyncRoutes } from "@/router/asyncRouter.js";
+import { buildFullTimeZoneOptions } from "@/util/timezoneOptions.js";
 
 const showNewMessage = (message) => {
   this.$notify({
@@ -35,25 +36,21 @@ export default {
       notifications: [],
       expandedNotificationId: null,
       selectedLang: 'zh-cn',
-      selectedTimeZone: 'UTC+8',
+      selectedTimeZone: 'Asia/Shanghai',
+      clearingNotifications: false,
       languageOptions: [],
-      timeZoneOptions: [
-        { value: 'UTC-12', label: 'UTC-12' },
-        { value: 'UTC-8', label: 'UTC-8' },
-        { value: 'UTC+0', label: 'UTC+0' },
-        { value: 'UTC+1', label: 'UTC+1' },
-        { value: 'UTC+5:30', label: 'UTC+5:30' },
-        { value: 'UTC+8', label: 'UTC+8' },
-        { value: 'UTC+9', label: 'UTC+9' },
-        { value: 'UTC+10', label: 'UTC+10' }
-      ]
+      timeZoneOptions: []
     }
   },
   created() {
     this.username = localStorage.getItem("userName");
     const storedZone = localStorage.getItem("timeZone");
+    this.timeZoneOptions = buildFullTimeZoneOptions();
     if (storedZone) {
       this.selectedTimeZone = storedZone;
+    }
+    if (!this.timeZoneOptions.some(item => item.value === this.selectedTimeZone)) {
+      this.timeZoneOptions.unshift({ value: this.selectedTimeZone, label: this.selectedTimeZone });
     }
     const storedLang = localStorage.getItem("lang");
     this.selectedLang = storedLang || this.$i18n.locale || "zh-cn";
@@ -133,7 +130,13 @@ export default {
       ]
     },
     handleTimeZoneChange(value) {
+      const prev = localStorage.getItem("timeZone") || this.selectedTimeZone || "";
       localStorage.setItem("timeZone", value);
+      window.__lastTimezoneChange = {
+        prev,
+        next: value,
+        at: Date.now()
+      };
       window.dispatchEvent(new CustomEvent("timezone-change", { detail: value }));
     },
     changeCollapse() {
@@ -177,7 +180,7 @@ export default {
         timestamp: messageData.timestamp
       })
       this.fetchWsMessages()
-      this.textToSpeak = messageData.title || ''
+      this.textToSpeak = this.formatNotificationTitle({ title: messageData.title })
       this.playNotice()
       if (this.textToSpeak) {
         this.speak()
@@ -254,10 +257,38 @@ export default {
       this.expandedNotificationId = null
       await this.navigateToNotification(notification)
     },
+    async clearNotification(notification) {
+      const notificationId = notification?.id
+      if (!notificationId) {
+        return
+      }
+      await this.markNotificationRead(notificationId)
+      if (this.expandedNotificationId === notificationId) {
+        this.expandedNotificationId = null
+      }
+    },
+    async clearAllNotifications() {
+      if (this.clearingNotifications || !this.notifications.length) {
+        return
+      }
+      this.clearingNotifications = true
+      const ids = this.notifications
+        .map(item => item?.id)
+        .filter(id => id !== null && id !== undefined && id !== '')
+      if (ids.length) {
+        await Promise.allSettled(ids.map(id => markReadMessage(id)))
+      }
+      this.expandedNotificationId = null
+      await this.fetchWsMessages()
+      this.clearingNotifications = false
+    },
     resolveNotificationTypeLabel(rawTitle) {
       const key = String(rawTitle || '').toLowerCase()
       if (key === 'withdraw') {
         return this.$t('topbar.type.withdrawOrder')
+      }
+      if (key === 'withdraw_result') {
+        return this.$t('topbar.type.withdrawReviewDone')
       }
       if (key === 'payout') {
         return this.$t('topbar.type.payoutTimeoutOrder')
@@ -342,6 +373,9 @@ export default {
       const rawTitle = String(notification?.title || '').toLowerCase()
       if (rawTitle === 'withdraw') {
         return this.$t('topbar.title.withdraw')
+      }
+      if (rawTitle === 'withdraw_result') {
+        return this.$t('topbar.title.withdrawResult')
       }
       if (rawTitle === 'payout') {
         return this.$t('topbar.title.payout')
@@ -434,7 +468,8 @@ export default {
             v-model="selectedTimeZone"
             size="small"
             @change="handleTimeZoneChange"
-            style="border: none;width: 90px"
+            filterable
+            style="border: none;width: 190px"
         >
           <el-option
               v-for="item in timeZoneOptions"
@@ -462,8 +497,11 @@ export default {
                   :key="item.id"
                 >
                   <div class="notice-item" :class="{ 'notice-unread': !item.read }">
-                    <div class="notice-title" @click.stop="toggleNotification(item)">
-                      {{ formatNotificationTitle(item) }}
+                    <div class="notice-title-row">
+                      <div class="notice-title" @click.stop="toggleNotification(item)">
+                        {{ formatNotificationTitle(item) }}
+                      </div>
+                      <span class="notice-remove" @click.stop="clearNotification(item)">×</span>
                     </div>
                     <div v-if="isNotificationExpanded(item)" class="notice-detail">
                       <div class="notice-line">{{ $t('topbar.orderNo') }}{{ formatNotificationOrderNo(item) }}</div>
@@ -474,6 +512,11 @@ export default {
                         </el-button>
                       </div>
                     </div>
+                  </div>
+                </el-dropdown-item>
+                <el-dropdown-item v-if="notifications.length > 0" divided class="notice-clear-row">
+                  <div class="notice-clear-all" @click.stop="clearAllNotifications">
+                    {{ clearingNotifications ? $t('topbar.clearing') : $t('topbar.clearAll') }}
                   </div>
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -565,6 +608,22 @@ export default {
   line-height: 18px;
   cursor: pointer;
 }
+.notice-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.notice-remove {
+  color: #909399;
+  cursor: pointer;
+  line-height: 1;
+  font-size: 14px;
+  user-select: none;
+}
+.notice-remove:hover {
+  color: #f56c6c;
+}
 .notice-line {
   font-size: 12px;
   line-height: 16px;
@@ -581,6 +640,17 @@ export default {
   display: flex;
   justify-content: flex-end;
   margin-top: 2px;
+}
+.notice-clear-row {
+  justify-content: center;
+}
+.notice-clear-all {
+  width: 100%;
+  text-align: center;
+  font-size: 12px;
+  color: #409EFF;
+  cursor: pointer;
+  user-select: none;
 }
 .lang-option {
   display: inline-flex;

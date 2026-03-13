@@ -14,7 +14,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       <div class="main-toolbar">
         <el-form class="main-toolform" ref="filterForm" :model="filterbox">
           <el-row style="display: flex;justify-content: center;align-items: center;">
-            <el-col :span="8">
+            <el-col :span="12" class="agent-report-filter-col">
               <el-form-item :label="$t('agentReport.filter.agent')" label-width="150px" prop="agentName">
                 <el-select
                     :options="agentOptions"
@@ -26,32 +26,32 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                 />
               </el-form-item>
             </el-col>
-            <el-col :span="8">
+            <el-col :span="12" class="agent-report-filter-col">
               <el-form-item :label="$t('agentReport.filter.timeRange')" label-width="150px" prop="filterDateRange">
-                <div style="display: flex; flex-direction: row;">
-                  <el-date-picker
-                      v-model="filterbox.filterDateRange"
-                      type="daterange"
-                      :range-separator="$t('common.rangeSeparator')"
-                      :start-placeholder="$t('common.startDate')"
-                      :end-placeholder="$t('common.endDate')"
-                      format="YYYY/MM/DD"
-                      value-format="x"
-                  >
-                  </el-date-picker>
-                  <el-button @click="reset('filterForm')" class="filterButton">
-                    <SvgIcon class="filterButtonSvg" name="reset"/>
-                    <div>{{ $t('common.reset') }}</div>
-                  </el-button>
-                  <el-button @click="search()" class="filterButton">
-                    <SvgIcon class="filterButtonSvg" name="search"/>
-                    <div>{{ $t('common.query') }}</div>
-                  </el-button>
-                </div>
-
+                <DateTimeRangeSplit
+                    v-model="filterbox.filterDateRange"
+                    picker-type="date"
+                    format="YYYY/MM/DD"
+                    value-format="x"
+                    picker-width="160px"
+                />
               </el-form-item>
             </el-col>
           </el-row>
+          <div class="toolbar-action-row">
+            <el-button @click="reset('filterForm')" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="reset"/>
+              <div>{{ $t('common.reset') }}</div>
+            </el-button>
+            <el-button @click="search()" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="search"/>
+              <div>{{ $t('common.query') }}</div>
+            </el-button>
+            <el-button @click="exportAgentInfo" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="export"/>
+              <div>{{ $t('common.export') }}</div>
+            </el-button>
+          </div>
         </el-form>
       </div>
     </el-collapse-item>
@@ -98,10 +98,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
 
 
   <div class="reportInfo">
-    <el-button @click="exportAgentInfo" style="margin:0;float: right">
-      <SvgIcon height="20px" width="20px" name="export"/>
-      <div style="color: black">{{ $t('common.export') }}</div>
-    </el-button>
     <el-tabs type="border-card" @tab-click="handleTabClick" v-model="activeTabPane">
       <el-tab-pane :label="$t('agentReport.tab.collection')">
         <el-form style="width: 100%;">
@@ -560,6 +556,15 @@ export default {
 
 .main-toolform-input {
   text-align: center;
+}
+
+.agent-report-filter-col{
+  display: flex;
+  justify-content: center;
+}
+
+.agent-report-filter-col .el-form-item{
+  width: 350px;
 }
 
 .statistics-form {

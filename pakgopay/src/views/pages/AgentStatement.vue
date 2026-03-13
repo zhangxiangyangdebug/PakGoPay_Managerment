@@ -12,9 +12,9 @@ import {getTimeFromTimestamp} from "@/api/common.js";
       </template>
       <!-- 工具栏 -->
       <div class="main-toolbar">
-        <el-form class="main-toolform" ref="filterboxForm" :model="filterbox">
+        <el-form class="main-toolform agent-statement-toolbar-form" ref="filterboxForm" :model="filterbox">
           <div class="main-toolform-item">
-            <div class="main-toolform-line" style="justify-content: right;margin-right: 4%;">
+            <div class="main-toolform-line" style="justify-content: right;">
               <el-button @click="reset('filterboxForm')" class="filterButton">
                 <SvgIcon class="filterButtonSvg" name="reset"/>
                 <div>{{ $t('common.reset') }}</div>
@@ -29,30 +29,30 @@ import {getTimeFromTimestamp} from "@/api/common.js";
               </el-button>
             </div>
           </div>
-          <div class="main-toolform-item" style="margin-right: 3%;">
-              <el-row>
-                <el-col :span="6">
-                  <el-form-item :label="$t('agentStatement.filter.agentName')" label-width="150px" prop="merchantAgentId">
+          <div class="main-toolform-item">
+              <el-row class="agent-statement-filter-row" :gutter="0">
+                <el-col :span="5" class="agent-statement-filter-col">
+                  <el-form-item :label="$t('agentStatement.filter.agentName')" label-width="90px" prop="merchantAgentId">
                     <el-select
                         :options="agentOptions"
                         :props="agentProps"
                         v-model="filterbox.merchantAgentId"
-                        style="width: 200px"
+                        class="agent-statement-filter-input"
                         clearable
                         filterable
                     ></el-select>
                   </el-form-item>
                 </el-col>
-                <el-col :span="6">
-                  <el-form-item :label="$t('agentStatement.filter.orderId')" label-width="150px" prop="id">
-                    <el-input v-model="filterbox.id" style="width: 200px" clearable/>
+                <el-col :span="5" class="agent-statement-filter-col">
+                  <el-form-item :label="$t('agentStatement.filter.orderId')" label-width="90px" prop="id">
+                    <el-input v-model="filterbox.id" class="agent-statement-filter-input" clearable/>
                   </el-form-item>
                 </el-col>
-                <el-col :span="6">
-                  <el-form-item :label="$t('agentStatement.filter.transactionType')" label-width="150px" prop="orderType">
+                <el-col :span="5" class="agent-statement-filter-col">
+                  <el-form-item :label="$t('agentStatement.filter.transactionType')" label-width="90px" prop="orderType">
                     <el-select
                         v-model="filterbox.orderType"
-                        style="width: 200px"
+                        class="agent-statement-filter-input"
                         clearable
                     >
                       <el-option :label="$t('agentStatement.transactionType.recharge')" :value="1"></el-option>
@@ -61,19 +61,21 @@ import {getTimeFromTimestamp} from "@/api/common.js";
                     </el-select>
                   </el-form-item>
                 </el-col>
-                <el-col :span="6">
-                  <el-form-item :label="$t('agentStatement.filter.time')" label-width="150px" prop="filterDateRange">
-                    <el-date-picker
+                <el-col :span="9" class="agent-statement-filter-col agent-statement-time-col">
+                  <el-form-item
+                      :label="$t('agentStatement.filter.time')"
+                      label-width="90px"
+                      prop="filterDateRange"
+                      class="agent-statement-time-item"
+                  >
+                    <DateTimeRangeSplit
                         v-model="filterbox.filterDateRange"
-                        type="daterange"
-                        :range-separator="$t('common.rangeSeparator')"
-                        :start-placeholder="$t('common.startDate')"
-                        :end-placeholder="$t('common.endDate')"
+                        picker-type="date"
                         format="YYYY/MM/DD"
                         value-format="x"
-                        clearable
-                    >
-                    </el-date-picker>
+                        :clearable="true"
+                        picker-width="120px"
+                    />
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -168,6 +170,16 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         >
           <div>
             {{getTimeFromTimestamp(row.createTime)}}
+          </div>
+        </el-table-column>
+        <el-table-column
+          prop="requestIp"
+          :label="$t('agentStatement.column.requestIp')"
+          v-slot="{row}"
+          align="center"
+        >
+          <div>
+            {{row.requestIp}}
           </div>
         </el-table-column>
         <el-table-column
@@ -292,13 +304,64 @@ export default {
 </script>
 
 <style scoped>
+@import "@/api/common.css";
 @import "@/assets/base.css";
 
+.agent-statement-toolbar-form{
+  width: 100%;
+}
+
+.agent-statement-filter-row{
+  width: 100%;
+  margin: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
+.agent-statement-filter-col{
+  display: flex;
+  justify-content: center;
+  flex: 0 0 auto !important;
+  width: 230px;
+}
+
+.agent-statement-filter-col .el-form-item{
+  width: 100%;
+}
+
+.agent-statement-time-col{
+  justify-content: center;
+  flex: 0 0 auto !important;
+  width: 360px;
+}
+
+.agent-statement-time-item{
+  width: 100% !important;
+}
+
+.agent-statement-filter-input{
+  width: 200px !important;
+}
+
 .main-toolform-line {
-  margin-right: 3%;
+  margin-right: 0;
 }
 
 .main-toolform-line input{
   width: 200px;
+}
+
+.main-toolbar{
+  overflow-x: hidden;
+}
+
+.agent-statement-filter-col :deep(.el-form-item__label){
+  white-space: nowrap;
+}
+
+.agent-statement-toolbar-form .main-toolform-item:last-child{
+  display: flex;
+  justify-content: center;
 }
 </style>

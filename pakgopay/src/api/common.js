@@ -1,4 +1,5 @@
 import { i18n } from '@/main.js';
+import { getTimeZoneOffsetMinutes as resolveTimeZoneOffsetMinutes } from "@/util/timezoneOptions.js";
 
 export function isValidIP(ipList) {
     ipList.replaceAll(' ','')
@@ -237,7 +238,7 @@ export function getTimeFromTimestamp(timestamp) {
         if (!ms) {
             return '-';
         }
-        const offsetMinutes = getTimeZoneOffsetMinutes();
+        const offsetMinutes = getTimeZoneOffsetMinutes(ms);
         const date = offsetMinutes === null ? new Date(ms) : new Date(ms + offsetMinutes * 60 * 1000);
         return formatDateTime(date, offsetMinutes !== null);
     } catch (e) {
@@ -251,7 +252,7 @@ export function getDateFromTimestamp(timestamp) {
         if (!ms) {
             return '-';
         }
-        const offsetMinutes = getTimeZoneOffsetMinutes();
+        const offsetMinutes = getTimeZoneOffsetMinutes(ms);
         const date = offsetMinutes === null ? new Date(ms) : new Date(ms + offsetMinutes * 60 * 1000);
         return formatDate(date, offsetMinutes !== null);
     } catch (e) {
@@ -267,19 +268,12 @@ function normalizeTimestampToMs(timestamp) {
     return num > 1e12 ? num : num * 1000;
 }
 
-function getTimeZoneOffsetMinutes() {
+function getTimeZoneOffsetMinutes(referenceMs) {
     const timeZoneStr = localStorage.getItem('timeZone');
     if (!timeZoneStr) {
         return null;
     }
-    const match = String(timeZoneStr).match(/UTC\s*([+-])\s*(\d{1,2})(?::?(\d{2}))?/i);
-    if (!match) {
-        return null;
-    }
-    const sign = match[1] === '-' ? -1 : 1;
-    const hours = parseInt(match[2], 10);
-    const minutes = match[3] ? parseInt(match[3], 10) : 0;
-    return sign * (hours * 60 + minutes);
+    return resolveTimeZoneOffsetMinutes(timeZoneStr, referenceMs);
 }
 
 function formatDateTime(date, useUTC) {

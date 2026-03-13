@@ -15,28 +15,9 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </span>
       </template>
       <div class="main-toolbar" style="height: auto;">
-        <el-form style="width: 100%" ref="filterboxForm" :model="filterbox">
-          <el-row style="width: 100%;">
-            <el-col :span="24">
-              <div style="display: flex;flex-direction: row;justify-content: right;">
-                <el-button @click="search()" class="filterButton">
-                  <SvgIcon class="filterButtonSvg" name="search"/>
-                  <div>{{ $t('common.query') }}</div>
-                </el-button>
-                <el-button @click="reset('filterboxForm')" class="filterButton">
-                  <SvgIcon class="filterButtonSvg" name="reset"/>
-                  <div>{{ $t('common.reset') }}</div>
-                </el-button>
-                <el-button @click="exportPathChannelInfos" class="filterButton">
-                  <SvgIcon class="filterButtonSvg" name="export"/>
-                  <div>{{ $t('common.export') }}</div>
-                </el-button>
-              </div>
-            </el-col>
-          </el-row>
-          <el-row style="width: 100%;margin-top:10px">
-            <div style="display: flex;flex-direction: row;width: 100%">
-              <el-col :span="5">
+        <el-form class="main-toolform" style="width: 100%" ref="filterboxForm" :model="filterbox">
+          <el-row class="path-channel-list-filter-row" :gutter="24" style="width: 100%;margin-top:10px">
+              <el-col :span="4" class="path-channel-list-filter-col">
                 <el-form-item :label="$t('pathChannelList.filter.channelName')" label-width="150px" prop="paymentName">
                   <el-select
                     v-model="filterbox.paymentName"
@@ -59,7 +40,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
                   </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
+              <el-col :span="5" class="path-channel-list-filter-col">
                 <el-form-item :label="$t('pathChannelList.filter.supportType')" label-width="150px" prop="supportType">
                   <el-select v-model="filterbox.supportType"  :placeholder="$t('pathChannelList.placeholder.supportType')"
                              :options="supportTypeOptions"
@@ -68,7 +49,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
                   />
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
+              <el-col :span="5" class="path-channel-list-filter-col">
                 <el-form-item :label="$t('pathChannelList.filter.paymentType')" label-width="150px" prop="paymentType">
                   <el-select v-model="filterbox.paymentType" :placeholder="$t('pathChannelList.placeholder.paymentType')"
                              :options="paymentTypeOptions" style="width: 200px;height: 100%"
@@ -76,7 +57,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
                   />
                 </el-form-item>
               </el-col>
-              <el-col :span="4">
+              <el-col :span="5" class="path-channel-list-filter-col">
                 <el-form-item :label="$t('pathChannelList.filter.status')" label-width="150px" prop="status">
                   <el-select v-model="filterbox.status"
                      :options="paymentStatusOptions"
@@ -85,8 +66,8 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
                   />
                 </el-form-item>
               </el-col>
-              <el-col :span="3">
-                <el-form-item :label="$t('common.currency')" label-width="100px" prop="currency">
+              <el-col :span="5" class="path-channel-list-filter-col">
+                <el-form-item :label="$t('common.currency')" label-width="150px" prop="currency">
                   <el-select
                       style="width: 200px;align-items: center;text-align: center;"
                       :options="currencyOptions"
@@ -97,9 +78,22 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
                   />
                 </el-form-item>
               </el-col>
-            </div>
 
           </el-row>
+          <div class="toolbar-action-row">
+            <el-button @click="search()" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="search"/>
+              <div>{{ $t('common.query') }}</div>
+            </el-button>
+            <el-button @click="reset('filterboxForm')" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="reset"/>
+              <div>{{ $t('common.reset') }}</div>
+            </el-button>
+            <el-button @click="exportPathChannelInfos" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="export"/>
+              <div>{{ $t('common.export') }}</div>
+            </el-button>
+          </div>
         </el-form>
       </div>
     </el-collapse-item>
@@ -505,8 +499,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
   <el-dialog
     :title="paymentDetailDialogTitle"
     v-model="paymentDetailVisible"
-    class="dialog"
-    center="true"
+    class="dialog left-top-title-dialog"
     width="90%"
     style="height: 600px;align-content: center"
   >
@@ -768,14 +761,13 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
   <el-dialog
       :title="pathChannelDialogTitle"
       v-model="dialogFormVisible"
-      class="dialog"
-      center="true"
-      width="90%"
-      style="height: 600px;align-content: center"
+      class="dialog path-channel-edit-dialog left-top-title-dialog"
+      width="980px"
+      style="align-content: center"
   >
-    <el-form style="margin-top: 50px;width: 100%" ref="createPaymentForm" :rules="createPaymentInfoRules" :model="createPathChannelInfo">
+    <el-form class="path-channel-edit-form" style="margin-top: 20px;width: 100%" ref="createPaymentForm" :rules="createPaymentInfoRules" :model="createPathChannelInfo">
       <el-row style="width: 100%">
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.channelNo')"
               label-width="150px"
@@ -784,7 +776,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             <el-input v-model="createPathChannelInfo.paymentNo" style="width: 200px"></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.channelName')"
               label-width="150px"
@@ -793,7 +785,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             <el-input v-model="createPathChannelInfo.paymentName" style="width: 200px"></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.status')"
               label-width="150px"
@@ -808,7 +800,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             </el-radio-group>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.isThird')"
               label-width="150px"
@@ -822,7 +814,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
       </el-row>
       <el-row style="width: 100%">
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.supportType')"
               label-width="150px"
@@ -835,13 +827,16 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             />
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
+              class="path-channel-time-item"
               :label="$t('pathChannelList.form.enableTimePeriod')"
               label-width="150px"
               prop="enableTimePeriod"
           >
             <el-time-picker
+            class="path-channel-time-range"
+            style="width: 200px"
             type="time"
             v-model="createPathChannelInfo.enableTimePeriod1"
             value-format="HH:mm:ss"
@@ -849,11 +844,10 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             is-range
             range-separator="-"
             @change="timeChange"
-            style="width: 200px"
             />
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.paymentType')"
               label-width="150px"
@@ -867,7 +861,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             />
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.checkoutCounter')"
               prop="isCheckoutCounter"
@@ -883,7 +877,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
       </el-row>
       <el-row style="width: 100%">
-        <el-col :span="6" v-if="createPathChannelInfo.isCheckoutCounter===1">
+        <el-col :span="12" v-if="createPathChannelInfo.isCheckoutCounter===1">
           <el-form-item
             :label="$t('pathChannelList.form.checkoutCounterUrl')"
             label-width="150px"
@@ -892,7 +886,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             <el-input style="width: 200px" v-model="createPathChannelInfo.checkoutCounterUrl"></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.paymentMinAmount')"
               label-width="150px"
@@ -901,7 +895,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             <el-input type="number" v-model.number="createPathChannelInfo.paymentMinAmount" style="width: 200px"/>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.paymentMaxAmount')"
               label-width="150px"
@@ -910,7 +904,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             <el-input type="number" v-model.number="createPathChannelInfo.paymentMaxAmount" style="width: 200px"/>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('common.currency')"
               label-width="150px"
@@ -926,7 +920,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
       </el-row>
       <el-row style="width: 100%" v-if="createPathChannelInfo.supportType === 0 || createPathChannelInfo.supportType === 2">
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.collectionDailyLimit')"
               label-width="150px"
@@ -935,7 +929,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             <el-input v-model.number="createPathChannelInfo.collectionDailyLimit" style="width: 200px"/>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.collectionMonthlyLimit')"
               label-width="150px"
@@ -944,7 +938,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             <el-input v-model.number="createPathChannelInfo.collectionMonthlyLimit" style="width: 200px"/>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.paymentRequestCollectionUrl')"
               label-width="150px"
@@ -953,7 +947,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             <el-input v-model="createPathChannelInfo.paymentRequestCollectionUrl" style="width: 200px"/>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.paymentCollectionRate')"
               label-width="150px"
@@ -964,7 +958,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
       </el-row>
       <el-row style="width: 100%" v-if="createPathChannelInfo.supportType === 0 || createPathChannelInfo.supportType === 2">
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.paymentCheckCollectionUrl')"
               label-width="150px"
@@ -973,7 +967,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             <el-input v-model="createPathChannelInfo.paymentCheckCollectionUrl" style="width: 200px"/>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.collectionCallbackAddr')"
               label-width="150px"
@@ -982,7 +976,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             <el-input v-model="createPathChannelInfo.collectionCallbackAddr" style="width: 200px"/>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.collectionInterfaceParam')"
               label-width="150px"
@@ -999,7 +993,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
       </el-row>
       <el-row style="width: 100%" v-if="createPathChannelInfo.supportType === 1 || createPathChannelInfo.supportType === 2">
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.payDailyLimit')"
               label-width="150px"
@@ -1008,7 +1002,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             <el-input v-model.number="createPathChannelInfo.payDailyLimit" style="width: 200px"/>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.payMonthlyLimit')"
               label-width="150px"
@@ -1017,7 +1011,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             <el-input v-model.number.number="createPathChannelInfo.payMonthlyLimit" style="width: 200px"/>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.paymentRequestPayUrl')"
               label-width="150px"
@@ -1026,7 +1020,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             <el-input v-model="createPathChannelInfo.paymentRequestPayUrl" style="width: 200px"/>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.paymentPayRate')"
               label-width="150px"
@@ -1037,7 +1031,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
       </el-row>
       <el-row style="width: 100%" v-if="createPathChannelInfo.supportType === 1 || createPathChannelInfo.supportType === 2">
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.paymentCheckPayUrl')"
               label-width="150px"
@@ -1046,7 +1040,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             <el-input v-model="createPathChannelInfo.paymentCheckPayUrl" style="width: 200px"/>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.payCallbackAddr')"
               label-width="150px"
@@ -1055,7 +1049,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             <el-input v-model="createPathChannelInfo.payCallbackAddr" style="width: 200px"/>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.payInterfaceParam')"
               label-width="150px"
@@ -1072,7 +1066,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
         </el-col>
       </el-row>
       <el-row style="width: 100%" v-if="createPathChannelInfo.paymentType === '2'">
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.bankName')"
               label-width="150px"
@@ -1081,7 +1075,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             <el-input v-model="createPathChannelInfo.bankName" style="width: 200px"/>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.bankAccount')"
               label-width="150px"
@@ -1090,7 +1084,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
             <el-input v-model="createPathChannelInfo.bankAccount" style="width: 200px"/>
           </el-form-item>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="12">
           <el-form-item
               :label="$t('pathChannelList.form.bankUserName')"
               label-width="150px"
@@ -1109,8 +1103,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
   <el-dialog
     :title="paramEditorTitle"
     v-model="paramEditorVisible"
-    class="dialog param-editor-dialog"
-    center
+    class="dialog param-editor-dialog left-top-title-dialog"
     width="500px"
   >
     <div class="param-editor">
@@ -1119,8 +1112,8 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
       </div>
       <div class="param-editor-body">
         <div class="param-editor-row" v-for="(row, index) in paramEditorRows" :key="`param-${index}`">
-          <el-input class="param-editor-input" v-model="row.key" :placeholder="$t('pathChannelList.param.key')" style="width: 200px" />
-          <el-input class="param-editor-input" v-model="row.value" :placeholder="$t('pathChannelList.param.value')" style="width: 200px" />
+          <el-input class="param-editor-input param-editor-input-key" v-model="row.key" :placeholder="$t('pathChannelList.param.key')" style="width: 200px" />
+          <el-input class="param-editor-input param-editor-input-value" v-model="row.value" :placeholder="$t('pathChannelList.param.value')" style="width: 200px" />
           <el-button @click="removeParamRow(index)">{{ $t('pathChannelList.param.removeRow') }}</el-button>
         </div>
       </div>
@@ -1133,8 +1126,7 @@ import {getFormateTime, getFormateTimeByTimeBystamp} from "@/api/common.js";
   <el-dialog
     :title="confirmDialogTitle"
     v-model="confirmDialogVisible"
-    class="dialog"
-    center
+    class="dialog left-top-title-dialog"
     width="30%"
     height="200px"
   >
@@ -1896,6 +1888,43 @@ export default {
 <style scoped>
 @import "@/assets/base.css";
 @import "@/api/common.css";
+
+.path-channel-list-filter-row{
+  width: 100%;
+}
+
+.path-channel-list-filter-col{
+  display: flex;
+  justify-content: center;
+}
+
+.path-channel-list-filter-col .el-form-item{
+  width: 350px;
+}
+
+.path-channel-edit-form :deep(.el-form-item) {
+  margin-bottom: 14px;
+}
+
+.path-channel-edit-form :deep(.el-input),
+.path-channel-edit-form :deep(.el-select),
+.path-channel-edit-form :deep(.el-input-number) {
+  width: 200px;
+}
+
+.path-channel-edit-form :deep(.el-date-editor.el-range-editor) {
+  width: 200px;
+  min-width: 200px;
+}
+
+.path-channel-edit-form :deep(.path-channel-time-range.el-date-editor.el-range-editor) {
+  width: 200px !important;
+  min-width: 200px !important;
+}
+
+.path-channel-edit-form :deep(.path-channel-time-item .el-form-item__content) {
+  flex: 0 0 auto;
+}
 </style>
 <style>
 .dialog-footer {
@@ -1955,6 +1984,22 @@ export default {
   text-align: center !important;
 }
 
+.param-editor-input-key input {
+  text-align: left !important;
+}
+
+.param-editor-input-key input::placeholder {
+  text-align: left !important;
+}
+
+.param-editor-input-value input {
+  text-align: left !important;
+}
+
+.param-editor-input-value input::placeholder {
+  text-align: left !important;
+}
+
 .param-editor-footer {
   justify-content: flex-end;
   float: none;
@@ -1970,5 +2015,20 @@ export default {
   color: white;
   font-weight: bold;
   font-size: larger;
+}
+
+.left-top-title-dialog .el-dialog__header {
+  text-align: left;
+  padding: 16px 20px 8px;
+}
+
+.left-top-title-dialog .el-dialog__title {
+  text-align: left;
+}
+
+.path-channel-edit-dialog .el-dialog__body {
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  padding-right: 16px;
 }
 </style>

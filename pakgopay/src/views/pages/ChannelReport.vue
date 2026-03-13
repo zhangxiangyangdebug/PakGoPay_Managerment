@@ -300,7 +300,7 @@ export default {
       <div class="main-toolbar">
         <el-form class="main-toolform" ref="filterForm" :model="filterbox">
           <el-row style="display: flex;justify-content: center;align-items: center;">
-            <el-col :span="8">
+            <el-col :span="12" class="channel-report-filter-col">
               <el-form-item :label="$t('channelReport.filter.channel')" label-width="150px" prop="channelId">
                 <el-select
                   :options="channelOptions"
@@ -312,36 +312,32 @@ export default {
                 />
               </el-form-item>
             </el-col>
-            <el-col :span="8">
+            <el-col :span="12" class="channel-report-filter-col">
               <el-form-item :label="$t('common.timeRange')" label-width="150px" prop="filterDateRange">
-                <div style="display: flex; flex-direction: row;">
-                  <el-date-picker
-                      v-model="filterbox.filterDateRange"
-                      type="daterange"
-                      :range-separator="$t('common.rangeSeparator')"
-                      :start-placeholder="$t('common.startDate')"
-                      :end-placeholder="$t('common.endDate')"
-                      format="YYYY/MM/DD"
-                      value-format="x"
-                  >
-                  </el-date-picker>
-                  <el-button @click="reset('filterForm')" class="filterButton">
-                    <SvgIcon class="filterButtonSvg" name="reset"/>
-                    <div>{{ $t('common.reset') }}</div>
-                  </el-button>
-                  <el-button @click="filterSearch()" class="filterButton">
-                    <SvgIcon class="filterButtonSvg" name="search"/>
-                    <div>{{ $t('common.query') }}</div>
-                  </el-button>
-                  <el-button @click="exportChannelInfo" class="filterButton">
-                    <SvgIcon class="filterButtonSvg" name="export"/>
-                    <div>{{ $t('common.export') }}</div>
-                  </el-button>
-                </div>
-
+                <DateTimeRangeSplit
+                    v-model="filterbox.filterDateRange"
+                    picker-type="date"
+                    format="YYYY/MM/DD"
+                    value-format="x"
+                    picker-width="160px"
+                />
               </el-form-item>
             </el-col>
           </el-row>
+          <div class="toolbar-action-row">
+            <el-button @click="reset('filterForm')" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="reset"/>
+              <div>{{ $t('common.reset') }}</div>
+            </el-button>
+            <el-button @click="filterSearch()" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="search"/>
+              <div>{{ $t('common.query') }}</div>
+            </el-button>
+            <el-button @click="exportChannelInfo" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="export"/>
+              <div>{{ $t('common.export') }}</div>
+            </el-button>
+          </div>
         </el-form>
       </div>
     </el-collapse-item>
@@ -575,6 +571,16 @@ export default {
 
 <style scoped>
 @import "@/assets/base.css";
+
+.channel-report-filter-col{
+  display: flex;
+  justify-content: center;
+}
+
+.channel-report-filter-col .el-form-item{
+  width: 350px;
+}
+
 /*.reportInfo{
   margin-top: 20px;
 }

@@ -59,7 +59,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       center
       width="30%"
       height="200px"
-    >
+    
+      align-center>
       <el-form ref="googleFormRef" :rules="googleRule" :model="googleForm" style="height:100px;margin-top: 20px">
         <el-row>
           <el-col :span="24" style="display: flex;justify-content: center;align-items: center;">
@@ -111,8 +112,8 @@ export default {
   methods: {
     async loadRateLimitConfig() {
       const res = await getRateLimitConfig();
-      if (res?.status === 200 && res.data?.code === 0) {
-        let data = res.data.data || {};
+      if (res?.status === 200 && Number(res.data?.code) === 0) {
+        let data = res.data?.data || {};
         if (typeof data === 'string') {
           try {
             data = JSON.parse(data);
@@ -120,19 +121,35 @@ export default {
             data = {};
           }
         }
+        if (data && Array.isArray(data.configItems)) {
+          const itemsMap = {};
+          data.configItems.forEach(item => {
+            if (item?.key) {
+              itemsMap[item.key] = item.value;
+            }
+          });
+          data = itemsMap;
+        }
         if (data.enabled !== undefined && data.enabled !== null) {
           const enabledValue = typeof data.enabled === 'string' ? data.enabled.trim() : data.enabled;
           this.rateLimitEnabled = enabledValue === true || enabledValue === 1 || enabledValue === '1' || enabledValue === 'true';
         }
         this.rateLimitWindowSeconds = data.windowSeconds ?? this.rateLimitWindowSeconds;
         this.rateLimitMaxRequests = data.maxRequests ?? this.rateLimitMaxRequests;
-        this.qpsForIP = data.fixedIpQps ?? this.qpsForIP;
+        this.qpsForIP = data.fixedIpQps ?? data.fixedIpQpsRaw ?? this.qpsForIP;
         this.beforeRateLimitConfig = {
           rateLimitEnabled: this.rateLimitEnabled,
           rateLimitWindowSeconds: this.rateLimitWindowSeconds,
           rateLimitMaxRequests: this.rateLimitMaxRequests,
           fixedIpQps: this.qpsForIP
         };
+      } else {
+        this.$notify({
+          title: this.$t('common.error'),
+          message: res?.data?.message || this.$t('common.requestFailed'),
+          type: 'error',
+          position: 'bottom-right',
+        });
       }
     },
     reset() {
@@ -191,7 +208,7 @@ export default {
         googleCode: this.googleForm.googleCode
       };
       const res = await updateRateLimitConfig(payload);
-      if (res?.status === 200 && res.data?.code === 0) {
+      if (res?.status === 200 && Number(res.data?.code) === 0) {
         this.beforeRateLimitConfig = {
           rateLimitEnabled: this.rateLimitEnabled,
           rateLimitWindowSeconds: this.rateLimitWindowSeconds,

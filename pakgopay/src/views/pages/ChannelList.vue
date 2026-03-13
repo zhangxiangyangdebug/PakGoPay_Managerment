@@ -1,6 +1,7 @@
 <script setup>
 
 import SvgIcon from "@/components/SvgIcon/index.vue";
+import { ArrowDownBold } from "@element-plus/icons-vue";
 import {getTimeFromTimestamp} from "@/api/common.js";
 </script>
 
@@ -12,32 +13,10 @@ import {getTimeFromTimestamp} from "@/api/common.js";
       <template #title>
         <span class="toolbarName">{{ $t('common.toolbar') }}</span>
       </template>
-      <div class="main-toolbar" style="height: 130px;">
+      <div class="main-toolbar" style="height: auto;">
         <el-form class="main-toolform" ref="filterboxForm" :model="filterbox">
-          <el-row style="width: 100%;">
-            <el-col :span="24">
-              <div style="display: flex;flex-direction: row;justify-content: right;margin-right:3%">
-                <el-button @click="search()"
-                           class="filterButton">
-                  <SvgIcon class="filterButtonSvg" name="search"/>
-                  <div>{{ $t('common.query') }}</div>
-                </el-button>
-                <el-button @click="reset('filterboxForm')"
-                           class="filterButton">
-                  <SvgIcon class="filterButtonSvg" name="reset"/>
-                  <div>{{ $t('common.reset') }}</div>
-                </el-button>
-                <el-button @click="exportPathChannelInfos"
-                           class="filterButton">
-                  <SvgIcon class="filterButtonSvg" name="export"/>
-                  <div>{{ $t('common.export') }}</div>
-                </el-button>
-              </div>
-            </el-col>
-          </el-row>
-          <el-row style="width: 100%;margin-top:10px">
-            <div style="display: flex;flex-direction: row;width: 100%;justify-content: space-around">
-              <el-col :span="5">
+          <el-row class="channel-list-filter-row" :gutter="24" style="width: 100%;margin-top:10px">
+              <el-col :span="6" class="channel-list-filter-col">
                 <el-form-item :label="$t('channelList.filter.channel')" label-width="150px" prop="paymentId">
                   <el-select
                     v-model="filterbox.paymentId"
@@ -60,12 +39,12 @@ import {getTimeFromTimestamp} from "@/api/common.js";
                   </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
+              <el-col :span="6" class="channel-list-filter-col">
                 <el-form-item :label="$t('channelList.filter.channelName')" label-width="150px" prop="channelName">
                   <el-input v-model="filterbox.channelName" :placeholder="$t('channelList.placeholder.channelName')" style="width: 200px;height: 100%" />
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
+              <el-col :span="6" class="channel-list-filter-col">
                 <el-form-item :label="$t('channelList.filter.status')" label-width="150px" prop="status">
                   <el-select v-model="filterbox.status" :placeholder="$t('channelList.placeholder.status')"
                              style="width: 200px;height: 100%"
@@ -75,7 +54,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
                   </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
+              <el-col :span="6" class="channel-list-filter-col">
                 <el-form-item :label="$t('channelList.filter.currency')" label-width="150px" prop="currency">
                   <el-select v-model="filterbox.currency" :placeholder="$t('common.currency')"
                              style="width: 200px;height: 100%"
@@ -85,8 +64,21 @@ import {getTimeFromTimestamp} from "@/api/common.js";
                   />
                 </el-form-item>
               </el-col>
-            </div>
           </el-row>
+          <div class="toolbar-action-row">
+            <el-button @click="search()" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="search"/>
+              <div>{{ $t('common.query') }}</div>
+            </el-button>
+            <el-button @click="reset('filterboxForm')" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="reset"/>
+              <div>{{ $t('common.reset') }}</div>
+            </el-button>
+            <el-button @click="exportPathChannelInfos" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="export"/>
+              <div>{{ $t('common.export') }}</div>
+            </el-button>
+          </div>
         </el-form>
       </div>
     </el-collapse-item>
@@ -122,7 +114,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         >
           <div>
             <el-card
-              v-for="(item, index) in row.collectionSupportPayment"
+              v-for="(item, index) in getVisibleCollectionCards(row)"
               :key="item.paymentNo"
               class="merchantInfos-table channel-card"
               :class="index % 2 === 0 ? 'channel-card-collect' : 'channel-card-collect-alt'"
@@ -130,6 +122,13 @@ import {getTimeFromTimestamp} from "@/api/common.js";
               <div>{{ $t('channelList.card.paymentNo') }}{{ item.paymentNo }}</div>
               <div>{{ $t('channelList.card.paymentName') }}{{ item.paymentName }}</div>
             </el-card>
+            <div
+              v-if="hasMoreCollectionCards(row)"
+              class="channel-card-more"
+              @click="expandCollectionCards(row)"
+            >
+              <el-icon><ArrowDownBold /></el-icon>
+            </div>
           </div>
         </el-table-column>
         <el-table-column
@@ -140,7 +139,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         >
           <div>
             <el-card
-              v-for="(item, index) in row.paySupportPayment"
+              v-for="(item, index) in getVisiblePayCards(row)"
               :key="item.paymentNo"
               class="merchantInfos-table channel-card"
               :class="index % 2 === 0 ? 'channel-card-pay' : 'channel-card-pay-alt'"
@@ -148,6 +147,13 @@ import {getTimeFromTimestamp} from "@/api/common.js";
               <div>{{ $t('channelList.card.paymentNo') }}{{ item.paymentNo }}</div>
               <div>{{ $t('channelList.card.paymentName') }}{{ item.paymentName }}</div>
             </el-card>
+            <div
+              v-if="hasMorePayCards(row)"
+              class="channel-card-more"
+              @click="expandPayCards(row)"
+            >
+              <el-icon><ArrowDownBold /></el-icon>
+            </div>
           </div>
         </el-table-column>
         <el-table-column
@@ -229,12 +235,10 @@ import {getTimeFromTimestamp} from "@/api/common.js";
   <el-dialog
       :title="channelDialogTitle"
       v-model="dialogFormVisible"
-      class="dialog"
-      center="true"
-      width="45%"
-      style="height: 600px;align-content: center"
+      class="dialog channel-edit-dialog"
+      width="760px"
   >
-    <el-form style="margin-top: 50px;width: 100%" ref="editChannelForm" :rules="editChannelRules" :model="editChannelInfo">
+    <el-form style="margin-top: 16px;width: 100%" ref="editChannelForm" :rules="editChannelRules" :model="editChannelInfo">
 <!--      <el-row style="width: 100%">-->
         <el-col :span="24">
           <div class="el-form-line" style="display: flex;justify-content: center;">
@@ -317,6 +321,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
       v-model="confirmDialogVisible"
       class="dialog"
       center
+      align-center
       width="30%"
       height="200px"
   >
@@ -400,6 +405,8 @@ export default {
       ],
       channelTableInfo: [
       ],
+      collectionCardExpandMap: {},
+      payCardExpandMap: {},
       channelFormInfo: [],
       createChannelInfo: {},
       editChannelInfo: {},
@@ -426,6 +433,55 @@ export default {
     }
   },
   methods: {
+    getChannelRowKey(row) {
+      return String(row?.channelId || row?.channelName || '');
+    },
+    isCollectionCardsExpanded(row) {
+      const key = this.getChannelRowKey(row);
+      if (!key) return false;
+      return !!this.collectionCardExpandMap[key];
+    },
+    isPayCardsExpanded(row) {
+      const key = this.getChannelRowKey(row);
+      if (!key) return false;
+      return !!this.payCardExpandMap[key];
+    },
+    getVisibleCollectionCards(row) {
+      const cards = row?.collectionSupportPayment || [];
+      if (cards.length <= 1 || this.isCollectionCardsExpanded(row)) {
+        return cards;
+      }
+      return cards.slice(0, 1);
+    },
+    hasMoreCollectionCards(row) {
+      const cards = row?.collectionSupportPayment || [];
+      return cards.length > 1 && !this.isCollectionCardsExpanded(row);
+    },
+    expandCollectionCards(row) {
+      const key = this.getChannelRowKey(row);
+      if (!key) return;
+      this.collectionCardExpandMap = {
+        [key]: true
+      };
+    },
+    getVisiblePayCards(row) {
+      const cards = row?.paySupportPayment || [];
+      if (cards.length <= 1 || this.isPayCardsExpanded(row)) {
+        return cards;
+      }
+      return cards.slice(0, 1);
+    },
+    hasMorePayCards(row) {
+      const cards = row?.paySupportPayment || [];
+      return cards.length > 1 && !this.isPayCardsExpanded(row);
+    },
+    expandPayCards(row) {
+      const key = this.getChannelRowKey(row);
+      if (!key) return;
+      this.payCardExpandMap = {
+        [key]: true
+      };
+    },
     saveChannelDraft() {
       if (!this.dialogFormVisible) return;
       const mode = this.submitType || '';
@@ -581,6 +637,8 @@ export default {
         if (response.status === 200 && response.data.code === 0) {
           const allData = JSON.parse(response.data.data)
           this.totalCount = allData.totalNumber
+          this.collectionCardExpandMap = {}
+          this.payCardExpandMap = {}
           this.channelTableInfo = allData.channelDtoList
           this.channelTableInfo.forEach(item => {
             let currencyList = []
@@ -909,10 +967,33 @@ export default {
 }
 </script>
 <style scoped>
+@import "@/api/common.css";
 @import "@/assets/base.css";
+
+.channel-list-filter-row{
+  width: 100%;
+}
+
+.channel-list-filter-col{
+  display: flex;
+  justify-content: center;
+}
+
+.channel-list-filter-col .el-form-item{
+  width: 350px;
+}
 
 .channel-card {
   margin-bottom: 8px;
+}
+
+.channel-card-more{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: #2563eb;
+  font-size: 16px;
 }
 
 .channel-card-collect {
@@ -930,4 +1011,5 @@ export default {
 .channel-card-pay-alt {
   background-color: #f1faf4;
 }
+
 </style>

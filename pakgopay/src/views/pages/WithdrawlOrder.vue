@@ -15,23 +15,9 @@ import {getTimeFromTimestamp, getTodayStartTimestamp} from "@/api/common.js";
           {{ $t('common.toolbar') }}
         </span>
         </template>
-        <div class="main-toolbar" style="height: 150px;width: 97%;">
-          <el-form class="main-toolform" style="height: 100%;" ref="filterboxForm" :model="filterbox">
-            <el-row>
-              <el-col :offset="18" :span="6">
-                <div class="toolbar-action-row" >
-                  <el-button @click="search()" class="filterButton">
-                    <SvgIcon class="filterButtonSvg" name="search"/>
-                    <div>{{ $t('common.query') }}</div>
-                  </el-button>
-                  <el-button @click="reset('filterboxForm')" class="filterButton">
-                    <SvgIcon class="filterButtonSvg" name="reset"/>
-                    <div>{{ $t('common.reset') }}</div>
-                  </el-button>
-                </div>
-              </el-col>
-            </el-row>
-            <el-row>
+        <div class="main-toolbar" style="height: auto; width: 97%;">
+          <el-form class="main-toolform withdrawl-order-toolform" style="height: 100%;" ref="filterboxForm" :model="filterbox">
+            <el-row class="withdrawl-order-main-row">
               <el-col :span="6">
                 <el-form-item :label="$t('withdrawlOrder.filter.orderId')" label-width="150px" prop="id">
                   <el-input v-model="filterbox.id" style="width: 200px"/>
@@ -63,26 +49,38 @@ import {getTimeFromTimestamp, getTodayStartTimestamp} from "@/api/common.js";
                       :props="agentProps"
                       v-model="filterbox.userId"
                       :disabled="filterAvaiable"
-                  />
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item :label="$t('withdrawlOrder.filter.createTime')" label-width="150px" prop="filterDateRange">
-                  <!--                  <el-input v-model="filterbox.requestTime"style="width: 200px"/>-->
-                  <el-date-picker
-                      v-model="filterbox.filterDateRange"
-                      type="datetimerange"
-                      :clearable="false"
-                      :range-separator="$t('common.rangeSeparator')"
-                      :start-placeholder="$t('common.startDate')"
-                      :end-placeholder="$t('common.endDate')"
-                      format="YYYY/MM/DD HH:mm:ss"
-                      value-format="x"
-                      @change="handleDateRangeChange"
+                      style="width: 200px"
                   />
                 </el-form-item>
               </el-col>
             </el-row>
+            <el-row class="withdrawl-order-time-row">
+              <el-col :span="12">
+                <el-form-item :label="$t('withdrawlOrder.filter.createTime')" label-width="150px" prop="filterDateRange">
+                  <!--                  <el-input v-model="filterbox.requestTime"style="width: 200px"/>-->
+                  <DateTimeRangeSplit
+                      v-model="filterbox.filterDateRange"
+                      :clearable="false"
+                      picker-type="datetime"
+                      format="YYYY/MM/DD HH:mm:ss"
+                      value-format="x"
+                      picker-width="200px"
+                      @change="handleDateRangeChange"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="6" class="withdrawl-order-time-placeholder"></el-col>
+            </el-row>
+            <div class="toolbar-action-row">
+              <el-button @click="search()" class="filterButton">
+                <SvgIcon class="filterButtonSvg" name="search"/>
+                <div>{{ $t('common.query') }}</div>
+              </el-button>
+              <el-button @click="reset('filterboxForm')" class="filterButton">
+                <SvgIcon class="filterButtonSvg" name="reset"/>
+                <div>{{ $t('common.reset') }}</div>
+              </el-button>
+            </div>
           </el-form>
         </div>
       </el-collapse-item>
@@ -131,7 +129,7 @@ import {getTimeFromTimestamp, getTodayStartTimestamp} from "@/api/common.js";
               v-slot="{row}"
               align="center"
           >
-            <div>{{filterbox.userType === 1 ? merchantMaps[row.userId] : agentMaps[row.userId]}}</div>
+            <div>{{ formatOrderUserName(row) }}</div>
           </el-table-column>
           <el-table-column
               prop="amount"
@@ -182,12 +180,21 @@ import {getTimeFromTimestamp, getTodayStartTimestamp} from "@/api/common.js";
               v-slot="{row}"
               align="center"
           >
-            <div>{{row.applyerIp}}</div>
+            <div>{{row.requestIp}}</div>
+          </el-table-column>
+          <el-table-column
+              prop="remark"
+              :label="$t('withdrawlOrder.column.remark')"
+              v-slot="{row}"
+              align="center"
+          >
+            <div>{{ row.remark || '-' }}</div>
           </el-table-column>
           <el-table-column
               v-slot="{row}"
               :label="$t('common.operation')"
               align="center"
+              v-if="isAdmin"
           >
             <el-dropdown trigger="click">
               <SvgIcon name="more" width="30" height="30"/>
@@ -219,6 +226,7 @@ import {getTimeFromTimestamp, getTodayStartTimestamp} from "@/api/common.js";
   <el-dialog
       v-model="approvalDialogVisible"
       :title="approvalDialogTitle"
+      align-center
       width="420px"
   >
     <el-form
@@ -254,6 +262,7 @@ import {
   getWithdrawStatementeOrder, modifyWithdrawStatementeOrder
 } from "@/api/interface/backendInterface.js";
 import {loadingBody} from "@/api/common.js";
+import { getTimeZoneOffsetMinutes } from "@/util/timezoneOptions.js";
 
 export default {
   name: "WithdrawlOrder",
@@ -302,6 +311,7 @@ export default {
         label: "agentName"
       },
       filterAvaiable: false,
+      isAdmin: false,
       agentMaps: {},
       approvalDialogVisible: false,
       approvalDialogTitle: '',
@@ -315,6 +325,9 @@ export default {
       approvalRules: {
         googleCode: [
           { required: true, message: this.$t('common.googleCodeRequired'), trigger: 'blur' }
+        ],
+        remark: [
+          { validator: (rule, value, callback) => this.validateRequiredText(value, this.$t('withdrawlOrder.validation.remarkRequired'), callback), trigger: 'blur' }
         ]
       },
       staticsData: {
@@ -336,6 +349,13 @@ export default {
     }
   },
   methods: {
+    validateRequiredText(value, message, callback) {
+      if (value === undefined || value === null || String(value).trim() === '') {
+        callback(new Error(message));
+        return;
+      }
+      callback();
+    },
     applyRouteQueryFilters() {
       const query = this.$route?.query || {}
       const orderNo = query.orderNo
@@ -437,32 +457,21 @@ export default {
       const safeEnd = Math.min(Number(endMs), limit.getTime());
       return [Number(startMs), Math.max(Number(startMs), safeEnd)];
     },
-    parseOffsetMinutes(tz) {
-      const match = String(tz || '').match(/UTC\s*([+-])\s*(\d{1,2})(?::?(\d{2}))?/i);
-      if (!match) {
-        return null;
-      }
-      const sign = match[1] === '-' ? -1 : 1;
-      const hours = parseInt(match[2], 10);
-      const minutes = match[3] ? parseInt(match[3], 10) : 0;
-      return sign * (hours * 60 + minutes);
+    parseOffsetMinutes(tz, referenceMs) {
+      return getTimeZoneOffsetMinutes(tz, referenceMs);
     },
     toUtcRange(displayRange, tz) {
-      const offset = this.parseOffsetMinutes(tz);
-      if (offset === null) {
-        return displayRange;
-      }
       return displayRange.map((ms) => {
+        const offset = this.parseOffsetMinutes(tz, Number(ms));
+        if (offset === null) return Number(ms);
         const localOffset = new Date(Number(ms)).getTimezoneOffset();
         return Number(ms) - localOffset * 60000 - offset * 60000;
       });
     },
     toDisplayRange(utcRange, tz) {
-      const offset = this.parseOffsetMinutes(tz);
-      if (offset === null) {
-        return utcRange;
-      }
       return utcRange.map((ms) => {
+        const offset = this.parseOffsetMinutes(tz, Number(ms));
+        if (offset === null) return Number(ms);
         const localOffset = new Date(Number(ms)).getTimezoneOffset();
         return Number(ms) + offset * 60000 + localOffset * 60000;
       });
@@ -484,10 +493,21 @@ export default {
       const icon = this.currencyIcons[currencyType] || this.currencyIcon || '';
       return icon ? `${icon}${rawAmount}` : rawAmount;
     },
+    formatOrderUserName(row) {
+      if (!row) return '-';
+      if (row.name) return row.name;
+      if (row.userRole === 1 || row.userRole === '1') return this.merchantMaps[row.userId] || '-';
+      if (row.userRole === 2 || row.userRole === '2') return this.agentMaps[row.userId] || '-';
+      if (this.filterbox.userType === 1) return this.merchantMaps[row.userId] || '-';
+      if (this.filterbox.userType === 2) return this.agentMaps[row.userId] || '-';
+      return this.merchantMaps[row.userId] || this.agentMaps[row.userId] || '-';
+    },
     approveWithdrawOrder(row) {
+      if (!this.isAdmin) return
       this.openApprovalDialog(true, row)
     },
     openApprovalDialog(isAgree, row) {
+      if (!this.isAdmin) return
       this.approvalDialogTitle = isAgree ? this.$t('withdrawlOrder.dialog.approveTitle') : this.$t('withdrawlOrder.dialog.rejectTitle');
       this.approvalForm = {
         googleCode: '',
@@ -534,6 +554,7 @@ export default {
       });
     },
     submit(info) {
+      if (!this.isAdmin) return
       modifyWithdrawStatementeOrder(info).then(res => {
         if (res.status === 200 && res.data.code === 0) {
           this.$notify({
@@ -556,6 +577,7 @@ export default {
       })
     },
     rejectWithdrawOrder(row) {
+      if (!this.isAdmin) return
       this.openApprovalDialog(false, row)
     },
     handleCurrencyChange(tab) {
@@ -584,6 +606,7 @@ export default {
   },
   async mounted() {
     let roleName = localStorage.getItem('roleName');
+    this.isAdmin = roleName === 'admin'
     let userName = localStorage.getItem('userId');
     if (roleName &&  roleName === 'agent') {
       this.filterbox.userType = 2
@@ -716,6 +739,27 @@ export default {
 
 .status-other {
   background-color: #9ca3af;
+}
+
+:deep(.main-toolbar .main-toolform.withdrawl-order-toolform > .withdrawl-order-main-row) {
+  justify-content: center !important;
+}
+
+:deep(.main-toolbar .main-toolform.withdrawl-order-toolform > .withdrawl-order-main-row > .el-col) {
+  justify-content: flex-start !important;
+}
+
+:deep(.main-toolbar .main-toolform.withdrawl-order-toolform > .withdrawl-order-time-row) {
+  justify-content: center !important;
+}
+
+:deep(.main-toolbar .main-toolform.withdrawl-order-toolform > .withdrawl-order-time-row > .el-col) {
+  display: flex;
+  justify-content: flex-start !important;
+}
+
+:deep(.main-toolbar .main-toolform.withdrawl-order-toolform > .withdrawl-order-time-row > .withdrawl-order-time-placeholder) {
+  display: block;
 }
 
 </style>

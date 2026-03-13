@@ -66,7 +66,8 @@
       center
       width="30%"
       height="200px"
-    >
+    
+      align-center>
       <el-form ref="googleFormRef" :rules="googleRule" :model="googleForm" style="height:100px;margin-top: 20px">
         <el-row>
           <el-col :span="24" style="display: flex;justify-content: center;align-items: center;">

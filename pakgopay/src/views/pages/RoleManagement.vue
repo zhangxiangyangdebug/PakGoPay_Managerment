@@ -217,7 +217,8 @@ import {getTimeFromTimestamp} from "@/api/common.js";
        center
        width="30%"
        style="min-width: 420px;"
-   >
+   
+      align-center>
      <el-form ref="googleVerifyForm" :model="googleVerifyForm" style="height:100px;margin-top: 20px">
        <el-row>
          <el-col :span="24" style="display: flex;justify-content: center;justify-items: center;align-items: center;">
@@ -354,7 +355,7 @@ export default {
           { required: true, message: this.$t('roleManagement.validation.roleNameRequired'), trigger: "blur" }
         ],
         remark: [
-            { required: false, message: this.$t('roleManagement.validation.roleFlagRequired'), trigger: "blur" }
+            { validator: (rule, value, callback) => this.validateRequiredText(value, this.$t('roleManagement.validation.roleFlagRequired'), callback), trigger: "blur" }
         ],
         googleCode: [
             { required: true, message: this.$t('common.googleCodeRequired'), trigger: "blur" }
@@ -365,7 +366,7 @@ export default {
           { required: true, message: this.$t('roleManagement.validation.roleNameRequired'), trigger: "blur" }
         ],
         remark: [
-          { required: false, message: this.$t('roleManagement.validation.roleFlagRequired'), trigger: "blur" }
+          { validator: (rule, value, callback) => this.validateRequiredText(value, this.$t('roleManagement.validation.roleFlagRequired'), callback), trigger: "blur" }
         ]
       }
     }
@@ -392,6 +393,13 @@ export default {
     }
   },
   methods: {
+    validateRequiredText(value, message, callback) {
+      if (value === undefined || value === null || String(value).trim() === '') {
+        callback(new Error(message));
+        return;
+      }
+      callback();
+    },
     saveRoleDraft() {
       if (!this.dialogVisible && !this.dialogVisible2) return;
       const mode = this.dialogMode || '';

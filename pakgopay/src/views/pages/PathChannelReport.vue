@@ -294,60 +294,61 @@ export default {
         </span>
       </template>
       <div class="main-toolbar">
-        <el-form style="width: 96%;" ref="filterboxForm" :model="filterbox">
-          <el-row style="display: flex;justify-content: space-around;">
-            <el-form-item style="display: flex;justify-content: center;color: deepskyblue" prop="paymentNo">
-              <template #label>
-                <span style="width: 150px;">{{ $t('pathChannelReport.filter.channel') }}</span>
-              </template>
-              <el-select
-                  :options="pathChannelOptions"
-                  :props="pathChannelProps"
-                  v-model="filterbox.paymentNo"
-                  filterable
-                  style="width: 200px"
-              />
-            </el-form-item>
-
-
-            <el-form-item style="display: flex;justify-content: center;color: deepskyblue" prop="filterDateRange">
-              <template #label>
-                <span style="width: 150px">{{ $t('common.timeRange') }}</span>
-              </template>
-              <el-date-picker
-                  v-model="filterbox.filterDateRange"
-                  type="daterange"
-                  :range-separator="$t('common.rangeSeparator')"
-                  :start-placeholder="$t('common.startDate')"
-                  :end-placeholder="$t('common.endDate')"
-                  format="YYYY/MM/DD"
-                  value-format="x"
-              >
-              </el-date-picker>
-              <el-button @click="reset('filterboxForm')" class="filterButton">
-                <template #icon>
-                  <SvgIcon class="filterButtonSvg" name="reset"/>
+        <el-form class="main-toolform" ref="filterboxForm" :model="filterbox">
+          <el-row style="display: flex;justify-content: center;align-items: center;">
+            <el-col :span="12" class="path-channel-report-filter-col">
+              <el-form-item style="display: flex;justify-content: center;color: deepskyblue" prop="paymentNo">
+                <template #label>
+                  <span style="width: 150px;">{{ $t('pathChannelReport.filter.channel') }}</span>
                 </template>
-                <span>{{ $t('common.reset') }}</span>
-              </el-button>
-              <el-button @click="filterSearch" class="filterButton">
-                <template #icon>
-                  <div style="width: 100%">
-                    <SvgIcon class="filterButtonSvg" name="search"/>
-                  </div>
+                <el-select
+                    :options="pathChannelOptions"
+                    :props="pathChannelProps"
+                    v-model="filterbox.paymentNo"
+                    filterable
+                    style="width: 200px"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12" class="path-channel-report-filter-col">
+              <el-form-item style="display: flex;justify-content: center;color: deepskyblue" prop="filterDateRange">
+                <template #label>
+                  <span style="width: 150px">{{ $t('common.timeRange') }}</span>
                 </template>
-                <div>{{ $t('common.query') }}</div>
-              </el-button>
-              <el-button @click="exportPathChannelInfo" class="filterButton">
-                <template #icon>
-                  <div style="width: 100%">
-                    <SvgIcon name="export" class="filterButtonSvg"/>
-                  </div>
-                </template>
-                <div>{{ $t('common.export') }}</div>
-              </el-button>
-            </el-form-item>
+                <DateTimeRangeSplit
+                    v-model="filterbox.filterDateRange"
+                    picker-type="date"
+                    format="YYYY/MM/DD"
+                    value-format="x"
+                    picker-width="160px"
+                />
+              </el-form-item>
+            </el-col>
           </el-row>
+          <div class="toolbar-action-row">
+            <el-button @click="reset('filterboxForm')" class="filterButton">
+              <template #icon>
+                <SvgIcon class="filterButtonSvg" name="reset"/>
+              </template>
+              <span>{{ $t('common.reset') }}</span>
+            </el-button>
+            <el-button @click="filterSearch" class="filterButton">
+              <template #icon>
+                <div style="width: 100%">
+                  <SvgIcon class="filterButtonSvg" name="search"/>
+                </div>
+              </template>
+              <div>{{ $t('common.query') }}</div>
+            </el-button>
+            <el-button @click="exportPathChannelInfo" class="filterButton">
+              <template #icon>
+                <div style="width: 100%">
+                  <SvgIcon name="export" class="filterButtonSvg"/>
+                </div>
+              </template>
+              <div>{{ $t('common.export') }}</div>
+            </el-button>
+          </div>
         </el-form>
       </div>
     </el-collapse-item>
@@ -599,4 +600,13 @@ export default {
 <style scoped>
 @import "@/assets/base.css";
 @import "@/api/common.css";
+
+.path-channel-report-filter-col{
+  display: flex;
+  justify-content: center;
+}
+
+.path-channel-report-filter-col .el-form-item{
+  width: 350px;
+}
 </style>

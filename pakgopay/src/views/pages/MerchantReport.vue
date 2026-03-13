@@ -47,6 +47,7 @@ export default {
       merchantPageSize: 20,
       merchantQuery: '',
       merchantScrollBound: false,
+      roleName: '',
       reportTitle: this.$t('merchantReport.reportTitle'),
       tab1CurrentPage: 1,
       tab1TotalCount: 2,
@@ -376,6 +377,10 @@ export default {
     },
   },
   async mounted() {
+    this.roleName = localStorage.getItem('roleName') || '';
+    if (this.roleName === 'merchant') {
+      this.filterbox.merchantName = localStorage.getItem('userName') || '';
+    }
     await getAllCurrencyType().then(res => {
       if (res.status === 200 && res.data.code === 0) {
         this.currencyOptions = JSON.parse(res.data.data).currencyTypeDTOList
@@ -411,7 +416,9 @@ export default {
     this.filterbox.isNeedCardData = true
     this.activeTabPane = '0'
     this.search(0)
-    this.fetchMerchantOptions(false)
+    if (this.roleName !== 'merchant') {
+      this.fetchMerchantOptions(false)
+    }
     this.tab1TotalCount = this.collectingReportInfoData.length
     this.tab2TotalCount = this.payingReportInfoData.length
   }
@@ -431,17 +438,18 @@ export default {
       <div class="toolbar" style="height: auto">
         <el-form class="toolform" :model="filterbox" ref="filterForm">
           <el-row class="toolform-item">
-            <el-col :span="8" class="toolform-line" style="display: flex;justify-content: center;align-items: center;">
+            <el-col :span="12" class="toolform-line merchant-report-filter-col" style="display: flex;justify-content: center;align-items: center;">
               <el-form-item :label="$t('merchantReport.filter.merchantName')" label-width="150px" prop="merchantName">
                 <el-select
                   ref="merchantSelect"
                   v-model="filterbox.merchantName"
                   filterable
                   remote
-                  clearable
+                  :clearable="roleName !== 'merchant'"
+                  :disabled="roleName === 'merchant'"
                   :remote-method="handleMerchantSearch"
                   :loading="merchantLoading"
-                  :placeholder="$t('merchantReport.placeholder.merchantAccount')"
+                  :placeholder="$t('merchantReport.placeholder.merchantName')"
                   popper-class="merchant-select-dropdown"
                   @visible-change="handleMerchantDropdownVisible"
                   style="width: 200px"
@@ -455,38 +463,32 @@ export default {
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="16" class="toolform-line" style="display: flex;justify-content: center;align-items: center;">
+            <el-col :span="12" class="toolform-line merchant-report-filter-col" style="display: flex;justify-content: center;align-items: center;">
               <el-form-item :label="$t('merchantReport.filter.timeRange')" label-width="150px" prop="filterDateRange">
-                <el-date-picker
+                <DateTimeRangeSplit
                     v-model="filterbox.filterDateRange"
-                    type="daterange"
-                    :range-separator="$t('common.rangeSeparator')"
-                    :start-placeholder="$t('common.startDate')"
-                    :end-placeholder="$t('common.endDate')"
+                    picker-type="date"
                     format="YYYY/MM/DD"
                     value-format="x"
-                >
-                </el-date-picker>
-                <div style="display: flex;flex-direction: row">
-                  <el-button @click="reset('filterForm')"
-                       class="filterButton">
-                    <SvgIcon class="filterButtonSvg" name="reset"/>
-                    <div>{{ $t('common.reset') }}</div>
-                  </el-button>
-                  <el-button @click="filtersearch"
-                       class="filterButton">
-                    <SvgIcon class="filterButtonSvg" name="search"/>
-                    <div>{{ $t('common.query') }}</div>
-                  </el-button>
-                  <el-button @click="exportMerchantInfo"
-                       class="filterButton">
-                    <SvgIcon class="filterButtonSvg" name="export"/>
-                    <div>{{ $t('common.export') }}</div>
-                  </el-button>
-                </div>
+                    picker-width="160px"
+                />
               </el-form-item>
             </el-col>
           </el-row>
+          <div class="toolbar-action-row">
+            <el-button @click="reset('filterForm')" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="reset"/>
+              <div>{{ $t('common.reset') }}</div>
+            </el-button>
+            <el-button @click="filtersearch" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="search"/>
+              <div>{{ $t('common.query') }}</div>
+            </el-button>
+            <el-button @click="exportMerchantInfo" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="export"/>
+              <div>{{ $t('common.export') }}</div>
+            </el-button>
+          </div>
         </el-form>
       </div>
     </el-collapse-item>
@@ -854,6 +856,8 @@ export default {
   height: 90%;
   padding: 0;
   width: 100%;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 
 .toolform-item-filter {
@@ -874,7 +878,7 @@ export default {
   /*margin-right: 2%;*/
   /*margin-left: 2%;*/
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
 
   align-items: center;
 }
@@ -894,6 +898,24 @@ export default {
   width: 100%;
   align-items: center;
   justify-content: center;
+}
+
+.merchant-report-filter-col{
+  display: flex;
+  justify-content: center;
+}
+
+.merchant-report-filter-col .el-form-item{
+  width: 350px;
+}
+
+.merchant-report-time-range{
+  width: 200px !important;
+}
+
+:deep(.merchant-report-time-range.el-date-editor.el-range-editor){
+  width: 200px !important;
+  min-width: 200px !important;
 }
 
 :deep(.report-tabs.el-tabs--border-card) {

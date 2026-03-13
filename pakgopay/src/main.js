@@ -4,11 +4,13 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import 'virtual:svg-icons-register'
 import svgIcon from '@/components/SvgIcon/index.vue'
+import DateTimeRangeSplit from '@/components/DateTimeRangeSplit.vue'
 import service from "@/api/axios.js";
 import GoogleLogin from 'vue3-google-login'
 import ElementPlus from 'element-plus'
 import {ElDialog} from "element-plus";
 import 'element-plus/dist/index.css'
+import '@/assets/dialog-global.css'
 import { createI18n } from 'vue-i18n'
 
 // 导入语言包
@@ -48,6 +50,7 @@ let clientId = '554967085940-o3uql5embk68sm0ihlh466ho3qkqsv26.apps.googleusercon
 
 const app = createApp(App)
 app.component('SvgIcon', svgIcon)
+app.component('DateTimeRangeSplit', DateTimeRangeSplit)
 app.config.globalProperties.$http = service
 app.use(ElementPlus)
 app.use(ElDialog)

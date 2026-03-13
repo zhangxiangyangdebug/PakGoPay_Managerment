@@ -1,5 +1,5 @@
 <script setup>
-
+import '@/api/common.css'
 import SvgIcon from "@/components/SvgIcon/index.vue";
 import {getFormateDate} from "@/api/common.js";
 </script>
@@ -31,33 +31,30 @@ import {getFormateDate} from "@/api/common.js";
             </el-col>
             <el-col :span="12">
               <el-form-item label-width="150px" :label="$t('currencyTypeReport.filter.date')" prop="filterDateRange">
-                <div style="display: flex; flex-direction: row; align-items: center; flex-wrap: nowrap;">
-                  <el-date-picker
-                      v-model="filterbox.filterDateRange"
-                      type="daterange"
-                      :range-separator="$t('common.rangeSeparator')"
-                      :start-placeholder="$t('common.startDate')"
-                      :end-placeholder="$t('common.endDate')"
-                      format="YYYY/MM/DD"
-                      value-format="x"
-                  >
-                  </el-date-picker>
-                  <el-button @click="reset('filterForm')" class="filterButton">
-                    <SvgIcon class="filterButtonSvg" name="reset"/>
-                    {{ $t('common.reset') }}
-                  </el-button>
-                  <el-button @click="filterSearch" class="filterButton">
-                    <SvgIcon class="filterButtonSvg" name="search"/>
-                    {{ $t('common.search') }}
-                  </el-button>
-                  <el-button @click="exportCurrencyInfo" class="filterButton">
-                    <SvgIcon class="filterButtonSvg" name="export"/>
-                    {{ $t('common.export') }}
-                  </el-button>
-                </div>
+                <DateTimeRangeSplit
+                    v-model="filterbox.filterDateRange"
+                    picker-type="date"
+                    format="YYYY/MM/DD"
+                    value-format="x"
+                    picker-width="160px"
+                />
               </el-form-item>
             </el-col>
           </el-row>
+          <div class="toolbar-action-row">
+            <el-button @click="reset('filterForm')" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="reset"/>
+              {{ $t('common.reset') }}
+            </el-button>
+            <el-button @click="filterSearch" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="search"/>
+              {{ $t('common.query') }}
+            </el-button>
+            <el-button @click="exportCurrencyInfo" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="export"/>
+              {{ $t('common.export') }}
+            </el-button>
+          </div>
         </el-form>
 
       </div>
@@ -387,7 +384,8 @@ import {getFormateDate} from "@/api/common.js";
       center
       width="30%"
       height="200px"
-  >
+  
+      align-center>
     <el-form ref="googleFormRef" :rules="googleRule" :model="googleForm" style="height:100px;margin-top: 20px">
       <el-row>
         <el-col :span="24" style="display: flex;justify-content: center;align-items: center;">

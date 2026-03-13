@@ -28,14 +28,14 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                   <template #label>
                     <span>{{ $t('common.timeRange') }}</span>
                   </template>
-                  <el-date-picker
+                  <DateTimeRangeSplit
                       v-model="filterbox.timeRage"
-                      type="datetimerange"
+                      picker-type="datetime"
                       value-format="yyyy-MM-dd HH:mm:ss"
-                      :placeholder="$t('merchantRecharge.placeholder.dateTime')"
-                      style="width: 400px"
-                  >
-                  </el-date-picker>
+                      :start-placeholder="$t('common.startDate')"
+                      :end-placeholder="$t('common.endDate')"
+                      picker-width="190px"
+                  />
                   <el-button style="width: 80px;display: flex;align-items: center;background-color: deepskyblue;color: black"><SvgIcon name="search" style="width: 20px;height: 20px"/>{{ $t('common.query') }}</el-button>
                 </el-form-item>
               </el-col>
@@ -120,6 +120,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       v-model="dialogFormVisible"
       class="dialog"
       center="true"
+      align-center
       width="40%"
       style="height: 400px;"
       @closed="cancelDialog"

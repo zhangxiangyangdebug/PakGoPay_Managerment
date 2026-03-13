@@ -23,7 +23,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               filterable
           >
           </el-select>
-          <el-button @click="search" style="color: dodgerblue">{{ $t('common.search') }}</el-button>
+          <el-button @click="search" style="color: dodgerblue">{{ $t('common.query') }}</el-button>
         </el-form-item>
       </el-row>
     </div>
@@ -63,6 +63,12 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             v-slot="{row}">
           <div>{{row.currencyAccuracy}}</div>
         </el-table-column>
+        <el-table-column
+            :label="$t('currencyTypeList.column.timezone')"
+            align="center"
+            v-slot="{row}">
+          <div>{{ row.timezone || '-' }}</div>
+        </el-table-column>
 <!--        <el-table-column
             :label="$t('currencyTypeList.column.exchangeRate')"
             align="center"
@@ -70,7 +76,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <div>{{row.exchangeRate}}</div>
         </el-table-column>-->
         <el-table-column
-            :label="$t('common.operate')"
+            :label="$t('common.operation')"
             align="center"
             v-slot="{row}">
           <div style="display: flex;justify-content: center;">
@@ -105,21 +111,40 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           <el-row style="display: flex;justify-content: center;">
             <el-col :span="24" style="display: flex;justify-content: center;">
               <el-form-item :label="$t('currencyTypeList.form.code')" label-width="150px"  prop="currencyType">
-                <el-input style="width: 200px;" v-model="addCurrencyTypeInfo.currencyType"/>
+                <el-input style="width: 200px;" v-model="addCurrencyTypeInfo.currencyType" :disabled="isEditing"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row style="display: flex;justify-content: center;">
             <el-col :span="24" style="display: flex;justify-content: center;">
               <el-form-item :label="$t('currencyTypeList.form.name')" label-width="150px"  prop="name">
-                <el-input style="width: 200px;" v-model="addCurrencyTypeInfo.name"/>
+                <el-input style="width: 200px;" v-model="addCurrencyTypeInfo.name" :disabled="isEditing"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row style="display: flex;justify-content: center;">
             <el-col :span="24" style="display: flex;justify-content: center;">
               <el-form-item :label="$t('currencyTypeList.form.icon')" label-width="150px"  prop="icon">
-                <el-input v-model="addCurrencyTypeInfo.icon" style="width: 200px"/>
+                <el-input v-model="addCurrencyTypeInfo.icon" style="width: 200px" :disabled="isEditing"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row style="display: flex;justify-content: center;">
+            <el-col :span="24" style="display: flex;justify-content: center;">
+              <el-form-item :label="$t('currencyTypeList.form.timezone')" label-width="150px" prop="timezone">
+                <el-select
+                  v-model="addCurrencyTypeInfo.timezone"
+                  style="width: 200px;"
+                  :placeholder="$t('currencyTypeList.placeholder.timezone')"
+                  filterable
+                >
+                  <el-option
+                    v-for="item in timeZoneOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-select>
               </el-form-item>
             </el-col>
           </el-row>
@@ -172,16 +197,15 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       v-model="confirmDialogVisible"
       class="dialog confirm-dialog"
       center
-      width="40%"
-      height="200px"
-      style="min-width: 420px;"
+      align-center
+      width="420px"
     >
       <el-form ref="confirmDataForm" :rules="confirmRule" :model="confirmData" style="height:100px;margin-top: 20px">
         <el-row class="confirm-row">
           <el-col :span="24" style="display: flex;justify-content: center;justify-items: center;align-items: center;">
             <div>
               <el-form-item :label="$t('common.googleCode')" label-width="150px" prop="googleCode" class="confirm-item">
-                <el-input v-model="confirmData.googleCode" style="width: 240px"/>
+                <el-input v-model="confirmData.googleCode" style="width: 200px"/>
               </el-form-item>
             </div>
           </el-col>
@@ -203,6 +227,7 @@ import {
   updateCurrencyType
 } from "@/api/interface/backendInterface.js";
 import {saveDraft, loadDraft, clearDraft} from "@/util/draft.js";
+import { buildFullTimeZoneOptions } from "@/util/timezoneOptions.js";
 
 const CURRENCY_TYPE_DRAFT_KEY = 'draft:CurrencyTypeList:add';
 const buildEmptyCurrencyTypeInfo = () => ({
@@ -210,6 +235,7 @@ const buildEmptyCurrencyTypeInfo = () => ({
   currencyType: '',
   name: '',
   icon: '',
+  timezone: '',
   currencyAccuracy: '',
   isRate: 2,
   exchangeRate: '',
@@ -261,6 +287,7 @@ export default {
           label: this.$t('currencyTypeList.rateMode.fixed')
         }
       ],
+      timeZoneOptions: [],
       rules: {
         currencyType: [
           { required: true, message: this.$t('currencyTypeList.validation.codeRequired'), trigger: 'blur' }
@@ -270,6 +297,9 @@ export default {
         ],
         icon: [
           { required: true, message: this.$t('currencyTypeList.validation.iconRequired'), trigger: 'blur' }
+        ],
+        timezone: [
+          { required: true, message: this.$t('currencyTypeList.validation.timezoneRequired'), trigger: 'change' }
         ],
         currencyAccuracy: [
           { required: true, message: this.$t('currencyTypeList.validation.accuracyRequired'), trigger: 'blur' }
@@ -296,6 +326,16 @@ export default {
     }
   },
   methods: {
+    buildTimeZoneOptions() {
+      return buildFullTimeZoneOptions();
+    },
+    ensureTimeZoneOption(value) {
+      if (!value) return;
+      const exists = this.timeZoneOptions.some(item => item.value === value);
+      if (!exists) {
+        this.timeZoneOptions.unshift({ value, label: value });
+      }
+    },
     saveCurrencyTypeDraft() {
       if (!this.dialogFormVisible || this.isEditing) return;
       saveDraft(CURRENCY_TYPE_DRAFT_KEY, { data: this.addCurrencyTypeInfo || {} });
@@ -305,6 +345,10 @@ export default {
       const draft = loadDraft(CURRENCY_TYPE_DRAFT_KEY);
       if (!draft || !draft.data) return;
       this.addCurrencyTypeInfo = Object.assign(buildEmptyCurrencyTypeInfo(), draft.data);
+      if (!this.addCurrencyTypeInfo.timezone && this.addCurrencyTypeInfo.timeZone) {
+        this.addCurrencyTypeInfo.timezone = this.addCurrencyTypeInfo.timeZone;
+      }
+      this.ensureTimeZoneOption(this.addCurrencyTypeInfo.timezone);
     },
     clearCurrencyTypeDraft() {
       clearDraft(CURRENCY_TYPE_DRAFT_KEY);
@@ -314,7 +358,10 @@ export default {
         if (res.status === 200) {
            if (res.data.code === 0) {
              let allData =  JSON.parse(res.data.data)
-             this.currencyTypeData = allData.currencyTypeDTOList
+             this.currencyTypeData = (allData.currencyTypeDTOList || []).map(item => ({
+               ...item,
+               timezone: item.timezone || item.timeZone || ''
+             }))
              this.currentPage = allData.pageNo
              this.pageSize = allData.pageSize
              this.totalCount = allData.totalNumber
@@ -354,6 +401,10 @@ export default {
       this.dialogFormVisible = true;
       this.dialogTitle = this.$t('currencyTypeList.dialog.edit');
       this.addCurrencyTypeInfo = Object.assign(buildEmptyCurrencyTypeInfo(), row);
+      if (!this.addCurrencyTypeInfo.timezone && this.addCurrencyTypeInfo.timeZone) {
+        this.addCurrencyTypeInfo.timezone = this.addCurrencyTypeInfo.timeZone;
+      }
+      this.ensureTimeZoneOption(this.addCurrencyTypeInfo.timezone);
     },
     handleCurrentChange(val) {
 
@@ -388,9 +439,13 @@ export default {
         this.addCurrencyTypeInfo.googleCode = this.confirmData.googleCode
         this.confirmDialogVisible = false
         this.confirmDialogTitle = ''
+        const submitPayload = {
+          ...this.addCurrencyTypeInfo,
+          timeZone: this.addCurrencyTypeInfo.timezone
+        };
         const request = this.isEditing
-          ? updateCurrencyType(this.addCurrencyTypeInfo)
-          : addCurrencyType(this.addCurrencyTypeInfo);
+          ? updateCurrencyType(submitPayload)
+          : addCurrencyType(submitPayload);
         request.then(res => {
           if (res.status === 200) {
             if (res.data.code !== 0) {
@@ -445,6 +500,7 @@ export default {
     }
   },
   mounted() {
+    this.timeZoneOptions = this.buildTimeZoneOptions();
     getAllCurrencyType().then(res => {
       if (res.status === 200 && res.data.code === 0) {
         this.currencyOptions = JSON.parse(res.data.data).currencyTypeDTOList

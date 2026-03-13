@@ -42,46 +42,48 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         </span>
       </template>
       <div class="main-toolbar" style="height: auto;">
-        <el-form class="main-toolform" style="height: 100%;display:flex;margin-left:3%" ref="filteboxForm"
+        <el-form class="main-toolform withdrawl-history-toolbar-form" style="height: 100%;display:flex;" ref="filteboxForm"
                  :model="filterbox">
-          <el-row>
-            <el-col :span="7">
-              <el-form-item :label="$t('withdrawlHistory.filter.createTime')" label-width="150px" prop="filterDateRange">
-                <el-date-picker
+          <el-row class="withdrawl-history-filter-row" :gutter="0">
+            <el-col :span="8" class="withdrawl-history-filter-col">
+              <el-form-item :label="$t('withdrawlHistory.filter.walletAddr')" label-width="150px" prop="walletAddr">
+                <el-input class="withdrawl-history-filter-input" v-model="filterbox.walletAddr" :placeholder="$t('withdrawlHistory.placeholder.walletAddr')"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8" class="withdrawl-history-filter-col">
+              <el-form-item :label="$t('withdrawlHistory.filter.agentName')" label-width="150px" prop="name">
+                <el-input v-model="filterbox.name" clearable type="text" :placeholder="$t('withdrawlHistory.placeholder.agentName')" class="withdrawl-history-filter-input">
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8" class="withdrawl-history-filter-col">
+              <el-form-item
+                  :label="$t('withdrawlHistory.filter.createTime')"
+                  label-width="150px"
+                  prop="filterDateRange"
+                  class="withdrawl-history-time-item"
+              >
+                <DateTimeRangeSplit
                     v-model="filterbox.filterDateRange"
-                    type="daterange"
-                    :range-separator="$t('common.rangeSeparator')"
-                    :start-placeholder="$t('common.startDate')"
-                    :end-placeholder="$t('common.endDate')"
+                    picker-type="date"
                     format="YYYY/MM/DD"
                     value-format="x"
-                    clearable
-                >
-                </el-date-picker>
-              </el-form-item>
-            </el-col>
-            <el-col :span="7">
-              <el-form-item :label="$t('withdrawlHistory.filter.walletAddr')" label-width="150px" prop="walletAddr">
-                <el-input style="width: 200px" v-model="filterbox.walletAddr" :placeholder="$t('withdrawlHistory.placeholder.walletAddr')"/>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item :label="$t('withdrawlHistory.filter.agentName')" label-width="150px" prop="name">
-                <div style="display: flex;flex-direction: row">
-                  <el-input v-model="filterbox.name" clearable type="text" :placeholder="$t('withdrawlHistory.placeholder.agentName')" style="width:300px">
-                  </el-input>
-                  <el-button class="filterButton" @click="reset('filteboxForm')">
-                    <SvgIcon class="filterButtonSvg" name="search"/>
-                    <div>{{ $t('common.reset') }}</div>
-                  </el-button>
-                  <el-button class="filterButton" @click="search">
-                    <SvgIcon class="filterButtonSvg" name="search"/>
-                    <div>{{ $t('common.search') }}</div>
-                  </el-button>
-                </div>
+                    :clearable="true"
+                    picker-width="160px"
+                />
               </el-form-item>
             </el-col>
           </el-row>
+          <div class="toolbar-action-row">
+            <el-button class="filterButton" @click="reset('filteboxForm')">
+              <SvgIcon class="filterButtonSvg" name="reset"/>
+              <div>{{ $t('common.reset') }}</div>
+            </el-button>
+            <el-button class="filterButton" @click="search">
+              <SvgIcon class="filterButtonSvg" name="search"/>
+              <div>{{ $t('common.search') }}</div>
+            </el-button>
+          </div>
 <!--          <div class="main-toolform-item" style="height: 100%;display: flex;justify-content: space-around;width: 100%">
             <div class="main-toolform-line">创建时间:
               <el-date-picker
@@ -131,7 +133,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
         <SvgIcon name="withdrawl" class="filterButtonSvg"/>
         {{ $t('withdrawlHistory.action.withdrawApply') }}
       </el-button>
-      <el-button @click="createManualAccountAdjustment" class="filterButton">
+      <el-button v-if="isAdmin" @click="createManualAccountAdjustment" class="filterButton">
         <template #icon>
           <div style="width: 100%">
             <SvgIcon class="filterButtonSvg" name="manualaccountadjustment"/>
@@ -262,6 +264,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               :props="agentProps"
               style="width: 200px"
               :placeholder="$t('withdrawlHistory.placeholder.agentSelect')"
+              :disabled="filterAvaiable"
           />
         </el-form-item>
       </el-col>
@@ -317,7 +320,8 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       center
       width="30%"
       height="200px"
-  >
+  
+      align-center>
     <el-form ref="accountGoogleForm" :rules="accountGoogleRule" :model="accountGoogleData" style="height:100px;margin-top: 20px">
       <el-row>
         <el-col :span="24" style="display: flex;justify-content: center;justify-items: center;align-items: center;">
@@ -475,6 +479,7 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
       v-model="confirmDialogVisible"
       class="dialog"
       center
+      align-center
       width="30%"
       height="200px"
   >
@@ -506,6 +511,7 @@ import {
 } from "@/api/interface/backendInterface.js";
 import {exportExcel, getAgentAccountTitle, getFormateTime, getMerchantAccountTitle, loadingBody} from "@/api/common.js";
 import {saveDraft, loadDraft, clearDraft} from "@/util/draft.js";
+import { getTimeZoneOffsetMinutes } from "@/util/timezoneOptions.js";
 
 const AGENT_ACCOUNT_DRAFT_KEY = 'draft:WithdrawlHistory:agentAccount';
 const WITHDRAW_ORDER_DRAFT_KEY = 'draft:WithdrawlHistory:withdrawOrder';
@@ -543,6 +549,8 @@ export default {
       selectedAgentOptions: [],
       selectedAgentBalance: {},
       amountInfo: {},
+      roleName: '',
+      isAdmin: false,
       filterAvaiable: false,
       timeZoneKey: localStorage.getItem("timeZone") || "UTC+8",
       withdrawOrderInfo: buildEmptyWithdrawOrderInfo(),
@@ -712,15 +720,11 @@ export default {
       clearDraft(WITHDRAW_ORDER_DRAFT_KEY);
     },
     formatTimeByZone(ts) {
-      const match = /UTC([+-])(\d{1,2})(?::(\d{2}))?/.exec(this.timeZoneKey);
       const baseMillis = ts * 1000;
-      if (!match) {
+      const offsetMinutes = getTimeZoneOffsetMinutes(this.timeZoneKey, baseMillis);
+      if (offsetMinutes === null) {
         return getFormateDate(ts);
       }
-      const sign = match[1] === "-" ? -1 : 1;
-      const hours = Number(match[2]);
-      const minutes = Number(match[3] || "0");
-      const offsetMinutes = sign * (hours * 60 + minutes);
       const zoned = new Date(baseMillis + offsetMinutes * 60000);
       const year = zoned.getFullYear();
       const month = String(zoned.getMonth() + 1).padStart(2, '0');
@@ -737,6 +741,39 @@ export default {
         walletAddr: '',
         status: 1
       }
+    },
+    getCurrentAgentOption() {
+      const currentUserName = localStorage.getItem('userName') || '';
+      if (!currentUserName || !Array.isArray(this.agentOptions) || !this.agentOptions.length) {
+        return null;
+      }
+      return this.agentOptions.find((item) => (
+        item?.accountName === currentUserName ||
+        item?.userName === currentUserName ||
+        item?.merchantUserName === currentUserName
+      )) || (this.agentOptions.length === 1 ? this.agentOptions[0] : null);
+    },
+    applyCurrentAgentForCreateAccount() {
+      if (!this.filterAvaiable) return;
+      const currentAgent = this.getCurrentAgentOption();
+      if (!currentAgent) return;
+      this.createAgentAccountModel.merchantAgentId = currentAgent.userId || currentAgent.merchantAgentId || '';
+    },
+    applyCurrentAgentForWithdrawOrder() {
+      if (!this.filterAvaiable) return;
+      const currentAgent = this.getCurrentAgentOption();
+      if (!currentAgent) return;
+      const userId = currentAgent.userId || currentAgent.merchantAgentId || '';
+      this.withdrawOrderInfo.merchantAgentId = userId;
+      this.handleAgentChange(userId);
+    },
+    applyCurrentAgentForManualAdjustment() {
+      if (!this.filterAvaiable) return;
+      const currentAgent = this.getCurrentAgentOption();
+      if (!currentAgent) return;
+      const userId = currentAgent.userId || currentAgent.merchantAgentId || '';
+      this.manualAccountAdjustmentOrderInfo.merchantAgentId = userId;
+      this.handleAdjustAgentChange(userId);
     },
     resetAccountGoogleForm() {
       this.accountGoogleData = {
@@ -838,11 +875,13 @@ export default {
     },
     addWithdrawlAccount() {
       this.resetCreateAccountForm()
+      this.applyCurrentAgentForCreateAccount()
       this.createAccountVisible = true
       this.createAccountTitle = this.$t('withdrawlHistory.dialog.addTitle')
       this.dialogType = 'create'
       this.submitType = 'create'
       this.loadAgentAccountDraft()
+      this.applyCurrentAgentForCreateAccount()
     },
     createWithdrawlApply() {
 // set withdraw merchant
@@ -855,8 +894,12 @@ export default {
       this.dialogWithdrawTitle = this.$t('withdrawlHistory.dialog.withdrawTitle')
       this.withdrawOrderInfo.orderType = 2
       this.loadWithdrawOrderDraft()
+      this.applyCurrentAgentForWithdrawOrder()
     },
     createManualAccountAdjustment() {
+      if (!this.isAdmin) {
+        return;
+      }
       this.manualAccountAdjustmentOrderInfo = {
         merchantAgentId: '',
         merchantAgentName: '',
@@ -868,6 +911,7 @@ export default {
       }
       this.dialogManualAccountAdjustmentVisible = true
       this.dialogManualAccountAdjustmentTitle = this.$t('withdrawlAccount.dialog.manualAdjustTitle')
+      this.applyCurrentAgentForManualAdjustment()
     },
     editAgentAccount(row) {
       this.createAgentAccountModel = Object.assign({}, row)
@@ -976,6 +1020,8 @@ export default {
       const orderMessage = this.$t(orderMessageKey)
       this.$refs[form].validate(validate => {
         if (validate) {
+          // agent account page: always submit agent role implicitly
+          this.confirmData.userRole = 2
           createStatementeOrderApply(this.confirmData).then(res => {
             this.confirmDialogTitle=''
             this.confirmDialogVisible = false
@@ -1156,12 +1202,20 @@ export default {
           this.agentOptions.forEach(item => {
             this.amountInfo[item.userId] = item.balanceInfo
           })
+          this.applyCurrentAgentForCreateAccount()
+          if (this.dialogWithdrawVisible) {
+            this.applyCurrentAgentForWithdrawOrder()
+          }
+          if (this.dialogManualAccountAdjustmentVisible) {
+            this.applyCurrentAgentForManualAdjustment()
+          }
         }
       })
     }
   },
   async mounted() {
     this.roleName = localStorage.getItem("roleName")
+    this.isAdmin = this.roleName === 'admin'
     this.filterbox.name = this.roleName=== 'agent'? localStorage.getItem('userName') : null
     this.filterAvaiable = this.roleName === 'agent'? true : false
     this._timeZoneListener = (event) => {
@@ -1208,6 +1262,44 @@ export default {
 <style scoped>
 @import "@/api/common.css";
 @import "@/assets/base.css";
+
+.withdrawl-history-toolbar-form{
+  width: 100%;
+}
+
+.withdrawl-history-filter-row{
+  width: 100%;
+}
+
+.withdrawl-history-filter-col{
+  display: flex;
+  justify-content: center;
+}
+
+.withdrawl-history-filter-col .el-form-item{
+  width: 350px;
+}
+
+.withdrawl-history-time-item{
+  width: 480px !important;
+}
+
+.withdrawl-history-filter-input{
+  width: 200px !important;
+}
+
+.withdrawl-history-date-input{
+  width: 160px !important;
+}
+
+:deep(.withdrawl-history-date-input.el-date-editor.el-range-editor){
+  width: 160px !important;
+  min-width: 160px !important;
+}
+
+:deep(.withdrawl-history-date-input .el-range-input){
+  width: 60px !important;
+}
 
 .cash-text-area {
   width: 90%;

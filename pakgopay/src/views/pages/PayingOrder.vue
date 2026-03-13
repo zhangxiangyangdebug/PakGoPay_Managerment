@@ -1,6 +1,7 @@
 <script setup>
 
 import SvgIcon from "@/components/SvgIcon/index.vue";
+import { Loading } from "@element-plus/icons-vue";
 import {getCallBackStatus, getOrderStatus, getOrderStatusOptions, getTimeFromTimestamp, getTodayStartTimestamp} from "@/api/common.js";
 </script>
 
@@ -14,29 +15,15 @@ import {getCallBackStatus, getOrderStatus, getOrderStatusOptions, getTimeFromTim
           {{ $t('common.toolbar') }}
         </span>
         </template>
-        <div class="main-toolbar" style="height: 230px;width: 97%;">
+        <div class="main-toolbar" style="height: auto; width: 97%;">
           <el-form
-              class="main-toolform"
+              class="main-toolform paying-order-toolform"
               style="height: 100%;"
               ref="filterboxForm"
               :model="filterbox"
               label-width="150px"
               label-position="right"
           >
-            <el-row>
-              <el-col :offset="18" :span="6">
-                <div class="toolbar-action-row" style="margin-right: 180px;">
-                  <el-button @click="search()" class="filterButton">
-                    <SvgIcon class="filterButtonSvg" name="search"/>
-                    <div>{{ $t('common.query') }}</div>
-                  </el-button>
-                  <el-button @click="reset('filterboxForm')" class="filterButton">
-                    <SvgIcon class="filterButtonSvg" name="reset"/>
-                    <div>{{ $t('common.reset') }}</div>
-                  </el-button>
-                </div>
-              </el-col>
-            </el-row>
             <el-row>
               <el-col :span="6">
                 <el-form-item :label="$t('payingOrder.filter.orderStatus')" label-width="150px" prop="orderStatus">
@@ -94,16 +81,18 @@ import {getCallBackStatus, getOrderStatus, getOrderStatusOptions, getTimeFromTim
               </el-col>
               <el-col :span="6">
                 <el-form-item :label="$t('payingOrder.filter.orderType')" label-width="150px" prop="orderType">
-                  <el-select
-                      v-model="filterbox.orderType"
-                      style="width: 200px"
-                      clearable
-                  >
-                    <el-option :value="1" :label="$t('payingOrder.orderType.system')"></el-option>
-                    <el-option :value="2" :label="$t('payingOrder.orderType.manual')"></el-option>
-                  </el-select>
-                </el-form-item>
-              </el-col>
+                <el-select
+                    v-model="filterbox.orderType"
+                    style="width: 200px"
+                    clearable
+                >
+                  <el-option :value="1" :label="$t('payingOrder.orderType.system')"></el-option>
+                  <el-option :value="2" :label="$t('payingOrder.orderType.manual')"></el-option>
+                  <el-option :value="3" :label="$t('payingOrder.orderType.test')"></el-option>
+                  <el-option :value="4" :label="$t('payingOrder.orderType.halfTest')"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
               <el-col :span="6">
                 <el-form-item :label="$t('payingOrder.filter.transactionNo')" label-width="150px" prop="transactionNo">
                   <el-input v-model="filterbox.transactionNo" style="width: 200px"/>
@@ -122,22 +111,30 @@ import {getCallBackStatus, getOrderStatus, getOrderStatusOptions, getTimeFromTim
                   <el-input type="number" v-model="filterbox.amount" style="width: 200px"/>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
-                <el-form-item :label="$t('payingOrder.filter.createTime')">
-                  <el-date-picker
+              <el-col :span="12">
+                <el-form-item :label="$t('payingOrder.filter.createTime')" label-width="150px">
+                  <DateTimeRangeSplit
                       v-model="filterbox.filterDateRange"
-                      type="datetimerange"
                       :clearable="false"
-                      :range-separator="$t('common.rangeSeparator')"
-                      :start-placeholder="$t('common.startDate')"
-                      :end-placeholder="$t('common.endDate')"
+                      picker-type="datetime"
                       format="YYYY/MM/DD HH:mm:ss"
                       value-format="x"
+                      picker-width="200px"
                       @change="handleDateRangeChange"
                   />
                 </el-form-item>
               </el-col>
             </el-row>
+            <div class="toolbar-action-row">
+              <el-button @click="search()" class="filterButton">
+                <SvgIcon class="filterButtonSvg" name="search"/>
+                <div>{{ $t('common.query') }}</div>
+              </el-button>
+              <el-button @click="reset('filterboxForm')" class="filterButton">
+                <SvgIcon class="filterButtonSvg" name="reset"/>
+                <div>{{ $t('common.reset') }}</div>
+              </el-button>
+            </div>
           </el-form>
         </div>
       </el-collapse-item>
@@ -237,7 +234,7 @@ import {getCallBackStatus, getOrderStatus, getOrderStatusOptions, getTimeFromTim
     <div class="reportInfo">
       <div class="main-views-form" style="width: auto;height:60%;overflow-y: auto">
         <div style="display: flex; float: right">
-          <el-button @click="createPathChannel()" class="filterButton">
+          <el-button v-if="isAdmin" @click="createPathChannel()" class="filterButton">
             <SvgIcon class="filterButtonSvg" name="createOrder"/>
             <div>{{ $t('orderCommon.action.createOrder') }}</div>
           </el-button>
@@ -307,7 +304,7 @@ import {getCallBackStatus, getOrderStatus, getOrderStatusOptions, getTimeFromTim
               v-slot="{row}"
               align="center"
           >
-            <div>{{ row.orderType === 1 ? $t('payingOrder.orderType.system') : $t('payingOrder.orderType.manual') }}</div>
+            <div>{{ getOrderTypeLabel(row.orderType) }}</div>
           </el-table-column>
           <el-table-column
               prop="orderAmount"
@@ -358,7 +355,7 @@ import {getCallBackStatus, getOrderStatus, getOrderStatusOptions, getTimeFromTim
               v-slot="{row}"
               align="center"
           >
-            <div>{{ row.requestIP }}</div>
+            <div>{{ row.requestIp }}</div>
           </el-table-column>
           <el-table-column
               width="100"
@@ -366,14 +363,26 @@ import {getCallBackStatus, getOrderStatus, getOrderStatusOptions, getTimeFromTim
               align="center"
               v-slot="{row}"
               fixed="right"
+              v-if="isAdmin"
           >
-            <el-dropdown v-if="shouldShowActionMenu(row)" trigger="click">
+            <el-dropdown v-if="shouldShowActionMenu(row)" trigger="click" :hide-on-click="false">
               <SvgIcon name="more" width="30" height="30"/>
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item v-if="row.orderStatus === 1" @click="startUser(row)">{{ $t('payingOrder.action.review') }}</el-dropdown-item>
                   <!--                  <el-dropdown-item @click="editUser(row)">编辑</el-dropdown-item>-->
                   <el-dropdown-item v-if="shouldShowCallbackAction(row)" @click="callback(row)">{{ $t('payingOrder.action.callback') }}</el-dropdown-item>
+                  <el-dropdown-item
+                    v-if="shouldShowOrderFlowLogAction(row)"
+                    :disabled="isOrderFlowLoading(row)"
+                    @click="viewOrderFlowLogs(row)"
+                  >
+                    <el-icon v-if="isOrderFlowLoading(row)" class="is-loading">
+                      <Loading />
+                    </el-icon>
+                    <span v-else>{{ $t('log.operation.title') }}</span>
+                  </el-dropdown-item>
+                  <el-dropdown-item v-if="shouldShowReverseAction(row)" @click="reverseOrder(row)">{{ $t('common.reverse') }}</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -448,7 +457,8 @@ import {getCallBackStatus, getOrderStatus, getOrderStatusOptions, getTimeFromTim
       <el-button type="primary" @click="submitCreateOrder">{{ $t('common.confirm') }}</el-button>
     </template>
   </el-dialog>
-  <el-dialog v-model="createGoogleConfirmVisible" :title="$t('common.googleCode')" width="420px">
+  <el-dialog v-model="createGoogleConfirmVisible" :title="$t('common.googleCode')" width="420px"
+      align-center>
     <el-form ref="createGoogleConfirmFormRef" :model="createGoogleConfirmForm" :rules="createGoogleConfirmRules" label-width="110px">
       <el-form-item :label="$t('common.googleCode')" prop="googleCode">
         <el-input v-model="createGoogleConfirmForm.googleCode" />
@@ -473,13 +483,17 @@ import {getCallBackStatus, getOrderStatus, getOrderStatusOptions, getTimeFromTim
           <el-option :label="$t('orderCommon.option.failed')" value="3" />
         </el-select>
       </el-form-item>
+      <el-form-item :label="$t('withdrawlAccount.form.remark')" prop="remark">
+        <el-input v-model="callbackForm.remark" type="textarea" :rows="3" />
+      </el-form-item>
     </el-form>
     <template #footer>
       <el-button @click="callbackDialogVisible = false">{{ $t('common.cancel') }}</el-button>
       <el-button type="primary" @click="submitCallback">{{ $t('common.confirm') }}</el-button>
     </template>
   </el-dialog>
-  <el-dialog v-model="googleConfirmVisible" :title="$t('common.googleCode')" width="420px">
+  <el-dialog v-model="googleConfirmVisible" :title="$t('common.googleCode')" width="420px"
+      align-center>
     <el-form ref="googleConfirmFormRef" :model="googleConfirmForm" :rules="googleConfirmRules" label-width="110px">
       <el-form-item :label="$t('common.googleCode')" prop="googleCode">
         <el-input v-model="googleConfirmForm.googleCode" />
@@ -490,14 +504,80 @@ import {getCallBackStatus, getOrderStatus, getOrderStatusOptions, getTimeFromTim
       <el-button type="primary" @click="confirmCallback">{{ $t('common.confirm') }}</el-button>
     </template>
   </el-dialog>
+  <el-dialog v-model="reverseRemarkVisible" :title="$t('common.reverse')" width="420px"
+      align-center>
+    <el-form ref="reverseRemarkFormRef" :model="reverseRemarkForm" :rules="reverseRemarkRules" label-width="110px">
+      <el-form-item :label="$t('withdrawlAccount.form.remark')" prop="remark">
+        <el-input v-model="reverseRemarkForm.remark" type="textarea" :rows="3" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="closeReverseRemark">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="submitReverseRemark">{{ $t('common.confirm') }}</el-button>
+    </template>
+  </el-dialog>
+  <el-dialog v-model="reverseGoogleConfirmVisible" :title="$t('common.googleCode')" width="420px"
+      align-center>
+    <el-form ref="reverseGoogleConfirmFormRef" :model="reverseGoogleConfirmForm" :rules="reverseGoogleConfirmRules" label-width="110px">
+      <el-form-item :label="$t('common.googleCode')" prop="googleCode">
+        <el-input v-model="reverseGoogleConfirmForm.googleCode" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="closeReverseGoogleConfirm">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" @click="confirmReverseOrder">{{ $t('common.confirm') }}</el-button>
+    </template>
+  </el-dialog>
+  <el-drawer
+    v-model="orderFlowLogVisible"
+    :title="$t('log.operation.title')"
+    direction="rtl"
+    size="720px"
+    :append-to-body="true"
+    :modal="false"
+    @open="bindOrderFlowOutsideClose"
+    @closed="unbindOrderFlowOutsideClose"
+  >
+    <div class="order-flow-log-body">
+      <div class="order-flow-log-header">订单号：{{ orderFlowTransactionNo || '-' }}</div>
+      <div class="order-flow-log-subtitle">操作记录：</div>
+      <div v-if="orderFlowLogTables.length">
+        <div
+          v-for="(tableRows, index) in orderFlowLogTables"
+          :key="index"
+          :class="['order-flow-log-table-wrap', { 'order-flow-log-table-failed': isOrderFlowFailed(tableRows) }]"
+        >
+          <el-table :data="tableRows" border :show-header="false" class="order-flow-log-table">
+            <el-table-column prop="field" width="220" />
+            <el-table-column prop="value">
+              <template #default="{ row }">
+                <span class="order-flow-log-value">{{ formatOrderFlowCell(row.value) }}</span>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </div>
+      <el-input
+        v-else
+        v-model="orderFlowLogText"
+        type="textarea"
+        :rows="10"
+        readonly
+      />
+    </div>
+    <template #footer>
+      <el-button @click="orderFlowLogVisible = false">{{ $t('common.close') }}</el-button>
+    </template>
+  </el-drawer>
 </template>
 <script>
 import {
   getAllCurrencyType,
   getChannelInfo,
   getCollectionOrder,
-  getMerchantInfo, getPayingOrder, manualCreatePayOutOrder, manualNotifyPayOutOrder, queryMerchantAvailableChannels, queryOpsOrderCardInfo
+  getMerchantInfo, getPayingOrder, manualCreatePayOutOrder, manualNotifyPayOutOrder, manualReverseOrder, queryMerchantAvailableChannels, queryOpsOrderCardInfo, queryOrderFlowLogs
 } from "@/api/interface/backendInterface.js";
+import { getTimeZoneOffsetMinutes } from "@/util/timezoneOptions.js";
 
 export default {
   data() {
@@ -595,21 +675,45 @@ export default {
       callbackForm: {
         transactionNo: '',
         merchantNo: '',
-        status: '2'
+        status: '2',
+        remark: ''
       },
       googleConfirmVisible: false,
       googleConfirmForm: {
         googleCode: ''
       },
+      reverseGoogleConfirmVisible: false,
+      reverseGoogleConfirmForm: {
+        googleCode: ''
+      },
+      reverseRemarkVisible: false,
+      reverseRemarkForm: {
+        remark: ''
+      },
+      reverseOrderPayload: null,
+      orderFlowLogVisible: false,
+      orderFlowTransactionNo: '',
+      orderFlowLogText: '',
+      orderFlowLogTables: [],
+      orderFlowOutsideCloseHandler: null,
+      orderFlowLoadingMap: {},
       callbackRules: {
         transactionNo: [{ required: true, message: this.$t('orderCommon.validation.merchantOrderNoRequired'), trigger: 'blur' }],
         merchantNo: [{ required: true, message: this.$t('orderCommon.validation.merchantIdRequired'), trigger: 'blur' }],
-        status: [{ required: true, message: this.$t('orderCommon.validation.orderStatusRequired'), trigger: 'change' }]
+        status: [{ required: true, message: this.$t('orderCommon.validation.orderStatusRequired'), trigger: 'change' }],
+        remark: [{ required: true, message: this.$t('withdrawlAccount.validation.remarkRequired'), trigger: 'blur' }]
       },
       googleConfirmRules: {
         googleCode: [{ required: true, message: this.$t('common.googleCodeRequired'), trigger: 'blur' }]
       },
+      reverseGoogleConfirmRules: {
+        googleCode: [{ required: true, message: this.$t('common.googleCodeRequired'), trigger: 'blur' }]
+      },
+      reverseRemarkRules: {
+        remark: [{ required: true, message: this.$t('withdrawlAccount.validation.remarkRequired'), trigger: 'blur' }]
+      },
       callbackLoadingMap: {},
+      isAdmin: false,
     }
   },
   methods: {
@@ -644,6 +748,7 @@ export default {
       return [dayStart, dayStart]
     },
     createPathChannel() {
+      if (!this.isAdmin) return
       this.createPaymentOptions = []
       this.createPaymentMetaMap = {}
       this.createOrderForm.paymentNo = ''
@@ -1079,10 +1184,12 @@ export default {
       })
     },
     callback(row) {
+      if (!this.isAdmin) return
       this.callbackForm = {
         transactionNo: row?.transactionNo || row?.merchantOrderNo || '',
         merchantNo: row?.merchantNo || row?.merchantUserId || '',
-        status: '2'
+        status: '2',
+        remark: ''
       }
       this.googleConfirmForm.googleCode = ''
       this.callbackDialogVisible = true
@@ -1091,6 +1198,7 @@ export default {
       })
     },
     submitCallback() {
+      if (!this.isAdmin) return
       this.$refs.callbackFormRef.validate((valid) => {
         if (!valid) return
         this.googleConfirmVisible = true
@@ -1105,6 +1213,7 @@ export default {
       this.$refs.googleConfirmFormRef?.resetFields()
     },
     confirmCallback() {
+      if (!this.isAdmin) return
       this.$refs.googleConfirmFormRef.validate((valid) => {
         if (!valid) return
         const payload = {
@@ -1262,7 +1371,20 @@ export default {
     isCallbackPending(callbackStatus) {
       return String(callbackStatus ?? '').trim() === '0';
     },
+    isTestOrderType(orderType) {
+      const value = String(orderType ?? '').trim();
+      return value === '3' || value === '4';
+    },
+    getOrderTypeLabel(orderType) {
+      const value = String(orderType ?? '').trim();
+      if (value === '1') return this.$t('payingOrder.orderType.system');
+      if (value === '2') return this.$t('payingOrder.orderType.manual');
+      if (value === '3') return this.$t('payingOrder.orderType.test');
+      if (value === '4') return this.$t('payingOrder.orderType.halfTest');
+      return '-';
+    },
     shouldShowCallbackAction(row) {
+      if (!this.isAdmin) return false;
       if (this.isCallbackLoading(row)) return false;
       const orderStatus = String(row?.orderStatus ?? '').trim();
       const callbackStatus = String(row?.callbackStatus ?? '').trim();
@@ -1270,8 +1392,317 @@ export default {
       return (orderStatus === '4' && callbackStatus === '0')
         || (orderStatus === '2' && callbackStatus === '1');
     },
+    shouldShowReverseAction(row) {
+      if (!this.isAdmin) return false;
+      const orderStatus = String(row?.orderStatus ?? '').trim();
+      const orderType = String(row?.orderType ?? '').trim();
+      return orderStatus === '2' && (orderType === '3' || orderType === '4');
+    },
+    shouldShowOrderFlowLogAction(row) {
+      if (!this.isAdmin) return false;
+      return !!String(row?.transactionNo || '').trim();
+    },
     shouldShowActionMenu(row) {
-      return row?.orderStatus === 1 || this.shouldShowCallbackAction(row);
+      if (!this.isAdmin) return false;
+      return row?.orderStatus === 1
+        || this.shouldShowCallbackAction(row)
+        || this.shouldShowReverseAction(row)
+        || this.shouldShowOrderFlowLogAction(row);
+    },
+    viewOrderFlowLogs(row) {
+      const transactionNo = String(row?.transactionNo || '').trim();
+      if (!transactionNo) {
+        this.$notify({
+          title: this.$t('common.error'),
+          type: 'error',
+          duration: 3000,
+          position: 'bottom-right',
+          message: this.$t('common.requestFailed')
+        });
+        return;
+      }
+      const loadingKey = this.buildOrderFlowLoadingKey(row);
+      this.setOrderFlowLoading(loadingKey, true);
+      queryOrderFlowLogs({ transactionNo }).then((res) => {
+        if (res.status === 200 && res.data.code === 0) {
+          this.orderFlowLogTables = [];
+          this.orderFlowTransactionNo = transactionNo;
+          this.orderFlowLogText = '';
+          let payload = res.data?.data;
+          if (typeof payload === 'string') {
+            try {
+              payload = JSON.parse(payload);
+            } catch (e) {
+              // keep original string
+            }
+          }
+          const normalized = this.normalizeOrderFlowPayload(payload, transactionNo);
+          this.orderFlowTransactionNo = normalized.transactionNo || transactionNo;
+          this.orderFlowLogTables = normalized.flowLogs.map((item) => this.mapFlowLogItemToTableRows(item));
+          if (!this.orderFlowLogTables.length) {
+            this.orderFlowLogText = typeof payload === 'string'
+              ? payload
+              : JSON.stringify(payload ?? {}, null, 2);
+          }
+          this.closeActionDropdowns();
+          this.orderFlowLogVisible = true;
+          return;
+        }
+        this.$notify({
+          title: this.$t('common.error'),
+          type: 'error',
+          duration: 3000,
+          position: 'bottom-right',
+          message: res.data?.message || this.$t('common.requestFailed')
+        });
+      }).catch((err) => {
+        this.$notify({
+          title: this.$t('common.error'),
+          type: 'error',
+          duration: 3000,
+          position: 'bottom-right',
+          message: err.message || this.$t('common.requestFailed')
+        });
+      }).finally(() => {
+        this.setOrderFlowLoading(loadingKey, false);
+      });
+    },
+    buildOrderFlowLoadingKey(payloadOrRow) {
+      const key = payloadOrRow?.transactionNo || payloadOrRow?.merchantOrderNo || payloadOrRow?.orderId || '';
+      return String(key || '').trim();
+    },
+    setOrderFlowLoading(key, loading) {
+      if (!key) return;
+      if (loading) {
+        this.orderFlowLoadingMap = { ...this.orderFlowLoadingMap, [key]: true };
+        return;
+      }
+      const nextMap = { ...this.orderFlowLoadingMap };
+      delete nextMap[key];
+      this.orderFlowLoadingMap = nextMap;
+    },
+    isOrderFlowLoading(row) {
+      const key = this.buildOrderFlowLoadingKey(row);
+      return !!(key && this.orderFlowLoadingMap[key]);
+    },
+    closeActionDropdowns() {
+      if (typeof document === 'undefined') return;
+      document.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    },
+    normalizeOrderFlowPayload(payload, defaultTransactionNo) {
+      const result = { transactionNo: defaultTransactionNo || '', flowLogs: [] };
+      if (Array.isArray(payload)) {
+        result.flowLogs = payload;
+        return result;
+      }
+      if (payload && typeof payload === 'object') {
+        result.transactionNo = String(
+          payload.transactionNo || payload.orderNo || payload.platformOrderNo || defaultTransactionNo || ''
+        ).trim();
+        if (Array.isArray(payload.flowLogs)) {
+          result.flowLogs = payload.flowLogs;
+          return result;
+        }
+        if (Array.isArray(payload.orderFlowLogs)) {
+          result.flowLogs = payload.orderFlowLogs;
+          return result;
+        }
+        const firstArray = Object.values(payload).find((v) => Array.isArray(v));
+        if (Array.isArray(firstArray)) {
+          result.flowLogs = firstArray;
+          return result;
+        }
+        result.flowLogs = [payload];
+        return result;
+      }
+      return result;
+    },
+    mapFlowLogItemToTableRows(item) {
+      if (item && typeof item === 'object' && !Array.isArray(item)) {
+        const keys = Object.keys(item).filter((key) => !['id', 'stepCode', 'transactionNo'].includes(key));
+        const orderedKeys = this.sortOrderFlowKeys(keys);
+        return orderedKeys
+          .map((key) => ({
+            field: this.getOrderFlowFieldLabel(key),
+            value: this.normalizeOrderFlowFieldValue(key, item[key])
+          }));
+      }
+      return [{ field: this.getOrderFlowFieldLabel('value'), value: item }];
+    },
+    sortOrderFlowKeys(keys) {
+      const priority = ['stepSeq', 'stepName', 'eventTime', 'createTime', 'payload', 'success', 'traceId'];
+      return [...keys].sort((a, b) => {
+        const ai = priority.indexOf(a);
+        const bi = priority.indexOf(b);
+        const pa = ai === -1 ? Number.MAX_SAFE_INTEGER : ai;
+        const pb = bi === -1 ? Number.MAX_SAFE_INTEGER : bi;
+        if (pa !== pb) return pa - pb;
+        return String(a).localeCompare(String(b));
+      });
+    },
+    getOrderFlowFieldLabel(field) {
+      const map = {
+        createTime: this.$t('orderFlow.field.createTime'),
+        eventTime: this.$t('orderFlow.field.eventTime'),
+        payload: this.$t('orderFlow.field.payload'),
+        stepName: this.$t('orderFlow.field.stepName'),
+        stepSeq: this.$t('orderFlow.field.stepSeq'),
+        success: this.$t('orderFlow.field.success'),
+        traceId: this.$t('orderFlow.field.traceId'),
+        value: this.$t('orderFlow.field.value')
+      };
+      return map[field] || field;
+    },
+    normalizeOrderFlowFieldValue(field, value) {
+      if ((field === 'createTime' || field === 'eventTime') && value !== null && value !== undefined && value !== '') {
+        return getTimeFromTimestamp(value);
+      }
+      if (field === 'payload') {
+        if (typeof value === 'string') {
+          try {
+            return JSON.stringify(JSON.parse(value), null, 2);
+          } catch (e) {
+            return value;
+          }
+        }
+        if (value && typeof value === 'object') {
+          try {
+            return JSON.stringify(value, null, 2);
+          } catch (e) {
+            return String(value);
+          }
+        }
+      }
+      if (field === 'success') {
+        const text = String(value ?? '').trim().toLowerCase();
+        if (text === '1' || text === 'true' || text === 'success' || text === 'yes') return this.$t('common.yes');
+        if (text === '0' || text === 'false' || text === 'fail' || text === 'no') return this.$t('common.no');
+      }
+      return value;
+    },
+    formatOrderFlowCell(value) {
+      if (value === null || value === undefined || value === '') return '-';
+      if (typeof value === 'object') {
+        try {
+          return JSON.stringify(value);
+        } catch (e) {
+          return String(value);
+        }
+      }
+      return String(value);
+    },
+    isOrderFlowFailed(tableRows) {
+      if (!Array.isArray(tableRows)) return false;
+      const successLabel = this.getOrderFlowFieldLabel('success');
+      const successRow = tableRows.find((row) => row?.field === successLabel || row?.field === 'success');
+      if (!successRow) return false;
+      const raw = String(successRow.value ?? '').trim().toLowerCase();
+      const noText = String(this.$t('common.no') || '').trim().toLowerCase();
+      return raw === '0'
+        || raw === 'false'
+        || raw === 'fail'
+        || raw === 'failed'
+        || raw === 'no'
+        || (noText && raw === noText);
+    },
+    bindOrderFlowOutsideClose() {
+      if (this.orderFlowOutsideCloseHandler) return;
+      this.orderFlowOutsideCloseHandler = (event) => {
+        if (!this.orderFlowLogVisible) return;
+        const target = event.target;
+        const drawerEl = document.querySelector('.el-drawer');
+        if (!drawerEl) return;
+        if (target instanceof Node && !drawerEl.contains(target)) {
+          this.orderFlowLogVisible = false;
+        }
+      };
+      document.addEventListener('click', this.orderFlowOutsideCloseHandler, true);
+    },
+    unbindOrderFlowOutsideClose() {
+      if (!this.orderFlowOutsideCloseHandler) return;
+      document.removeEventListener('click', this.orderFlowOutsideCloseHandler, true);
+      this.orderFlowOutsideCloseHandler = null;
+    },
+    reverseOrder(row) {
+      this.reverseOrderPayload = {
+        transactionNo: row?.transactionNo || '',
+        bizType: 1
+      }
+      this.reverseRemarkForm.remark = ''
+      this.reverseRemarkVisible = true
+      this.$nextTick(() => {
+        this.$refs.reverseRemarkFormRef?.clearValidate()
+      })
+    },
+    closeReverseRemark() {
+      this.reverseRemarkVisible = false
+      this.reverseRemarkForm.remark = ''
+      this.reverseOrderPayload = null
+      this.$refs.reverseRemarkFormRef?.resetFields()
+    },
+    submitReverseRemark() {
+      if (!this.reverseOrderPayload) return
+      this.$refs.reverseRemarkFormRef.validate((valid) => {
+        if (!valid) return
+        this.reverseRemarkVisible = false
+        this.reverseGoogleConfirmForm.googleCode = ''
+        this.reverseGoogleConfirmVisible = true
+        this.$nextTick(() => {
+          this.$refs.reverseGoogleConfirmFormRef?.clearValidate()
+        })
+      })
+    },
+    closeReverseFlow() {
+      this.reverseGoogleConfirmForm.googleCode = ''
+      this.reverseRemarkForm.remark = ''
+      this.reverseGoogleConfirmVisible = false
+      this.reverseRemarkVisible = false
+      this.reverseOrderPayload = null
+      this.$refs.reverseGoogleConfirmFormRef?.resetFields()
+      this.$refs.reverseRemarkFormRef?.resetFields()
+    },
+    closeReverseGoogleConfirm() {
+      this.closeReverseFlow()
+    },
+    confirmReverseOrder() {
+      if (!this.reverseOrderPayload) return
+      this.$refs.reverseGoogleConfirmFormRef.validate((valid) => {
+        if (!valid) return
+        const payload = {
+          ...this.reverseOrderPayload,
+          remark: this.reverseRemarkForm.remark,
+          googleCode: this.reverseGoogleConfirmForm.googleCode
+        }
+        manualReverseOrder(payload).then((res) => {
+        if (res.status === 200 && res.data.code === 0) {
+          this.$notify({
+            title: this.$t('common.success'),
+            type: 'success',
+            duration: 3000,
+            position: 'bottom-right',
+            message: res.data.message || this.$t('common.updateSuccess')
+          });
+          this.closeReverseFlow()
+          this.search();
+          return;
+        }
+        this.$notify({
+          title: this.$t('common.error'),
+          type: 'error',
+          duration: 3000,
+          position: 'bottom-right',
+          message: res.data?.message || this.$t('common.requestFailed')
+        });
+      }).catch((err) => {
+        this.$notify({
+          title: this.$t('common.error'),
+          type: 'error',
+          duration: 3000,
+          position: 'bottom-right',
+          message: err.message || this.$t('common.requestFailed')
+        });
+      });
+      })
     },
     reset(form) {
       this.$refs[form].resetFields();
@@ -1284,7 +1715,7 @@ export default {
       return getPayingOrder(this.filterbox).then(res => {
         if (res.status === 200 && res.data.code === 0) {
           let allData = JSON.parse(res.data.data)
-          this.payingOrderTableInfo = allData.payOrderDtoList
+          this.payingOrderTableInfo = allData.payOrderDtoList || []
           this.totalCount = allData.totalNumber
           this.pageSize = allData.pageSize
           this.fetchCardInfo();
@@ -1328,32 +1759,21 @@ export default {
       this.filterbox.startTime = Math.floor(Number(range[0]) / 1000)
       this.filterbox.endTime = Math.floor(Number(range[1]) / 1000) + 86399
     },
-    parseOffsetMinutes(tz) {
-      const match = String(tz || '').match(/UTC\s*([+-])\s*(\d{1,2})(?::?(\d{2}))?/i);
-      if (!match) {
-        return null;
-      }
-      const sign = match[1] === '-' ? -1 : 1;
-      const hours = parseInt(match[2], 10);
-      const minutes = match[3] ? parseInt(match[3], 10) : 0;
-      return sign * (hours * 60 + minutes);
+    parseOffsetMinutes(tz, referenceMs) {
+      return getTimeZoneOffsetMinutes(tz, referenceMs);
     },
     toUtcRange(displayRange, tz) {
-      const offset = this.parseOffsetMinutes(tz);
-      if (offset === null) {
-        return displayRange;
-      }
       return displayRange.map((ms) => {
+        const offset = this.parseOffsetMinutes(tz, Number(ms));
+        if (offset === null) return Number(ms);
         const localOffset = new Date(Number(ms)).getTimezoneOffset();
         return Number(ms) - localOffset * 60000 - offset * 60000;
       });
     },
     toDisplayRange(utcRange, tz) {
-      const offset = this.parseOffsetMinutes(tz);
-      if (offset === null) {
-        return utcRange;
-      }
       return utcRange.map((ms) => {
+        const offset = this.parseOffsetMinutes(tz, Number(ms));
+        if (offset === null) return Number(ms);
         const localOffset = new Date(Number(ms)).getTimezoneOffset();
         return Number(ms) + offset * 60000 + localOffset * 60000;
       });
@@ -1452,6 +1872,7 @@ export default {
     });
 
     let roleName = localStorage.getItem('roleName');
+    this.isAdmin = roleName === 'admin'
     if (roleName && roleName !== 'admin') {
       this.filterbox.merchantUserId = localStorage.getItem('userId');
       this.filterAvaiable = true
@@ -1496,6 +1917,7 @@ export default {
     if (this._timeZoneListener) {
       window.removeEventListener("timezone-change", this._timeZoneListener);
     }
+    this.unbindOrderFlowOutsideClose();
   },
   watch: {
     'createOrderForm.paymentNo'(val) {
@@ -1595,6 +2017,48 @@ export default {
   font-size: 10px;
   font-weight: 700;
   line-height: 1;
+}
+
+:deep(.main-toolbar .main-toolform.paying-order-toolform > .el-row) {
+  justify-content: flex-start !important;
+}
+
+:deep(.main-toolbar .main-toolform.paying-order-toolform > .el-row > .el-col) {
+  justify-content: flex-start !important;
+}
+
+.order-flow-log-body {
+  height: calc(100vh - 140px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.order-flow-log-header {
+  margin-bottom: 12px;
+}
+
+.order-flow-log-subtitle {
+  margin-bottom: 10px;
+}
+
+.order-flow-log-table-wrap {
+  margin-bottom: 12px;
+  border: 2px solid #303133;
+  border-radius: 4px;
+  padding: 6px;
+}
+
+.order-flow-log-table {
+  width: 100%;
+}
+
+.order-flow-log-value {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.order-flow-log-table-failed :deep(.el-table__cell .cell) {
+  color: #f56c6c !important;
 }
 
 </style>

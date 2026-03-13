@@ -42,6 +42,94 @@
     width: 100%;
 }
 
+/* Toolbar actions: occupy standalone bottom row and align to bottom-right */
+.main-toolbar .main-toolform{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.main-toolbar .main-toolform .main-toolform-item{
+    width: 100%;
+}
+
+.main-toolbar .main-toolform .main-toolform-item:first-child{
+    order: 99;
+    margin-top: auto;
+    justify-content: flex-end;
+}
+
+.main-toolbar .toolbar-action-row{
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    order: 99;
+    margin-top: 8px;
+}
+
+.toolbar .main-toolform{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.toolbar .toolform{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.toolbar .main-toolform .main-toolform-item:first-child{
+    order: 99;
+    margin-top: auto;
+    justify-content: flex-end;
+}
+
+.toolbar .toolform .toolform-item{
+    width: 100%;
+}
+
+.toolbar .toolbar-action-row{
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    order: 99;
+    margin-top: 8px;
+}
+
+/* Symmetric filter layout for all toolbar rows */
+.main-toolbar .main-toolform,
+.toolbar .main-toolform,
+.toolbar .toolform{
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.main-toolbar .main-toolform > .el-row,
+.toolbar .main-toolform > .el-row,
+.toolbar .toolform > .el-row{
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    justify-content: center !important;
+}
+
+.main-toolbar .main-toolform > .el-row > .el-col,
+.toolbar .main-toolform > .el-row > .el-col,
+.toolbar .toolform > .el-row > .el-col{
+    display: flex;
+    justify-content: center;
+}
+
+.main-toolbar .main-toolform .main-toolform-item,
+.toolbar .main-toolform .main-toolform-item,
+.toolbar .toolform .toolform-item{
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
 .main-toolform-item-filter{
     /*margin-top: 1%;*/
     height: 30%;

@@ -22,6 +22,8 @@ let isRefreshing = false;
 let refreshQueue = [];
 let lastRateLimitNotifyAt = 0;
 const RATE_LIMIT_NOTIFY_COOLDOWN_MS = 3000;
+let lastAuthExpiredNotifyAt = 0;
+const AUTH_EXPIRED_NOTIFY_COOLDOWN_MS = 3000;
 
 function buildRateLimitedData(url) {
     if (!url) return JSON.stringify({});
@@ -47,6 +49,22 @@ function notifyRateLimitedOnce(message) {
         position: 'bottom-right',
         offset: 20
     });
+}
+
+function notifyAuthExpiredOnce() {
+    const now = Date.now();
+    if (now - lastAuthExpiredNotifyAt < AUTH_EXPIRED_NOTIFY_COOLDOWN_MS) {
+        return;
+    }
+    lastAuthExpiredNotifyAt = now;
+    ElNotification({
+        title: 'warn',
+        message: 'login expired, please login again',
+        closeIcon: CloseBold,
+        type: 'error',
+        position: 'bottom-right',
+        offset: 500
+    })
 }
 
 function processRefreshQueue(error, token) {
@@ -79,6 +97,83 @@ function clearAuthAndRedirect() {
     router.push("/web/login");
 }
 
+function buildUnauthorizedError(config, source) {
+    const err = new Error('unauthorized');
+    err.config = config;
+    if (source?.response) {
+        err.response = source.response;
+    }
+    return err;
+}
+
+function handleUnauthorizedByConfig(config, source) {
+    const rejectErr = buildUnauthorizedError(config, source);
+    if (!config) {
+        return Promise.reject(rejectErr);
+    }
+    if (config.skip401Handler) {
+        return Promise.reject(rejectErr);
+    }
+    if (isLoginRoute()) {
+        return Promise.reject(rejectErr);
+    }
+    if (config._retry) {
+        return Promise.reject(rejectErr);
+    }
+
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) {
+        notifyAuthExpiredOnce();
+        clearAuthAndRedirect();
+        return Promise.reject(rejectErr);
+    }
+
+    if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+            refreshQueue.push({ resolve, reject });
+        }).then((token) => {
+            const retryConfig = { ...config };
+            retryConfig.headers = retryConfig.headers || {};
+            retryConfig.headers.Authorization = `Bearer ${token}`;
+            return service(retryConfig);
+        });
+    }
+
+    isRefreshing = true;
+    config._retry = true;
+    return refreshClient.get('/api/pakGoPay/server/Login/refreshToken', {
+        params: { freshToken: refreshToken }
+    }).then((res) => {
+        if (res?.data === 'refresh' || res?.data?.code !== 0) {
+            notifyAuthExpiredOnce();
+            clearAuthAndRedirect();
+            processRefreshQueue(rejectErr, null);
+            return Promise.reject(rejectErr);
+        }
+
+        const token = res?.data?.token || res?.data?.data?.token;
+        const newRefreshToken = res?.data?.refreshToken || res?.data?.data?.refreshToken;
+        if (token) {
+            localStorage.setItem("token", token);
+        }
+        if (newRefreshToken) {
+            localStorage.setItem("refreshToken", newRefreshToken);
+        }
+        processRefreshQueue(null, token);
+        const retryConfig = { ...config };
+        retryConfig.headers = retryConfig.headers || {};
+        retryConfig.headers.Authorization = `Bearer ${token}`;
+        return service(retryConfig);
+    }).catch((err) => {
+        notifyAuthExpiredOnce();
+        clearAuthAndRedirect();
+        processRefreshQueue(err, null);
+        return Promise.reject(err);
+    }).finally(() => {
+        isRefreshing = false;
+    });
+}
+
 service.interceptors.request.use(config => {
     return config;
 }, error => {
@@ -89,6 +184,9 @@ service.interceptors.request.use(config => {
 service.interceptors.response.use(response => {
     if (response?.status === 200 && (response?.data?.rateLimited === true || response?.data?.code === 429) && !response?.data?.rateLimitedNotified) {
         notifyRateLimitedOnce();
+    }
+    if (response?.status === 200 && response?.data?.code === 401) {
+        return handleUnauthorizedByConfig(response.config, { response });
     }
     return response;
 }, error => {
@@ -107,91 +205,7 @@ service.interceptors.response.use(response => {
         });
     }
     if (error.response && error.response.status === 401) {
-        if (error.config && error.config.skip401Handler) {
-            return Promise.reject(error);
-        }
-        if (isLoginRoute()) {
-            return Promise.reject(error);
-        }
-        if (error.config && error.config._retry) {
-            return Promise.reject(error);
-        }
-        const refreshToken = localStorage.getItem('refreshToken');
-        if (!refreshToken) {
-            ElNotification({
-                title: 'warn',
-                message: 'login expired, please login again',
-                closeIcon: CloseBold,
-                type: 'error',
-                position: 'bottom-right',
-                offset: 500
-            })
-            clearAuthAndRedirect();
-            return Promise.reject(error);
-        }
-
-        if (isRefreshing) {
-            return new Promise((resolve, reject) => {
-                refreshQueue.push({ resolve, reject });
-            }).then((token) => {
-                const retryConfig = { ...error.config };
-                retryConfig.headers = retryConfig.headers || {};
-                retryConfig.headers.Authorization = `Bearer ${token}`;
-                return service(retryConfig);
-            });
-        }
-
-        isRefreshing = true;
-        error.config._retry = true;
-        return refreshClient.get('/api/pakGoPay/server/Login/refreshToken', {
-            params: { freshToken: refreshToken }
-        }).then((res) => {
-            if (res?.data === 'refresh' || res?.data?.code !== 0) {
-                ElNotification({
-                    title: 'warn',
-                    message: 'login expired, please login again',
-                    closeIcon: CloseBold,
-                    type: 'error',
-                    position: 'bottom-right',
-                    offset: 500
-                })
-                clearAuthAndRedirect();
-                processRefreshQueue(error, null);
-                return Promise.reject(error);
-            }
-
-            if (res?.data?.code === 0) {
-                const token = res?.data?.token || res?.data?.data?.token;
-                const newRefreshToken = res?.data?.refreshToken || res?.data?.data?.refreshToken;
-                if (token) {
-                    localStorage.setItem("token", token);
-                }
-                if (newRefreshToken) {
-                    localStorage.setItem("refreshToken", newRefreshToken);
-                }
-                processRefreshQueue(null, token);
-                const retryConfig = { ...error.config };
-                retryConfig.headers = retryConfig.headers || {};
-                retryConfig.headers.Authorization = `Bearer ${token}`;
-                return service(retryConfig);
-            }
-
-            return Promise.reject(error);
-        }).catch((err) => {
-            ElNotification({
-                title: 'warn',
-                message: 'login expired, please login again',
-                closeIcon: CloseBold,
-                type: 'error',
-                position: 'bottom-right',
-                offset: 500
-            })
-            clearAuthAndRedirect();
-            processRefreshQueue(err, null);
-            return Promise.reject(err);
-        }).finally(() => {
-            isRefreshing = false;
-        });
+        return handleUnauthorizedByConfig(error.config, error);
     }
     return Promise.reject(error);
 })

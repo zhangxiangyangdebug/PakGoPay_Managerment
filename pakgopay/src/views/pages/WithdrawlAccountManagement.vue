@@ -15,54 +15,55 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
       </template>
       <div class="main-toolbar">
         <el-form class="main-toolform" ref="filterboxForm" :model="filterbox">
-          <el-row style="display: flex;justify-content: space-around;">
-            <el-form-item :label="$t('withdrawlAccount.filter.account')" label-width="150px" prop="name">
-              <el-input style="width: 200px" v-model="filterbox.name" :placeholder="$t('withdrawlAccount.placeholder.account')" :disabled="filterAvaiable"/>
-<!--              <el-select
-                :option="merchantAccountOptions"
-                :props="merchantAccountProps"
-                v-model="filterbox.name"
-                filterable
-                clearable/>-->
-            </el-form-item>
-            <el-form-item :label="$t('withdrawlAccount.filter.walletName')" label-width="150px" prop="walletAddr">
-<!--              <el-input style="width: 200px" v-model="filterbox.walletAddr" placeholder="收款账号"/>-->
-              <el-select
-                :options="merchantAccountOptions"
-                :props="merchantWalletProps"
-                v-model="filterbox.walletAddr"
-                style="width: 200px"
-                clearable
-                filterable
-              >
+          <el-row>
+            <el-col :span="8">
+              <el-form-item :label="$t('withdrawlAccount.filter.account')" label-width="150px" prop="name">
+                <el-input style="width: 200px" v-model="filterbox.name" :placeholder="$t('withdrawlAccount.placeholder.account')" :disabled="filterAvaiable"/>
+  <!--              <el-select
+                  :option="merchantAccountOptions"
+                  :props="merchantAccountProps"
+                  v-model="filterbox.name"
+                  filterable
+                  clearable/>-->
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item :label="$t('withdrawlAccount.filter.walletName')" label-width="150px" prop="walletAddr">
+  <!--              <el-input style="width: 200px" v-model="filterbox.walletAddr" placeholder="收款账号"/>-->
+                <el-select
+                  :options="merchantAccountOptions"
+                  :props="merchantWalletProps"
+                  v-model="filterbox.walletAddr"
+                  style="width: 200px"
+                  clearable
+                  filterable
+                >
 
-              </el-select>
-            </el-form-item>
-            <el-form-item :label="$t('withdrawlAccount.filter.createTime')" label-width="150px" prop="filterDateRange">
-              <el-date-picker
-                  v-model="filterbox.filterDateRange"
-                  type="daterange"
-                  :range-separator="$t('common.rangeSeparator')"
-                  :start-placeholder="$t('common.startDate')"
-                  :end-placeholder="$t('common.endDate')"
-                  format="YYYY/MM/DD"
-                  value-format="x"
-              >
-              </el-date-picker>
-              <div style="display: flex;flex-direction: row;">
-                <el-button @click="reset('filterboxForm')"
-                     class="filterButton">
-                  <SvgIcon class="filterButtonSvg" name="reset"/>
-                  <div>{{ $t('common.reset') }}</div>
-                </el-button>
-                <el-button @click="search()"
-                     class="filterButton">
-                  <SvgIcon class="filterButtonSvg" name="search"/>
-                  <div>{{ $t('common.query') }}</div>
-                </el-button>
-              </div>
-            </el-form-item>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item :label="$t('withdrawlAccount.filter.createTime')" label-width="150px" prop="filterDateRange">
+                <DateTimeRangeSplit
+                    v-model="filterbox.filterDateRange"
+                    picker-type="date"
+                    format="YYYY/MM/DD"
+                    value-format="x"
+                    picker-width="160px"
+                />
+              </el-form-item>
+            </el-col>
           </el-row>
+          <div class="toolbar-action-row">
+            <el-button @click="reset('filterboxForm')" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="reset"/>
+              <div>{{ $t('common.reset') }}</div>
+            </el-button>
+            <el-button @click="search()" class="filterButton">
+              <SvgIcon class="filterButtonSvg" name="search"/>
+              <div>{{ $t('common.query') }}</div>
+            </el-button>
+          </div>
         </el-form>
       </div>
     </el-collapse-item>
@@ -90,14 +91,6 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
             </div>
           </template>
           <div style="color: black;margin-left: 8px">{{ $t('withdrawlAccount.action.withdraw') }}</div>
-        </el-button>
-        <el-button @click="createRechargeOrder" class="filterButton">
-          <template #icon>
-            <div style="width: 100%">
-              <SvgIcon class="filterButtonSvg" name="recharge"/>
-            </div>
-          </template>
-          <div style="color: black;margin-left: 8px">{{ $t('withdrawlAccount.action.recharge') }}</div>
         </el-button>
         <el-button v-if="roleName=== 'admin'" @click="createManualAccountAdjustment" class="filterButton">
           <template #icon>
@@ -243,7 +236,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
                      style="width: 200px"
                      :options="merchantInfo"
                      :props="merchantInfoProps"
-                     :disabled="selectAccountVisible"
+                     :disabled="selectAccountVisible || roleName === 'merchant'"
           >
           </el-select>
         </el-form-item>
@@ -287,22 +280,24 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
   <el-dialog
       :title="merchantGoogleTitle"
       v-model="merchantGoogleVisible"
-      class="dialog"
+      class="dialog merchant-google-dialog"
       center
-      width="40%"
-      height="30%"
+      align-center
+      width="420px"
   >
-    <el-form ref="merchantGoogleForm" :model="merchantGoogleInfo" :rules="merchantGoogleRule" class="form">
+    <el-form ref="merchantGoogleForm" :model="merchantGoogleInfo" :rules="merchantGoogleRule" class="merchant-google-form">
       <div class="el-form-line">
         <el-form-item :label="$t('withdrawlAccount.form.googleCode')" label-width="150px" prop="googleCode">
           <el-input v-model="merchantGoogleInfo.googleCode" style="width: 200px"/>
         </el-form-item>
       </div>
     </el-form>
-    <div slot="footer" class="dialog-footer">
-      <el-button @click="cancelMerchantGoogle">{{ $t('common.cancel') }}</el-button>
-      <el-button type="primary" @click="submitMerchantGoogle">{{ $t('common.confirm') }}</el-button>
-    </div>
+    <template #footer>
+      <div class="dialog-footer merchant-google-footer">
+        <el-button @click="cancelMerchantGoogle">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="submitMerchantGoogle">{{ $t('common.confirm') }}</el-button>
+      </div>
+    </template>
   </el-dialog>
 
   <!-- withdraw dialog -->
@@ -421,25 +416,26 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
   <el-dialog
       :title="dialogManualAccountAdjustmentTitle"
       v-model="dialogManualAccountAdjustmentVisible"
-      class="dialog"
+      class="dialog manual-adjust-dialog"
       center
       width="40%"
-      height="50%"
+      height="65%"
   >
     <el-form
         ref="manualAccountAdjustmentOrderInfoForm"
         :model="manualAccountAdjustmentOrderInfo"
-        class="form"
+        class="form manual-adjust-form"
         :rules="dialogManualAccountAdjustmentRule"
-        style="margin-right: 5%;margin-top: 60px"
+        style="margin-right: 5%;margin-top: 24px"
     >
       <div class="el-form-line">
         <el-form-item :label="$t('withdrawlAccount.form.merchant')" label-width="150px" prop="merchantAgentId">
           <el-select
-              :options="cacheMerchantAccountOptions"
+              :options="manualMerchantOptions"
               :props="merchantAccountProps"
               v-model="manualAccountAdjustmentOrderInfo.merchantAgentId"
               @change="handleAjustMentMerchantChange"
+              :disabled="filterAvaiable"
               style="width: 200px"
           >
           </el-select>
@@ -481,6 +477,17 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
           <el-input type="number" v-model="manualAccountAdjustmentOrderInfo.amount" style="width: 200px"/>
         </el-form-item>
       </div>
+      <div class="el-form-line">
+        <el-form-item :label="$t('withdrawlAccount.form.remark')" label-width="150px" prop="remark">
+          <el-input
+              class="manual-adjust-remark-input"
+              type="textarea"
+              :rows="3"
+              v-model="manualAccountAdjustmentOrderInfo.remark"
+              style="width: 200px; max-width: 100%;"
+          />
+        </el-form-item>
+      </div>
     </el-form>
     <div slot="footer" class="dialog-footer" style="margin-right: 3%">
       <el-button @click="cancelManualAccountAdjustment('manualAccountAdjustmentOrderInfoForm')">{{ $t('common.cancel') }}</el-button>
@@ -493,6 +500,7 @@ import {getFormateDate, getFormateTimeByTimeBystamp} from "@/api/common.js";
     v-model="confirmDialogVisible"
     class="dialog"
     center
+    align-center
     width="30%"
     height="200px"
   >
@@ -585,6 +593,7 @@ export default {
       selectedMerchentName: '',
       selectAccountVisible: true,
       merchantAccountOptions: [],
+      manualMerchantOptions: [],
       cacheMerchantAccountOptions: [],
       merchantInfoProps: {
         value: 'userId',
@@ -681,6 +690,10 @@ export default {
         },
         currency: {
           required: true, trigger: 'blur', message: this.$t('withdrawlAccount.validation.currencyRequired')
+        },
+        remark: {
+          validator: (rule, value, callback) => this.validateRequiredText(value, this.$t('withdrawlAccount.validation.remarkRequired'), callback),
+          trigger: 'blur'
         }
        /* googleCode: {
           required: true, trigger: 'blur', message: 'you need to select googleCode'
@@ -709,6 +722,13 @@ export default {
     }
   },
   methods: {
+    validateRequiredText(value, message, callback) {
+      if (value === undefined || value === null || String(value).trim() === '') {
+        callback(new Error(message));
+        return;
+      }
+      callback();
+    },
     saveWithdrawAccountDraft() {
       if (!this.dialogFormVisible) return;
       const mode = this.submitType || '';
@@ -725,6 +745,19 @@ export default {
         if (draft.recordId && recordId && draft.recordId !== recordId) return;
       }
       this.withdrawAccountInfo = Object.assign(buildEmptyWithdrawAccountInfo(), draft.data || {});
+      this.ensureCreateMerchantDefault();
+    },
+    ensureCreateMerchantDefault() {
+      if (this.roleName !== 'merchant' || this.submitType !== 'create') {
+        return;
+      }
+      const currentMerchantId = localStorage.getItem('userId') || '';
+      if (!this.withdrawAccountInfo.merchantAgentId) {
+        this.withdrawAccountInfo.merchantAgentId = currentMerchantId;
+      }
+      if (!this.withdrawAccountInfo.userName) {
+        this.withdrawAccountInfo.userName = this.withdrawAccountInfo.merchantAgentId || currentMerchantId;
+      }
     },
     clearWithdrawAccountDraft() {
       clearDraft(WITHDRAW_ACCOUNT_DRAFT_KEY);
@@ -761,18 +794,10 @@ export default {
       this.manualAccountAdjustmentOrderInfo.currency = null
       this.manualAccountAdjustmentOrderInfo.availableAmount = null
       this.manualAccountAdjustmentOrderInfo.total = null
-      let opt = [];
-      this.merchantAccountOptions.find((item) => {
-        //return item.merchantAgentId === value;
-        if (item.merchantAgentId === value) {
-          opt.push(item);
-        }
-      });
-      this.manualAccountAdjustmentOrderInfo.merchantAgentName = opt.length >0 ? opt[0].name : null;
-      this.manualAccountAdjustmentOrderInfo.merchantAgentId = opt[0].merchantAgentId;
-      //this.withdrawOrderInfo.walletAddr = opt.walletAddr;
-      //this.cacheMerchantAccountOptions = Object.assign([], opt)
-      this.selectedMerchantBalance = this.amountInfo[value]
+      const opt = this.manualMerchantOptions.find((item) => item.merchantAgentId === value) || {};
+      this.manualAccountAdjustmentOrderInfo.merchantAgentName = opt.name || null;
+      this.manualAccountAdjustmentOrderInfo.merchantAgentId = value;
+      this.selectedMerchantBalance = this.amountInfo[value] || {};
       /*this.merchantAccountOptions.forEach(item => {
         if (item.merchantAgentId === value) {
           this.selectedMerchantOptions.push(item);
@@ -884,6 +909,7 @@ export default {
       this.submitType = 'create'
       this.withdrawAccountInfo = buildEmptyWithdrawAccountInfo()
       this.loadWithdrawAccountDraft()
+      this.ensureCreateMerchantDefault()
     },
     editMerchantInfo(row) {
       this.withdrawAccountInfo = row
@@ -1015,7 +1041,16 @@ export default {
     createManualAccountAdjustment() {
       this.dialogManualAccountAdjustmentVisible = true
       this.dialogManualAccountAdjustmentTitle = this.$t('withdrawlAccount.dialog.manualAdjustTitle')
-      this.manualAccountAdjustmentOrderInfo.orderType = 3
+      this.manualAccountAdjustmentOrderInfo = {
+        merchantAgentId: '',
+        merchantAgentName: '',
+        currency: '',
+        total: '',
+        type: 1,
+        amount: '',
+        remark: '',
+        orderType: 3
+      }
       this.cacheMerchantAccountOptions = Object.assign({}, this.merchantAccountOptions)
     },
     cancelWithdraw(form) {
@@ -1048,6 +1083,8 @@ export default {
       const orderMessage = this.$t(orderMessageKey)
       this.$refs[form].validate(validate => {
         if (validate) {
+          // merchant account page: always submit merchant role implicitly
+          this.confirmData.userRole = 1
           createStatementeOrderApply(this.confirmData).then(res => {
             this.confirmDialogTitle=''
             this.confirmDialogVisible = false
@@ -1099,6 +1136,7 @@ export default {
           this.dialogRechargeTitle = ''
           this.confirmData = {}
           this.confirmData = Object.assign({},this.rechargeOrderInfo)
+          this.confirmData.userRole = 1
           this.confirmDialogTitle = this.$t('withdrawlAccount.dialog.confirmTitle')
           this.confirmDialogVisible = true
           this.$refs[form].resetFields()
@@ -1152,6 +1190,10 @@ export default {
           if (res.data.code === 0) {
             let allData = JSON.parse(res.data.data)
             this.merchantInfo = allData.merchantInfoDtoList
+            this.manualMerchantOptions = this.merchantInfo.map(item => ({
+              merchantAgentId: item.userId,
+              name: item.accountName
+            }))
             this.amountInfo = allData.cardInfo
             this.merchantInfo.forEach(item => {
               this.amountInfo[item.userId]= item.balanceInfo
@@ -1221,6 +1263,25 @@ export default {
   height: 300px;
 }
 
+.merchant-google-form {
+  margin-top: 8px;
+  height: auto;
+}
+
+:deep(.merchant-google-dialog .el-dialog__body) {
+  padding-top: 12px;
+  padding-bottom: 8px;
+}
+
+.merchant-google-footer {
+  margin-top: 0;
+}
+
+:deep(.merchant-google-dialog .el-dialog__footer) {
+  padding-top: 18px;
+  padding-bottom: 14px;
+}
+
 .el-form-line {
   display: flex;
   justify-content: center;
@@ -1228,6 +1289,29 @@ export default {
 
 input::-webkit-inner-spin-button {
   -webkit-appearance: none !important;
+}
+
+.manual-adjust-remark-input {
+  width: 200px;
+  max-width: 100%;
+}
+
+:deep(.manual-adjust-remark-input .el-textarea__inner) {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  resize: none;
+}
+
+:deep(.manual-adjust-dialog .el-dialog__body) {
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+.manual-adjust-form {
+  height: auto;
+  min-height: 0;
+  padding-bottom: 8px;
 }
 
 :deep(.adjust-switch-inc .el-switch__label--right) {
@@ -1244,5 +1328,14 @@ input::-webkit-inner-spin-button {
 
 :deep(.adjust-switch-dec .el-switch__label--right) {
   color: #9ca3af;
+}
+
+.withdrawl-account-time-range{
+  width: 200px !important;
+}
+
+:deep(.withdrawl-account-time-range.el-date-editor.el-range-editor){
+  width: 200px !important;
+  min-width: 200px !important;
 }
 </style>

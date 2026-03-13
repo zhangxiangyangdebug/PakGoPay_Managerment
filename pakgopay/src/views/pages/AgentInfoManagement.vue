@@ -29,7 +29,6 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
                     popper-class="agent-name-select-dropdown"
                     @visible-change="handleAgentNameDropdownVisible"
                     style="width: 200px;"
-                    :disabled="filterAvaiable"
                   >
                     <el-option
                       v-for="item in agentNameOptions"
@@ -44,7 +43,25 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
             <el-col :span="8">
               <div>
                 <el-form-item :label="$t('agentInfo.filter.accountName')" label-width="150px" prop="accountName">
-                  <el-input v-model="filterbox.accountName" style="width: 200px;"/>
+                  <el-select
+                    v-model="filterbox.accountName"
+                    filterable
+                    remote
+                    clearable
+                    :remote-method="handleAccountNameSearch"
+                    :loading="accountNameLoading"
+                    :placeholder="$t('agentInfo.filter.accountName')"
+                    popper-class="account-name-select-dropdown"
+                    @visible-change="handleAccountNameDropdownVisible"
+                    style="width: 200px;"
+                  >
+                    <el-option
+                      v-for="item in accountNameOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
                 </el-form-item>
               </div>
             </el-col>
@@ -92,25 +109,33 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
           class="agentInfoTable"
           style="height: auto;"
           :key="tablekey"
+          :header-cell-style="{ textAlign: 'center' }"
+          :row-class-name="getRowClassName"
+          row-key="userId"
+          lazy
+          :load="loadAgentChildren"
+          :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+          :indent="28"
       >
         <el-table-column
             prop="firstLevelAgent"
             :label="$t('agentInfo.column.agentInfo')"
             v-slot="{row}"
-            align="center"
+            align="left"
             width="300px"
             style="height: 95%;"
             fixed="left"
+            class-name="agent-tree-cell"
         >
-          <div style="height: auto;display: flex; justify-content: center;width: 100%;">
-            <el-card class="box-card" style="width: 100%">
+          <div class="agent-tree-card-wrap">
+            <el-card class="box-card agent-tree-card" style="width: 100%">
               <div class="agent-card-row agent-card-account">{{ $t('agentInfo.card.account') }}{{ row.accountName }}</div>
               <div class="agent-card-row agent-card-name">{{ $t('agentInfo.card.name') }}{{ row.agentName }}</div>
               <div v-if="row.channelDtoList" class="agent-card-row agent-card-channel">
                 <div style="display: flex;align-items: center">
-                  <div style="height:100%;width:150px;align-items: center;justify-items: center;text-align: center;">{{ $t('agentInfo.card.channel') }}</div>
-                  <div style="width: 150px;border-left: solid 1px black">
-                    <div style="flex: 2;width: 130px;" v-for="item in row.channelDtoList">
+                  <div class="agent-channel-label">{{ $t('agentInfo.card.channel') }}</div>
+                  <div class="agent-channel-values">
+                    <div class="agent-channel-item" v-for="item in row.channelDtoList">
                       {{item.channelName}}
                     </div>
                   </div>
@@ -133,9 +158,9 @@ import SvgIcon from "@/components/SvgIcon/index.vue";
               <div class="agent-card-row agent-card-name">{{ $t('agentInfo.card.name') }}{{ row.parentAgentName }}</div>
               <div class="agent-card-row agent-card-channel">
                 <div style="display: flex;align-items: center">
-                  <div style="height:100%;width:150px;align-items: center;justify-items: center;text-align: center;">{{ $t('agentInfo.card.channel') }}</div>
-                  <div style="width: 150px;border-left: solid 1px black">
-                    <div style="flex: 2;width: 130px;" v-for="item in row.parentChannelDtoList">
+                  <div class="agent-channel-label">{{ $t('agentInfo.card.channel') }}</div>
+                  <div class="agent-channel-values">
+                    <div class="agent-channel-item" v-for="item in row.parentChannelDtoList">
                       {{item.channelName}}
                     </div>
                   </div>
@@ -777,7 +802,6 @@ export default {
       modifyType: '',
       tablekey: 0,
       isAdmin: false,
-      filterAvaiable: false,
       agentNameOptions: [],
       agentNameLoading: false,
       agentNameHasMore: true,
@@ -785,6 +809,13 @@ export default {
       agentNamePageSize: 20,
       agentNameQuery: '',
       agentNameScrollBound: false,
+      accountNameOptions: [],
+      accountNameLoading: false,
+      accountNameHasMore: true,
+      accountNamePageNo: 1,
+      accountNamePageSize: 20,
+      accountNameQuery: '',
+      accountNameScrollBound: false,
       filterbox: {
       },
       dialogFormVisible: false,
@@ -952,6 +983,21 @@ export default {
         level: {
           required: true,trigger: 'blur',
         },
+        contactName: {
+          required: true,
+          message: this.$t('agentInfo.validation.contactNameRequired'),
+          trigger: 'blur',
+        },
+        contactPhone: {
+          required: true,
+          message: this.$t('agentInfo.validation.contactPhoneRequired'),
+          trigger: 'blur',
+        },
+        contactEmail: {
+          required: true,
+          message: this.$t('agentInfo.validation.contactEmailRequired'),
+          trigger: 'blur',
+        },
         accountPwd: {
           required: true, validator: validatePass, trigger: 'blur',
         },
@@ -1027,16 +1073,6 @@ export default {
     this.totalCount = this.agentInfoTableData.length
     const roleName = localStorage.getItem('roleName')
     this.isAdmin = roleName === 'admin'
-    if (roleName === 'agent') {
-      this.filterbox.agentName = localStorage.getItem('userName')
-      this.filterAvaiable = true
-      if (this.filterbox.agentName) {
-        this.agentNameOptions = [{
-          value: this.filterbox.agentName,
-          label: this.filterbox.agentName
-        }]
-      }
-    }
     // get paymentInfos
     await getChannelInfo({pageSize: 1000}).then((res) => {
       if (res.status === 200 && res.data.code === 0) {
@@ -1044,9 +1080,62 @@ export default {
       }
     })
 
+    await this.applyCurrentAgentDefaultFilter()
     this.search()
   },
   methods: {
+    async applyCurrentAgentDefaultFilter() {
+      const roleName = localStorage.getItem('roleName')
+      if (roleName !== 'agent') {
+        return
+      }
+      const loginName = localStorage.getItem('userName') || ''
+      if (!loginName) {
+        return
+      }
+      try {
+        const res = await getAgentInfo({
+          accountName: loginName,
+          pageNo: 1,
+          pageSize: 1,
+          isNeedCardData: false
+        })
+        if (res.status === 200 && res.data.code === 0) {
+          const allData = JSON.parse(res.data.data)
+          const currentAgentName = allData?.agentInfoDtoList?.[0]?.agentName || loginName
+          this.filterbox.agentName = currentAgentName
+          this.agentNameOptions = [{ value: currentAgentName, label: currentAgentName }]
+          return
+        }
+      } catch (e) {
+        // fallback below
+      }
+      this.filterbox.agentName = loginName
+      this.agentNameOptions = [{ value: loginName, label: loginName }]
+    },
+    normalizeTreeRows(list) {
+      if (!Array.isArray(list)) return []
+      return list.map(item => ({
+        ...item,
+        hasChildren: item?.hasChildren === true || item?.hasChildren === 1 || item?.hasChildren === '1'
+      }))
+    },
+    buildRootSearchPayload() {
+      const payload = { ...this.filterbox }
+      const hasFilter = Boolean(
+        payload.agentName ||
+        payload.accountName ||
+        payload.status === 0 ||
+        payload.status === 1
+      )
+      if (!hasFilter) {
+        payload.isSearchFirstLevel = true
+      } else {
+        delete payload.isSearchFirstLevel
+      }
+      delete payload.isSearchNextLevel
+      return payload
+    },
     formatParentFee(value, suffix = '') {
       const normalized = value === null || value === undefined || value === '' ? 0 : value;
       return `${normalized}${suffix}`;
@@ -1107,7 +1196,7 @@ export default {
       clearDraft(AGENT_DRAFT_KEY);
     },
     handleAgentNameDropdownVisible(visible) {
-      if (!visible || this.filterAvaiable) return;
+      if (!visible) return;
       if (!this.agentNameOptions.length) {
         this.resetAgentNameOptions();
         this.fetchAgentNameOptions(false);
@@ -1115,7 +1204,6 @@ export default {
       this.attachAgentNameScroll();
     },
     handleAgentNameSearch(query) {
-      if (this.filterAvaiable) return;
       this.agentNameQuery = query || '';
       this.resetAgentNameOptions();
       this.fetchAgentNameOptions(false);
@@ -1173,6 +1261,74 @@ export default {
         this.fetchAgentNameOptions(true);
       }
     },
+    handleAccountNameDropdownVisible(visible) {
+      if (!visible) return;
+      if (!this.accountNameOptions.length) {
+        this.resetAccountNameOptions();
+        this.fetchAccountNameOptions(false);
+      }
+      this.attachAccountNameScroll();
+    },
+    handleAccountNameSearch(query) {
+      this.accountNameQuery = query || '';
+      this.resetAccountNameOptions();
+      this.fetchAccountNameOptions(false);
+    },
+    resetAccountNameOptions() {
+      this.accountNamePageNo = 1;
+      this.accountNameHasMore = true;
+      this.accountNameOptions = [];
+    },
+    fetchAccountNameOptions(append) {
+      if (this.accountNameLoading || !this.accountNameHasMore) return;
+      this.accountNameLoading = true;
+      const payload = {
+        pageNo: this.accountNamePageNo,
+        pageSize: this.accountNamePageSize,
+        isNeedCardData: false
+      };
+      if (this.accountNameQuery) {
+        payload.accountName = this.accountNameQuery;
+      }
+      getAgentInfo(payload).then(res => {
+        if (res.status === 200 && res.data.code === 0) {
+          const all = JSON.parse(res.data.data);
+          const list = all.agentInfoDtoList || [];
+          const mapped = list
+            .filter(item => item && item.accountName)
+            .map(item => ({
+              value: item.accountName,
+              label: item.accountName
+            }));
+          this.accountNameOptions = append
+            ? this.accountNameOptions.concat(mapped)
+            : mapped;
+          if (list.length < this.accountNamePageSize) {
+            this.accountNameHasMore = false;
+          } else {
+            this.accountNamePageNo += 1;
+          }
+        } else {
+          this.accountNameHasMore = false;
+        }
+      }).finally(() => {
+        this.accountNameLoading = false;
+      });
+    },
+    attachAccountNameScroll() {
+      this.$nextTick(() => {
+        const wrap = document.querySelector(".account-name-select-dropdown .el-select-dropdown__wrap");
+        if (!wrap || this.accountNameScrollBound) return;
+        wrap.addEventListener("scroll", this.handleAccountNameScroll);
+        this.accountNameScrollBound = true;
+      });
+    },
+    handleAccountNameScroll(event) {
+      const el = event.target;
+      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 8) {
+        this.fetchAccountNameOptions(true);
+      }
+    },
     exportAgent() {
       this.filterbox.columns = getAgentInfoTitle(this)
       let timeRange = null
@@ -1189,10 +1345,11 @@ export default {
     },
     search() {
       const loadingInstance =  loadingBody(this, 'agentInfoTable')
-      getAgentInfo(this.filterbox).then((res) => {
+      const payload = this.buildRootSearchPayload()
+      return getAgentInfo(payload).then((res) => {
         if (res.status === 200 && res.data.code === 0) {
           const allData = JSON.parse(res.data.data)
-          this.agentInfoTableData = allData.agentInfoDtoList
+          this.agentInfoTableData = this.normalizeTreeRows(allData.agentInfoDtoList)
           this.totalCount = allData.totalNumber
         } else if (res.status === 200 && res.data.code !== 0) {
           console.log(2)
@@ -1224,6 +1381,30 @@ export default {
         })
       })
     },
+    loadAgentChildren(row, treeNode, resolve) {
+      row.__childLoading = true
+      const payload = {
+        isSearchNextLevel: true,
+        accountName: row.accountName,
+        pageNo: 1,
+        pageSize: 1000
+      }
+      getAgentInfo(payload).then((res) => {
+        if (res.status === 200 && res.data.code === 0) {
+          const allData = JSON.parse(res.data.data)
+          resolve(this.normalizeTreeRows(allData.agentInfoDtoList))
+          return
+        }
+        resolve([])
+      }).catch(() => {
+        resolve([])
+      }).finally(() => {
+        row.__childLoading = false
+      })
+    },
+    getRowClassName({ row }) {
+      return row && row.__childLoading ? 'agent-row-loading' : ''
+    },
     reset(form) {
       this.$refs[form].resetFields()
     },
@@ -1248,17 +1429,23 @@ export default {
       this.pendingSubmitAction = ''
     },
     submitGoogleConfirm(form) {
-      this.$refs[form].validate(valid => {
+      this.$refs[form].validate(async valid => {
         if (!valid) return
         this.agentInfo.channelIds = this.agentInfo.channelIdList
         this.agentInfo.googleCode = this.googleConfirmData.googleCode
         const isEdit = this.pendingSubmitAction === 'edit'
         const request = isEdit ? modifyAgentInfo(this.agentInfo) : createAgentInfo(this.agentInfo)
-        request.then((res) => {
+        request.then(async (res) => {
           if (res.status === 200 && res.data.code === 0) {
-            this.search()
             this.dialogFormVisible = false
             this.dialogTitle = ''
+            this.cancelGoogleConfirm(form)
+            this.modifyType = ''
+            this.createType = ''
+            this.clearAgentDraft()
+            this.agentInfo = buildEmptyAgentInfo()
+            await this.$nextTick()
+            await this.search()
             this.$notify({
               title: this.$t('common.success'),
               type: 'success',
@@ -1266,11 +1453,6 @@ export default {
               position: 'bottom-right',
               message: isEdit ? this.$t('agentInfo.message.modifySuccess') : this.$t('agentInfo.message.createSuccess')
             })
-            this.cancelGoogleConfirm(form)
-            this.modifyType = ''
-            this.createType = ''
-            this.clearAgentDraft()
-            this.agentInfo = buildEmptyAgentInfo()
           } else if (res.status === 200 && res.data.code !== 0) {
             this.$notify({
               title: this.$t('common.error'),
@@ -1288,6 +1470,14 @@ export default {
               message: this.$t('common.requestFailed')
             })
           }
+        }).catch((err) => {
+          this.$notify({
+            title: this.$t('common.error'),
+            type: 'error',
+            duration: 5000,
+            position: 'bottom-right',
+            message: err.message || this.$t('common.requestFailed')
+          })
         })
       })
     },
@@ -1457,6 +1647,22 @@ export default {
   background-color: #f0f2f5;
 }
 
+.agent-channel-label{
+  height: 100%;
+  width: 150px;
+  text-align: center;
+}
+
+.agent-channel-values{
+  width: 160px;
+  border-left: solid 1px black;
+  padding-left: 15px;
+}
+
+.agent-channel-item{
+  width: 130px;
+}
+
 .ip-whitelist-stack{
   display: flex;
   flex-direction: column;
@@ -1551,5 +1757,117 @@ export default {
 
 .account-frozen{
   background-color: #f0f2f5;
+}
+
+:deep(.agentInfoTable .el-table__indent) {
+  width: 28px !important;
+}
+
+:deep(.agentInfoTable .el-table__header th .cell) {
+  text-align: center !important;
+  justify-content: center !important;
+}
+
+:deep(.agentInfoTable .el-table__expand-icon) {
+  color: #000000 !important;
+  margin-right: 1px !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+}
+
+:deep(.agentInfoTable .el-table__expand-icon .el-icon) {
+  font-weight: 900 !important;
+  stroke: currentColor;
+  stroke-width: 2.8px;
+}
+
+:deep(.agentInfoTable .el-table__expand-icon .el-icon svg) {
+  stroke: currentColor;
+  stroke-width: 2.8px;
+}
+
+:deep(.agentInfoTable .el-table__placeholder) {
+  display: inline-block;
+  width: 0 !important;
+}
+
+:deep(.agentInfoTable .agent-tree-cell .cell) {
+  display: flex;
+  align-items: center;
+  padding-left: 8px !important;
+}
+
+:deep(.agentInfoTable .agent-tree-cell .el-table__expand-icon) {
+  margin-left: 4px !important;
+  margin-right: 8px !important;
+  width: 20px !important;
+  height: 20px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(1.45);
+  transform-origin: center;
+  position: relative;
+}
+
+:deep(.agentInfoTable .agent-tree-cell .el-table__expand-icon .el-icon) {
+  display: none !important;
+}
+
+:deep(.agentInfoTable .agent-tree-cell .el-table__expand-icon::before) {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-top: 2.4px solid #000;
+  border-right: 2.4px solid #000;
+  border-bottom: 0;
+  border-left: 0;
+  transform: rotate(45deg);
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+:deep(.agentInfoTable .agent-tree-cell .el-table__expand-icon--expanded::before) {
+  transform: rotate(135deg);
+}
+
+:deep(.agentInfoTable .agent-row-loading .el-table__expand-icon::before) {
+  display: none !important;
+}
+
+:deep(.agentInfoTable .agent-row-loading .el-table__expand-icon::after) {
+  content: "";
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.95);
+  box-shadow:
+    0 -7px 0 rgba(0, 0, 0, 0.95),
+    5px -5px 0 rgba(0, 0, 0, 0.85),
+    7px 0 0 rgba(0, 0, 0, 0.75),
+    5px 5px 0 rgba(0, 0, 0, 0.65),
+    0 7px 0 rgba(0, 0, 0, 0.55),
+    -5px 5px 0 rgba(0, 0, 0, 0.45),
+    -7px 0 0 rgba(0, 0, 0, 0.35),
+    -5px -5px 0 rgba(0, 0, 0, 0.25);
+  animation: agentDotRingSpin 0.8s linear infinite;
+}
+
+@keyframes agentDotRingSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.agent-tree-card-wrap {
+  height: auto;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  margin-left: 10px;
+}
+
+.agent-tree-card {
+  margin-left: 0 !important;
 }
 </style>

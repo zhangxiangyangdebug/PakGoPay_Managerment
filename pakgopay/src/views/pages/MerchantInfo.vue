@@ -1,5 +1,6 @@
 <script setup>
 import SvgIcon from "@/components/SvgIcon/index.vue";
+import {ArrowDownBold} from "@element-plus/icons-vue";
 import '@/assets/base.css'
 </script>
 
@@ -66,7 +67,7 @@ import '@/assets/base.css'
                     :active-value="1"
                     :inactive-value="0"
                 ></el-switch>-->
-                <el-select v-model="filterbox.status" clearable>
+                <el-select v-model="filterbox.status" clearable style="width: 200px">
                   <el-option :label="$t('common.enable')" :value="1">{{ $t('common.enable') }}</el-option>
                   <el-option :label="$t('common.disable')" :value="0">{{ $t('common.disable') }}</el-option>
                 </el-select>
@@ -79,6 +80,7 @@ import '@/assets/base.css'
                     :options="agentOptions"
                     :props="agentProps"
                     :placeholder="$t('merchantInfo.placeholder.agent')"
+                    style="width: 200px"
                 >
                 </el-select>
               </el-form-item>
@@ -103,38 +105,33 @@ import '@/assets/base.css'
             :key="tableKey"
         >
         <el-table-column
-            :label="$t('merchantInfo.column.account')"
+            :label="$t('merchantInfo.column.basicInfo')"
             v-slot="{row}"
             align="center"
-            width="100px"
+            width="380px"
             fixed="left"
         >
-          <div>
-            {{row.accountName}}
+          <div class="merchant-basic-cell">
+            <div class="merchant-basic-row merchant-basic-account">{{ $t('merchantInfo.column.account') }}: {{ row.accountName || '-' }}</div>
+            <div class="merchant-basic-row merchant-basic-name">{{ $t('merchantInfo.column.name') }}: {{ row.merchantName || '-' }}</div>
+            <div class="merchant-basic-row merchant-basic-code">{{ $t('merchantInfo.column.code') }}: {{ row.userId || '-' }}</div>
           </div>
         </el-table-column>
         <el-table-column
-            prop="商户名称"
-            :label="$t('merchantInfo.column.name')"
+            :label="$t('merchantInfo.column.merchantKey')"
             v-slot="{row}"
             align="center"
-            width="150px"
-            fixed="left"
+            width="280px"
         >
-          <div>
-            {{row.merchantName}}
-          </div>
-        </el-table-column>
-        <el-table-column
-            prop="merchantLabel"
-            :label="$t('merchantInfo.column.code')"
-            v-slot="{row}"
-            align="center"
-            width="100px"
-            fixed="left"
-        >
-          <div>
-            {{row.userId}}
+          <div class="secret-cell">
+            <div class="secret-row">
+              <span class="secret-label">apiKey:</span>
+              <span class="secret-value">{{ maskSecret(row.apiKey) }}</span>
+            </div>
+            <div class="secret-row">
+              <span class="secret-label">signKey:</span>
+              <span class="secret-value">{{ maskSecret(row.signKey) }}</span>
+            </div>
           </div>
         </el-table-column>
         <el-table-column
@@ -143,6 +140,7 @@ import '@/assets/base.css'
             v-slot="{row}"
             align="center"
             width="300px"
+            v-if="isAdmin"
         >
           <div v-for="(item, index) in row.agentInfos" :key="`${row.userId || row.accountName}-agent-${index}`">
             <div class="agent-info-card" :style="{ backgroundColor: agentCardColors[index % agentCardColors.length] }">
@@ -229,12 +227,24 @@ import '@/assets/base.css'
             width="300px;"
         >
           <div class="account-info-wrap">
-            <!-- 返回的是json对象 包含总金额、可用金额、冻结金额 -->
-            <div class="account-info-card" v-for="(value, key, index) in row.balanceInfo" :key="key">
-              <div class="account-info-row account-info-key">{{key}}:</div>
-              <div class="account-info-row account-total">{{ $t('merchantInfo.account.total') }} <div class="account-info-value">{{value.total ? value.total: '-'}}</div></div>
-              <div class="account-info-row account-usable">{{ $t('merchantInfo.account.available') }} <div class="account-info-value">{{value.available? value.available: '-'}}</div></div>
-              <div class="account-info-row account-frozen">{{ $t('merchantInfo.account.frozen') }} <div class="account-info-value">{{value.frozen? value.frozen : '-'}}</div></div>
+            <div
+              class="account-info-card"
+              v-for="item in getVisibleBalanceEntries(row)"
+              :key="item.key"
+            >
+              <div class="account-info-row account-info-key">{{ item.key }}:</div>
+              <div class="account-info-row account-total">{{ $t('merchantInfo.account.total') }} <div class="account-info-value">{{ item.value.total ? item.value.total: '-' }}</div></div>
+              <div class="account-info-row account-usable">{{ $t('merchantInfo.account.available') }} <div class="account-info-value">{{ item.value.available ? item.value.available: '-' }}</div></div>
+              <div class="account-info-row account-frozen">{{ $t('merchantInfo.account.frozen') }} <div class="account-info-value">{{ item.value.frozen ? item.value.frozen : '-' }}</div></div>
+            </div>
+            <div
+              v-if="hasMoreBalanceEntries(row)"
+              class="account-info-more"
+              @click="expandAccountInfo(row)"
+            >
+              <el-icon class="account-info-more-icon">
+                <ArrowDownBold />
+              </el-icon>
             </div>
           </div>
         </el-table-column>
@@ -246,50 +256,34 @@ import '@/assets/base.css'
             width="300px"
         >
           <div class="ip-whitelist-stack">
-            <div class="ip-whitelist-card">
-              <div class="ip-whitelist-title">{{ $t('merchantInfo.ip.loginWithdraw') }}</div>
+            <div
+              v-for="card in getVisibleIpCards(row)"
+              :key="card.key"
+              class="ip-whitelist-card"
+            >
+              <div class="ip-whitelist-title">{{ card.title }}</div>
               <div class="ip-whitelist-value">
-                <div class="ip-whitelist-line">
-                  <span class="ip-label">{{ $t('merchantInfo.ip.login') }}</span>
+                <div
+                  v-for="line in card.lines"
+                  :key="line.key"
+                  class="ip-whitelist-line"
+                >
+                  <span v-if="line.label" class="ip-label">{{ line.label }}</span>
                   <div class="ip-list">
-                    <div v-for="(ip, index) in formatIpLines(row.loginIps)" :key="`login-${index}`">{{ ip }}</div>
+                    <div v-for="(ip, index) in line.values" :key="`${line.key}-${index}`">{{ ip }}</div>
                   </div>
                 </div>
-                <div class="ip-whitelist-line">
-                  <span class="ip-label">{{ $t('merchantInfo.ip.withdraw') }}</span>
-                  <div class="ip-list">
-                    <div v-for="(ip, index) in formatIpLines(row.withdrawalIps)" :key="`withdraw-${index}`">{{ ip }}</div>
-                  </div>
-                </div>
               </div>
             </div>
-            <div class="ip-whitelist-card">
-              <div class="ip-whitelist-title">{{ $t('merchantInfo.ip.paying') }}</div>
-              <div class="ip-whitelist-value">
-                <div class="ip-list">
-                  <div v-for="(ip, index) in formatIpLines(row.payWhiteIps)" :key="`pay-${index}`">{{ ip }}</div>
-                </div>
-              </div>
+            <div
+              v-if="hasMoreIpCards(row)"
+              class="account-info-more"
+              @click="expandIpInfo(row)"
+            >
+              <el-icon class="account-info-more-icon">
+                <ArrowDownBold />
+              </el-icon>
             </div>
-            <div class="ip-whitelist-card">
-              <div class="ip-whitelist-title">{{ $t('merchantInfo.ip.collecting') }}</div>
-              <div class="ip-whitelist-value">
-                <div class="ip-list">
-                  <div v-for="(ip, index) in formatIpLines(row.colWhiteIps)" :key="`collect-${index}`">{{ ip }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </el-table-column>
-        <el-table-column
-            prop="createTime"
-            :label="$t('merchantInfo.column.createTime')"
-            v-slot="{row}"
-            align="center"
-            width="200px"
-        >
-          <div>
-            {{row.createTime ? formatTimeByZone(row.createTime) : '-'}}
           </div>
         </el-table-column>
         <el-table-column
@@ -309,6 +303,17 @@ import '@/assets/base.css'
           </div>
         </el-table-column>
         <el-table-column
+            prop="createTime"
+            :label="$t('merchantInfo.column.createTime')"
+            v-slot="{row}"
+            align="center"
+            width="200px"
+        >
+          <div>
+            {{row.createTime ? formatTimeByZone(row.createTime) : '-'}}
+          </div>
+        </el-table-column>
+        <el-table-column
             :label="$t('common.operation')"
             v-slot="{row}"
             align="center"
@@ -322,6 +327,8 @@ import '@/assets/base.css'
                 <el-dropdown-menu>
                   <el-dropdown-item @click="editMerchantInfo(row)">{{ $t('common.edit') }}</el-dropdown-item>
                   <el-dropdown-item @click="deleteMerchant(row.merchantAccount)">{{ $t('common.operate.delete') }}</el-dropdown-item>
+                  <el-dropdown-item @click="showPlainSecret(row)">{{ $t('merchantInfo.action.viewPlain') }}</el-dropdown-item>
+                  <el-dropdown-item @click="showResetSignKey(row)">{{ $t('merchantInfo.action.resetSignKey') }}</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -653,7 +660,7 @@ import '@/assets/base.css'
       class="dialog"
       center
       align-center
-      width="40%"
+      width="480px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
   >
@@ -803,14 +810,59 @@ import '@/assets/base.css'
       <el-button type="primary" @click="submitDelete">{{ $t('common.confirm') }}</el-button>
     </div>
   </el-dialog>
+  <el-dialog
+      :title="$t('merchantInfo.dialog.keyVerifyTitle')"
+      v-model="plainKeyVerifyVisible"
+      class="dialog"
+      center
+      width="40%"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+  >
+    <el-form>
+      <el-row>
+        <el-col :span="24" style="display: flex;justify-content: center;align-items: center;height: 50px;">
+          <el-form-item :label="$t('merchantInfo.form.name')" label-width="150px">
+            <el-select
+              :model-value="pendingPlainMerchantAccount"
+              disabled
+              style="width: 200px"
+            >
+              <el-option
+                :label="pendingPlainMerchantName || '-'"
+                :value="pendingPlainMerchantAccount || ''"
+              />
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="24" style="display: flex;justify-content: center;align-items: center;height: 50px;" v-if="!isAdmin">
+          <el-form-item :label="$t('merchantInfo.form.password')" label-width="150px" required>
+            <el-input type="password" v-model="plainKeyVerifyForm.password" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+        <el-col :span="24" style="display: flex;justify-content: center;align-items: center;height: 50px;">
+          <el-form-item :label="$t('common.googleCode')" label-width="150px" required>
+            <el-input type="number" maxlength="6" v-model="plainKeyVerifyForm.googleCode" style="width: 200px"/>
+          </el-form-item>
+        </el-col>
+      </el-row>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="cancelPlainKeyVerify">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="submitPlainKeyVerify">{{ $t('common.confirm') }}</el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 <script>
 import {isValidIP, loadingBody} from "@/api/common.js";
+import { getTimeZoneOffsetMinutes } from "@/util/timezoneOptions.js";
 import {
   createMerchantInfo, getAgentInfo,
   getAllCurrencyType, getChannelInfo,
   getMerchantInfo,
-  getPaymentInfo, modifyMerchantInfo
+  getPaymentInfo, modifyMerchantInfo, queryMerchantSecretKey, resetMerchantSignKey
 } from "@/api/interface/backendInterface.js";
 import {saveDraft, loadDraft, clearDraft} from "@/util/draft.js";
 
@@ -1340,6 +1392,17 @@ export default {
       editVerifyVisible: false,
       editVerifyCode: '',
       verifyAction: '',
+      plainKeyVerifyVisible: false,
+      plainKeyVerifyForm: {
+        password: '',
+        googleCode: ''
+      },
+      plainKeyAction: 'view',
+      pendingPlainMerchantAccount: '',
+      pendingPlainMerchantName: '',
+      pendingPlainKeyUserId: '',
+      accountInfoExpandMap: {},
+      ipInfoExpandMap: {},
       deleteMerchantInfo: {},
       dialogDeleteVisible: false,
       dialogDeleteTitle: "",
@@ -1396,6 +1459,226 @@ export default {
     }
   },
   methods: {
+    getMerchantRowKey(row) {
+      return String(row?.userId || row?.accountName || '');
+    },
+    getBalanceEntries(balanceInfo) {
+      if (!balanceInfo || typeof balanceInfo !== 'object') {
+        return [];
+      }
+      return Object.keys(balanceInfo).map((key) => ({
+        key,
+        value: balanceInfo[key] || {}
+      }));
+    },
+    isAccountInfoExpanded(row) {
+      const key = this.getMerchantRowKey(row);
+      if (!key) return false;
+      return !!this.accountInfoExpandMap[key];
+    },
+    isIpInfoExpanded(row) {
+      const key = this.getMerchantRowKey(row);
+      if (!key) return false;
+      return !!this.ipInfoExpandMap[key];
+    },
+    getVisibleBalanceEntries(row) {
+      const entries = this.getBalanceEntries(row?.balanceInfo);
+      if (entries.length <= 1 || this.isAccountInfoExpanded(row)) {
+        return entries;
+      }
+      return entries.slice(0, 1);
+    },
+    hasMoreBalanceEntries(row) {
+      const entries = this.getBalanceEntries(row?.balanceInfo);
+      return entries.length > 1 && !this.isAccountInfoExpanded(row);
+    },
+    expandAccountInfo(row) {
+      const key = this.getMerchantRowKey(row);
+      if (!key) return;
+      this.accountInfoExpandMap = {
+        [key]: true
+      };
+    },
+    getIpCards(row) {
+      return [
+        {
+          key: 'login-withdraw',
+          title: this.$t('merchantInfo.ip.loginWithdraw'),
+          lines: [
+            {
+              key: 'login',
+              label: this.$t('merchantInfo.ip.login'),
+              values: this.formatIpLines(row?.loginIps)
+            },
+            {
+              key: 'withdraw',
+              label: this.$t('merchantInfo.ip.withdraw'),
+              values: this.formatIpLines(row?.withdrawalIps)
+            }
+          ]
+        },
+        {
+          key: 'paying',
+          title: this.$t('merchantInfo.ip.paying'),
+          lines: [
+            {
+              key: 'paying',
+              label: '',
+              values: this.formatIpLines(row?.payWhiteIps)
+            }
+          ]
+        },
+        {
+          key: 'collecting',
+          title: this.$t('merchantInfo.ip.collecting'),
+          lines: [
+            {
+              key: 'collecting',
+              label: '',
+              values: this.formatIpLines(row?.colWhiteIps)
+            }
+          ]
+        }
+      ];
+    },
+    getVisibleIpCards(row) {
+      const cards = this.getIpCards(row);
+      if (cards.length <= 1 || this.isIpInfoExpanded(row)) {
+        return cards;
+      }
+      return cards.slice(0, 1);
+    },
+    hasMoreIpCards(row) {
+      const cards = this.getIpCards(row);
+      return cards.length > 1 && !this.isIpInfoExpanded(row);
+    },
+    expandIpInfo(row) {
+      const key = this.getMerchantRowKey(row);
+      if (!key) return;
+      this.ipInfoExpandMap = {
+        [key]: true
+      };
+    },
+    maskSecret(value) {
+      const str = String(value || '').trim();
+      if (!str) return '-';
+      if (str.length <= 8) return '****';
+      return `${str.slice(0, 4)}****${str.slice(-4)}`;
+    },
+    showPlainSecret(row) {
+      this.pendingPlainMerchantAccount = row?.accountName || '';
+      this.pendingPlainMerchantName = row?.merchantName || '';
+      this.pendingPlainKeyUserId = row?.userId || '';
+      this.plainKeyAction = 'view';
+      this.plainKeyVerifyForm.password = '';
+      this.plainKeyVerifyForm.googleCode = '';
+      this.plainKeyVerifyVisible = true;
+    },
+    showResetSignKey(row) {
+      this.pendingPlainMerchantAccount = row?.accountName || '';
+      this.pendingPlainMerchantName = row?.merchantName || '';
+      this.pendingPlainKeyUserId = row?.userId || '';
+      this.plainKeyAction = 'resetSignKey';
+      this.plainKeyVerifyForm.password = '';
+      this.plainKeyVerifyForm.googleCode = '';
+      this.plainKeyVerifyVisible = true;
+    },
+    cancelPlainKeyVerify() {
+      this.plainKeyVerifyVisible = false;
+      this.plainKeyVerifyForm.password = '';
+      this.plainKeyVerifyForm.googleCode = '';
+      this.plainKeyAction = 'view';
+      this.pendingPlainMerchantAccount = '';
+      this.pendingPlainMerchantName = '';
+      this.pendingPlainKeyUserId = '';
+    },
+    submitPlainKeyVerify() {
+      if (!this.plainKeyVerifyForm.googleCode) {
+        this.$message({
+          type: 'error',
+          message: this.$t('common.googleCodeRequired')
+        });
+        return;
+      }
+      if (!this.isAdmin && !this.plainKeyVerifyForm.password) {
+        this.$message({
+          type: 'error',
+          message: this.$t('merchantInfo.validation.passwordRequired')
+        });
+        return;
+      }
+      const payload = {
+        merchantUserId: this.pendingPlainKeyUserId,
+        googleCode: this.plainKeyVerifyForm.googleCode
+      };
+      if (!this.isAdmin) {
+        payload.password = this.plainKeyVerifyForm.password;
+      }
+      const request = this.plainKeyAction === 'resetSignKey'
+        ? resetMerchantSignKey(payload)
+        : queryMerchantSecretKey(payload);
+      request.then(res => {
+        if (res.status === 200 && res.data.code === 0) {
+          if (this.plainKeyAction === 'resetSignKey') {
+            let signKey = '';
+            try {
+              const data = typeof res.data.data === 'string' ? JSON.parse(res.data.data) : res.data.data;
+              signKey = (data && (data.signKey || data.sign_key || data.merchantSignKey)) || '';
+            } catch (e) {
+              signKey = String(res.data.data || '');
+            }
+            this.$alert(`signKey: ${signKey || '-'}`, this.$t('merchantInfo.dialog.signKeyResetTitle'), {
+              confirmButtonText: this.$t('common.confirm'),
+              dangerouslyUseHTMLString: true
+            }).then(() => {
+              this.search();
+            });
+            this.$notify({
+              title: this.$t('common.success'),
+              type: 'success',
+              message: this.$t('merchantInfo.message.resetSignKeySuccess'),
+              duration: 3000,
+              position: 'bottom-right'
+            });
+            this.cancelPlainKeyVerify();
+            return;
+          }
+          let apiKey = '';
+          let signKey = '';
+          try {
+            const data = typeof res.data.data === 'string' ? JSON.parse(res.data.data) : res.data.data;
+            apiKey = (data && (data.apiKey || data.api_key || data.merchantApiKey)) || '';
+            signKey = (data && (data.signKey || data.sign_key || data.merchantSignKey)) || '';
+          } catch (e) {
+            const raw = String(res.data.data || '');
+            apiKey = raw;
+            signKey = '';
+          }
+          const plainHtml = `apiKey: ${apiKey || '-'}<br/>signKey: ${signKey || '-'}`
+          this.$alert(plainHtml, this.$t('merchantInfo.dialog.merchantKeyPlainTitle'), {
+            confirmButtonText: this.$t('common.confirm'),
+            dangerouslyUseHTMLString: true
+          });
+          this.cancelPlainKeyVerify();
+          return;
+        }
+        this.$notify({
+          title: this.$t('common.error'),
+          type: 'error',
+          message: res?.data?.message || this.$t('common.requestFailed'),
+          duration: 3000,
+          position: 'bottom-right'
+        });
+      }).catch(() => {
+        this.$notify({
+          title: this.$t('common.error'),
+          type: 'error',
+          message: this.$t('common.requestFailed'),
+          duration: 3000,
+          position: 'bottom-right'
+        });
+      });
+    },
     formatRatePair(fixedFee, rate) {
       const fixedEmpty = fixedFee === null || fixedFee === undefined || fixedFee === '';
       const rateEmpty = rate === null || rate === undefined || rate === '';
@@ -1577,6 +1860,8 @@ export default {
           this.pageSize = all.pageSize
           this.totalCount = all.totalNumber
           const allList = all.merchantInfoDtoList
+          this.accountInfoExpandMap = {}
+          this.ipInfoExpandMap = {}
           this.merchantInfoFormData = null;
           this.merchantInfoFormData = Object.assign([], allList)
           if(!this.isAdmin && allList.length > 0) {
@@ -1612,15 +1897,11 @@ export default {
       this.handleCurrentChange()
     },
     formatTimeByZone(ts) {
-      const match = /UTC([+-])(\d{1,2})(?::(\d{2}))?/.exec(this.timeZoneKey);
       const baseMillis = ts * 1000;
-      if (!match) {
+      const offsetMinutes = getTimeZoneOffsetMinutes(this.timeZoneKey, baseMillis);
+      if (offsetMinutes === null) {
         return getFormateDate(ts);
       }
-      const sign = match[1] === "-" ? -1 : 1;
-      const hours = Number(match[2]);
-      const minutes = Number(match[3] || "0");
-      const offsetMinutes = sign * (hours * 60 + minutes);
       const zoned = new Date(baseMillis + offsetMinutes * 60000);
       const year = zoned.getFullYear();
       const month = String(zoned.getMonth() + 1).padStart(2, '0');
@@ -1971,6 +2252,26 @@ export default {
     margin-bottom: 8px;
   }
 
+  .account-info-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background-color: #eef2ff;
+    color: #1f2937;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    width: fit-content;
+    margin: 0 auto;
+  }
+
+  .account-info-more-icon{
+    color: #1f2937;
+    font-size: 14px;
+  }
+
   .agent-info-card{
     margin-top: 6px;
     border-radius: 6px;
@@ -2068,6 +2369,59 @@ export default {
 
   .account-frozen{
     background-color: #f0f2f5;
+  }
+
+  .secret-cell{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .secret-row{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .secret-label{
+    color: #374151;
+    min-width: 56px;
+    font-weight: 600;
+  }
+
+  .secret-value{
+    color: #111827;
+    flex: 1;
+    word-break: break-all;
+  }
+
+  .merchant-basic-cell{
+    text-align: left;
+    line-height: 1.6;
+    padding: 0 6px;
+    word-break: normal;
+  }
+
+  .merchant-basic-row{
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-top: 4px;
+  }
+
+  .merchant-basic-account{
+    background-color: #e8f2ff;
+  }
+
+  .merchant-basic-name{
+    background-color: #e9f6ee;
+  }
+
+  .merchant-basic-code{
+    background-color: #f0f2f5;
+    white-space: nowrap;
   }
 
   :deep(.el-switch.is-disabled .el-switch__core){

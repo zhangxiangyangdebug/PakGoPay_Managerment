@@ -32,31 +32,32 @@ import {getTimeFromTimestamp} from "@/api/common.js";
               </el-button>
             </div>
           </div>
-          <div class="main-toolform-item" style="margin-right: 3%;">
+          <div class="main-toolform-item merchant-statement-toolform-item">
 <!--            <el-form
                 ref="filterboxForm" class="form" :model="filterbox"
                 style="width: 100%"
             >-->
               <el-row class="merchant-statement-filter-row">
-                <el-col :span="6">
-                  <el-form-item :label="$t('merchantStatement.filter.merchantName')" label-width="150px" prop="merchantAgentId">
+                <el-col class="merchant-statement-col">
+                  <el-form-item :label="$t('merchantStatement.filter.merchantName')" label-width="90px" prop="merchantAgentId">
                     <el-select
                         :options="merchantAccountOptions"
                         :props="merchantAccountProps"
                         v-model="filterbox.merchantAgentId"
                         class="merchant-statement-filter-input"
-                        clearable
+                        :clearable="roleName !== 'merchant'"
                         filterable
+                        :disabled="roleName === 'merchant'"
                     ></el-select>
                   </el-form-item>
                 </el-col>
-                <el-col :span="6">
-                  <el-form-item :label="$t('merchantStatement.filter.orderId')" label-width="150px" prop="id">
+                <el-col class="merchant-statement-col">
+                  <el-form-item :label="$t('merchantStatement.filter.orderId')" label-width="90px" prop="id">
                     <el-input v-model="filterbox.id" class="merchant-statement-filter-input" clearable/>
                   </el-form-item>
                 </el-col>
-                <el-col :span="6">
-                  <el-form-item :label="$t('merchantStatement.filter.transactionType')" label-width="150px" prop="orderType">
+                <el-col class="merchant-statement-col">
+                  <el-form-item :label="$t('merchantStatement.filter.transactionType')" label-width="90px" prop="orderType">
                     <el-select
                         v-model="filterbox.orderType"
                         class="merchant-statement-filter-input"
@@ -68,20 +69,16 @@ import {getTimeFromTimestamp} from "@/api/common.js";
                     </el-select>
                   </el-form-item>
                 </el-col>
-                <el-col :span="6">
-                  <el-form-item :label="$t('merchantStatement.filter.time')" label-width="150px" prop="filterDateRange">
-                    <el-date-picker
+                <el-col class="merchant-statement-time-col">
+                  <el-form-item :label="$t('merchantStatement.filter.time')" label-width="90px" prop="filterDateRange">
+                    <DateTimeRangeSplit
                         v-model="filterbox.filterDateRange"
-                        type="daterange"
-                        :range-separator="$t('common.rangeSeparator')"
-                        :start-placeholder="$t('common.startDate')"
-                        :end-placeholder="$t('common.endDate')"
+                        picker-type="date"
                         format="YYYY/MM/DD"
                         value-format="x"
-                        clearable
-                        class="merchant-statement-filter-input"
-                    >
-                    </el-date-picker>
+                        :clearable="true"
+                        picker-width="140px"
+                    />
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -130,6 +127,16 @@ import {getTimeFromTimestamp} from "@/api/common.js";
             {{transactionTypeLabel(row.orderType)}}
           </div>
         </el-table-column>
+        <el-table-column
+            prop="status"
+            :label="$t('merchantStatement.column.status')"
+            v-slot="{row}"
+            align="center"
+        >
+          <div>
+            {{statusLabel(row.status)}}
+          </div>
+        </el-table-column>
 <!--        <el-table-column
             prop="transactionStatus"
             label="交易状态"
@@ -168,7 +175,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
             width="200px;"
         >
           <div style="width: 100%;">
-            {{row.totalBalanceBefore}}
+            {{row.availableBalanceBefore}}
           </div>
         </el-table-column>
         <el-table-column
@@ -178,7 +185,7 @@ import {getTimeFromTimestamp} from "@/api/common.js";
             align="center"
         >
           <div>
-            {{row.totalBalanceAfter}}
+            {{row.availableBalanceAfter}}
           </div>
         </el-table-column>
         <el-table-column
@@ -189,6 +196,16 @@ import {getTimeFromTimestamp} from "@/api/common.js";
         >
           <div>
             {{getTimeFromTimestamp(row.createTime)}}
+          </div>
+        </el-table-column>
+        <el-table-column
+            prop="requestIp"
+            :label="$t('merchantStatement.column.requestIp')"
+            v-slot="{row}"
+            align="center"
+        >
+          <div>
+            {{row.requestIp}}
           </div>
         </el-table-column>
         <el-table-column
@@ -252,6 +269,7 @@ export default {
       filterForm: {
 
       },
+      roleName: '',
       merchantStatementsFormData:[
 
       ],
@@ -277,6 +295,18 @@ export default {
       }
       if (type === 3 || type === '3') {
         return this.$t('merchantStatement.transactionType.manualReconcile')
+      }
+      return '-'
+    },
+    statusLabel(status) {
+      if (status === 0 || status === '0') {
+        return this.$t('merchantStatement.status.pendingApproval')
+      }
+      if (status === 1 || status === '1') {
+        return this.$t('merchantStatement.status.success')
+      }
+      if (status === 2 || status === '2') {
+        return this.$t('merchantStatement.status.failed')
       }
       return '-'
     },
@@ -333,6 +363,18 @@ export default {
     }
   },
   mounted() {
+    this.roleName = localStorage.getItem('roleName') || ''
+    const currentUserId = localStorage.getItem('userId') || ''
+    const currentUserName = localStorage.getItem('userName') || ''
+    if (this.roleName === 'merchant') {
+      this.filterbox.merchantAgentId = currentUserId
+      this.merchantAccountOptions = [{
+        userId: currentUserId,
+        accountName: currentUserName
+      }]
+      this.search()
+      return
+    }
     getMerchantInfo({pageSize: 1000}).then(response => {
       if (response.status === 200 && response.data.code === 0) {
          this.merchantAccountOptions = JSON.parse(response.data.data).merchantInfoDtoList;
@@ -346,19 +388,54 @@ export default {
 <style scoped>
 @import "@/assets/base.css";
 .main-toolform-line {
-  margin-right: 3%;
+  margin-right: 0;
 }
 
 .main-toolform-line input{
   width: 200px;
 }
 
+.merchant-statement-toolform-item{
+  margin-right: 0;
+}
+
 .merchant-statement-filter-row{
   width: 100%;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+}
+
+.merchant-statement-col{
+  flex: 0 0 290px;
+  max-width: 290px;
+}
+
+.merchant-statement-time-col{
+  flex: 0 0 388px;
+  max-width: 388px;
+}
+
+.merchant-statement-time-col :deep(.el-form-item){
+  width: 388px;
+  margin-left: 0;
 }
 
 .merchant-statement-filter-input{
-  width: 100%;
+  width: 200px !important;
+  max-width: 200px;
+}
+
+:deep(.merchant-statement-filter-input.el-date-editor.el-range-editor){
+  width: 200px !important;
+  min-width: 200px !important;
+}
+
+.main-toolbar{
+  overflow-x: hidden;
 }
 
 .merchant-statement-report{
